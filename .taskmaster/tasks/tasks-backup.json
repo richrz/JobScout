@@ -1,0 +1,853 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup VPS Infrastructure & Next.js Foundation",
+        "description": "Provision Ubuntu 22.04 VPS, install Docker/Docker Compose, scaffold Next.js 14+ with TypeScript, App Router, Tailwind CSS, and initialize shadcn/ui component library",
+        "details": "Execute on VPS: `sudo apt update && sudo apt install -y docker.io docker-compose git`. Create Next.js project: `npx create-next-app@latest jobhunt-app --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\"`. Install dependencies: `npm install @prisma/client @supabase/supabase-js mapbox-gl @mapbox/mapbox-sdk openai date-fns clsx tailwind-merge`. Initialize shadcn/ui: `npx shadcn@latest init` then add components: `npx shadcn@latest add button card input form table dialog`. Create `.env.local` with `DATABASE_URL`, `NEXT_PUBLIC_MAPBOX_TOKEN`, `OPENAI_API_KEY`, `BETTER_AUTH_SECRET`. Set up project structure: `src/app/`, `src/components/`, `src/lib/`, `src/hooks/`, `prisma/`, `config.json`. Configure Tailwind with custom colors in `tailwind.config.ts`: `background: 'hsl(224 71% 4%)', foreground: 'hsl(213 31% 91%)', primary: 'hsl(262 83% 58%)'`. Add Dark Mode support with `next-themes` and CSS custom properties in `src/styles/globals.css`.",
+        "testStrategy": "Verify Docker installation: `docker --version` and `docker-compose --version`. Run Next.js dev server: `npm run dev` and confirm accessible at `localhost:3000`. Test shadcn/ui component rendering: create test page with Button, Card, Input components and verify styling. Validate environment variables load correctly using `z.object().parse(process.env)`. Perform mobile viewport test in Chrome DevTools for Pixel phone dimensions.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Provision Ubuntu 22.04 VPS and update system packages",
+            "description": "Connect to the VPS via SSH and run system package updates to ensure latest security patches and software versions",
+            "dependencies": [],
+            "details": "Execute `sudo apt update && sudo apt upgrade -y` on the Ubuntu 22.04 VPS. Verify system architecture is x86_64 or ARM64 compatible. Ensure at least 2GB RAM and 20GB disk space are available for the Next.js application and Docker containers.",
+            "status": "pending",
+            "testStrategy": "Verify SSH connectivity succeeds and apt commands complete without errors. Check available disk space with `df -h` and memory with `free -m`."
+          },
+          {
+            "id": 2,
+            "title": "Install Docker and Docker Compose on VPS",
+            "description": "Install Docker.io and docker-compose packages using apt package manager for containerization support",
+            "dependencies": [
+              1
+            ],
+            "details": "Run `sudo apt install -y docker.io docker-compose` to install both packages. Add current user to docker group with `sudo usermod -aG docker $USER` to avoid requiring sudo for docker commands. Start and enable Docker service with `sudo systemctl start docker && sudo systemctl enable docker`.",
+            "status": "pending",
+            "testStrategy": "Verify Docker installation: `docker --version` should return 24.x or higher. Verify docker-compose: `docker-compose --version` should return 2.x or higher. Run `docker ps` without sudo to confirm group permissions."
+          },
+          {
+            "id": 3,
+            "title": "Install Git and create project directory structure",
+            "description": "Install Git version control system and create the main project directory with proper permissions",
+            "dependencies": [
+              1
+            ],
+            "details": "Execute `sudo apt install -y git` to install Git. Create project directory with `mkdir -p ~/jobhunt-app && cd ~/jobhunt-app`. Initialize git repository with `git init`. Set directory permissions to 755 for security.",
+            "status": "pending",
+            "testStrategy": "Verify Git version with `git --version`. Confirm directory creation with `ls -la ~/jobhunt-app`. Check directory permissions are correctly set."
+          },
+          {
+            "id": 4,
+            "title": "Scaffold Next.js 14+ project with TypeScript and Tailwind",
+            "description": "Run create-next-app with all specified flags to generate the base project structure with App Router",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Execute `npx create-next-app@latest jobhunt-app --typescript --tailwind --eslint --app --src-dir --import-alias @/*` in the project directory. This creates a modern Next.js 14+ application with TypeScript, Tailwind CSS, ESLint, App Router, src directory structure, and path aliasing configured.",
+            "status": "pending",
+            "testStrategy": "Verify project creation by checking package.json contains Next.js 14+ and TypeScript. Run `npm run dev` and confirm server starts on port 3000. Access localhost:3000 to see default Next.js page."
+          },
+          {
+            "id": 5,
+            "title": "Install additional core dependencies",
+            "description": "Install Prisma client, Supabase SDK, Mapbox GL, OpenAI SDK, date-fns, and utility packages for tailwind merging",
+            "dependencies": [
+              4
+            ],
+            "details": "Run `npm install @prisma/client @supabase/supabase-js mapbox-gl @mapbox/mapbox-sdk openai date-fns clsx tailwind-merge` in the project root. These packages provide database access, geolocation services, AI integration, date utilities, and CSS class management.",
+            "status": "pending",
+            "testStrategy": "Verify all packages appear in package.json dependencies. Check node_modules directory contains each installed package. Import each package in a test file to ensure no errors."
+          },
+          {
+            "id": 6,
+            "title": "Initialize shadcn/ui and add base components",
+            "description": "Set up shadcn/ui component library and install the specified UI components for consistent design system",
+            "dependencies": [
+              4
+            ],
+            "details": "First run `npx shadcn@latest init` with default settings for TypeScript and App Router. Then execute `npx shadcn@latest add button card input form table dialog` to install the core interactive components. This creates reusable, accessible UI components in src/components/ui/.",
+            "status": "pending",
+            "testStrategy": "Verify components directory exists at src/components/ui/. Create a test page importing each component and render them to confirm styling and functionality. Check that components use correct CSS classes from Tailwind."
+          },
+          {
+            "id": 7,
+            "title": "Create environment configuration file",
+            "description": "Create .env.local file with all required environment variables for database, Mapbox, OpenAI, and authentication",
+            "dependencies": [
+              4
+            ],
+            "details": "Create .env.local in project root with variables: DATABASE_URL=postgresql://user:pass@host:5432/db, NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token, OPENAI_API_KEY=your_openai_key, BETTER_AUTH_SECRET=your_auth_secret. Add placeholders for GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET for future OAuth setup.",
+            "status": "pending",
+            "testStrategy": "Verify file creation with `ls -la .env.local`. Test variable loading by creating a test route that reads process.env variables. Ensure NEXT_PUBLIC_ prefix works in client components."
+          },
+          {
+            "id": 8,
+            "title": "Configure Tailwind CSS and dark mode theming",
+            "description": "Update tailwind.config.ts with custom color palette and implement dark mode support using next-themes",
+            "dependencies": [
+              4,
+              6
+            ],
+            "details": "Modify tailwind.config.ts to add custom colors: background: 'hsl(224 71% 4%)', foreground: 'hsl(213 31% 91%)', primary: 'hsl(262 83% 58%)'. Install next-themes with `npm install next-themes`. Update src/styles/globals.css with CSS custom properties for both light and dark themes. Wrap root layout with ThemeProvider.",
+            "status": "pending",
+            "testStrategy": "Verify Tailwind config by using custom colors in a component. Test dark mode toggle by creating a theme switcher button. Take screenshots in both modes to confirm color changes. Check CSS custom properties are applied correctly."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Build Configuration Loader & Database Schema",
+        "description": "Create type-safe JSON configuration loader with Zod validation for all search parameters, and define Prisma schema for PostgreSQL database with Supabase",
+        "details": "Create `src/lib/config.ts`: `import configData from '../../config.json'` and define Zod schema matching PRD structure: `cities: z.array(z.object({name: z.string(), radius_miles: z.number(), weight: z.number()}))`, `categories`, `salary_usd`, `include_keywords`, `exclude_keywords`, `posted_within_hours`, `max_results_per_city`, `ai_exaggeration_levels: z.enum(['Conservative', 'Balanced', 'Strategic'])`. Export `getConfig()` function with type `Config`. Create `prisma/schema.prisma`: define `model User { id email name createdAt profile Profile? applications Application[] }`, `model Profile { id userId user User workHistory Json skills String[] }`, `model Job { id title company location latitude longitude description salary postedAt source url cityWeight category categoryWeight sourceWeight compositeScore createdAt }`, `model Application { id userId user User jobId job Job status resumePath createdAt appliedAt }`. Run `prisma generate` and `prisma migrate dev --name init`. Create Supabase project at supabase.com, get connection string, add to `.env.local` as `DATABASE_URL=\"postgresql://...\"`. Create `src/lib/prisma.ts` with singleton PrismaClient instance.",
+        "testStrategy": "Unit test config loader: `npm install -D jest @types/jest` and create `config.test.ts` to validate all config.json fields against Zod schema. Test database connection: `npx prisma db push` and verify tables created in Supabase dashboard. Create integration test to insert mock job data and query with Prisma. Validate compositeScore calculation logic in n8n workflow matches Prisma schema.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Install and initialize Prisma with Zod validation",
+            "description": "Install required npm packages (prisma, @prisma/client, zod) and initialize Prisma in the project structure",
+            "dependencies": [],
+            "details": "Run `npm install prisma @prisma/client zod` and then `npx prisma init` to create the initial Prisma directory structure and schema file. This establishes the foundation for database modeling and type-safe configuration validation.",
+            "status": "pending",
+            "testStrategy": "Verify installation by checking package.json dependencies and confirm prisma/schema.prisma file exists"
+          },
+          {
+            "id": 2,
+            "title": "Create type-safe JSON configuration loader with Zod",
+            "description": "Build src/lib/config.ts that imports config.json and validates all search parameters using Zod schema",
+            "dependencies": [
+              1
+            ],
+            "details": "Create src/lib/config.ts importing configData from '../../config.json'. Define comprehensive Zod schema with cities array (name, radius_miles, weight), categories, salary_usd, include_keywords, exclude_keywords, posted_within_hours, max_results_per_city, and ai_exaggeration_levels enum. Export getConfig() function returning typed Config object.",
+            "status": "pending",
+            "testStrategy": "Unit test with Jest: create config.test.ts to validate sample config.json against Zod schema, testing all field types and enum values"
+          },
+          {
+            "id": 3,
+            "title": "Define complete Prisma database schema for all models",
+            "description": "Create prisma/schema.prisma with User, Profile, Job, and Application models including all fields, relationships, and indexes",
+            "dependencies": [
+              1
+            ],
+            "details": "Define model User with id, email, name, createdAt, profile relation, and applications array. Define model Profile with id, userId, user relation, workHistory Json field, and skills String array. Define model Job with all specified fields including location coordinates, scoring fields, and timestamps. Define model Application with status tracking and relations.",
+            "status": "pending",
+            "testStrategy": "Run `prisma validate` to verify schema syntax and `prisma format` to ensure consistent formatting. Review generated ER diagram"
+          },
+          {
+            "id": 4,
+            "title": "Set up Supabase project and environment configuration",
+            "description": "Create new Supabase project, retrieve PostgreSQL connection string, and configure .env.local with DATABASE_URL",
+            "dependencies": [
+              3
+            ],
+            "details": "Sign in to supabase.com, create new project for the application. Navigate to project settings to obtain the full PostgreSQL connection string. Create .env.local file in project root and add DATABASE_URL=\"postgresql://...\" with the Supabase connection details.",
+            "status": "pending",
+            "testStrategy": "Test connection using `prisma db pull` to introspect database and verify connectivity. Check Supabase dashboard for project status"
+          },
+          {
+            "id": 5,
+            "title": "Generate Prisma client and run initial database migration",
+            "description": "Execute prisma generate to create TypeScript client and run prisma migrate dev to create initial database schema",
+            "dependencies": [
+              4
+            ],
+            "details": "Run `prisma generate` to generate the Prisma Client TypeScript types and query engine. Then execute `prisma migrate dev --name init` to create and apply the initial migration that creates all tables, indexes, and relationships in the Supabase PostgreSQL database.",
+            "status": "pending",
+            "testStrategy": "Verify migration by checking Supabase dashboard SQL editor for created tables. Run `prisma migrate status` to confirm migration history"
+          },
+          {
+            "id": 6,
+            "title": "Create Prisma client singleton instance for application",
+            "description": "Build src/lib/prisma.ts implementing singleton pattern to ensure single PrismaClient instance across the application",
+            "dependencies": [
+              5
+            ],
+            "details": "Create src/lib/prisma.ts that instantiates PrismaClient once with proper configuration. Implement singleton pattern to prevent multiple connections in development hot-reloading. Export the prisma instance for use throughout the application. Handle global type declarations for Next.js hot reloading compatibility.",
+            "status": "pending",
+            "testStrategy": "Integration test: import prisma instance in multiple modules and verify they reference the same connection. Check connection pool in Supabase logs"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Implement n8n Job Scraping Automation",
+        "description": "Build n8n workflow automation to scrape job postings from Indeed, LinkedIn, and company career pages with 72-hour filter, geocoding, distance calculation, and composite scoring",
+        "details": "Add n8n service to `docker-compose.yml`: `image: docker.n8n.io/n8nio/n8n, ports: [\"5678:5678\"], environment: [N8N_BASIC_AUTH_ACTIVE=true, N8N_BASIC_AUTH_USER=admin, N8N_BASIC_AUTH_PASSWORD=secure-pass], volumes: [~/.n8n:/home/node/.n8n]`. Access n8n at `vps-ip:5678`. Create workflow: Trigger (Schedule: every 6 hours) → HTTP Request Node (Indeed RSS feed: `https://rss.indeed.com/rss?q=keywords&l=city&radius=35`) → HTTP Request Node (LinkedIn Jobs API via scraping) → HTTP Request Node (Company boards list) → Function Node (Filter by `posted_within_hours: 72` using date-fns) → Function Node (Geocode locations using Mapbox Geocoding API: `https://api.mapbox.com/geocoding/v5/mapbox.places/${city}.json`) → Function Node (Calculate distance from city center, filter >35mi) → Function Node (Calculate compositeScore: `cityWeight * 0.4 + categoryWeight * 0.4 + sourceWeight * 0.2`) → PostgreSQL Node (Insert into `Job` table with `ON CONFLICT DO NOTHING`). Create separate workflow for each of 4 cities. Store Mapbox token in n8n credentials. Set `max_results_per_city: 50` in Function Node.",
+        "testStrategy": "Manual workflow execution: trigger n8n workflow manually and verify jobs inserted into Supabase. Check logs for HTTP request success/failure. Validate geocoding: verify `latitude` and `longitude` fields populated. Test distance filter: insert mock job at 40mi distance and confirm filtered out. Verify compositeScore calculation: check score matches expected weights. Run cron schedule test: wait 6 hours and confirm auto-execution. Perform data quality test: verify no duplicate jobs, all required fields populated.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Add n8n service configuration to docker-compose.yml",
+            "description": "Configure and deploy n8n service with authentication, port mapping, and volume mounts as specified in the task details.",
+            "dependencies": [],
+            "details": "Add n8n service to docker-compose.yml with image: docker.n8n.io/n8nio/n8n, ports: ['5678:5678'], environment: [N8N_BASIC_AUTH_ACTIVE=true, N8N_BASIC_AUTH_USER=admin, N8N_BASIC_AUTH_PASSWORD=secure-pass], volumes: [~/.n8n:/home/node/.n8n]. Run docker-compose up -d to deploy and verify service starts without errors.",
+            "status": "pending",
+            "testStrategy": "Verify n8n is accessible at vps-ip:5678 and login works with configured credentials. Check Docker logs for successful startup."
+          },
+          {
+            "id": 2,
+            "title": "Set up Mapbox API credentials in n8n",
+            "description": "Store Mapbox Geocoding API token in n8n credentials manager for secure access across workflows.",
+            "dependencies": [
+              1
+            ],
+            "details": "Access n8n credentials manager at vps-ip:5678, create new credential of type 'HTTP Header Auth' or 'Generic API Key', name it 'Mapbox Geocoding API', and securely store the Mapbox access token. Configure credential to be accessible by all workflow executions for geocoding operations.",
+            "status": "pending",
+            "testStrategy": "Create test workflow that uses the credential to make a sample geocoding request to https://api.mapbox.com/geocoding/v5/mapbox.places/test.json and verify successful response with coordinates."
+          },
+          {
+            "id": 3,
+            "title": "Create base workflow template with trigger and database nodes",
+            "description": "Set up the foundational n8n workflow structure including schedule trigger and PostgreSQL insertion node for the Job table.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create new workflow in n8n. Add Schedule Trigger node configured to run every 6 hours using cron expression. Add PostgreSQL node configured to connect to Supabase PostgreSQL database with INSERT query for Job table including all fields and ON CONFLICT DO NOTHING clause. Set up connection parameters with host, port, database, username, and password from environment variables.",
+            "status": "pending",
+            "testStrategy": "Manually trigger workflow and verify database connection succeeds without errors. Test INSERT query with mock job data and verify ON CONFLICT DO NOTHING behavior works correctly."
+          },
+          {
+            "id": 4,
+            "title": "Implement Indeed RSS feed HTTP request node",
+            "description": "Create HTTP Request node to fetch job postings from Indeed RSS feed with dynamic city and keyword parameters.",
+            "dependencies": [
+              3
+            ],
+            "details": "Add HTTP Request node to workflow configured for GET request to https://rss.indeed.com/rss?q=keywords&l=city&radius=35. Configure query parameters to use city name and search keywords from workflow data. Set up XML parsing using built-in n8n XML parser to extract job details including title, company, location, posting date, and job URL. Handle pagination if needed.",
+            "status": "pending",
+            "testStrategy": "Test with sample city parameter like 'Austin, TX', verify XML response is parsed correctly and job data is extracted with all required fields. Validate at least 10 jobs are returned when available."
+          },
+          {
+            "id": 5,
+            "title": "Implement LinkedIn and company boards HTTP request nodes",
+            "description": "Add HTTP Request nodes to scrape LinkedIn Jobs API and company career pages using configured search parameters.",
+            "dependencies": [
+              4
+            ],
+            "details": "Add HTTP Request node for LinkedIn Jobs API scraping using search URL with custom headers including User-Agent. Add another HTTP Request node for company career pages list from predefined configuration. Configure both nodes to extract job postings within the last 72 hours. Implement error handling for rate limiting (429 status) and failed requests. Parse JSON/HTML responses to extract standardized job fields.",
+            "status": "pending",
+            "testStrategy": "Execute nodes individually with test parameters, verify successful data extraction and proper handling of empty results or errors. Check that rate limiting is detected and handled gracefully."
+          },
+          {
+            "id": 6,
+            "title": "Build data processing Function nodes for filtering and scoring",
+            "description": "Create JavaScript Function nodes to filter jobs by date, geocode locations, calculate distances, and compute composite scores.",
+            "dependencies": [
+              5,
+              2
+            ],
+            "details": "Create Function Node 1: Filter jobs by posted_within_hours: 72 using date-fns library. Function Node 2: Geocode job locations using Mapbox Geocoding API with stored credential, extract latitude/longitude. Function Node 3: Calculate distance from city center using Haversine formula and filter jobs >35mi. Function Node 4: Calculate compositeScore using formula: cityWeight * 0.4 + categoryWeight * 0.4 + sourceWeight * 0.2. Pass processed data to PostgreSQL node.",
+            "status": "pending",
+            "testStrategy": "Test each function node with sample data: verify date filtering removes old jobs, confirm geocoding returns accurate lat/lng, validate distance calculations filter jobs at 40mi, and check composite score matches manual calculation."
+          },
+          {
+            "id": 7,
+            "title": "Clone workflows for remaining cities and set result limits",
+            "description": "Duplicate the base workflow for all 4 target cities and configure max_results_per_city: 50 parameter in the processing nodes.",
+            "dependencies": [
+              6
+            ],
+            "details": "Duplicate the completed workflow 3 times for the remaining cities. Update each workflow's city parameter in HTTP Request nodes and city center coordinates for distance calculations. Add logic in Function nodes to enforce max_results_per_city: 50 limit by tracking processed jobs. Activate all 4 workflows and verify they appear in the workflows list with active status.",
+            "status": "pending",
+            "testStrategy": "Manually trigger each city workflow, verify jobs are scraped for correct city, limit is enforced at 50 jobs maximum, and data is inserted into database properly. Check workflow execution history for all 4 cities."
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Integrate Interactive Mapbox Map",
+        "description": "Create React client components for Mapbox GL JS map displaying job locations with markers, heatmaps for density visualization, clickable popups, and dark mode styling",
+        "details": "Create `src/components/job-map.tsx`: `'use client'` component that accepts `jobs: Job[]` prop. Initialize Mapbox: `mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!`. Create map instance: `new mapboxgl.Map({container: mapContainer.current, style: 'mapbox://styles/mapbox/dark-v11', center: [-95.7129, 37.0902], zoom: 4})`. Add navigation controls: `map.addControl(new mapboxgl.NavigationControl())`. For each job with lat/lng: `new mapboxgl.Marker({color: getScoreColor(job.compositeScore)}).setLngLat([job.longitude, job.latitude]).setPopup(new mapboxgl.Popup().setHTML(<div><h3>{job.title}</h3><p>{job.company}</p><p>Score: {job.compositeScore}</p></div>)).addTo(map)`. Create heatmap layer: `map.addLayer({id: 'job-heatmap', type: 'heatmap', source: {type: 'geojson', data: geojsonJobs}})`. Create `src/lib/map-helpers.ts` with `getScoreColor(score: number): string` returning green for >80, yellow for >60, red for <=60. Create `src/app/map/page.tsx` server component that fetches jobs: `const jobs = await prisma.job.findMany({where: {postedAt: {gte: new Date(Date.now() - 72*60*60*1000)}}})`. Pass jobs to `JobMap` client component. Add loading skeleton with `Suspense`.",
+        "testStrategy": "Visual regression test: capture screenshot of map with known job dataset and compare. Test marker interactions: click each marker and verify popup displays correct job details. Test heatmap toggle: add checkbox to show/hide heatmap layer and verify rendering. Test dark mode: confirm `dark-v11` style applied. Test mobile responsiveness: verify map resizes correctly on Pixel phone viewport. Performance test: render 200 markers and measure FPS using Chrome DevTools.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Install and configure Mapbox GL JS dependencies",
+            "description": "Install mapbox-gl library and TypeScript types, configure environment variables for Mapbox access token",
+            "dependencies": [],
+            "details": "Run `npm install mapbox-gl` and `npm install -D @types/mapbox-gl`. Add `NEXT_PUBLIC_MAPBOX_TOKEN` to `.env.local` file with valid Mapbox access token. Import Mapbox CSS in global stylesheet or component. Verify token is accessible client-side and Mapbox GL JS is properly installed before proceeding with map implementation.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Create map helper utilities for score-based styling",
+            "description": "Implement getScoreColor function and GeoJSON conversion utilities for Mapbox data sources",
+            "dependencies": [
+              1
+            ],
+            "details": "Create `src/lib/map-helpers.ts` with `getScoreColor(score: number): string` returning '#00ff00' for scores >80, '#ffff00' for >60, '#ff0000' for <=60. Add `convertJobsToGeoJSON(jobs: Job[]): GeoJSON.FeatureCollection` to transform Job[] into GeoJSON format for heatmap layer. Export both functions for use in map component and ensure proper TypeScript typing.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Build interactive JobMap client component",
+            "description": "Create React client component that initializes Mapbox map, adds navigation controls, renders job markers with score-based colors, and implements clickable popups",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/components/job-map.tsx` with 'use client' directive. Use useRef for map container DOM element. Initialize mapboxgl.Map with dark-v11 style, center [-95.7129, 37.0902], zoom 4. Add NavigationControl. Iterate through jobs with valid lat/lng, create colored markers using getScoreColor. Attach popups with job title, company, and compositeScore. Implement cleanup on component unmount to remove map instance.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Add heatmap layer for job density visualization",
+            "description": "Implement heatmap layer using GeoJSON data source to show job posting density across map regions with toggle functionality",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "In JobMap component, after map 'load' event, add heatmap layer using map.addLayer(). Create GeoJSON source from jobs array using convertJobsToGeoJSON helper. Configure heatmap paint properties including weight, intensity, color gradient, and radius. Add checkbox control to toggle heatmap visibility by setting layer opacity or removing/adding layer. Ensure heatmap updates when jobs prop changes.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Create server component for map page with job data",
+            "description": "Build Next.js server component that fetches recent jobs from database and renders JobMap client component",
+            "dependencies": [
+              3
+            ],
+            "details": "Create `src/app/map/page.tsx` as server component. Use prisma.job.findMany() to fetch jobs posted within last 72 hours (postedAt >= Date.now() - 72*60*60*1000). Filter jobs with valid latitude/longitude coordinates. Pass filtered jobs array to JobMap client component. Implement proper TypeScript interfaces for component props. Ensure page is accessible at /map route with correct Next.js app router structure.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 6,
+            "title": "Add loading states and error handling for map",
+            "description": "Create loading skeleton component for map initialization and add error handling for missing tokens or data",
+            "dependencies": [
+              3,
+              5
+            ],
+            "details": "Create `src/components/map-skeleton.tsx` with animated placeholder matching map dimensions. Wrap JobMap in Suspense boundary with skeleton fallback. Add error boundary to catch Mapbox initialization errors. Handle missing NEXT_PUBLIC_MAPBOX_TOKEN with user-friendly error message. Validate jobs array before rendering and show empty state message when no jobs available. Add try-catch around map initialization.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Build Exhaustive Profile Builder UI",
+        "description": "Create multi-step form interface for users to input comprehensive work history, skills, education, and preferences with validation and API endpoints for data persistence",
+        "details": "Create `src/components/profile-builder.tsx`: Multi-step form using `react-hook-form` and Zod validation. Steps: 1) Personal Info (name, email, location), 2) Work History (dynamic array: company, role, start/end dates, achievements, technologies), 3) Skills (multi-select with `cmdk` combobox: Azure, LIMS, Batch, Historians, PreSales, Pharma), 4) Education, 5) Preferences (salary range, remote modes). Create `src/lib/profile-schema.ts` with Zod schema: `workHistory: z.array(z.object({company: z.string(), role: z.string(), achievements: z.string().min(100)}))`. Create API route `src/app/api/profile/route.ts`: `POST` handler to save profile: `const profile = await prisma.profile.create({data: {userId: session.user.id, workHistory: JSON.stringify(body.workHistory), skills: body.skills}})`. Create `PUT` handler for updates. Add `react-textarea-autosize` for achievements field. Implement auto-save: `useEffect(() => {const timer = setTimeout(() => saveDraft(), 2000)}, [formData])`. Create `src/hooks/use-profile.ts` with SWR for data fetching: `const {data, mutate} = useSWR('/api/profile', fetcher)`.",
+        "testStrategy": "Unit test form validation: test each step with invalid data and verify error messages. Test dynamic work history: add/remove 5 entries and confirm state management. Test API routes: use `next-test-api-route-handler` to POST profile and verify database entry. Test auto-save: type in field, wait 2 seconds, refresh page and confirm draft restored. Test mobile UX: verify form is scrollable and inputs are large enough on Pixel viewport. Integration test: complete full 5-step form and verify profile created in Supabase.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Zod validation schema for profile data",
+            "description": "Define comprehensive Zod schema for profile builder including personal info, work history, skills, education, and preferences with strict validation rules",
+            "dependencies": [],
+            "details": "Create src/lib/profile-schema.ts with modular schemas: personalInfoSchema (name, email, location), workHistorySchema (z.array with company, role, start/end dates, achievements z.string().min(100), technologies array), skillsSchema (multi-select enum: Azure, LIMS, Batch, Historians, PreSales, Pharma), educationSchema (institution, degree, field, year), preferencesSchema (salary range, remote modes). Export combined profileSchema with TypeScript type inference.",
+            "status": "pending",
+            "testStrategy": "Unit test schema validation with valid/invalid data for each field, verify error messages for min length, required fields, and format validation"
+          },
+          {
+            "id": 2,
+            "title": "Create API endpoints for profile persistence",
+            "description": "Implement POST and PUT handlers in API route for creating and updating user profiles with Prisma database integration",
+            "dependencies": [
+              1
+            ],
+            "details": "Create src/app/api/profile/route.ts with POST handler: validate session, parse workHistory as JSON string, save to Prisma with userId, skills array. PUT handler: find profile by userId, update with new data, handle partial updates. Add error handling for unauthorized (401), validation (400), and server errors (500). Return serialized profile data.",
+            "status": "pending",
+            "testStrategy": "Use next-test-api-route-handler to test POST with mock session and valid data, verify Prisma create call. Test PUT with existing profile, verify update. Test error cases: missing session, invalid data, missing profile"
+          },
+          {
+            "id": 3,
+            "title": "Create custom React hook for profile data management",
+            "description": "Implement useProfile hook using SWR for fetching, caching, and mutating profile data with TypeScript support",
+            "dependencies": [
+              2
+            ],
+            "details": "Create src/hooks/use-profile.ts: import useSWR from 'swr', create fetcher function for /api/profile. Export useProfile hook returning {profile, isLoading, isError, mutate}. Add TypeScript types from profileSchema. Implement optimistic updates with mutate(data, false) for immediate UI feedback. Handle revalidation on focus and network recovery.",
+            "status": "pending",
+            "testStrategy": "Mock SWR responses with MSW, test loading state initially, test error state with 500 response, test successful data fetch, verify mutate function triggers revalidation"
+          },
+          {
+            "id": 4,
+            "title": "Implement auto-save functionality for profile form",
+            "description": "Create auto-save mechanism that triggers after user stops typing for 2 seconds with visual feedback and error handling",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Create src/lib/auto-save.ts with useAutoSave hook: use useEffect to watch formData changes, setTimeout(2000ms) to debounce, call mutate from useProfile hook to save. Add visual indicator: 'Saving...' when pending, 'Saved' on success, 'Save failed' on error. Clear timeout on unmount. Implement incremental save for large profiles.",
+            "status": "pending",
+            "testStrategy": "Test debouncing: rapid type changes should reset timer, verify API call only after 2s inactivity. Test visual indicator states. Test error handling: simulate network failure, verify error message displayed"
+          },
+          {
+            "id": 5,
+            "title": "Build multi-step profile form UI component",
+            "description": "Create comprehensive profile builder React component with 5 steps, dynamic work history, and integrated validation",
+            "dependencies": [
+              1,
+              3,
+              4
+            ],
+            "details": "Create src/components/profile-builder.tsx: use react-hook-form with zodResolver(profileSchema). Implement 5 steps with navigation: 1) Personal Info fields, 2) Work History (dynamic array with add/remove buttons, company, role, date pickers, achievements textarea with react-textarea-autosize, technologies tags), 3) Skills (cmdk combobox multi-select with search), 4) Education (dynamic list), 5) Preferences (salary range slider, remote mode checkboxes). Integrate useProfile hook for data loading and auto-save. Show step validation errors, progress bar, and summary before submit.",
+            "status": "pending",
+            "testStrategy": "Unit test each step validation: verify errors appear for invalid data. Test dynamic work history: add 3 entries, remove middle one, verify state. Test skills combobox: search, select multiple, verify tags. Test step navigation: block forward on invalid step. Test form submission with valid data"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Implement AI Resume Tailoring & PDF Generation",
+        "description": "Integrate OpenAI GPT-4o-mini API with 3-level exaggeration slider to generate tailored resumes from master profile and convert to PDF with automatic file naming",
+        "details": "Create `src/lib/openai.ts`: `const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY})`. Create `src/lib/resume-generator.ts`: `async function generateResume(job: Job, profile: Profile, exaggerationLevel: 'Conservative' | 'Balanced' | 'Strategic'): Promise<string>`. Build prompt: `You are a resume tailor. Given job description and user profile, generate a tailored resume. Exaggeration level: ${exaggerationLevel}. Conservative: strictly truthful. Balanced: slightly enhanced. Strategic: optimistically framed. Include keywords from job description. Format as professional markdown.`. Call OpenAI: `const completion = await openai.chat.completions.create({model: 'gpt-4o-mini', messages: [{role: 'system', content: prompt}, {role: 'user', content: `Job: ${job.description}\nProfile: ${JSON.stringify(profile.workHistory)}`}], temperature: exaggerationLevel === 'Conservative' ? 0.2 : 0.7})`. Create `src/lib/pdf-generator.ts`: Use `pdf-lib` to create PDF: `const pdfDoc = await PDFDocument.create(); const page = pdfDoc.addPage(); const {width, height} = page.getSize(); page.drawText(resumeMarkdown, {x: 50, y: height - 50})`. Implement file naming: `const fileName = \\",
+        "testStrategy": "Unit test prompt builder: verify prompt includes correct exaggeration level and keywords. Test OpenAI integration: mock API call and verify response parsing. Test PDF generation: generate PDF from sample markdown and verify file created with correct name. Test exaggeration levels: run same job/profile through all 3 levels and qualitatively review output differences. Performance test: measure time from request to PDF download (target <10 seconds). Security test: verify OpenAI API key not exposed in client bundle.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Setup OpenAI Client Configuration",
+            "description": "Create and configure the OpenAI client instance with API key from environment variables",
+            "dependencies": [],
+            "details": "Create src/lib/openai.ts file. Initialize OpenAI client with apiKey from process.env.OPENAI_API_KEY. Add error handling for missing API key. Export configured client instance for use in other modules.",
+            "status": "pending",
+            "testStrategy": "Unit test: verify client initialization fails with missing API key. Mock successful initialization with valid key."
+          },
+          {
+            "id": 2,
+            "title": "Create Resume Generator Core Function",
+            "description": "Implement the main generateResume async function that orchestrates AI calls and returns markdown",
+            "dependencies": [
+              1
+            ],
+            "details": "Create src/lib/resume-generator.ts. Define async function generateResume(job: Job, profile: Profile, exaggerationLevel: 'Conservative' | 'Balanced' | 'Strategic'): Promise<string>. Add input validation. Structure function to call OpenAI client and return generated markdown.",
+            "status": "pending",
+            "testStrategy": "Unit test: mock OpenAI response and verify function returns correct markdown. Test input validation with invalid parameters."
+          },
+          {
+            "id": 3,
+            "title": "Build Dynamic AI Prompt Builder",
+            "description": "Create prompt construction logic that incorporates job details, profile data, and exaggeration instructions",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement prompt builder function that takes job description, profile work history, and exaggeration level. Include system prompt: 'You are a resume tailor...'. Format user content with job and profile data. Ensure keywords from job description are included. Return structured messages array for OpenAI API.",
+            "status": "pending",
+            "testStrategy": "Unit test: verify prompt includes all required elements. Test that exaggeration level is correctly inserted. Check that job keywords are present."
+          },
+          {
+            "id": 4,
+            "title": "Implement Exaggeration Level Temperature Logic",
+            "description": "Map exaggeration levels to OpenAI temperature settings and configure API call parameters",
+            "dependencies": [
+              3
+            ],
+            "details": "Implement temperature mapping: Conservative=0.2, Balanced=0.5, Strategic=0.7. Configure OpenAI chat completions with model 'gpt-4o-mini'. Set max_tokens based on profile length. Add error handling for API failures. Implement retry logic with exponential backoff.",
+            "status": "pending",
+            "testStrategy": "Integration test: mock OpenAI API calls and verify temperature parameter matches exaggeration level. Test retry logic with simulated failures."
+          },
+          {
+            "id": 5,
+            "title": "Create PDF Generation Service",
+            "description": "Implement PDF generator using pdf-lib to convert markdown resume to properly formatted PDF document",
+            "dependencies": [
+              4
+            ],
+            "details": "Create src/lib/pdf-generator.ts. Use pdf-lib library to create PDFDocument. Add page with proper margins (50px). Implement markdown-to-text conversion (strip markdown syntax). Set font size and line spacing for readability. Handle multi-page resumes with automatic page breaks.",
+            "status": "pending",
+            "testStrategy": "Unit test: generate PDF from sample markdown and verify file creation. Check that markdown syntax is properly stripped. Validate multi-page handling."
+          },
+          {
+            "id": 6,
+            "title": "Implement Automatic File Naming System",
+            "description": "Create intelligent file naming that includes job title, company, date, and exaggeration level",
+            "dependencies": [
+              5
+            ],
+            "details": "Implement file naming function: format 'FirstName_LastName_JobTitle_Company_YYYY-MM-DD_ExaggerationLevel.pdf'. Sanitize job title and company names (remove special characters). Handle long names with truncation (max 50 chars). Ensure filename uniqueness with timestamp if needed.",
+            "status": "pending",
+            "testStrategy": "Unit test: verify filename format matches specification. Test sanitization of special characters. Test truncation logic for long names."
+          },
+          {
+            "id": 7,
+            "title": "Integrate and Test End-to-End Workflow",
+            "description": "Combine all components into a complete workflow and perform integration testing",
+            "dependencies": [
+              6
+            ],
+            "details": "Create orchestration function that calls generateResume, then pdf-generator, then returns PDF buffer and filename. Implement error handling at each step. Add logging for debugging. Create API endpoint that accepts job ID and returns generated PDF. Test full flow with sample data.",
+            "status": "pending",
+            "testStrategy": "Integration test: test complete workflow with mock job and profile data. Verify PDF is generated correctly. Test error scenarios: missing data, API failures, PDF generation errors."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Create Application Pipeline Tracker",
+        "description": "Build UI dashboard and API for managing job application states from Interested → Applied with manual entry capability and resume association",
+        "details": "Create `src/components/application-tracker.tsx`: Kanban-style board with 4 columns: \"Interested\", \"Applied\", \"Interviewing\", \"Closed\". Each card shows job title, company, compositeScore, days since created. Create `src/app/api/applications/route.ts`: `GET` handler: `const applications = await prisma.application.findMany({where: {userId: session.user.id}, include: {job: true}})`. `POST` handler for manual job entry: `const job = await prisma.job.create({data: {...manualJobData}}); const application = await prisma.application.create({data: {userId: session.user.id, jobId: job.id, status: 'interested'}})`. `PATCH` handler for status updates: `await prisma.application.update({where: {id}, data: {status: body.newStatus, appliedAt: body.newStatus === 'applied' ? new Date() : undefined}})`. Create drag-and-drop: use `@dnd-kit` library to move applications between columns. Add manual entry button: opens dialog with form for job title, company, location, salary, URL. Add resume association: dropdown to select generated resume PDF for each application. Create `src/hooks/use-applications.ts` with SWR for real-time updates. Add search/filter: input to filter by job title or company. Add analytics bar: show count of applications per status, average compositeScore, applications this week.",
+        "testStrategy": "Integration test: create job, create application, update status, verify database reflects changes. Test drag-and-drop: move card between columns and verify PATCH request sent. Test manual entry: submit form with job details and verify new job and application created. Test resume association: select PDF from dropdown and verify `resumePath` updated. Test real-time updates: open two browser windows, make change in one, verify other updates via SWR revalidation. Performance test: render 50 applications and measure render time (target <100ms).",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3,
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Prisma schema for Application and Job models",
+            "description": "Create database schema to store job applications with status tracking and resume associations",
+            "dependencies": [],
+            "details": "Define Application model with fields: id, userId, jobId, status (enum: interested, applied, interviewing, closed), appliedAt, createdAt, updatedAt, compositeScore, resumeId. Define Job model with fields: id, title, company, location, salary, url, createdAt. Add relation between Application and Job, and Application and User. Create migration and push to database.",
+            "status": "pending",
+            "testStrategy": "Run `npx prisma db push` and verify tables created. Insert mock data and query to confirm relationships work. Test enum constraints by trying invalid status values."
+          },
+          {
+            "id": 2,
+            "title": "Create API routes for application CRUD operations",
+            "description": "Implement GET, POST, and PATCH handlers in route.ts for fetching, creating, and updating applications",
+            "dependencies": [
+              1
+            ],
+            "details": "Create `src/app/api/applications/route.ts`. GET handler: fetch applications for current user with job data included. POST handler: create new job entry manually then create application with 'interested' status. PATCH handler: update application status and set appliedAt timestamp when status changes to 'applied'. Add error handling and validation. Protect routes with authentication.",
+            "status": "pending",
+            "testStrategy": "Use Next.js test API handler to test each endpoint. Verify GET returns only user's applications. Test POST with manual job data and verify both job and application created. Test PATCH status updates and appliedAt timestamp logic. Test authentication protection."
+          },
+          {
+            "id": 3,
+            "title": "Build useApplications hook with SWR for real-time data",
+            "description": "Create custom React hook using SWR for fetching, caching, and mutating application data",
+            "dependencies": [
+              2
+            ],
+            "details": "Create `src/hooks/use-applications.ts`. Use SWR to fetch from `/api/applications`. Implement functions: getApplications, createApplication(manualJobData), updateApplicationStatus(id, newStatus). Add optimistic updates for drag-and-drop. Handle loading and error states. Export hook for use in components. Configure revalidation on focus and polling interval.",
+            "status": "pending",
+            "testStrategy": "Mock API responses and test hook behavior. Verify optimistic updates work correctly. Test error handling scenarios. Test cache mutation after create/update operations. Test revalidation triggers."
+          },
+          {
+            "id": 4,
+            "title": "Develop Kanban board component with 4 status columns",
+            "description": "Build the main tracker UI showing applications in columns with card details",
+            "dependencies": [
+              3
+            ],
+            "details": "Create `src/components/application-tracker.tsx`. Implement 4 columns: Interested, Applied, Interviewing, Closed. Each card displays job title, company, compositeScore, days since created. Use shadcn/ui Card component. Style with Tailwind CSS. Add column headers with counts. Make cards responsive. Add empty state for each column. Use data from useApplications hook.",
+            "status": "pending",
+            "testStrategy": "Render component with mock data and verify all 4 columns display correctly. Test card rendering with all fields. Test days since created calculation. Test empty states. Test responsive layout on different screen sizes."
+          },
+          {
+            "id": 5,
+            "title": "Implement drag-and-drop and manual job entry functionality",
+            "description": "Add @dnd-kit for moving cards between columns and dialog form for manual entry",
+            "dependencies": [
+              4
+            ],
+            "details": "Integrate @dnd-kit library for drag-and-drop between columns. Update application status on drop with PATCH request. Add manual entry button that opens dialog with form fields: job title, company, location, salary, URL. On submit, call createApplication from hook. Add resume association dropdown to each card showing available resumes. Update resumeId on selection.",
+            "status": "pending",
+            "testStrategy": "Test drag-and-drop between all column combinations. Verify PATCH request sent on drop. Test manual entry form validation. Test successful creation of job and application. Test resume dropdown population and selection. Test error handling for failed operations."
+          },
+          {
+            "id": 6,
+            "title": "Add search/filter capabilities and analytics bar",
+            "description": "Implement search input to filter applications and analytics dashboard showing key metrics",
+            "dependencies": [
+              5
+            ],
+            "details": "Add search input to filter cards by job title or company in real-time. Create analytics bar showing: count of applications per status, average compositeScore, applications created this week. Calculate metrics using useApplications data. Add visual indicators for score ranges. Show week-over-week change indicator. Style analytics as summary cards above Kanban board.",
+            "status": "pending",
+            "testStrategy": "Test search filter with various queries. Verify case-insensitive matching. Test analytics calculations with sample data. Verify counts per status are accurate. Test average compositeScore calculation. Test week-based filtering. Test UI updates when data changes."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Setup Google OAuth with BetterAuth",
+        "description": "Configure BetterAuth authentication library with Google OAuth provider, implement session management, and protect API routes and pages",
+        "details": "Install BetterAuth: `npm install better-auth`. Create `src/lib/auth.ts`: `export const auth = betterAuth({database: prismaAdapter(prisma), socialProviders: {google: {clientId: process.env.GOOGLE_CLIENT_ID!, clientSecret: process.env.GOOGLE_CLIENT_SECRET!}}, session: {expiresIn: 60 * 60 * 24 * 7}, emailAndPassword: {enabled: false}})`. Create `src/app/api/auth/[...all]/route.ts`: `import {auth} from '@/lib/auth'; const handler = auth.handler; export {handler as GET, handler as POST}`. Add Google OAuth credentials from console.cloud.google.com to `.env.local`. Create `src/components/sign-in-button.tsx`: `'use client'` component with `signIn('google')`. Create `src/middleware.ts`: `export default auth.middleware; export const config = {matcher: ['/profile', '/applications', '/api/profile', '/api/applications']}`. Create `src/hooks/use-session.ts`: `const {data: session} = useSession()`. Protect API routes: add `const session = await auth.api.getSession({headers: request.headers}); if (!session) return new Response('Unauthorized', {status: 401})` to all protected routes. Create sign-out button: `signOut()` and redirect to `/`. Add session data to layout: show user avatar and email in header when authenticated.",
+        "testStrategy": "Test OAuth flow: click sign-in, verify redirect to Google, complete auth, verify callback to app. Test protected routes: access `/profile` without session, verify redirect to sign-in. Test API protection: call POST /api/profile without auth header, verify 401 response. Test session persistence: refresh page, verify session maintained. Test sign-out: click sign-out, verify session cleared and redirect. Security test: verify `clientSecret` not exposed in client bundle.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Install BetterAuth and configure Google OAuth provider",
+            "description": "Install the BetterAuth library via npm and create the main authentication configuration file with Google OAuth provider settings, database adapter, and session options.",
+            "dependencies": [],
+            "details": "Run `npm install better-auth` to install the library. Create `src/lib/auth.ts` with Prisma adapter configuration, Google OAuth provider using environment variables for client ID and secret, session expiration set to 7 days, and disable email/password authentication. Ensure environment variables GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are defined in `.env.local`.",
+            "status": "pending",
+            "testStrategy": "Verify installation by checking package.json for better-auth. Test configuration by importing auth object in a test file and confirming no errors."
+          },
+          {
+            "id": 2,
+            "title": "Create API route handler for authentication endpoints",
+            "description": "Set up the Next.js API route to handle all authentication requests including sign-in, sign-out, and callbacks using BetterAuth's catch-all route pattern.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create `src/app/api/auth/[...all]/route.ts` that imports the auth instance and exports GET and POST handlers. This catch-all route will handle all BetterAuth endpoints including OAuth flow, session management, and callbacks. Ensure the route follows Next.js App Router conventions and properly forwards requests to the auth handler.",
+            "status": "pending",
+            "testStrategy": "Test API route by making GET request to /api/auth/signin and verifying redirect. Check that all auth endpoints are accessible and return proper responses."
+          },
+          {
+            "id": 3,
+            "title": "Implement Google sign-in button component",
+            "description": "Create a client-side React component with Google sign-in functionality using BetterAuth's signIn method and shadcn/ui styling.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create `src/components/sign-in-button.tsx` as a client component ('use client'). Import signIn from better-auth/react. Implement button that calls signIn('google') on click. Style with shadcn/ui Button component. Add loading states and error handling. Include proper TypeScript types and accessibility attributes.",
+            "status": "pending",
+            "testStrategy": "Test component rendering and click handler. Verify redirect to Google OAuth page when clicked. Test loading state during authentication and error handling for failed attempts."
+          },
+          {
+            "id": 4,
+            "title": "Create session management hooks and utilities",
+            "description": "Develop React hooks and utility functions to access session data throughout the application for both client and server-side usage.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/hooks/use-session.ts` that exports useSession hook from better-auth/react. Create utility functions to get session server-side using auth.api.getSession. Implement session context provider if needed. Add types for session data. Create helper functions for checking authentication status and extracting user information.",
+            "status": "pending",
+            "testStrategy": "Test hook returns session data when authenticated. Verify null session when not authenticated. Test server-side session retrieval in API routes and components."
+          },
+          {
+            "id": 5,
+            "title": "Implement route protection middleware and sign-out functionality",
+            "description": "Create middleware to protect pages and API routes, plus a sign-out button component with redirect and session-aware layout updates.",
+            "dependencies": [
+              1,
+              2,
+              4
+            ],
+            "details": "Create `src/middleware.ts` that exports auth.middleware with config matcher for protected routes ['/profile', '/applications', '/api/profile', '/api/applications']. Create `src/components/sign-out-button.tsx` client component that calls signOut() and redirects to '/'. Update layout/header to conditionally show user avatar and email when session exists. Add protection logic to API routes using auth.api.getSession with 401 responses for unauthorized access.",
+            "status": "pending",
+            "testStrategy": "Test middleware redirects unauthenticated users from protected routes. Test sign-out button clears session and redirects. Test API route protection returns 401 for unauthenticated requests. Verify UI updates based on session state."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Implement Mobile Responsiveness & Dark Mode",
+        "description": "Ensure full mobile responsiveness for Pixel phone viewport, implement dark mode theme with CSS custom properties, and configure shadcn/ui theming",
+        "details": "Configure Tailwind responsive breakpoints: `screens: {sm: '640px', md: '768px', lg: '1024px', xl: '1280px'}`. Create `src/hooks/use-media-query.ts`: `const isMobile = useMediaQuery('(max-width: 768px)')`. Update all components: use `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`, text sizes `text-sm md:text-base`, padding `p-4 md:p-6`. Create `src/components/mobile-nav.tsx`: bottom navigation bar with icons for Home, Map, Profile, Applications. Create `src/providers/theme-provider.tsx`: `'use client'` with `next-themes` `ThemeProvider`. Add dark mode CSS: `:root {--background: 224 71% 4%; --foreground: 213 31% 91%} [data-theme='dark'] {--background: 224 71% 4%}`. Update `src/styles/globals.css`: `@layer base {body {@apply bg-background text-foreground}}`. Configure shadcn/ui dark mode: in `components.json` set `{",
+        "testStrategy": "Test mobile viewport: open Chrome DevTools, set device to Pixel 7 (412x915), verify no horizontal scroll, all text readable, buttons tappable (min 44x44px). Test dark mode toggle: click theme switcher, verify all components update colors instantly. Test PWA: open Lighthouse, verify PWA score >90, check manifest and service worker. Test touch interactions: verify map pan/zoom, drag-and-drop, form inputs work with touch. Performance test: run Lighthouse on mobile, verify performance score >85.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Tailwind CSS for responsive breakpoints and dark mode support",
+            "description": "Set up Tailwind configuration with custom screen sizes and enable dark mode class strategy",
+            "dependencies": [],
+            "details": "Update tailwind.config.ts with screens: {sm: '640px', md: '768px', lg: '1024px', xl: '1280px'}. Enable darkMode: 'class'. Define custom colors using CSS variables from design system. Configure content paths to include all component files and ensure proper tree-shaking.",
+            "status": "pending",
+            "testStrategy": "Verify Tailwind config compiles without errors. Check that responsive prefixes work in development by testing md: and lg: modifiers on sample elements."
+          },
+          {
+            "id": 2,
+            "title": "Create useMediaQuery hook for mobile viewport detection",
+            "description": "Implement React hook to detect mobile viewport using window.matchMedia API",
+            "dependencies": [
+              1
+            ],
+            "details": "Create src/hooks/use-media-query.ts. Implement hook that accepts media query string and returns boolean. Use useEffect to add/remove matchMedia listeners. Handle SSR by returning false initially. Add proper TypeScript types and JSDoc comments. Export isMobile helper using (max-width: 768px).",
+            "status": "pending",
+            "testStrategy": "Test hook with various viewport sizes in Chrome DevTools. Verify cleanup prevents memory leaks by checking listener removal on unmount."
+          },
+          {
+            "id": 3,
+            "title": "Implement CSS custom properties and ThemeProvider component",
+            "description": "Define dark mode CSS variables and create theme provider using next-themes",
+            "dependencies": [
+              1
+            ],
+            "details": "Update src/styles/globals.css with :root and [data-theme='dark'] variables for background, foreground, and semantic colors using HSL values. Create src/providers/theme-provider.tsx using 'use client' and next-themes ThemeProvider. Configure attribute='data-theme' and defaultTheme='system'. Apply @layer base styles to body element.",
+            "status": "pending",
+            "testStrategy": "Toggle dark mode and verify CSS variables update correctly. Check system theme detection works by changing OS preference. Verify no flash of unstyled content on page load."
+          },
+          {
+            "id": 4,
+            "title": "Build mobile navigation component with bottom bar",
+            "description": "Create responsive mobile navigation with bottom tab bar for Pixel phone viewport",
+            "dependencies": [
+              2
+            ],
+            "details": "Create src/components/mobile-nav.tsx with 'use client'. Implement bottom navigation bar fixed to viewport bottom with safe area padding. Add navigation items: Home, Map, Profile, Applications with appropriate icons from lucide-react. Ensure minimum 44x44px touch targets. Hide on desktop using hidden md:flex pattern. Add active state styling.",
+            "status": "pending",
+            "testStrategy": "Test on Pixel 7 emulator (412x915). Verify all tabs are tappable and navigation works. Check visibility on desktop vs mobile. Validate touch target sizes using Chrome DevTools."
+          },
+          {
+            "id": 5,
+            "title": "Update existing components with responsive utility classes",
+            "description": "Apply responsive grid, text, and spacing classes to all UI components",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Audit all components and update grid layouts to use grid-cols-1 md:grid-cols-2 lg:grid-cols-3. Update text sizes to use text-sm md:text-base for responsive typography. Adjust padding using p-4 md:p-6 pattern. Ensure images use responsive sizing with max-w-full. Test on actual Pixel phone viewport to eliminate horizontal scrolling.",
+            "status": "pending",
+            "testStrategy": "Open Chrome DevTools with Pixel 7 preset. Verify no horizontal scroll, readable text, and proper touch targets. Use Lighthouse mobile audit to check responsiveness score."
+          },
+          {
+            "id": 6,
+            "title": "Configure shadcn/ui theming and validate dark mode integration",
+            "description": "Update shadcn/ui configuration and test complete dark mode implementation",
+            "dependencies": [
+              3,
+              5
+            ],
+            "details": "Update components.json with tailwind.aliases and dark mode settings. Ensure all shadcn/ui components use CSS variables for theming. Test theme switching across all pages. Validate dark mode colors in Pixel phone viewport. Run Lighthouse PWA audit to verify mobile responsiveness score >90 and accessibility standards.",
+            "status": "pending",
+            "testStrategy": "Click theme toggle and verify all components update instantly. Test on mobile device. Run Lighthouse audit to confirm PWA score, mobile best practices, and color contrast in dark mode."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Dockerize & Deploy to VPS with SSL",
+        "description": "Create production-ready Docker configuration, docker-compose.yml for all services, Nginx reverse proxy setup, and Let's Encrypt SSL certificates",
+        "details": "Create `Dockerfile`: Multi-stage build: `FROM node:20-alpine AS deps`, `COPY package*.json ./`, `RUN npm ci`, `FROM deps AS builder`, `COPY . .`, `RUN npm run build`, `FROM node:20-alpine AS runner`, `COPY --from=builder /app/.next/standalone ./`, `COPY --from=builder /app/.next/static ./.next/static`, `COPY --from=builder /app/public ./public`, `CMD [\"node\", \"server.js\"]`. Create `docker-compose.yml`: `services: app: build: . ports: [\"3000:3000\"] environment: DATABASE_URL: postgresql://postgres:password@db:5432/jobhunt depends_on: [db, n8n] db: image: postgres:15-alpine environment: POSTGRES_PASSWORD: password volumes: [postgres-data:/var/lib/postgresql/data] n8n: image: docker.n8n.io/n8nio/n8n ports: [\"5678:5678\"] volumes: [~/.n8n:/home/node/.n8n] nginx: image: nginx:alpine ports: [\"80:80\", \"443:443\"] volumes: [./nginx.conf:/etc/nginx/nginx.conf, /etc/letsencrypt:/etc/letsencrypt] depends_on: [app]`. Create `nginx.conf`: `server {listen 80; server_name your-domain.com; location / {proxy_pass http://app:3000; proxy_set_header Host $host;}}`. Setup Let's Encrypt: `sudo apt install certbot python3-certbot-nginx`, `sudo certbot --nginx -d your-domain.com`. Configure auto-renewal: `sudo systemctl enable certbot.timer`. Add Tailscale for private access: `curl -fsSL https://tailscale.com/install.sh | sh`, `sudo tailscale up`. Create deploy script: `#!/bin/bash git pull docker-compose build docker-compose down docker-compose up -d`.",
+        "testStrategy": "Build test: run `docker-compose build` and verify no errors. Container test: run `docker-compose up -d` and verify all containers running: `docker ps`. Health check: curl `http://localhost:3000` and verify 200 response. SSL test: visit `https://your-domain.com` and verify valid certificate in browser. Renewal test: run `sudo certbot renew --dry-run` and verify success. Tailscale test: connect Pixel phone to Tailscale, access `http://vps-ip:3000` and verify secure access. Production smoke test: run full user flow (sign-in, search jobs, generate resume, track application) on production domain.",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2,
+          3,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create multi-stage Dockerfile for Next.js app",
+            "description": "Build optimized Dockerfile using node:20-alpine with deps, builder, and runner stages for minimal production image",
+            "dependencies": [],
+            "details": "Use three-stage build: 1) deps stage with npm ci, 2) builder stage with npm run build, 3) runner stage copying standalone output. Include proper COPY commands for .next/standalone, .next/static, and public directories. Set CMD to run server.js. Ensure minimal layers and security best practices.",
+            "status": "pending",
+            "testStrategy": "Build test: run `docker build -t test-app .` and verify image creation with no errors. Check image size < 500MB and verify all files copied correctly with `docker run --rm test-app ls -la`"
+          },
+          {
+            "id": 2,
+            "title": "Create docker-compose.yml with all services",
+            "description": "Define app, PostgreSQL, n8n, and nginx services with proper networking, volumes, and environment variables",
+            "dependencies": [
+              1
+            ],
+            "details": "Configure app service with build context, port 3000, and DATABASE_URL. Add postgres:15-alpine with password and volume. Include n8n service with docker.n8n.io image and volume. Add nginx:alpine with ports 80/443 and volumes for config and SSL certs. Set depends_on relationships and restart policies.",
+            "status": "pending",
+            "testStrategy": "Run `docker-compose config` to validate YAML syntax. Verify all service definitions are correct and environment variables are properly interpolated. Check network configuration with `docker network ls`"
+          },
+          {
+            "id": 3,
+            "title": "Create nginx reverse proxy configuration",
+            "description": "Set up nginx.conf with server block listening on port 80, proxy_pass to app:3000, and proper headers",
+            "dependencies": [],
+            "details": "Create server block for your-domain.com. Configure location / with proxy_pass http://app:3000. Add proxy_set_header directives for Host, X-Real-IP, X-Forwarded-For, and X-Forwarded-Proto. Include upstream definition for app service. Prepare SSL certificate paths for future HTTPS configuration.",
+            "status": "pending",
+            "testStrategy": "Run `nginx -t -c /path/to/nginx.conf` to test configuration syntax. Validate proxy settings by checking header forwarding with `curl -H 'Host: your-domain.com' http://localhost`"
+          },
+          {
+            "id": 4,
+            "title": "Install Certbot and generate SSL certificates",
+            "description": "Install certbot and python3-certbot-nginx, then run certbot to obtain Let's Encrypt certificates for domain",
+            "dependencies": [
+              3
+            ],
+            "details": "Execute `sudo apt install certbot python3-certbot-nginx`. Run `sudo certbot --nginx -d your-domain.com` to automatically configure SSL. Verify certificate files in /etc/letsencrypt/live/your-domain.com/. Ensure webroot is accessible for ACME challenges. Set proper file permissions on certificate directories.",
+            "status": "pending",
+            "testStrategy": "Test certificate generation: `sudo certbot certificates` should show valid certificate. Test HTTPS access with `curl -vI https://your-domain.com` and verify 200 response. Check certificate expiry with `openssl x509 -in /etc/letsencrypt/live/your-domain.com/cert.pem -noout -dates`"
+          },
+          {
+            "id": 5,
+            "title": "Setup Certbot auto-renewal with systemd timer",
+            "description": "Enable and start certbot.timer service for automatic SSL certificate renewal before expiration",
+            "dependencies": [
+              4
+            ],
+            "details": "Run `sudo systemctl enable certbot.timer` and `sudo systemctl start certbot.timer`. Verify timer status with `sudo systemctl status certbot.timer`. Add renewal hook to reload nginx: `echo 'deploy-hook = systemctl reload nginx' >> /etc/letsencrypt/cli.ini`. Configure timer to run twice daily.",
+            "status": "pending",
+            "testStrategy": "Check timer schedule: `sudo systemctl list-timers certbot.timer`. Run dry renewal: `sudo certbot renew --dry-run`. Verify nginx reload hook works by checking logs: `journalctl -u certbot`"
+          },
+          {
+            "id": 6,
+            "title": "Install Tailscale for secure private network access",
+            "description": "Install Tailscale VPN for secure administrative access to VPS without exposing management ports",
+            "dependencies": [],
+            "details": "Execute `curl -fsSL https://tailscale.com/install.sh | sh`. Run `sudo tailscale up` and authenticate with admin console. Configure Tailscale ACLs to restrict access to specific users. Enable subnet routes if needed for private network access. Disable password SSH access after verification.",
+            "status": "pending",
+            "testStrategy": "Verify Tailscale connection: `tailscale status` should show active connection. Test SSH access via Tailscale IP. Check IP forwarding: `tailscale ping <vps-tailscale-ip>`. Validate ACLs by attempting access from unauthorized devices"
+          },
+          {
+            "id": 7,
+            "title": "Create automated deployment script",
+            "description": "Write deploy.sh script that automates git pull, docker-compose build, and docker-compose up -d with error handling",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "Create bash script with set -e for error handling. Add git pull origin main. Run docker-compose build --no-cache. Execute docker-compose down gracefully. Start services with docker-compose up -d. Add health check: `docker-compose ps`. Include logging with timestamps and notification hooks for failures.",
+            "status": "pending",
+            "testStrategy": "Run script in dry-run mode with `bash -n deploy.sh`. Execute full deployment in staging environment. Verify all commands execute without errors. Check exit code is 0 on success and non-zero on failure. Monitor logs with `tail -f /var/log/deploy.log`"
+          },
+          {
+            "id": 8,
+            "title": "Execute end-to-end deployment test",
+            "description": "Run complete deployment pipeline and test all components: containers, nginx, SSL, and application health",
+            "dependencies": [
+              5,
+              6,
+              7
+            ],
+            "details": "Run deployment script. Verify all containers running: `docker ps` should show 4 containers. Test HTTP redirects to HTTPS. Check SSL certificate validity in browser. Test application health: `curl -f https://your-domain.com/api/health`. Verify n8n access via subdomain. Check database connectivity and logs.",
+            "status": "pending",
+            "testStrategy": "Integration test: `docker-compose ps` shows all services Up. SSL test: `openssl s_client -connect your-domain.com:443 -servername your-domain.com | openssl x509 -noout -dates`. Health check: HTTP 200 from application. Verify n8n at https://your-domain.com:5678. Test database: `docker-compose exec db psql -U postgres -c '\\l'`"
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-11-12T08:46:07.527Z",
+      "updated": "2025-11-12T08:46:07.527Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

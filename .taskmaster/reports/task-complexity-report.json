@@ -1,0 +1,109 @@
+{
+	"meta": {
+		"generatedAt": "2025-11-12T11:40:45.371Z",
+		"tasksAnalyzed": 12,
+		"totalTasks": 12,
+		"analysisCount": 12,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 11,
+			"taskTitle": "Initialize Next.js 14 Project with Core Dependencies and Docker Configuration",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down into: 1) Project initialization with create-next-app, 2) Core dependency installation strategy, 3) Docker Compose service configuration, 4) Multi-stage Dockerfile optimization, 5) Environment variable management system, 6) TypeScript and build configuration",
+			"reasoning": "High complexity due to multiple interconnected systems (Docker services, Next.js, TypeScript). Requires careful orchestration of dependencies, networking configuration between services, and understanding of multi-stage builds. Docker networking issues and dependency conflicts are common pitfalls. The inclusion of n8n (less common in standard stacks) adds additional complexity."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Design and Implement Prisma Database Schema with Migrations",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down into: 1) Schema design and relationship mapping, 2) Index optimization strategy, 3) Migration workflow implementation, 4) Prisma client initialization pattern",
+			"reasoning": "Moderate complexity as schema is well-defined in requirements. Main challenges involve proper relationship configuration (especially cascade deletes), index optimization for query performance, and implementing the Prisma singleton pattern correctly. The JSON fields add some complexity but are well-documented in Prisma."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "Implement Authentication System with NextAuth and Single-User Mode",
+			"complexityScore": 9,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down into: 1) NextAuth configuration with multiple providers, 2) Security implementation (JWT, CSRF, rate limiting), 3) Single-user mode bypass logic, 4) Session management strategy, 5) Authentication UI components",
+			"reasoning": "Very high complexity due to security-critical nature. Authentication systems require precise implementation to avoid vulnerabilities. The single-user mode creates an unusual authentication bypass that must be carefully isolated. Rate limiting with Redis adds infrastructure complexity. OAuth flows and JWT management have many edge cases."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "Build Multi-Step Configuration Wizard with Form Validation",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down into: 1) Zod validation schema design, 2) Wizard state management architecture, 3) Individual step component implementation, 4) Auto-save implementation strategy, 5) Progress calculation logic, 6) Data persistence mechanism",
+			"reasoning": "High complexity due to interdependent validation rules (weight sliders summing to 100%), geocoding API integration, and auto-save implementation. The wizard must maintain state across navigation while providing real-time validation feedback. The city autocomplete with Mapbox adds external API complexity."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down into: 1) Tiptap editor configuration, 2) Profile section architecture, 3) Progress calculation algorithm, 4) GPT-4 Vision resume import implementation, 5) Auto-save with debouncing strategy",
+			"reasoning": "High complexity due to rich text editor integration (Tiptap), multi-section form with different input types, and GPT-4 Vision API integration for resume parsing. The progress calculation requires weighted scoring across sections. Resume import accuracy depends on proper prompt engineering and error handling."
+		},
+		{
+			"taskId": 16,
+			"taskTitle": "Develop LLM Integration Layer with Multi-Provider Support",
+			"complexityScore": 9,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down into: 1) Provider-agnostic client interface design, 2) Individual provider adapter implementations, 3) Resume generation prompt engineering, 4) Connection testing framework, 5) Error handling and retry strategy",
+			"reasoning": "Very high complexity due to abstracting multiple LLM providers with different APIs and quirks. Prompt engineering for resume generation requires careful tuning. The exaggeration level mapping to temperature parameters adds business logic complexity. Streaming implementation for real-time updates is technically challenging."
+		},
+		{
+			"taskId": 17,
+			"taskTitle": "Build Job Aggregation System with n8n Workflows and Geocoding",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down into: 1) n8n workflow design for each source, 2) Geocoding service integration, 3) Geographic filtering implementation, 4) Composite scoring algorithm, 5) Deduplication strategy, 6) Scheduling and monitoring system",
+			"reasoning": "High complexity due to multiple scraping sources with different structures, geographic calculations (Haversine), and complex filtering logic with multiple criteria. n8n workflow configuration requires understanding of its node-based system. Deduplication with fuzzy matching adds algorithmic complexity."
+		},
+		{
+			"taskId": 18,
+			"taskTitle": "Create Interactive Map Visualization with Mapbox GL JS",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down into: 1) Mapbox integration and configuration, 2) Marker and clustering implementation, 3) Radius circle visualization, 4) Mobile gesture support, 5) Performance optimization for large datasets",
+			"reasoning": "High complexity due to multiple visualization layers (markers, circles, heatmap), clustering implementation, and mobile optimization requirements. Performance with 500+ markers requires careful optimization. Mapbox's React wrapper has specific patterns that must be followed correctly."
+		},
+		{
+			"taskId": 19,
+			"taskTitle": "Implement Kanban Application Pipeline Tracker with Drag-and-Drop",
+			"complexityScore": 7,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down into: 1) dnd-kit implementation strategy, 2) Board and card component architecture, 3) Status history tracking system, 4) Bulk operations and export functionality",
+			"reasoning": "High complexity due to drag-and-drop implementation with proper database synchronization. dnd-kit requires understanding of collision detection and state management. Status history tracking adds data modeling complexity. Bulk operations require careful transaction handling."
+		},
+		{
+			"taskId": 20,
+			"taskTitle": "Build Resume Generation and PDF Export System",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down into: 1) PDF generation with @react-pdf/renderer, 2) ProseMirror editor integration, 3) ATS-friendly formatting rules, 4) Resume generation workflow, 5) File naming template engine",
+			"reasoning": "High complexity due to PDF generation constraints (ATS-friendly formatting), ProseMirror editor integration, and ensuring consistent styling across platforms. The PDF generation library has limitations that require creative solutions for complex layouts."
+		},
+		{
+			"taskId": 21,
+			"taskTitle": "Develop Settings Management UI and Configuration Hot Reload",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down into: 1) Tabbed UI architecture, 2) JSON Schema validation system, 3) Version control implementation, 4) Hot reload mechanism design, 5) Config export/import functionality",
+			"reasoning": "High complexity due to hot reload without server restart, which requires sophisticated state management. JSON Schema validation for complex nested structures is challenging. Version control implementation must handle concurrent edits safely."
+		},
+		{
+			"taskId": 22,
+			"taskTitle": "Implement Responsive UI with Tailwind CSS and shadcn/ui Components",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down into: 1) shadcn/ui component library setup, 2) Responsive breakpoint strategy, 3) Theme system implementation, 4) Performance optimization techniques",
+			"reasoning": "Moderate complexity as responsive design is well-understood pattern. Main challenges involve consistent theme implementation across components and meeting strict performance targets (FCP < 1.5s). shadcn/ui configuration requires understanding of its customization patterns."
+		}
+	]
+}
