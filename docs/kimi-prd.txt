@@ -1,0 +1,381 @@
+Product Requirements Document (PRD)
+
+Core Problem
+Personal Pain: Tailoring resumes is time-consuming, tracking applications is chaotic, and geographic scope feels overwhelming.
+Solution: A centralized SaaS tool that aggregates jobs, auto-tailors resumes with AI, tracks everything with visual maps, and manages application workflow.
+Target Users
+Primary: You (Richard) - Senior technical/sales professional targeting 4 specific cities
+Secondary: Open-source community of job seekers
+Must-Have Features (MVP)
+Table
+Copy
+Feature	Description	Priority
+🔍 Smart Job Aggregation	Search Indeed, LinkedIn, company boards for last 72h postings in 4 cities (35mi radius) with keyword/salary filters	P0
+🗺️ Interactive Map	Mapbox/Leaflet map showing job locations, heatmaps for density, clickable markers showing job details	P0
+🤖 AI Resume Tailoring	3-level "exaggeration" slider; generates tailored resume PDFs from master profile	P0
+📂 Application Tracker	"Interested" → "Applied" pipeline; manual job entry; file naming auto-format YYYY-MM-DD - Company - Role.pdf	P0
+⚙️ 100% Configurable	All settings in JSON/YAML: cities, keywords, weights, caps, filters	P0
+📱 Mobile Responsive	Access from Pixel phone; dark mode; shadcn/ui components	P0
+🔐 Auth & Profiles	Google OAuth; exhaustive work history profile builder	P1
+📊 Analytics Dashboard	Applications/day, category breakdown, offer probability mock	P1
+🛠️ Recommended Tech Stack
+Given your VPS and non-developer background, here's a beginner-friendly but powerful stack:
+Frontend
+Next.js (App Router) - Full-stack framework, easy deployment
+shadcn/ui - Copy-paste components, no heavy UI library
+Tailwind CSS - Quick styling, matches your Figma aesthetic
+Framer Motion - For slick animations
+Mapbox GL JS - Interactive maps (free tier: 50k loads/month)
+Backend / Services
+Next.js API Routes - Skip separate backend for MVP (keeps it simple)
+PostgreSQL (via Supabase) - Free tier, managed, easy start
+Prisma ORM - Type-safe database interactions
+BetterAuth - Modern auth (Google OAuth, easier than NextAuth)
+n8n - Visual workflow automation for job scraping (no-code + code)
+OpenAI API - GPT-4o-mini for resume tailoring (cost-effective)
+Infrastructure
+Docker - Containerize everything for your VPS
+Docker Compose - Run app + database + n8n easily
+Nginx - Reverse proxy with SSL (Let's Encrypt)
+VPS Setup: Ubuntu 22.04 LTS, 2GB RAM minimum
+🏗️ Architecture Overview
+Copy
+┌─────────────────────────────────────────────────────────────┐
+│                     User Browser                             │
+│  (Pixel Phone, Desktop)                                     │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Next.js App (Docker Container)                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │  Frontend    │  │  API Routes  │  │  Auth        │    │
+│  │  (App Router)│  │  /api/jobs   │  │  BetterAuth  │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Data Layer                                                │
+│  - PostgreSQL (Supabase)                                   │
+│  - Prisma ORM                                              │
+│  Tables: Users, Profiles, Jobs, Applications, Configs    │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Automation Layer (n8n)                                    │
+│  - Scheduled job scrapers (every 6 hours)                 │
+│  - Geocoding & distance calculation                       │
+│  - AI resume generation workflows                         │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│  External APIs                                             │
+│  - OpenAI (Resume tailoring)                               │
+│  - Mapbox (Geocoding & Maps)                               │
+│  - Indeed/LinkedIn (Job scraping)                          │
+└─────────────────────────────────────────────────────────────┘
+📅 MVP Roadmap: 4-Week Plan
+Week 1: Foundation
+Setup VPS
+bash
+Copy
+# Install Docker & Docker Compose
+sudo apt update && sudo apt install docker.io docker-compose
+Create Next.js Project
+bash
+Copy
+npx create-next-app@latest jobhunt-app --typescript --tailwind --app
+cd jobhunt-app
+Add shadcn/ui
+bash
+Copy
+npx shadcn@latest init
+npx shadcn@latest add button card input form
+Setup Database: Create free Supabase project, get connection string
+Setup Prisma: Define schema (User, Profile, Job, Application)
+Build Config System: JSON file loader with your exact parameters
+Week 2: Core Features
+Build Profile Builder: Multi-step form for exhaustive work history
+Build Job Dashboard: Table/list view of scraped jobs
+Implement Search: Use n8n to scrape Indeed + LinkedIn (visual workflow)
+Add Mapbox: Display job markers on map
+Week 3: AI & Workflow
+AI Resume Tailoring: OpenAI integration with 3-level exaggeration
+PDF Generation: Use pdf-lib or react-pdf to create PDFs
+Application Tracker: "Interested" → "Applied" state machine
+File Naming: Auto-generate YYYY-MM-DD - Company - Role.pdf
+Week 4: Polish & Deploy
+Auth: Add Google OAuth with BetterAuth
+Mobile Optimization: Test on Pixel, fix responsive issues
+Dockerize: Create Dockerfile and docker-compose.yml
+Deploy: Push to VPS, setup Nginx + SSL
+🔧 Your Configuration File (config.json)
+Here's your exact research parameters in a clean JSON format:
+JSON
+Copy
+{
+  "search_parameters": {
+    "cities": [
+      {"name": "Kansas City, MO", "radius_miles": 35, "weight": 25},
+      {"name": "Colorado Springs, CO", "radius_miles": 35, "weight": 15},
+      {"name": "Salt Lake City, UT", "radius_miles": 35, "weight": 20},
+      {"name": "Las Vegas, NV", "radius_miles": 35, "weight": 40}
+    ],
+    "categories": [
+      {"name": "Technical", "weight": 40},
+      {"name": "Technical Sales", "weight": 40},
+      {"name": "Sales", "weight": 10},
+      {"name": "Management", "weight": 10}
+    ],
+    "salary_usd": {"min": 140000, "max": 300000},
+    "remote_modes": ["remote", "hybrid", "onsite"],
+    "include_keywords": ["Azure", "LIMS", "Batch", "Historians", "PreSales", "Pharma", "Senior", "Staff", "Principal"],
+    "exclude_keywords": ["Intern", "Unpaid", "Volunteer", "Entry Level", "Junior"],
+    "posted_within_hours": 72,
+    "max_results_per_city": 50
+  },
+  "source_weights": {
+    "company_boards": 60,
+    "aggregators": 25,
+    "referrals": 15
+  },
+  "daily_caps": {
+    "max_applications": 6,
+    "max_outreach": 10
+  },
+  "file_naming": "YYYY-MM-DD - <Company> - <Role>.pdf",
+  "ai_exaggeration_levels": ["Conservative", "Balanced", "Strategic"]
+}
+🚀 Step-by-Step Implementation Guide
+Step 1: VPS Setup (Today)
+bash
+Copy
+# On your VPS, run:
+sudo apt update
+sudo apt install -y docker.io docker-compose git
+
+# Create project directory
+mkdir ~/jobhunt-app && cd ~/jobhunt-app
+Step 2: Next.js Project Scaffold
+bash
+Copy
+# On your local machine (or VPS)
+npx create-next-app@latest jobhunt-app \
+  --typescript \
+  --tailwind \
+  --eslint \
+  --app \
+  --src-dir \
+  --import-alias "@/*"
+
+cd jobhunt-app
+
+# Install essentials
+npm install @prisma/client @supabase/supabase-js
+npm install -D prisma
+npm install mapbox-gl @mapbox/mapbox-sdk
+npm install openai
+npm install date-fns
+npm install clsx tailwind-merge  # For shadcn
+Step 3: Configuration Loader
+Create src/lib/config.ts:
+TypeScript
+Copy
+import configData from '../../config.json';
+
+export interface Config {
+  search_parameters: {
+    cities: Array<{name: string; radius_miles: number; weight: number}>;
+    // ... rest of interfaces
+  };
+}
+
+export const getConfig = (): Config => configData;
+Step 4: Database Schema
+Create prisma/schema.prisma:
+prisma
+Copy
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  profile   Profile?
+  applications Application[]
+}
+
+model Profile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id])
+  workHistory Json    // Store exhaustive work details
+  skills      String[]
+  // Add more fields as needed
+}
+
+model Job {
+  id              String   @id @default(cuid())
+  title           String
+  company         String
+  location        String
+  latitude        Float?
+  longitude       Float?
+  description     String
+  salary          String?
+  postedAt        DateTime
+  source          String   // "company_board", "aggregator", "referral"
+  url             String
+  cityWeight      Int
+  category        String
+  categoryWeight  Int
+  sourceWeight    Int
+  compositeScore  Float
+  createdAt       DateTime @default(now())
+}
+
+model Application {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id])
+  status      String   // "interested", "applied", "interviewing", "rejected", "offered"
+  resumePath  String?
+  createdAt   DateTime @default(now())
+  appliedAt   DateTime?
+}
+Step 5: n8n Scraper Workflow
+Install n8n on VPS:
+yaml
+Copy
+# docker-compose.yml (add this service)
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    ports: ["5678:5678"]
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=your-secure-pass
+    volumes:
+      - ~/.n8n:/home/node/.n8n
+Create workflow in n8n UI:
+Trigger: Schedule (every 6 hours)
+Nodes: HTTP Request (Indeed RSS), Set (filter keywords), Function (calculate score), PostgreSQL (insert jobs)
+Step 6: Map Component
+Create src/components/job-map.tsx:
+tsx
+Copy
+'use client';
+import mapboxgl from 'mapbox-gl';
+import { useEffect, useRef } from 'react';
+
+export default function JobMap({ jobs }: { jobs: any[] }) {
+  const mapContainer = useRef(null);
+  
+  useEffect(() => {
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
+    const map = new mapboxgl.Map({
+      container: mapContainer.current!,
+      style: 'mapbox://styles/mapbox/dark-v11', // Dark mode!
+      center: [-95.7129, 37.0902], // Center of US
+      zoom: 4
+    });
+    
+    jobs.forEach(job => {
+      if (job.latitude && job.longitude) {
+        new mapboxgl.Marker()
+          .setLngLat([job.longitude, job.latitude])
+          .setPopup(new mapboxgl.Popup().setText(`${job.title} at ${job.company}`))
+          .addTo(map);
+      }
+    });
+    
+    return () => map.remove();
+  }, [jobs]);
+  
+  return <div ref={mapContainer} className="h-96 w-full rounded-lg" />;
+}
+🔐 Security & Secrets Management
+Use Environment Files
+Create .env.local (never commit this!):
+Copy
+DATABASE_URL="postgresql://user:pass@db:5432/jobhunt"
+NEXT_PUBLIC_MAPBOX_TOKEN="pk.your-public-token"
+OPENAI_API_KEY="sk-your-key"
+VPS Production Secrets
+On VPS, use Docker secrets:
+bash
+Copy
+# Create secrets directory
+sudo mkdir -p /srv/secrets
+echo "your-secret" | sudo tee /srv/secrets/openai_key
+In docker-compose.yml:
+yaml
+Copy
+services:
+  app:
+    secrets:
+      - openai_key
+
+secrets:
+  openai_key:
+    file: /srv/secrets/openai_key
+📱 Mobile Access Setup
+Install Tailscale on VPS and Pixel phone:
+bash
+Copy
+# On VPS
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+This gives you a secure private URL like http://vps:3000 accessible only from your devices.
+PWA Setup: Add manifest.json and service worker for app-like experience on Pixel.
+🎯 Open Source Strategy
+GitHub Repo Structure:
+Copy
+jobhunt-app/
+├── app/                 # Next.js app router
+├── components/
+├── lib/
+├── config/
+│   └── example.config.json
+├── n8n-workflows/
+├── docker-compose.yml
+├── Dockerfile
+├── README.md
+├── LICENSE (MIT)
+└── CONTRIBUTING.md
+Documentation for Community:
+Clear README with "Deploy to VPS" and "Deploy to Railway/Render" options
+example.config.json with commented fields
+Video walkthrough of setup
+🎨 Design Tokens for Your Aesthetic
+Create src/styles/globals.css:
+css
+Copy
+@layer base {
+  :root {
+    --background: 224 71% 4%;    /* Dark blue-black */
+    --foreground: 213 31% 91%;   /* Light gray */
+    --primary: 262 83% 58%;      /* Purple-blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 17%;    /* Steel blue */
+    --accent: 262 83% 66%;       /* Brighter purple */
+  }
+}
+✅ Your Next 3 Actions (Do This Today)
+Setup VPS: Run the VPS setup commands above
+Create GitHub Repo: jobhunt-app and push initial Next.js scaffold
+Install n8n: Add to docker-compose and access it at your-vps-ip:5678
