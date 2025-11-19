@@ -19,7 +19,7 @@ if [ -n "$(git status --porcelain)" ]; then
   echo "  • git stash -u    # if you want to keep work for later"
   echo "  • git add/commit  # if the work is ready"
   echo ""
-  echo "Once the working tree is clean, re-run ./scripts/start-agent-work.sh."
+  echo "Once the working tree is clean, re-run ./tdd-in-a-box/scripts/start-agent-work.sh."
   exit 1
 fi
 
@@ -29,6 +29,7 @@ SESSION_DIR="$SESSION_ROOT/$PROJECT_KEY/sessions"
 SESSION_FILE="$SESSION_DIR/workflow-state.json"
 SESSION_TASK_FILE="$SESSION_DIR/current-task.json"
 
+# Check for stale Autopilot session
 if [ -f "$SESSION_FILE" ]; then
   echo "[0/5] Checking existing Autopilot session..."
   CURRENT_INDEX=$(jq '.context.currentSubtaskIndex' "$SESSION_FILE")
@@ -43,13 +44,14 @@ if [ -f "$SESSION_FILE" ]; then
       echo "The persisted workflow points to subtask $CURRENT_ID,"
       echo "but it is already marked as completed."
       echo ""
-      echo "Run ./scripts/autopilot-reset.sh to clear the old session"
+      echo "Run ./tdd-in-a-box/scripts/autopilot-reset.sh to clear the old session"
       echo "and then retry this command."
       exit 1
     fi
   fi
 fi
 
+# Check for active agent session
 if [ -f "$SESSION_TASK_FILE" ]; then
   ACTIVE_TASK_ID="$(jq -r '.taskId // "unknown"' "$SESSION_TASK_FILE" 2>/dev/null || echo "unknown")"
   echo "🚫 ACTIVE AGENT SESSION DETECTED"
@@ -65,78 +67,64 @@ echo "🎯 AGENT WORK INITIATION"
 echo "========================"
 echo ""
 
-# Step 1: Check for any available top-level tasks
-echo "[1/5] Checking for available tasks..."
-AVAILABLE_TASK=$(jq -r '.master.tasks[] | select(.status == "pending") | .id' < .taskmaster/tasks/tasks.json | head -1)
+# Step 1: Find the next pending task using Task Master CLI
+echo "[1/5] Finding next pending task..."
 
-if [ -n "$AVAILABLE_TASK" ]; then
-  echo "[2/5] Claiming top-level task $AVAILABLE_TASK via Task-master..."
-  node_modules/.bin/task-master set-status --id="$AVAILABLE_TASK" --status=in-progress
+# Support TM_TAG env var override
+TAG_FLAG=""
+if [ ! -z "${TM_TAG:-}" ]; then
+  TAG_FLAG="--tag $TM_TAG"
+  echo "🏷️  Using tag: $TM_TAG"
+fi
 
-  mkdir -p "$SESSION_DIR"
-  printf '{ "taskId": "%s", "startedAt": "%s" }\n' "$AVAILABLE_TASK" "$(date -Iseconds)" > "$SESSION_TASK_FILE"
+# Use task-master next to find the best task (handles dependencies and priorities)
+NEXT_TASK_JSON=$(task-master next --json $TAG_FLAG 2>/dev/null || echo "")
 
+if [ -z "$NEXT_TASK_JSON" ] || [ "$NEXT_TASK_JSON" = "null" ]; then
   echo ""
-  echo "✅ TASK AVAILABLE"
-  echo "=================="
+  echo "🚨 NO AVAILABLE TASKS"
+  echo "==================="
   echo ""
-  echo "Task ID: $AVAILABLE_TASK"
+  echo "Status: No tasks or subtasks ready to work on"
+  echo "Tag Context: ${TM_TAG:-default}"
   echo ""
-  echo "🎯 EXACT NEXT COMMAND TO RUN:"
+  echo "Action needed: All work is completed or in-progress."
+  echo "If you believe this is an error, check your tag context or add new tasks."
   echo ""
-  echo "   node_modules/.bin/task-master autopilot start $AVAILABLE_TASK"
-  echo ""
-  echo "⚠️  DO NOT run any other commands first"
-  echo "⚠️  DO NOT try to interpret the situation"
-  echo "⚠️  Just copy and paste the command above"
-  echo ""
-  echo "This will start an Autopilot session and guide you through the work."
   exit 0
 fi
 
-# Step 2: Check for available subtasks within in-progress tasks
-echo "[2/5] No top-level tasks available. Checking in-progress tasks..."
-IN_PROGRESS_TASK=$(jq -r '.master.tasks[] | select(.status == "in-progress") | .id' < .taskmaster/tasks/tasks.json | head -1)
+NEXT_TASK_ID=$(echo "$NEXT_TASK_JSON" | jq -r '.id')
+NEXT_TASK_TITLE=$(echo "$NEXT_TASK_JSON" | jq -r '.title')
+NEXT_TASK_TYPE=$(echo "$NEXT_TASK_JSON" | jq -r '.type // "task"')
 
-if [ -n "$IN_PROGRESS_TASK" ]; then
-  echo "[3/5] Checking for available subtasks in Task $IN_PROGRESS_TASK..."
-  AVAILABLE_SUBTASK=$(jq -r ".master.tasks[] | select(.id == \"$IN_PROGRESS_TASK\") | .subtasks[] | select(.status == \"pending\") | .id" < .taskmaster/tasks/tasks.json | head -1)
+echo "[2/5] Found candidate: $NEXT_TASK_ID - $NEXT_TASK_TITLE"
 
-  if [ -n "$AVAILABLE_SUBTASK" ]; then
-    SUBTASK_ID="$IN_PROGRESS_TASK.$AVAILABLE_SUBTASK"
-    echo "[4/5] Claiming subtask $SUBTASK_ID via Task-master..."
-    node_modules/.bin/task-master set-status --id="$SUBTASK_ID" --status=in-progress
+# Step 2: Claim the task
+echo "[3/5] Claiming $NEXT_TASK_TYPE $NEXT_TASK_ID via Task-master..."
+task-master set-status --id="$NEXT_TASK_ID" --status=in-progress $TAG_FLAG >/dev/null
 
-    mkdir -p "$SESSION_DIR"
-    printf '{ "taskId": "%s", "startedAt": "%s" }\n' "$SUBTASK_ID" "$(date -Iseconds)" > "$SESSION_TASK_FILE"
+# Step 3: Create session lock
+echo "[4/5] Creating session lock..."
+mkdir -p "$SESSION_DIR"
+printf '{ "taskId": "%s", "startedAt": "%s" }\n' "$NEXT_TASK_ID" "$(date -Iseconds)" > "$SESSION_TASK_FILE"
 
-    echo ""
-    echo "✅ SUBTASK AVAILABLE"
-    echo "==================="
-    echo ""
-    echo "Parent Task: $IN_PROGRESS_TASK"
-    echo "Subtask ID: $SUBTASK_ID"
-    echo ""
-    echo "🎯 EXACT NEXT COMMAND TO RUN:"
-    echo ""
-    echo "   node_modules/.bin/task-master autopilot start $SUBTASK_ID"
-    echo ""
-    echo "⚠️  DO NOT run any other commands first"
-    echo "⚠️  DO NOT try to interpret the situation"
-    echo "⚠️  Just copy and paste the command above"
-    echo ""
-    echo "This will start an Autopilot session and guide you through the work."
-    exit 0
-  fi
-fi
-
+# Step 4: Output instructions
 echo ""
-echo "🚨 NO AVAILABLE TASKS"
-echo "==================="
+echo "✅ TASK CLAIMED & READY"
+echo "======================="
 echo ""
-echo "Status: No tasks or subtasks ready to work on"
+echo "Task ID: $NEXT_TASK_ID"
+echo "Title:   $NEXT_TASK_TITLE"
+echo "Tag:     ${TM_TAG:-default}"
 echo ""
-echo "Action needed: All work is completed or in-progress."
-echo "If you believe this is an error, notify the user."
+echo "🎯 EXACT NEXT COMMAND TO RUN:"
 echo ""
+echo "   task-master autopilot start $NEXT_TASK_ID $TAG_FLAG"
+echo ""
+echo "⚠️  DO NOT run any other commands first"
+echo "⚠️  DO NOT try to interpret the situation"
+echo "⚠️  Just copy and paste the command above"
+echo ""
+echo "This will start an Autopilot session and guide you through the work."
 exit 0

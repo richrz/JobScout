@@ -214,7 +214,31 @@ npx task-master add "Setup project structure" --status pending
 npx task-master list
 ```
 
-#### 5. Verify Installation
+#### 5. Tag Contexts (Optional)
+
+Task Master uses tags to organize tasks (default: `master`). If your project uses a different tag (e.g., `feature-prd`), you must specify it.
+
+**Check current tag context:**
+```bash
+npx task-master list
+# If empty, try listing tags:
+npx task-master tags
+```
+
+**Switching tags:**
+To work on a specific tag, you can set it as default or pass it to commands:
+
+```bash
+# Option A: Set default tag in config
+# Edit .taskmaster/config.json:
+# "defaultTag": "feature-prd"
+
+# Option B: Pass tag to start script
+export TM_TAG="feature-prd"
+./tdd-in-a-box/scripts/start-agent-work.sh
+```
+
+#### 6. Verify Installation
 
 Run the verification test:
 
