@@ -838,7 +838,7 @@
   "tdd": {
     "tasks": [
       {
-        "id": "11",
+        "id": 11,
         "title": "Initialize Next.js 14 Project with Core Dependencies and Docker Configuration",
         "description": "Set up the foundational Next.js 14 project structure with TypeScript, configure Docker Compose stack (app, PostgreSQL 15, n8n, nginx, Redis), and establish the development environment with all required dependencies.",
         "status": "done",
@@ -928,7 +928,7 @@
         ]
       },
       {
-        "id": "12",
+        "id": 12,
         "title": "Design and Implement Prisma Database Schema with Migrations",
         "description": "Create the complete Prisma schema matching the PRD specifications (User, Profile, Job, Application, Config models) and set up initial database migrations with proper indexes and relationships.",
         "status": "done",
@@ -989,7 +989,7 @@
         ]
       },
       {
-        "id": "13",
+        "id": 13,
         "title": "Implement Authentication System with NextAuth and Single-User Mode",
         "description": "Set up NextAuth with Google OAuth provider, email/password fallback using bcrypt, JWT session management, and implement single-user mode bypass option as specified in the PRD.",
         "status": "done",
@@ -1068,7 +1068,7 @@
         "updatedAt": "2025-11-19T21:26:36.748Z"
       },
       {
-        "id": "14",
+        "id": 14,
         "title": "Build Multi-Step Configuration Wizard with Form Validation",
         "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking and data persistence.",
         "status": "pending",
@@ -1084,8 +1084,8 @@
             "title": "Design and implement Zod validation schemas for all configuration steps",
             "description": "Create comprehensive validation schemas for each wizard step with proper error messages and interdependent validation rules",
             "dependencies": [],
-            "details": "Implement citySchema with radius and weight constraints, step1Schema for cities array, step2Schema for job titles, and complete configSchema. Add custom validation for weight sliders summing to 100% and handle conditional validation for salary ranges.",
-            "status": "pending",
+            "details": "Implement citySchema with radius and weight constraints, step1Schema for cities array, step2Schema for job titles, and complete configSchema. Add custom validation for weight sliders summing to 100% and handle conditional validation for salary ranges.\n<info added on 2025-11-19T22:13:20.314Z>\nPlan:\n1. Create `job-search-platform/tests/unit/validations/config.test.ts`.\n2. Write unit tests using `zod` to verify:\n    - `citySchema` rejects empty names, invalid radius (<5), invalid weights (<0 or >100).\n    - `step1Schema` requires non-empty cities array.\n    - `step2Schema` requires non-empty categories array.\n    - `configSchema` validates the full object structure.\n3. Run `npm test` (expect failure as files don't exist).\n4. Create `job-search-platform/src/lib/validations/config.ts` with the Zod schemas.\n5. Run `npm test` (expect success).\n</info added on 2025-11-19T22:13:20.314Z>",
+            "status": "in-progress",
             "testStrategy": "Validate each schema with edge cases: empty cities array, invalid radius values, weight sums exceeding 100%, and salary range inconsistencies",
             "parentId": "undefined"
           },
@@ -1096,8 +1096,8 @@
             "dependencies": [
               1
             ],
-            "details": "Create ConfigWizard component with useForm and zodResolver. Implement step navigation logic with useWizard hook pattern. Manage form state persistence between steps and handle validation triggers during navigation. Integrate with shadcn/ui components for consistent styling.",
-            "status": "pending",
+            "details": "Create ConfigWizard component with useForm and zodResolver. Implement step navigation logic with useWizard hook pattern. Manage form state persistence between steps and handle validation triggers during navigation. Integrate with shadcn/ui components for consistent styling.\n<info added on 2025-11-19T22:15:09.927Z>\nPlan:\n1. Create `job-search-platform/tests/unit/components/ConfigWizard.test.tsx`.\n2. Write test: Render `ConfigWizard` and check for \"Target Cities\" (Step 1) heading.\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/components/onboarding/ConfigWizard.tsx`.\n5. Implement the basic wizard shell (useForm, useState for steps).\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:15:09.927Z>",
+            "status": "in-progress",
             "testStrategy": "Test state preservation when navigating back/forward, verify validation triggers correctly, and confirm form values persist through step transitions",
             "parentId": "undefined"
           },
@@ -1109,8 +1109,8 @@
               1,
               2
             ],
-            "details": "Implement Step1Cities with Mapbox autocomplete and dual sliders, Step2Titles with tag input, Step3Include/Step4Exclude with keyword tag inputs, Step5Salary with min/max inputs and undisclosed checkbox, and Step6Recency with radio buttons. Ensure each component connects properly to form state.",
-            "status": "pending",
+            "details": "Implement Step1Cities with Mapbox autocomplete and dual sliders, Step2Titles with tag input, Step3Include/Step4Exclude with keyword tag inputs, Step5Salary with min/max inputs and undisclosed checkbox, and Step6Recency with radio buttons. Ensure each component connects properly to form state.\n<info added on 2025-11-19T22:17:20.059Z>\nPlan:\n1. Create `job-search-platform/tests/unit/components/steps/Step1Cities.test.tsx`.\n2. Write test: Verify it renders a city input and radius slider.\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/components/onboarding/steps/Step1Cities.tsx`.\n5. Implement the component using `react-hook-form` context.\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:17:20.059Z>",
+            "status": "in-progress",
             "testStrategy": "Validate each component's UI elements function correctly, test validation error display, and verify proper data binding to form state for all input types",
             "parentId": "undefined"
           },
@@ -1122,8 +1122,8 @@
               2,
               3
             ],
-            "details": "Set up useEffect hook with 30-second debounce timer. Implement save handler that stores current form values in localStorage and syncs with backend API. Add visual feedback for save status. Handle edge cases like form submission during auto-save.",
-            "status": "pending",
+            "details": "Set up useEffect hook with 30-second debounce timer. Implement save handler that stores current form values in localStorage and syncs with backend API. Add visual feedback for save status. Handle edge cases like form submission during auto-save.\n<info added on 2025-11-19T22:19:50.895Z>\nPlan:\n1. Create `job-search-platform/tests/unit/hooks/useAutoSave.test.ts`.\n2. Write test: Verify hook calls save callback after 30 seconds of inactivity (debounce).\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/hooks/useAutoSave.ts`.\n5. Implement `useAutoSave` hook using `useEffect` and `setTimeout`.\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:19:50.895Z>",
+            "status": "in-progress",
             "testStrategy": "Verify data saves after 30s interval, test save status indicators, and confirm data persists through page refresh. Check localStorage entries and API calls during save operations",
             "parentId": "undefined"
           },
@@ -1135,8 +1135,8 @@
               2,
               3
             ],
-            "details": "Implement calculateProgress function that evaluates required fields per step. Build ProgressIndicator component showing 0-100% with visual feedback. Integrate with wizard state to update in real-time as users complete steps. Add tooltips showing incomplete sections.",
-            "status": "pending",
+            "details": "Implement calculateProgress function that evaluates required fields per step. Build ProgressIndicator component showing 0-100% with visual feedback. Integrate with wizard state to update in real-time as users complete steps. Add tooltips showing incomplete sections.\n<info added on 2025-11-19T22:21:04.668Z>\nPlan:\n1. Create `job-search-platform/tests/unit/components/ProgressBar.test.tsx`.\n2. Write test: Verify progress bar width is calculated correctly (e.g., Step 1/6 = ~16%).\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/components/ui/ProgressBar.tsx`.\n5. Implement component.\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:21:04.668Z>",
+            "status": "in-progress",
             "testStrategy": "Test progress calculation with partial/complete data, verify visual representation matches calculated percentage, and confirm updates during navigation and data entry",
             "parentId": "undefined"
           },
@@ -1150,15 +1150,15 @@
               4,
               5
             ],
-            "details": "Build service layer connecting form data to Prisma Config model. Implement exportConfig function generating JSON structure matching configSchema. Create importConfig function with validation. Add UI controls for export/import operations with error handling for invalid JSON.",
-            "status": "pending",
+            "details": "Build service layer connecting form data to Prisma Config model. Implement exportConfig function generating JSON structure matching configSchema. Create importConfig function with validation. Add UI controls for export/import operations with error handling for invalid JSON.\n<info added on 2025-11-19T22:22:07.621Z>\nPlan:\n1. Create `job-search-platform/tests/unit/components/ConfigActions.test.tsx`.\n2. Write test: Verify Export button exists and triggers file download simulation. Verify Import button exists.\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/components/onboarding/ConfigActions.tsx`.\n5. Implement Export (JSON.stringify + Blob) and Import (FileReader) logic.\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:22:07.621Z>",
+            "status": "in-progress",
             "testStrategy": "Test round-trip JSON export/import, verify data integrity after import, and confirm proper validation of imported data against configSchema. Test edge cases with malformed JSON",
             "parentId": "undefined"
           }
         ]
       },
       {
-        "id": "15",
+        "id": 15,
         "title": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
         "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-4 Vision OCR import from existing resumes.",
         "status": "pending",
@@ -1231,7 +1231,7 @@
         ]
       },
       {
-        "id": "16",
+        "id": 16,
         "title": "Develop LLM Integration Layer with Multi-Provider Support",
         "description": "Build the provider-agnostic LLM client using LangChain that supports OpenAI, Anthropic, Ollama, OpenRouter, Azure OpenAI, and custom endpoints with configurable temperature/token settings and resume generation prompts.",
         "status": "pending",
@@ -1307,7 +1307,7 @@
         ]
       },
       {
-        "id": "17",
+        "id": 17,
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
         "status": "pending",
@@ -1395,7 +1395,7 @@
         ]
       },
       {
-        "id": "18",
+        "id": 18,
         "title": "Create Interactive Map Visualization with Mapbox GL JS",
         "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls as specified in the PRD.",
         "status": "pending",
@@ -1469,7 +1469,7 @@
         ]
       },
       {
-        "id": "19",
+        "id": 19,
         "title": "Implement Kanban Application Pipeline Tracker with Drag-and-Drop",
         "description": "Build the application tracking system using dnd-kit with customizable pipeline stages, drag-and-drop functionality, status timeline, file attachments, notes, bulk operations, and CSV export as specified in the PRD.",
         "status": "pending",
@@ -1531,7 +1531,7 @@
         ]
       },
       {
-        "id": "20",
+        "id": 20,
         "title": "Build Resume Generation and PDF Export System",
         "description": "Create the resume tailoring interface with live preview using ProseMirror editor, integrate with LLM service for generation, implement ATS-friendly PDF export with react-pdf, and add configurable file naming templates.",
         "status": "pending",
@@ -1600,7 +1600,7 @@
         ]
       },
       {
-        "id": "21",
+        "id": 21,
         "title": "Develop Settings Management UI and Configuration Hot Reload",
         "description": "Create the comprehensive settings interface with tabbed layout (Search, LLM, Automation, Advanced), implement live validation, LLM connection testing, JSON Schema validation, version control for configs, and hot reload functionality without server restart.",
         "status": "pending",
@@ -1669,7 +1669,7 @@
         ]
       },
       {
-        "id": "22",
+        "id": 22,
         "title": "Implement Responsive UI with Tailwind CSS and shadcn/ui Components",
         "description": "Build the complete mobile-first responsive design system using Tailwind CSS and shadcn/ui, implement dark/light theme toggle, create mobile optimizations (touch targets, swipe gestures, bottom navigation), and ensure performance targets (FCP < 1.5s, TTI < 3s).",
         "status": "pending",
@@ -1738,7 +1738,10 @@
       "completedCount": 3,
       "tags": [
         "tdd"
-      ]
+      ],
+      "created": "2025-11-19T22:13:12.431Z",
+      "description": "Tasks for tdd context",
+      "updated": "2025-11-19T22:22:10.679Z"
     }
   }
 }
