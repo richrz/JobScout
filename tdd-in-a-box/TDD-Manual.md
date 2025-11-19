@@ -80,7 +80,7 @@ TDD-in-a-Box consists of six main components that work together:
    - Integrates with Task Master for status updates
 
 3. **The Auditor** - Quality Assurance
-   - Defined by `.taskmaster/AUDITOR.md`
+   - Defined by `tdd-in-a-box/AUDITOR.md`
    - Verifies implementation against requirements
    - Checks for "production readiness"
    - Generates audit reports in `docs/audits/`
