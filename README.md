@@ -38,3 +38,20 @@ tdd-in-a-box/
 4. Commit the copied files so future clones inherit the same process.
 
 Keep this kit versioned: when guardrails or scripts evolve, update the files here and re-tag your downstream repos.
+
+## Git hygiene checklist
+
+> **Autopilot paused:** it spotted files you changed that aren’t saved into Git yet. To move forward, run the following and rerun the helper once nothing is left to save.
+
+After copying the kit or regenerating files, stage everything so git tracks the assets:
+
+```bash
+git add -A tdd-in-a-box docs/guides scripts
+git status -sb
+```
+
+If a file stays untracked, verify it isn’t ignored:
+
+```bash
+git check-ignore -v <path>
+```
