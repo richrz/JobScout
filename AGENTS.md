@@ -78,4 +78,15 @@ After Autopilot commits a subtask:
 
 Be brutally honest about blockers or mistakes. Report anomalies immediately (stale pointers, failing tests, dirty tree you can’t resolve). Never guess.
 
+## Audit Protocol (Mandatory for "Audit" Requests)
+
+When asked to "Audit Task X" or verify completion:
+1.  **Read Instructions:** You MUST read `TASK_MASTER_AUDITOR.md` immediately.
+2.  **Verify Artifacts:** Do not trust the previous agent's summary. Check for actual files and tests.
+3.  **Run Verification:** Execute the test suite (`npm test`) yourself.
+4.  **Generate Report:** Create `docs/audits/audit-task-[ID].md` using the template in `TASK_MASTER_AUDITOR.md`.
+5.  **Outcome:**
+    *   **Pass:** Commit the report (`chore: add audit report`).
+    *   **Fail:** You (the Auditor) must fix the issues (missing tests, broken integration) if feasible, OR fail the task if fundamental rework is needed.
+
 Following this agreement keeps Autopilot, Task-master, and the human review loop in sync for every agent who follows you.

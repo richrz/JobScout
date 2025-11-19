@@ -1,6 +1,6 @@
 # TDD-in-a-Box User Manual
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Last Updated:** November 2025  
 **Audience:** Project managers, non-developers, and anyone managing AI coding agents
 
@@ -19,8 +19,9 @@ AI agents are powerful but can be unpredictable. Without guardrails, they may:
 - Make changes without approval
 - Leave repositories in broken states when they crash
 - Create conflicting changes when multiple agents work simultaneously
+- **Lie about test results** (Hallucinate success)
 
-TDD-in-a-Box solves these problems by requiring explicit approval before any work begins and providing deterministic recovery when things go wrong.
+TDD-in-a-Box solves these problems by requiring explicit approval before any work begins, providing deterministic recovery when things go wrong, and enforcing a **Hostile Auditor** phase to verify work.
 
 ### What You Get
 
@@ -29,7 +30,7 @@ TDD-in-a-Box solves these problems by requiring explicit approval before any wor
 - **Task tracking:** Integration with Task Master ensures all work is tracked
 - **Git protection:** Prevents commits during active sessions
 - **TDD enforcement:** All code changes follow test-first discipline
-- **Quality Audits:** Automated auditing phase ensures code quality before completion
+- **Antagonistic Audit:** A mandatory verification phase where the agent (or a fresh one) rigorously checks the work against standards.
 
 ---
 
@@ -50,11 +51,11 @@ If you're impatient and want to see it work:
 
 5. **Agent Works:** It follows RED -> GREEN -> COMMIT cycle.
 
-6. **Audit:** When finished, you say: "Audit Task X".
+6. **Audit:** When finished, you say: "Audit Task X". The agent switches to Auditor mode, runs tests, and generates a report.
 
 7. **If crash occurs, run:**
    ```bash
-   ./tdd-in-a-box/scripts/recovery-helper.sh
+   ./scripts/recovery-helper.sh
    ```
 
 That's it. The rest of this manual explains the details.
@@ -69,7 +70,7 @@ TDD-in-a-Box consists of six main components that work together:
 
 1. **Task Master (TM)** - Task tracking system
    - Stores tasks in `.taskmaster/tasks/tasks.json`
-   - Tracks status: `pending`, `in-progress`, `done`
+   - Tracks status: `pending`, `in-progress`, `review`, `done`
    - Provides CLI: `npx task-master list`, `npx task-master update`, etc.
 
 2. **Autopilot (AP)** - TDD workflow driver
@@ -83,6 +84,7 @@ TDD-in-a-Box consists of six main components that work together:
    - Verifies implementation against requirements
    - Checks for "production readiness"
    - Generates audit reports in `docs/audits/`
+   - **Authority:** Can FAIL a task and require rework.
 
 4. **Session Management** - Prevents conflicts
    - Session lock: `~/.taskmaster/<project>/sessions/current-task.json`
@@ -91,7 +93,7 @@ TDD-in-a-Box consists of six main components that work together:
    - Cleared by wrapup or reset scripts
 
 5. **Git Guardrails** - Commit protection
-   - `tdd-in-a-box/scripts/tm-commit.sh` - refuses commits during active sessions
+   - `scripts/tm-commit.sh` - refuses commits during active sessions
    - Ensures task status syncs with git history
    - Prevents out-of-sync states
 
@@ -119,7 +121,7 @@ TDD-in-a-Box consists of six main components that work together:
      │ autopilot completes
      ↓
 ┌─────────┐
-│  DONE   │  wrapup clears session
+│ REVIEW  │  Task marked for review
 └────┬────┘
      │ User invokes Audit
      ↓
@@ -146,20 +148,13 @@ repo-root/
 │       └── tasks.json          # Task definitions
 ├── docs/
 │   └── audits/                 # Audit reports stored here
-├── tdd-in-a-box/
-│   ├── scripts/
-│   │   ├── start-agent-work.sh      # Entry point
-│   │   ├── autopilot-wrapup.sh      # Clean finish
-│   │   ├── autopilot-reset.sh       # Abort/crash cleanup
-│   │   ├── recovery-helper.sh       # Automated crash recovery
-│   │   └── agent-check-in.sh        # Helper for new agents
-│   ├── docs/
-│   │   └── guides/
-│   │       ├── autopilot-agent-runbook.md
-│   │       └── autopilot-tdd-playbook.md
-│   └── TDD-Manual.md           # This document
-├── tools/
-│   └── tm-commit.sh            # Guarded git commit
+├── scripts/
+│   ├── start-agent-work.sh      # Entry point
+│   ├── autopilot-wrapup.sh      # Clean finish
+│   ├── autopilot-reset.sh       # Abort/crash cleanup
+│   ├── recovery-helper.sh       # Automated crash recovery
+│   └── agent-check-in.sh        # Helper for new agents
+├── TDD-Manual.md               # This document
 ├── AGENTS.md                   # Implementation Agent instructions
 ├── TASK_MASTER_AUDITOR.md      # Auditor Agent instructions
 └── ~/.taskmaster/<project>/sessions/
@@ -178,7 +173,7 @@ This is the standard TDD cycle driven by `start-agent-work.sh`.
 3.  **Approve:** You say "Yes".
 4.  **Execute:** Agent uses Autopilot (`autopilot_start` -> `autopilot_complete_phase`).
 5.  **Finish:** Agent runs `autopilot-wrapup.sh`.
-6.  **Status:** Task is marked `done` in Task Master.
+6.  **Status:** Task is marked `review` (or `done` if no audit requested yet).
 
 ### 2. The Audit Workflow (The Inspector)
 This ensures quality *after* implementation but *before* final sign-off.
@@ -192,8 +187,8 @@ This ensures quality *after* implementation but *before* final sign-off.
     *   Is it production ready?
 4.  **Report:** Agent creates `docs/audits/audit-task-[ID].md`.
 5.  **Outcome:**
-    *   **Pass (Score > 90):** Agent commits the report. You are free to merge/push.
-    *   **Fail:** Agent lists **Critical Issues**. You instruct the Implementation Agent to fix them.
+    *   **Pass:** Agent commits the report. You are free to merge/push.
+    *   **Fail:** Agent fixes the issues immediately (if feasible) or lists **Critical Issues** for rework.
 
 ---
 
