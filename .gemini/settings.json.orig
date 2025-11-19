@@ -1,0 +1,58 @@
+{
+	"mcpServers": {
+		"task-master-ai": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"task-master-ai"
+			],
+			"env": {
+				"ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
+				"PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
+				"OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
+				"GOOGLE_API_KEY": "AIzaSyDSmxhK3O-sh8yMO6vxJnQlqbnpdJYVtew",
+				"XAI_API_KEY": "YOUR_XAI_KEY_HERE",
+				"OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
+				"MISTRAL_API_KEY": "YOUR_MISTRAL_KEY_HERE",
+				"AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
+				"OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
+			}
+		}
+	},
+	"allowedTools": [
+		"Bash(git*:*)",
+		"Bash(ls*:*)",
+		"Bash(cd*:*)",
+		"Bash(mkdir*:*)",
+		"Bash(cp*:*)",
+		"Bash(mv*:*)",
+		"Bash(cat*:*)",
+		"Bash(touch*:*)",
+		"Bash(chmod*:*)",
+		"Bash(chown*:*)",
+		"Bash(sed*:*)",
+		"Bash(awk*:*)",
+		"Bash(grep*:*)",
+		"Bash(find*:*)",
+		"Bash(tar*:*)",
+		"Bash(zip*:*)",
+		"Bash(unzip*:*)",
+		"Bash(curl*:*)",
+		"Bash(wget*:*)",
+		"Bash(pwd*:*)",
+		"Bash(echo*:*)",
+		"Bash(date*:*)",
+		"Bash(du*:*)",
+		"Bash(df*:*)",
+		"Bash(head*:*)",
+		"Bash(tail*:*)",
+		"Bash(sort*:*)",
+		"Bash(uniq*:*)",
+		"Bash(cut*:*)",
+		"Bash(paste*:*)",
+		"Bash(npm*:*)",
+		"Bash(npx*:*)",
+		"Bash(diff*:*)",
+		"Bash(patch*:*)"
+	]
+}

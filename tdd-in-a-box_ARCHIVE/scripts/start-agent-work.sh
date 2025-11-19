@@ -25,9 +25,7 @@ fi
 
 SESSION_ROOT="$HOME/.taskmaster"
 PROJECT_KEY="$(pwd | sed 's#/#-#g')"
-SESSION_DIR="$SESSION_ROOT/$PROJECT_KEY/sessions"
-SESSION_FILE="$SESSION_DIR/workflow-state.json"
-SESSION_TASK_FILE="$SESSION_DIR/current-task.json"
+SESSION_FILE="$SESSION_ROOT/$PROJECT_KEY/sessions/workflow-state.json"
 
 if [ -f "$SESSION_FILE" ]; then
   echo "[0/5] Checking existing Autopilot session..."
@@ -50,17 +48,6 @@ if [ -f "$SESSION_FILE" ]; then
   fi
 fi
 
-if [ -f "$SESSION_TASK_FILE" ]; then
-  ACTIVE_TASK_ID="$(jq -r '.taskId // "unknown"' "$SESSION_TASK_FILE" 2>/dev/null || echo "unknown")"
-  echo "🚫 ACTIVE AGENT SESSION DETECTED"
-  echo "================================"
-  echo ""
-  echo "A previous agent session is still recorded for Task $ACTIVE_TASK_ID."
-  echo "Run ./tdd-in-a-box/scripts/autopilot-wrapup.sh or ./tdd-in-a-box/scripts/autopilot-reset.sh"
-  echo "before starting new work."
-  exit 1
-fi
-
 echo "🎯 AGENT WORK INITIATION"
 echo "========================"
 echo ""
@@ -70,12 +57,6 @@ echo "[1/5] Checking for available tasks..."
 AVAILABLE_TASK=$(jq -r '.master.tasks[] | select(.status == "pending") | .id' < .taskmaster/tasks/tasks.json | head -1)
 
 if [ -n "$AVAILABLE_TASK" ]; then
-  echo "[2/5] Claiming top-level task $AVAILABLE_TASK via Task-master..."
-  node_modules/.bin/task-master set-status --id="$AVAILABLE_TASK" --status=in-progress
-
-  mkdir -p "$SESSION_DIR"
-  printf '{ "taskId": "%s", "startedAt": "%s" }\n' "$AVAILABLE_TASK" "$(date -Iseconds)" > "$SESSION_TASK_FILE"
-
   echo ""
   echo "✅ TASK AVAILABLE"
   echo "=================="
@@ -84,7 +65,7 @@ if [ -n "$AVAILABLE_TASK" ]; then
   echo ""
   echo "🎯 EXACT NEXT COMMAND TO RUN:"
   echo ""
-  echo "   node_modules/.bin/task-master autopilot start $AVAILABLE_TASK"
+  echo "   npx task-master autopilot start $AVAILABLE_TASK"
   echo ""
   echo "⚠️  DO NOT run any other commands first"
   echo "⚠️  DO NOT try to interpret the situation"
@@ -103,23 +84,16 @@ if [ -n "$IN_PROGRESS_TASK" ]; then
   AVAILABLE_SUBTASK=$(jq -r ".master.tasks[] | select(.id == \"$IN_PROGRESS_TASK\") | .subtasks[] | select(.status == \"pending\") | .id" < .taskmaster/tasks/tasks.json | head -1)
 
   if [ -n "$AVAILABLE_SUBTASK" ]; then
-    SUBTASK_ID="$IN_PROGRESS_TASK.$AVAILABLE_SUBTASK"
-    echo "[4/5] Claiming subtask $SUBTASK_ID via Task-master..."
-    node_modules/.bin/task-master set-status --id="$SUBTASK_ID" --status=in-progress
-
-    mkdir -p "$SESSION_DIR"
-    printf '{ "taskId": "%s", "startedAt": "%s" }\n' "$SUBTASK_ID" "$(date -Iseconds)" > "$SESSION_TASK_FILE"
-
     echo ""
     echo "✅ SUBTASK AVAILABLE"
     echo "==================="
     echo ""
     echo "Parent Task: $IN_PROGRESS_TASK"
-    echo "Subtask ID: $SUBTASK_ID"
+    echo "Subtask ID: $IN_PROGRESS_TASK.$AVAILABLE_SUBTASK"
     echo ""
     echo "🎯 EXACT NEXT COMMAND TO RUN:"
     echo ""
-    echo "   node_modules/.bin/task-master autopilot start $SUBTASK_ID"
+    echo "   npx task-master autopilot start $IN_PROGRESS_TASK.$AVAILABLE_SUBTASK"
     echo ""
     echo "⚠️  DO NOT run any other commands first"
     echo "⚠️  DO NOT try to interpret the situation"
