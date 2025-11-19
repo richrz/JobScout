@@ -4,6 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { configSchema } from '@/lib/validations/config';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Step1Cities } from '@/components/onboarding/steps/Step1Cities';
+import { Step2Titles } from '@/components/onboarding/steps/Step2Titles';
+import { Step3Include } from '@/components/onboarding/steps/Step3Include';
+import { Step4Exclude } from '@/components/onboarding/steps/Step4Exclude';
+import { Step5Salary } from '@/components/onboarding/steps/Step5Salary';
+import { Step6Freshness } from '@/components/onboarding/steps/Step6Freshness';
 import { ConfigActions } from '@/components/onboarding/ConfigActions';
 
 const steps = [
@@ -57,8 +62,11 @@ export function ConfigWizard() {
 
         <div className="min-h-[300px] border p-6 rounded-lg bg-white shadow-sm">
           {currentStep === 1 && <Step1Cities />}
-          {/* Placeholders for other steps */}
-          {currentStep > 1 && <div className="text-gray-500">Step {currentStep} implementation coming soon...</div>}
+          {currentStep === 2 && <Step2Titles />}
+          {currentStep === 3 && <Step3Include />}
+          {currentStep === 4 && <Step4Exclude />}
+          {currentStep === 5 && <Step5Salary />}
+          {currentStep === 6 && <Step6Freshness />}
         </div>
 
         <div className="flex justify-between items-center">
