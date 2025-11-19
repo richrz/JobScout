@@ -5,7 +5,7 @@
         "id": 11,
         "title": "Initialize Next.js 14 Project with Core Dependencies and Docker Configuration",
         "description": "Set up the foundational Next.js 14 project structure with TypeScript, configure Docker Compose stack (app, PostgreSQL 15, n8n, nginx, Redis), and establish the development environment with all required dependencies.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "details": "1. Initialize Next.js 14 project with App Router and TypeScript:\n   ```bash\n   npx create-next-app@latest job-search-platform --typescript --tailwind --app --src-dir\n   ```\n\n2. Install core dependencies:\n   ```bash\n   npm install @prisma/client prisma zod react-hook-form @hookform/resolvers\n   npm install @langchain/openai @langchain/anthropic langchain\n   npm install mapbox-gl react-map-gl @dnd-kit/core @dnd-kit/sortable\n   npm install @radix-ui/react-* (shadcn/ui components)\n   npm install next-auth bcrypt jsonwebtoken\n   npm install framer-motion recharts\n   npm install -D @types/node @types/react @types/mapbox-gl\n   ```\n\n3. Create Docker Compose configuration (docker-compose.yml):\n   ```yaml\n   version: '3.8'\n   services:\n     app:\n       build: .\n       ports:\n         - '3000:3000'\n       environment:\n         - DATABASE_URL=postgresql://user:pass@db:5432/jobsearch\n       depends_on:\n         - db\n         - redis\n     db:\n       image: postgres:15-alpine\n       environment:\n         POSTGRES_USER: user\n         POSTGRES_PASSWORD: pass\n         POSTGRES_DB: jobsearch\n       volumes:\n         - postgres_data:/var/lib/postgresql/data\n     n8n:\n       image: n8nio/n8n\n       ports:\n         - '5678:5678'\n       environment:\n         - N8N_BASIC_AUTH_ACTIVE=true\n       volumes:\n         - n8n_data:/home/node/.n8n\n     redis:\n       image: redis:7-alpine\n       ports:\n         - '6379:6379'\n     nginx:\n       image: nginx:alpine\n       ports:\n         - '80:80'\n         - '443:443'\n       volumes:\n         - ./nginx.conf:/etc/nginx/nginx.conf\n   volumes:\n     postgres_data:\n     n8n_data:\n   ```\n\n4. Create multi-stage Dockerfile for Next.js app\n5. Set up .env.example with all required environment variables\n6. Configure tsconfig.json with path aliases (@/ for src/)\n7. Initialize Git repository with .gitignore",
@@ -831,7 +831,7 @@
     ],
     "metadata": {
       "created": "2025-11-12T11:17:58.410Z",
-      "updated": "2025-11-12T11:39:42.231Z",
+      "updated": "2025-11-19T11:41:38.517Z",
       "description": "Tasks for master context"
     }
   }
