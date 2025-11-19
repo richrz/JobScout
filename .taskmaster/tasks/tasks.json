@@ -925,7 +925,7 @@
         "id": 12,
         "title": "Design and Implement Prisma Database Schema with Migrations",
         "description": "Create the complete Prisma schema matching the PRD specifications (User, Profile, Job, Application, Config models) and set up initial database migrations with proper indexes and relationships.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           11
         ],
@@ -1667,7 +1667,7 @@
     ],
     "metadata": {
       "created": "2025-11-19T11:41:58.827Z",
-      "updated": "2025-11-19T17:11:57.496Z",
+      "updated": "2025-11-19T17:20:52.699Z",
       "description": "Tag created on 11/19/2025"
     }
   }
