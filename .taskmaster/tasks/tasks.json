@@ -938,8 +938,8 @@
             "title": "Design Prisma Schema with Complete Model Relationships",
             "description": "Implement the complete Prisma schema with all required models and properly configured relationships including cascade deletes",
             "dependencies": [],
-            "details": "Create schema.prisma file with User, Profile, Job, Application, and Config models from PRD specifications. Configure all relationships with proper onDelete actions (Cascade, SetNull). Ensure required fields, constraints, and data types match requirements. Pay special attention to one-to-one (User-Profile, User-Config) and one-to-many (User-Application, Job-Application) relationships. Validate JSON field usage for complex data structures.",
-            "status": "pending",
+            "details": "Create schema.prisma file with User, Profile, Job, Application, and Config models from PRD specifications. Configure all relationships with proper onDelete actions (Cascade, SetNull). Ensure required fields, constraints, and data types match requirements. Pay special attention to one-to-one (User-Profile, User-Config) and one-to-many (User-Application, Job-Application) relationships. Validate JSON field usage for complex data structures.\n<info added on 2025-11-19T17:32:45.871Z>\nPlan:\n1. Initialize Prisma in the project: cd job-search-platform && npx prisma init\n2. Create tests/verify_prisma_schema.js to parse job-search-platform/prisma/schema.prisma and verify:\n    - Models: User, Profile, Job, Application, Config exist.\n    - User model has email, profile, applications, config.\n    - Profile model has userId relation.\n    - Job model has applications.\n    - Application model has userId, jobId.\n    - Config model has userId, searchParams.\n3. Run verification (expect failure).\n4. Update job-search-platform/prisma/schema.prisma with the complete schema definition from the task details.\n5. Run verification (expect success).\n</info added on 2025-11-19T17:32:45.871Z>",
+            "status": "in-progress",
             "testStrategy": "Verify relationships work through Prisma Studio. Test cascade operations manually. Check foreign key constraints in database. Validate schema against PRD requirements."
           },
           {
@@ -949,8 +949,8 @@
             "dependencies": [
               1
             ],
-            "details": "Review expected query patterns from application requirements. Add indexes for foreign keys, unique fields, and frequently queried columns. Implement composite indexes where needed (e.g., [userId, status] for Application model, [postedAt, source] for Job model). Validate index strategy against expected query patterns. Document rationale for each index. Ensure all specified indexes from PRD are correctly implemented.",
-            "status": "pending",
+            "details": "Review expected query patterns from application requirements. Add indexes for foreign keys, unique fields, and frequently queried columns. Implement composite indexes where needed (e.g., [userId, status] for Application model, [postedAt, source] for Job model). Validate index strategy against expected query patterns. Document rationale for each index. Ensure all specified indexes from PRD are correctly implemented.\n<info added on 2025-11-19T17:40:22.213Z>\nPlan:\n1. Create `tests/verify_indexes.js` to parse `job-search-platform/prisma/schema.prisma` and verify specific indexes:\n    - User: `@@index([email])`\n    - Job: `@@index([postedAt, source])`, `@@index([cityMatch, compositeScore])`\n    - Application: `@@index([userId, status])`, `@@index([jobId])`\n2. Run verification (expect success, as indexes were added in previous step).\n3. If success, we will double-check if any additional indexes from the plan are missing.\n4. Run verification (expect success).\n</info added on 2025-11-19T17:40:22.213Z>",
+            "status": "in-progress",
             "testStrategy": "Use database EXPLAIN ANALYZE to verify index usage. Test query performance before and after index implementation. Validate that all specified indexes are correctly created in PostgreSQL. Check index coverage for critical queries."
           },
           {
@@ -961,8 +961,8 @@
               1,
               2
             ],
-            "details": "Create initial migration using 'prisma migrate dev --name init'. Implement seed script (prisma/seed.ts) with realistic development data for all models. Configure migration workflow according to best practices (using prisma db push vs prisma migrate). Set up proper environment variables and connection pooling configuration. Include validation steps to ensure migrations apply correctly across environments.",
-            "status": "pending",
+            "details": "Create initial migration using 'prisma migrate dev --name init'. Implement seed script (prisma/seed.ts) with realistic development data for all models. Configure migration workflow according to best practices (using prisma db push vs prisma migrate). Set up proper environment variables and connection pooling configuration. Include validation steps to ensure migrations apply correctly across environments.\n<info added on 2025-11-19T17:41:35.029Z>\nPlan:\n1. Create tests/verify_seed.js to check for existence of job-search-platform/prisma/seed.ts and verify it contains seeding logic for at least one user/job.\n2. Run verification (expect failure).\n3. Create job-search-platform/prisma/seed.ts with realistic mock data for users, jobs, and config.\n4. Configure package.json to add prisma seed command.\n5. Run verification (expect success).\n</info added on 2025-11-19T17:41:35.029Z>",
+            "status": "in-progress",
             "testStrategy": "Run migration successfully and verify all tables created. Test seed script execution with sample data. Validate data integrity after seeding. Check migration history is properly tracked. Test rollback procedures in development environment."
           },
           {
@@ -972,8 +972,8 @@
             "dependencies": [
               3
             ],
-            "details": "Create Prisma Client singleton in src/lib/prisma.ts to prevent multiple instances in development. Configure connection pool settings appropriate for production environment (max connections, timeout). Implement proper error handling and logging. Set up query logging configuration for different environments (development vs production). Include SSL configuration for secure database connections.",
-            "status": "pending",
+            "details": "Create Prisma Client singleton in src/lib/prisma.ts to prevent multiple instances in development. Configure connection pool settings appropriate for production environment (max connections, timeout). Implement proper error handling and logging. Set up query logging configuration for different environments (development vs production). Include SSL configuration for secure database connections.\n<info added on 2025-11-19T17:45:20.431Z>\nPlan:\n1. Create tests/verify_prisma_client.js to check for job-search-platform/src/lib/prisma.ts.\n2. Run verification (expect failure).\n3. Create job-search-platform/src/lib/prisma.ts implementing the singleton pattern for Prisma Client.\n4. Run verification (expect success).\n</info added on 2025-11-19T17:45:20.431Z>",
+            "status": "in-progress",
             "testStrategy": "Verify only one Prisma Client instance is created. Test database connection under load. Validate connection pool settings are applied. Check error handling works as expected. Test SSL connection in production-like environment."
           }
         ]
@@ -1667,7 +1667,7 @@
     ],
     "metadata": {
       "created": "2025-11-19T11:41:58.827Z",
-      "updated": "2025-11-19T17:20:52.699Z",
+      "updated": "2025-11-19T17:45:20.455Z",
       "description": "Tag created on 11/19/2025"
     }
   }
