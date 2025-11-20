@@ -1,14 +1,47 @@
+export interface WorkExperience {
+  id: string;
+  company: string;
+  role: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
+export interface Education {
+  id: string;
+  school: string;
+  degree: string;
+  year: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  url?: string;
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  url?: string;
+}
+
 export interface Profile {
   contactInfo: {
     email?: string;
     phone?: string;
     linkedin?: string;
+    location?: string;
+    portfolio?: string;
   };
-  workHistory: any[];
-  education: any[];
+  workHistory: WorkExperience[];
+  education: Education[];
   skills: string[];
-  projects: any[];
-  certifications: any[];
+  projects: Project[];
+  certifications: Certification[];
 }
 
 export function calculateCompleteness(profile: Profile): number {

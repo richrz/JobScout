@@ -248,7 +248,7 @@ task-master models --setup
 # Set specific models
 task-master models --set-main claude-3-5-sonnet-20241022
 task-master models --set-research perplexity-llama-3.1-sonar-large-128k-online
-task-master models --set-fallback gpt-4o-mini
+task-master models --set-fallback gpt-5.1-mini
 ```
 
 ## Task Structure & IDs

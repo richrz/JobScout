@@ -46,7 +46,7 @@
 			"taskTitle": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
 			"complexityScore": 8,
 			"recommendedSubtasks": 5,
-			"expansionPrompt": "Break down into: 1) Tiptap editor configuration, 2) Profile section architecture, 3) Progress calculation algorithm, 4) GPT-4 Vision resume import implementation, 5) Auto-save with debouncing strategy",
+			"expansionPrompt": "Break down into: 1) Tiptap editor configuration, 2) Profile section architecture, 3) Progress calculation algorithm, 4) GPT-5.1 Vision resume import implementation, 5) Auto-save with debouncing strategy",
 			"reasoning": "High complexity due to rich text editor integration (Tiptap), multi-section form with different input types, and GPT-4 Vision API integration for resume parsing. The progress calculation requires weighted scoring across sections. Resume import accuracy depends on proper prompt engineering and error handling."
 		},
 		{

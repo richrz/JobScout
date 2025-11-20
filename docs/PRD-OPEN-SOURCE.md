@@ -226,8 +226,8 @@ A self-hosted platform that:
 **Description**: Generate customized resumes for each job using any OpenAI-compatible LLM.
 
 **LLM Configuration** (User Selects):
-- **Provider**: OpenAI, Anthropic (Claude), Ollama (local), OpenRouter, Azure OpenAI, or custom endpoint
-- **Model**: GPT-4o, GPT-4o-mini, Claude Sonnet, Llama 3.1, Mixtral, etc.
+- **Provider**: Google, OpenAI, Anthropic (Claude), Ollama (local), OpenRouter, Azure OpenAI, or custom endpoint
+- **Model**: google/gemini-3-pro-preview, openai/gpt-5.1-chat, x-ai/grok-4.1-fast, Claude Sonnet, etc.
 - **Parameters**: Temperature (0.3-0.9), max tokens (500-4000)
 - **API Key**: Stored in environment variables (never in code)
 
@@ -318,7 +318,7 @@ A self-hosted platform that:
 **Features**:
 - Multi-step form with auto-save (every 30 seconds)
 - Progress indicator (0-100% complete)
-- Import from existing resume (GPT-4 Vision OCR, 80%+ accuracy)
+- Import from existing resume (GPT-5.1 Vision OCR, 80%+ accuracy)
 - Export as JSON backup
 - Rich text editor for descriptions
 
@@ -350,11 +350,11 @@ A self-hosted platform that:
     "max_results_per_source": 50
   },
   "llm_config": {
-    "provider": "openai",
-    "model": "gpt-4o-mini",
+    "provider": "google",
+    "model": "google/gemini-3-pro-preview",
     "temperature": 0.5,
     "max_tokens": 2000,
-    "api_endpoint": "https://api.openai.com/v1"
+    "api_endpoint": "https://generativelanguage.googleapis.com/v1beta"
   },
   "daily_caps": {
     "max_applications": 6,
@@ -456,6 +456,7 @@ NEXTAUTH_SECRET="random-secret-key"
 NEXTAUTH_URL="https://yourdomain.com"
 
 # LLM Providers (configure one or more)
+GOOGLE_API_KEY="AIza..."
 OPENAI_API_KEY="sk-..."
 ANTHROPIC_API_KEY="sk-ant-..."
 OLLAMA_BASE_URL="http://localhost:11434"
@@ -609,33 +610,39 @@ model Config {
 
 **Supported Providers**:
 
-1. **OpenAI** (Default)
-   - Models: GPT-4o, GPT-4o-mini, GPT-4-turbo
+1. **Google** (Primary Recommendation)
+   - Models: google/gemini-3-pro-preview
+   - Endpoint: `https://generativelanguage.googleapis.com/v1beta`
+   - Env: `GOOGLE_API_KEY`
+
+2. **OpenAI**
+   - Models: openai/gpt-5.1-chat, GPT-5o
    - Endpoint: `https://api.openai.com/v1`
    - Env: `OPENAI_API_KEY`
 
-2. **Anthropic (Claude)**
-   - Models: Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku
+3. **OpenRouter / Compatible** (Recommended for variety)
+   - Default Model: x-ai/grok-4.1-fast
+   - Access to 100+ models via single API
+   - Endpoint: `https://openrouter.ai/api/v1`
+   - Env: `OPENROUTER_API_KEY`
+
+4. **Anthropic (Claude)**
+   - Models: Claude 3.5 Sonnet, Claude 3 Opus
    - Endpoint: `https://api.anthropic.com/v1`
    - Env: `ANTHROPIC_API_KEY`
 
-3. **Ollama (Local)**
+5. **Ollama (Local)**
    - Models: Llama 3.1, Mixtral, Gemma 2, Phi-3
    - Endpoint: `http://localhost:11434/v1`
    - Env: `OLLAMA_BASE_URL`
    - No API key needed
 
-4. **OpenRouter**
-   - Access to 100+ models via single API
-   - Endpoint: `https://openrouter.ai/api/v1`
-   - Env: `OPENROUTER_API_KEY`
-
-5. **Azure OpenAI**
-   - Models: GPT-4, GPT-3.5-turbo
+6. **Azure OpenAI**
+   - Models: GPT-5, GPT-4o-mini
    - Endpoint: Custom per deployment
    - Env: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`
 
-6. **Custom Endpoint**
+7. **Custom Endpoint**
    - Any OpenAI-compatible API
    - User provides endpoint URL + API key
 
@@ -812,6 +819,7 @@ NEXTAUTH_URL="http://localhost:3000"
 CLERK_SECRET_KEY="sk_..."
 
 # LLM Providers (add the ones you'll use)
+GOOGLE_API_KEY="AIza..."
 OPENAI_API_KEY="sk-..."
 ANTHROPIC_API_KEY="sk-ant-..."
 OLLAMA_BASE_URL="http://localhost:11434"

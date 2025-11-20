@@ -4,7 +4,7 @@ export async function parseResume(file: File): Promise<Profile> {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  // Mocked response from GPT-4 Vision
+  // Mocked response from GPT-5.1 Vision
   return {
     contactInfo: {
       email: 'john.doe@example.com',

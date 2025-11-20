@@ -86,8 +86,8 @@ For Gemini CLI users:
 
 ```bash
 # Set Gemini as primary model
-task-master models --set-main gemini-2.0-flash-exp
-task-master models --set-fallback gemini-1.5-flash
+task-master models --set-main gemini-3-pro-preview
+task-master models --set-fallback gemini-3-flash
 
 # Optional: Use Perplexity for research (or rely on Google Search)
 task-master models --set-research perplexity-llama-3.1-sonar-large-128k-online

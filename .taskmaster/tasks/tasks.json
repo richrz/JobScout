@@ -297,13 +297,13 @@
       {
         "id": 15,
         "title": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
-        "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-4 Vision OCR import from existing resumes.",
+        "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes.",
         "status": "pending",
         "dependencies": [
           13
         ],
         "priority": "high",
-        "details": "1. Install Tiptap dependencies:\n   ```bash\n   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder\n   ```\n\n2. Create Profile form structure:\n   ```typescript\n   // src/components/profile/ProfileBuilder.tsx\n   const sections = [\n     { id: 'contact', title: 'Contact Information', weight: 10 },\n     { id: 'work', title: 'Work History', weight: 40 },\n     { id: 'education', title: 'Education', weight: 15 },\n     { id: 'skills', title: 'Skills', weight: 15 },\n     { id: 'projects', title: 'Projects', weight: 10 },\n     { id: 'certifications', title: 'Certifications', weight: 10 }\n   ];\n   ```\n\n3. Build Tiptap editor component for work history/project descriptions:\n   ```typescript\n   import { useEditor, EditorContent } from '@tiptap/react';\n   import StarterKit from '@tiptap/starter-kit';\n\n   const editor = useEditor({\n     extensions: [StarterKit],\n     content: initialContent,\n     onUpdate: ({ editor }) => {\n       // Auto-save logic\n     }\n   });\n   ```\n\n4. Implement progress calculation:\n   ```typescript\n   function calculateCompleteness(profile: Profile): number {\n     let score = 0;\n     if (profile.contactInfo.email) score += 10;\n     if (profile.workHistory.length > 0) score += 40;\n     if (profile.education.length > 0) score += 15;\n     if (profile.skills.length >= 5) score += 15;\n     if (profile.projects.length > 0) score += 10;\n     if (profile.certifications.length > 0) score += 10;\n     return score;\n   }\n   ```\n\n5. Create resume import feature using GPT-4 Vision:\n   ```typescript\n   async function importFromResume(file: File) {\n     const base64 = await fileToBase64(file);\n     const response = await openai.chat.completions.create({\n       model: 'gpt-4-vision-preview',\n       messages: [{\n         role: 'user',\n         content: [\n           { type: 'text', text: 'Extract structured profile data from this resume' },\n           { type: 'image_url', image_url: { url: base64 } }\n         ]\n       }]\n     });\n     return JSON.parse(response.choices[0].message.content);\n   }\n   ```\n\n6. Implement auto-save with debouncing (30 second intervals)\n7. Add JSON export functionality\n8. Create skill tag input with proficiency levels\n9. Build dynamic work history/education entry forms",
+        "details": "1. Install Tiptap dependencies:\n   ```bash\n   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder\n   ```\n\n2. Create Profile form structure:\n   ```typescript\n   // src/components/profile/ProfileBuilder.tsx\n   const sections = [\n     { id: 'contact', title: 'Contact Information', weight: 10 },\n     { id: 'work', title: 'Work History', weight: 40 },\n     { id: 'education', title: 'Education', weight: 15 },\n     { id: 'skills', title: 'Skills', weight: 15 },\n     { id: 'projects', title: 'Projects', weight: 10 },\n     { id: 'certifications', title: 'Certifications', weight: 10 }\n   ];\n   ```\n\n3. Build Tiptap editor component for work history/project descriptions:\n   ```typescript\n   import { useEditor, EditorContent } from '@tiptap/react';\n   import StarterKit from '@tiptap/starter-kit';\n\n   const editor = useEditor({\n     extensions: [StarterKit],\n     content: initialContent,\n     onUpdate: ({ editor }) => {\n       // Auto-save logic\n     }\n   });\n   ```\n\n4. Implement progress calculation:\n   ```typescript\n   function calculateCompleteness(profile: Profile): number {\n     let score = 0;\n     if (profile.contactInfo.email) score += 10;\n     if (profile.workHistory.length > 0) score += 40;\n     if (profile.education.length > 0) score += 15;\n     if (profile.skills.length >= 5) score += 15;\n     if (profile.projects.length > 0) score += 10;\n     if (profile.certifications.length > 0) score += 10;\n     return score;\n   }\n   ```\n\n5. Create resume import feature using GPT-4 Vision:\n   ```typescript\n   async function importFromResume(file: File) {\n     const base64 = await fileToBase64(file);\n     const response = await openai.chat.completions.create({\n       model: 'gpt-5.1-vision-preview',\n       messages: [{\n         role: 'user',\n         content: [\n           { type: 'text', text: 'Extract structured profile data from this resume' },\n           { type: 'image_url', image_url: { url: base64 } }\n         ]\n       }]\n     });\n     return JSON.parse(response.choices[0].message.content);\n   }\n   ```\n\n6. Implement auto-save with debouncing (30 second intervals)\n7. Add JSON export functionality\n8. Create skill tag input with proficiency levels\n9. Build dynamic work history/education entry forms",
         "testStrategy": "1. Test auto-save triggers after 30 seconds of inactivity\n2. Verify progress calculation updates correctly (0-100%)\n3. Test Tiptap editor saves rich text properly\n4. Validate resume import with sample PDF (check 80%+ accuracy)\n5. Test JSON export/import round-trip\n6. Verify all form validations work\n7. Test skill tag input (add/remove/edit)\n8. Confirm data persists to Profile table\n9. Test with incomplete profiles (partial data)\n10. Verify proficiency level dropdowns work",
         "subtasks": [
           {
@@ -339,8 +339,8 @@
           },
           {
             "id": 4,
-            "title": "Implement GPT-4 Vision resume parsing functionality",
-            "description": "Create the feature to import profile data from resumes using GPT-4 Vision API",
+            "title": "Implement GPT-5.1 Vision resume parsing functionality",
+            "description": "Create the feature to import profile data from resumes using GPT-5.1 Vision API",
             "dependencies": [
               2
             ],
@@ -1160,13 +1160,13 @@
       {
         "id": 15,
         "title": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
-        "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-4 Vision OCR import from existing resumes.",
-        "status": "pending",
+        "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes.",
+        "status": "done",
         "dependencies": [
           "13"
         ],
         "priority": "high",
-        "details": "1. Install Tiptap dependencies:\n   ```bash\n   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder\n   ```\n\n2. Create Profile form structure:\n   ```typescript\n   // src/components/profile/ProfileBuilder.tsx\n   const sections = [\n     { id: 'contact', title: 'Contact Information', weight: 10 },\n     { id: 'work', title: 'Work History', weight: 40 },\n     { id: 'education', title: 'Education', weight: 15 },\n     { id: 'skills', title: 'Skills', weight: 15 },\n     { id: 'projects', title: 'Projects', weight: 10 },\n     { id: 'certifications', title: 'Certifications', weight: 10 }\n   ];\n   ```\n\n3. Build Tiptap editor component for work history/project descriptions:\n   ```typescript\n   import { useEditor, EditorContent } from '@tiptap/react';\n   import StarterKit from '@tiptap/starter-kit';\n\n   const editor = useEditor({\n     extensions: [StarterKit],\n     content: initialContent,\n     onUpdate: ({ editor }) => {\n       // Auto-save logic\n     }\n   });\n   ```\n\n4. Implement progress calculation:\n   ```typescript\n   function calculateCompleteness(profile: Profile): number {\n     let score = 0;\n     if (profile.contactInfo.email) score += 10;\n     if (profile.workHistory.length > 0) score += 40;\n     if (profile.education.length > 0) score += 15;\n     if (profile.skills.length >= 5) score += 15;\n     if (profile.projects.length > 0) score += 10;\n     if (profile.certifications.length > 0) score += 10;\n     return score;\n   }\n   ```\n\n5. Create resume import feature using GPT-4 Vision:\n   ```typescript\n   async function importFromResume(file: File) {\n     const base64 = await fileToBase64(file);\n     const response = await openai.chat.completions.create({\n       model: 'gpt-4-vision-preview',\n       messages: [{\n         role: 'user',\n         content: [\n           { type: 'text', text: 'Extract structured profile data from this resume' },\n           { type: 'image_url', image_url: { url: base64 } }\n         ]\n       }]\n     });\n     return JSON.parse(response.choices[0].message.content);\n   }\n   ```\n\n6. Implement auto-save with debouncing (30 second intervals)\n7. Add JSON export functionality\n8. Create skill tag input with proficiency levels\n9. Build dynamic work history/education entry forms",
+        "details": "1. Install Tiptap dependencies:\n   ```bash\n   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder\n   ```\n\n2. Create Profile form structure:\n   ```typescript\n   // src/components/profile/ProfileBuilder.tsx\n   const sections = [\n     { id: 'contact', title: 'Contact Information', weight: 10 },\n     { id: 'work', title: 'Work History', weight: 40 },\n     { id: 'education', title: 'Education', weight: 15 },\n     { id: 'skills', title: 'Skills', weight: 15 },\n     { id: 'projects', title: 'Projects', weight: 10 },\n     { id: 'certifications', title: 'Certifications', weight: 10 }\n   ];\n   ```\n\n3. Build Tiptap editor component for work history/project descriptions:\n   ```typescript\n   import { useEditor, EditorContent } from '@tiptap/react';\n   import StarterKit from '@tiptap/starter-kit';\n\n   const editor = useEditor({\n     extensions: [StarterKit],\n     content: initialContent,\n     onUpdate: ({ editor }) => {\n       // Auto-save logic\n     }\n   });\n   ```\n\n4. Implement progress calculation:\n   ```typescript\n   function calculateCompleteness(profile: Profile): number {\n     let score = 0;\n     if (profile.contactInfo.email) score += 10;\n     if (profile.workHistory.length > 0) score += 40;\n     if (profile.education.length > 0) score += 15;\n     if (profile.skills.length >= 5) score += 15;\n     if (profile.projects.length > 0) score += 10;\n     if (profile.certifications.length > 0) score += 10;\n     return score;\n   }\n   ```\n\n5. Create resume import feature using GPT-4 Vision:\n   ```typescript\n   async function importFromResume(file: File) {\n     const base64 = await fileToBase64(file);\n     const response = await openai.chat.completions.create({\n       model: 'gpt-5.1-vision-preview',\n       messages: [{\n         role: 'user',\n         content: [\n           { type: 'text', text: 'Extract structured profile data from this resume' },\n           { type: 'image_url', image_url: { url: base64 } }\n         ]\n       }]\n     });\n     return JSON.parse(response.choices[0].message.content);\n   }\n   ```\n\n6. Implement auto-save with debouncing (30 second intervals)\n7. Add JSON export functionality\n8. Create skill tag input with proficiency levels\n9. Build dynamic work history/education entry forms",
         "testStrategy": "1. Test auto-save triggers after 30 seconds of inactivity\n2. Verify progress calculation updates correctly (0-100%)\n3. Test Tiptap editor saves rich text properly\n4. Validate resume import with sample PDF (check 80%+ accuracy)\n5. Test JSON export/import round-trip\n6. Verify all form validations work\n7. Test skill tag input (add/remove/edit)\n8. Confirm data persists to Profile table\n9. Test with incomplete profiles (partial data)\n10. Verify proficiency level dropdowns work",
         "subtasks": [
           {
@@ -1175,7 +1175,7 @@
             "description": "Set up Tiptap editor with StarterKit and Placeholder extensions for profile content creation",
             "dependencies": [],
             "details": "Install @tiptap/react, @tiptap/starter-kit, and @tiptap/extension-placeholder; create reusable editor component with proper configuration for work history and project descriptions; implement placeholder text and content management",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify editor renders correctly, all toolbar functions work, and content saves properly",
             "parentId": "undefined"
           },
@@ -1187,7 +1187,7 @@
               1
             ],
             "details": "Build the form structure with contact, work history, education, skills, projects, and certifications sections; implement dynamic forms for work history/education entries and skill tag input with proficiency levels; create JSON export functionality",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test navigation between sections, verify all form elements render correctly, validate dynamic entry creation/deletion",
             "parentId": "undefined"
           },
@@ -1199,19 +1199,19 @@
               2
             ],
             "details": "Create function that calculates profile completeness score based on weighted sections (contact: 10%, work history: 40%, education: 15%, skills: 15%, projects: 10%, certifications: 10%); implement UI display for progress percentage\n<info added on 2025-11-20T00:26:39.290Z>\nPlan:\n1. Create job-search-platform/tests/unit/lib/profile-utils.test.ts.\n2. Write test: Verify score calculation (Contact=10, Work=40, etc.).\n3. Run npm test (Expect Fail).\n4. Create job-search-platform/src/lib/profile-utils.ts.\n5. Implement calculateCompleteness.\n6. Run npm test (Expect Pass).\n</info added on 2025-11-20T00:26:39.290Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Verify calculation returns correct percentages for various completion states, test edge cases like partial section completion",
             "parentId": "undefined"
           },
           {
             "id": 4,
-            "title": "Implement GPT-4 Vision resume parsing functionality",
+            "title": "Implement GPT-5.1 Vision resume parsing functionality",
             "description": "Create the feature to import profile data from resumes using GPT-4 Vision API",
             "dependencies": [
               2
             ],
-            "details": "Build file upload handler, base64 conversion, API call to GPT-4 Vision with proper prompt engineering, and data mapping to profile structure; implement error handling for failed OCR attempts and validation of extracted data\n<info added on 2025-11-20T00:28:37.161Z>\nPlan:\n1. Create `job-search-platform/tests/unit/lib/resume-parser.test.ts`.\n2. Write test: `parseResume` calls OpenAI mock and returns parsed JSON.\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/lib/resume-parser.ts`.\n5. Implement parser logic (mocked OpenAI for now).\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-20T00:28:37.161Z>",
-            "status": "in-progress",
+            "details": "Build file upload handler, base64 conversion, API call to GPT-5.1 Vision with proper prompt engineering, and data mapping to profile structure; implement error handling for failed OCR attempts and validation of extracted data\n<info added on 2025-11-20T00:28:37.161Z>\nPlan:\n1. Create `job-search-platform/tests/unit/lib/resume-parser.test.ts`.\n2. Write test: `parseResume` calls OpenAI mock and returns parsed JSON.\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/lib/resume-parser.ts`.\n5. Implement parser logic (mocked OpenAI for now).\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-20T00:28:37.161Z>",
+            "status": "done",
             "testStrategy": "Test with sample resumes in different formats, verify data extraction accuracy, validate error handling for corrupted files",
             "parentId": "undefined"
           },
@@ -1224,7 +1224,7 @@
               2
             ],
             "details": "Set up debouncing mechanism with 30-second interval, connect to editor onUpdate and form change events, implement save to backend with proper state management and error recovery; add visual indicators for save status\n<info added on 2025-11-20T00:30:35.286Z>\nPlan:\n1. Update `job-search-platform/tests/unit/components/profile/ProfileBuilder.test.tsx` to test for Auto-Save integration.\n2. Test: Check if `useAutoSave` triggers (mock it) or check for \"Saved\" indicator.\n3. Run `npm test` (Expect Fail).\n4. Update `job-search-platform/src/components/profile/ProfileBuilder.tsx` to integrate `useForm` and `useAutoSave`.\n5. Run `npm test` (Expect Pass).\n</info added on 2025-11-20T00:30:35.286Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Verify auto-save triggers after 30s inactivity, test with rapid typing, validate data persistence after page refresh",
             "parentId": "undefined"
           }
@@ -1741,7 +1741,7 @@
       ],
       "created": "2025-11-19T22:13:12.431Z",
       "description": "Tasks for tdd context",
-      "updated": "2025-11-20T00:30:50.817Z"
+      "updated": "2025-11-20T00:33:58.932Z"
     }
   }
 }
