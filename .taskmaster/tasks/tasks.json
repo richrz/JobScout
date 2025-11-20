@@ -838,7 +838,7 @@
   "tdd": {
     "tasks": [
       {
-        "id": 11,
+        "id": "11",
         "title": "Initialize Next.js 14 Project with Core Dependencies and Docker Configuration",
         "description": "Set up the foundational Next.js 14 project structure with TypeScript, configure Docker Compose stack (app, PostgreSQL 15, n8n, nginx, Redis), and establish the development environment with all required dependencies.",
         "status": "done",
@@ -928,7 +928,7 @@
         ]
       },
       {
-        "id": 12,
+        "id": "12",
         "title": "Design and Implement Prisma Database Schema with Migrations",
         "description": "Create the complete Prisma schema matching the PRD specifications (User, Profile, Job, Application, Config models) and set up initial database migrations with proper indexes and relationships.",
         "status": "done",
@@ -989,7 +989,7 @@
         ]
       },
       {
-        "id": 13,
+        "id": "13",
         "title": "Implement Authentication System with NextAuth and Single-User Mode",
         "description": "Set up NextAuth with Google OAuth provider, email/password fallback using bcrypt, JWT session management, and implement single-user mode bypass option as specified in the PRD.",
         "status": "done",
@@ -1068,7 +1068,7 @@
         "updatedAt": "2025-11-19T21:26:36.748Z"
       },
       {
-        "id": 14,
+        "id": "14",
         "title": "Build Multi-Step Configuration Wizard with Form Validation",
         "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking and data persistence.",
         "status": "done",
@@ -1158,7 +1158,7 @@
         ]
       },
       {
-        "id": 15,
+        "id": "15",
         "title": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
         "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes.",
         "status": "done",
@@ -1231,10 +1231,10 @@
         ]
       },
       {
-        "id": 16,
+        "id": "16",
         "title": "Develop LLM Integration Layer with Multi-Provider Support",
         "description": "Build the provider-agnostic LLM client using LangChain that supports OpenAI, Anthropic, Ollama, OpenRouter, Azure OpenAI, and custom endpoints with configurable temperature/token settings and resume generation prompts.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           "15"
         ],
@@ -1248,9 +1248,10 @@
             "description": "Create the foundational interface and configuration structure for the multi-provider LLM client",
             "dependencies": [],
             "details": "Define LLMConfig interface with provider types, model parameters, and exaggeration level mapping. Establish TypeScript interfaces that abstract provider-specific implementations. Create the getLLMClient factory function skeleton with proper typing and dependency management.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate interface compatibility with all target providers through TypeScript compilation checks",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-20T17:40:50.572Z"
           },
           {
             "id": 2,
@@ -1304,10 +1305,11 @@
             "testStrategy": "Test error scenarios including invalid API keys, rate limits, and network failures. Verify streaming works correctly and provides real-time updates",
             "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-20T17:40:50.572Z"
       },
       {
-        "id": 17,
+        "id": "17",
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
         "status": "pending",
@@ -1395,7 +1397,7 @@
         ]
       },
       {
-        "id": 18,
+        "id": "18",
         "title": "Create Interactive Map Visualization with Mapbox GL JS",
         "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls as specified in the PRD.",
         "status": "pending",
@@ -1469,7 +1471,7 @@
         ]
       },
       {
-        "id": 19,
+        "id": "19",
         "title": "Implement Kanban Application Pipeline Tracker with Drag-and-Drop",
         "description": "Build the application tracking system using dnd-kit with customizable pipeline stages, drag-and-drop functionality, status timeline, file attachments, notes, bulk operations, and CSV export as specified in the PRD.",
         "status": "pending",
@@ -1531,7 +1533,7 @@
         ]
       },
       {
-        "id": 20,
+        "id": "20",
         "title": "Build Resume Generation and PDF Export System",
         "description": "Create the resume tailoring interface with live preview using ProseMirror editor, integrate with LLM service for generation, implement ATS-friendly PDF export with react-pdf, and add configurable file naming templates.",
         "status": "pending",
@@ -1600,7 +1602,7 @@
         ]
       },
       {
-        "id": 21,
+        "id": "21",
         "title": "Develop Settings Management UI and Configuration Hot Reload",
         "description": "Create the comprehensive settings interface with tabbed layout (Search, LLM, Automation, Advanced), implement live validation, LLM connection testing, JSON Schema validation, version control for configs, and hot reload functionality without server restart.",
         "status": "pending",
@@ -1669,7 +1671,7 @@
         ]
       },
       {
-        "id": 22,
+        "id": "22",
         "title": "Implement Responsive UI with Tailwind CSS and shadcn/ui Components",
         "description": "Build the complete mobile-first responsive design system using Tailwind CSS and shadcn/ui, implement dark/light theme toggle, create mobile optimizations (touch targets, swipe gestures, bottom navigation), and ensure performance targets (FCP < 1.5s, TTI < 3s).",
         "status": "pending",
@@ -1733,15 +1735,12 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-19T21:26:36.749Z",
+      "lastModified": "2025-11-20T17:40:50.573Z",
       "taskCount": 12,
-      "completedCount": 3,
+      "completedCount": 5,
       "tags": [
         "tdd"
-      ],
-      "created": "2025-11-19T22:13:12.431Z",
-      "description": "Tasks for tdd context",
-      "updated": "2025-11-20T00:33:58.932Z"
+      ]
     }
   }
 }
