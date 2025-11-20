@@ -295,7 +295,7 @@ You don't write code. Your job is simple:
 ### Complete Agent Session Walkthrough
 
 #### Step 1: Start a New Agent
-Open a new agent session (e.g., Claude, GPT, or another AI assistant).
+Open a new agent session (e.g., Claude 3.7, GPT-5.1, or another AI assistant).
 
 #### Step 2: Point Agent to AGENTS.md
 Your first message to the agent:

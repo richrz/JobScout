@@ -227,7 +227,7 @@ A self-hosted platform that:
 
 **LLM Configuration** (User Selects):
 - **Provider**: Google, OpenAI, Anthropic (Claude), Ollama (local), OpenRouter, Azure OpenAI, or custom endpoint
-- **Model**: google/gemini-3-pro-preview, openai/gpt-5.1-chat, x-ai/grok-4.1-fast, Claude Sonnet, etc.
+- **Model**: google/gemini-3-pro-preview, openai/gpt-5.1-chat, x-ai/grok-4.1-fast, anthropic/claude-sonnet-4.5, etc.
 - **Parameters**: Temperature (0.3-0.9), max tokens (500-4000)
 - **API Key**: Stored in environment variables (never in code)
 
@@ -627,7 +627,7 @@ model Config {
    - Env: `OPENROUTER_API_KEY`
 
 4. **Anthropic (Claude)**
-   - Models: Claude 3.5 Sonnet, Claude 3 Opus
+   - Models: anthropic/claude-sonnet-4.5, anthropic/claude-haiku-4.5
    - Endpoint: `https://api.anthropic.com/v1`
    - Env: `ANTHROPIC_API_KEY`
 
@@ -638,7 +638,7 @@ model Config {
    - No API key needed
 
 6. **Azure OpenAI**
-   - Models: GPT-5, GPT-4o-mini
+   - Models: GPT-5, gpt-5.1-mini
    - Endpoint: Custom per deployment
    - Env: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`
 

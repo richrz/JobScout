@@ -320,7 +320,7 @@ That's it. The system handles everything else.
 
 #### Step 1: Start a New Agent
 
-Open a new agent session (e.g., Claude, GPT, or another AI assistant) with **no prior context** about your project.
+Open a new agent session (e.g., Claude 3.7, GPT-5.1, or another AI assistant) with **no prior context** about your project.
 
 #### Step 2: Point Agent to AGENTS.md
 
