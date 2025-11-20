@@ -1274,10 +1274,11 @@
               1,
               2
             ],
-            "details": "Implement generateTailoredResume function with dynamic system prompts based on exaggeration levels. Map exaggeration levels to temperature parameters (Conservative: 0.3, Balanced: 0.5, Strategic: 0.7). Structure prompts to highlight relevant experience, use job description keywords, and reorder work history while maintaining ATS-friendly format.",
-            "status": "pending",
+            "details": "Implement generateTailoredResume function with dynamic system prompts based on exaggeration levels. Map exaggeration levels to temperature parameters (Conservative: 0.3, Balanced: 0.5, Strategic: 0.7). Structure prompts to highlight relevant experience, use job description keywords, and reorder work history while maintaining ATS-friendly format.\n<info added on 2025-11-20T18:28:07.771Z>\nPlan: Develop the prompt engineering system for tailored resume generation with exaggeration levels.\n\nImplementation steps:\n1. Analyze existing ResumeGenerator class structure and interfaces\n2. Design prompt engineering system architecture with modular prompt components\n3. Create dynamic system prompts based on exaggeration levels (conservative, balanced, strategic)\n4. Map exaggeration levels to temperature parameters (Conservative: 0.3, Balanced: 0.5, Strategic: 0.7)\n5. Implement generateTailoredResume function with comprehensive prompt engineering\n6. Structure prompts to highlight relevant experience and use job description keywords\n7. Create ATS-friendly markdown format templates and structures\n8. Implement work history reordering logic based on job relevance\n9. Add keyword extraction and integration from job descriptions\n10. Test with sample job descriptions and profiles\n11. Validate ATS-friendly markdown output format\n12. Test exaggeration level effects on generated tone\n\nFiles to modify:\n- src/lib/llm.ts (implement generateTailoredResume and generateTailoredResumeStream methods)\n\nThis will enable intelligent resume tailoring that adapts tone and content based on user-defined exaggeration levels while maintaining ATS compatibility.\n</info added on 2025-11-20T18:28:07.771Z>",
+            "status": "done",
             "testStrategy": "Test prompt outputs with sample job descriptions and profiles, verify ATS-friendly markdown format, and validate exaggeration level effects on tone",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-20T18:31:54.479Z"
           },
           {
             "id": 4,
@@ -1307,7 +1308,7 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-11-20T18:14:13.226Z"
+        "updatedAt": "2025-11-20T18:31:54.479Z"
       },
       {
         "id": "17",
@@ -1736,7 +1737,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-20T18:14:13.226Z",
+      "lastModified": "2025-11-20T18:31:54.486Z",
       "taskCount": 12,
       "completedCount": 5,
       "tags": [
