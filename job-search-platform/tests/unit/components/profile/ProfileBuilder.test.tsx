@@ -13,4 +13,9 @@ describe('ProfileBuilder', () => {
     expect(screen.getByRole('button', { name: 'Work History' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Education' })).toBeInTheDocument();
   });
+
+  test('displays save status', () => {
+    render(<ProfileBuilder />);
+    expect(screen.getByText(/Saved/i)).toBeInTheDocument();
+  });
 });
