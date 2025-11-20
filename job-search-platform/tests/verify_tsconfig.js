@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const tsconfigPath = path.join(__dirname, '../job-search-platform/tsconfig.json');
-const nextConfigPath = path.join(__dirname, '../job-search-platform/next.config.ts');
+const tsconfigPath = path.join(__dirname, '../tsconfig.json');
+const nextConfigPath = path.join(__dirname, '../next.config.ts');
 
 if (!fs.existsSync(tsconfigPath)) {
   console.error(`tsconfig.json not found at: ${tsconfigPath}`);

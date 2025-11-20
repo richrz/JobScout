@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const composePath = path.join(__dirname, '../job-search-platform/docker-compose.yml');
-const nginxPath = path.join(__dirname, '../job-search-platform/nginx.conf');
+const composePath = path.join(__dirname, '../docker-compose.yml');
+const nginxPath = path.join(__dirname, '../nginx.conf');
 
 if (!fs.existsSync(composePath)) {
   console.error(`docker-compose.yml not found at: ${composePath}`);

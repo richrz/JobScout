@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const packageJsonPath = path.join(__dirname, '../job-search-platform/package.json');
+const packageJsonPath = path.join(__dirname, '../package.json');
 
 if (!fs.existsSync(packageJsonPath)) {
   console.error(`package.json not found at: ${packageJsonPath}`);

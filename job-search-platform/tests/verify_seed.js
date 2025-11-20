@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const seedPath = path.join(__dirname, '../job-search-platform/prisma/seed.ts');
-const packageJsonPath = path.join(__dirname, '../job-search-platform/package.json');
+const seedPath = path.join(__dirname, '../prisma/seed.ts');
+const packageJsonPath = path.join(__dirname, '../package.json');
 
 if (!fs.existsSync(seedPath)) {
   console.error(`seed.ts not found at: ${seedPath}`);

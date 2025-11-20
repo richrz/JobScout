@@ -1071,7 +1071,7 @@
         "id": 14,
         "title": "Build Multi-Step Configuration Wizard with Form Validation",
         "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking and data persistence.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           "13"
         ],
@@ -1085,7 +1085,7 @@
             "description": "Create comprehensive validation schemas for each wizard step with proper error messages and interdependent validation rules",
             "dependencies": [],
             "details": "Implement citySchema with radius and weight constraints, step1Schema for cities array, step2Schema for job titles, and complete configSchema. Add custom validation for weight sliders summing to 100% and handle conditional validation for salary ranges.\n<info added on 2025-11-19T22:13:20.314Z>\nPlan:\n1. Create `job-search-platform/tests/unit/validations/config.test.ts`.\n2. Write unit tests using `zod` to verify:\n    - `citySchema` rejects empty names, invalid radius (<5), invalid weights (<0 or >100).\n    - `step1Schema` requires non-empty cities array.\n    - `step2Schema` requires non-empty categories array.\n    - `configSchema` validates the full object structure.\n3. Run `npm test` (expect failure as files don't exist).\n4. Create `job-search-platform/src/lib/validations/config.ts` with the Zod schemas.\n5. Run `npm test` (expect success).\n</info added on 2025-11-19T22:13:20.314Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Validate each schema with edge cases: empty cities array, invalid radius values, weight sums exceeding 100%, and salary range inconsistencies",
             "parentId": "undefined"
           },
@@ -1097,7 +1097,7 @@
               1
             ],
             "details": "Create ConfigWizard component with useForm and zodResolver. Implement step navigation logic with useWizard hook pattern. Manage form state persistence between steps and handle validation triggers during navigation. Integrate with shadcn/ui components for consistent styling.\n<info added on 2025-11-19T22:15:09.927Z>\nPlan:\n1. Create `job-search-platform/tests/unit/components/ConfigWizard.test.tsx`.\n2. Write test: Render `ConfigWizard` and check for \"Target Cities\" (Step 1) heading.\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/components/onboarding/ConfigWizard.tsx`.\n5. Implement the basic wizard shell (useForm, useState for steps).\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:15:09.927Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test state preservation when navigating back/forward, verify validation triggers correctly, and confirm form values persist through step transitions",
             "parentId": "undefined"
           },
@@ -1110,7 +1110,7 @@
               2
             ],
             "details": "Implement Step1Cities with Mapbox autocomplete and dual sliders, Step2Titles with tag input, Step3Include/Step4Exclude with keyword tag inputs, Step5Salary with min/max inputs and undisclosed checkbox, and Step6Recency with radio buttons. Ensure each component connects properly to form state.\n<info added on 2025-11-19T22:17:20.059Z>\nPlan:\n1. Create `job-search-platform/tests/unit/components/steps/Step1Cities.test.tsx`.\n2. Write test: Verify it renders a city input and radius slider.\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/components/onboarding/steps/Step1Cities.tsx`.\n5. Implement the component using `react-hook-form` context.\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:17:20.059Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Validate each component's UI elements function correctly, test validation error display, and verify proper data binding to form state for all input types",
             "parentId": "undefined"
           },
@@ -1123,7 +1123,7 @@
               3
             ],
             "details": "Set up useEffect hook with 30-second debounce timer. Implement save handler that stores current form values in localStorage and syncs with backend API. Add visual feedback for save status. Handle edge cases like form submission during auto-save.\n<info added on 2025-11-19T22:19:50.895Z>\nPlan:\n1. Create `job-search-platform/tests/unit/hooks/useAutoSave.test.ts`.\n2. Write test: Verify hook calls save callback after 30 seconds of inactivity (debounce).\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/hooks/useAutoSave.ts`.\n5. Implement `useAutoSave` hook using `useEffect` and `setTimeout`.\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:19:50.895Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Verify data saves after 30s interval, test save status indicators, and confirm data persists through page refresh. Check localStorage entries and API calls during save operations",
             "parentId": "undefined"
           },
@@ -1136,7 +1136,7 @@
               3
             ],
             "details": "Implement calculateProgress function that evaluates required fields per step. Build ProgressIndicator component showing 0-100% with visual feedback. Integrate with wizard state to update in real-time as users complete steps. Add tooltips showing incomplete sections.\n<info added on 2025-11-19T22:21:04.668Z>\nPlan:\n1. Create `job-search-platform/tests/unit/components/ProgressBar.test.tsx`.\n2. Write test: Verify progress bar width is calculated correctly (e.g., Step 1/6 = ~16%).\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/components/ui/ProgressBar.tsx`.\n5. Implement component.\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:21:04.668Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test progress calculation with partial/complete data, verify visual representation matches calculated percentage, and confirm updates during navigation and data entry",
             "parentId": "undefined"
           },
@@ -1151,7 +1151,7 @@
               5
             ],
             "details": "Build service layer connecting form data to Prisma Config model. Implement exportConfig function generating JSON structure matching configSchema. Create importConfig function with validation. Add UI controls for export/import operations with error handling for invalid JSON.\n<info added on 2025-11-19T22:22:07.621Z>\nPlan:\n1. Create `job-search-platform/tests/unit/components/ConfigActions.test.tsx`.\n2. Write test: Verify Export button exists and triggers file download simulation. Verify Import button exists.\n3. Run `npm test` (Expect Fail).\n4. Create `job-search-platform/src/components/onboarding/ConfigActions.tsx`.\n5. Implement Export (JSON.stringify + Blob) and Import (FileReader) logic.\n6. Run `npm test` (Expect Pass).\n</info added on 2025-11-19T22:22:07.621Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test round-trip JSON export/import, verify data integrity after import, and confirm proper validation of imported data against configSchema. Test edge cases with malformed JSON",
             "parentId": "undefined"
           }
@@ -1741,7 +1741,7 @@
       ],
       "created": "2025-11-19T22:13:12.431Z",
       "description": "Tasks for tdd context",
-      "updated": "2025-11-19T22:22:10.679Z"
+      "updated": "2025-11-19T23:44:18.858Z"
     }
   }
 }

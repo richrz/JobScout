@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const projectDir = path.join(__dirname, '../job-search-platform');
+const projectDir = path.join(__dirname, '..');
 
 const requiredFiles = [
   'package.json',

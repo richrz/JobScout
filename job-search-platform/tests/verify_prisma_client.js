@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const clientPath = path.join(__dirname, '../job-search-platform/src/lib/prisma.ts');
+const clientPath = path.join(__dirname, '../src/lib/prisma.ts');
 
 if (!fs.existsSync(clientPath)) {
   console.error(`prisma.ts not found at: ${clientPath}`);

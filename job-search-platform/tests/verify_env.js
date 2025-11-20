@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const envExamplePath = path.join(__dirname, '../job-search-platform/.env.example');
-const envTsPath = path.join(__dirname, '../job-search-platform/src/env.ts');
+const envExamplePath = path.join(__dirname, '../.env.example');
+const envTsPath = path.join(__dirname, '../src/env.ts');
 
 if (!fs.existsSync(envExamplePath)) {
   console.error(`.env.example not found at: ${envExamplePath}`);

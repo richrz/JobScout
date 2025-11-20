@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const dockerfilePath = path.join(__dirname, '../job-search-platform/Dockerfile');
+const dockerfilePath = path.join(__dirname, '../Dockerfile');
 
 if (!fs.existsSync(dockerfilePath)) {
   console.error(`Dockerfile not found at: ${dockerfilePath}`);

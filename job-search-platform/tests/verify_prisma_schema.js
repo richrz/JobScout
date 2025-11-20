@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const schemaPath = path.join(__dirname, '../job-search-platform/prisma/schema.prisma');
+const schemaPath = path.join(__dirname, '../prisma/schema.prisma');
 
 if (!fs.existsSync(schemaPath)) {
   console.error(`schema.prisma not found at: ${schemaPath}`);
