@@ -1071,7 +1071,7 @@
         "id": 14,
         "title": "Build Multi-Step Configuration Wizard with Form Validation",
         "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking and data persistence.",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           "13"
         ],
@@ -1741,7 +1741,7 @@
       ],
       "created": "2025-11-19T22:13:12.431Z",
       "description": "Tasks for tdd context",
-      "updated": "2025-11-19T23:44:18.858Z"
+      "updated": "2025-11-20T00:19:50.130Z"
     }
   }
 }
