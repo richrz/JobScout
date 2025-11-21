@@ -53,6 +53,7 @@ For drift checks after setup, use `auto-install/repo_guidance.json` as a machine
    ```
 2. Copy the exact `npx task-master autopilot start …` command it prints. No freelancing.
 3. If the script refuses to proceed (dirty tree or stale session), fix the warning (stash/commit, or run `./scripts/autopilot-reset.sh`) and rerun it.
+4. Autopilot must start on a task that already has subtasks (e.g., start on `16`, not leaf `16.5`). Expanding a leaf won’t help—expand the parent (`npx task-master expand --id=16`) and run `npx task-master autopilot start 16` so it can walk 16.1–16.5.
 
 ## During each subtask
 

@@ -34,15 +34,42 @@
         "Ensure docs/project/onboarding-flow-todo.md exists for future logging."
       ],
       "validation": [
-        { "type": "file_exists", "path": "docs/guides/autopilot-tdd-stack-setup.md" },
-        { "type": "file_exists", "path": "docs/guides/autopilot-agent-runbook.md" },
-        { "type": "file_exists", "path": "docs/guides/taskmaster-guardrails.md" },
-        { "type": "file_exists", "path": "docs/guides/human-in-the-loop-workflow.md" },
-        { "type": "file_exists", "path": "docs/guides/autopilot-tdd-playbook.md" },
-        { "type": "file_exists", "path": "scripts/start-agent-work.sh" },
-        { "type": "file_exists", "path": "scripts/autopilot-reset.sh" },
-        { "type": "file_exists", "path": "scripts/autopilot-wrapup.sh" },
-        { "type": "file_exists", "path": "docs/project/onboarding-flow-todo.md" }
+        {
+          "type": "file_exists",
+          "path": "docs/guides/autopilot-tdd-stack-setup.md"
+        },
+        {
+          "type": "file_exists",
+          "path": "docs/guides/autopilot-agent-runbook.md"
+        },
+        {
+          "type": "file_exists",
+          "path": "docs/guides/taskmaster-guardrails.md"
+        },
+        {
+          "type": "file_exists",
+          "path": "docs/guides/human-in-the-loop-workflow.md"
+        },
+        {
+          "type": "file_exists",
+          "path": "docs/guides/autopilot-tdd-playbook.md"
+        },
+        {
+          "type": "file_exists",
+          "path": "scripts/start-agent-work.sh"
+        },
+        {
+          "type": "file_exists",
+          "path": "scripts/autopilot-reset.sh"
+        },
+        {
+          "type": "file_exists",
+          "path": "scripts/autopilot-wrapup.sh"
+        },
+        {
+          "type": "file_exists",
+          "path": "docs/project/onboarding-flow-todo.md"
+        }
       ]
     },
     {
