@@ -65,7 +65,39 @@ export abstract class BaseLLMClient implements LLMClient {
       model: config.model || DEFAULT_MODELS[config.provider],
       temperature: config.temperature ?? providerConfig.defaultTemperature,
       maxTokens: config.maxTokens ?? providerConfig.maxTokens,
+      maxRetries: config.maxRetries ?? 3,
     };
+  }
+
+  protected async withRetry<T>(operation: () => Promise<T>): Promise<T> {
+    const maxRetries = this.config.maxRetries ?? 3;
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        // Check if we should retry (429, 5xx)
+        const isRetryable =
+          lastError.message.includes('429') ||
+          lastError.message.includes('500') ||
+          lastError.message.includes('502') ||
+          lastError.message.includes('503') ||
+          lastError.message.includes('504');
+
+        if (attempt === maxRetries || !isRetryable) {
+          throw lastError;
+        }
+
+        // Exponential backoff: 1s, 2s, 4s...
+        const delay = Math.pow(2, attempt) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+
+    throw lastError || new Error('Unknown error after retries');
   }
 }
 
@@ -84,29 +116,31 @@ export class OpenAIClient extends BaseLLMClient {
   }
 
   async generateResponse(messages: LLMMessage[]): Promise<LLMResponse> {
-    try {
-      const startTime = Date.now();
-      const langchainMessages = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+    return this.withRetry(async () => {
+      try {
+        const startTime = Date.now();
+        const langchainMessages = messages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+        }));
 
-      const response = await this.client.invoke(langchainMessages);
-      const endTime = Date.now();
+        const response = await this.client.invoke(langchainMessages);
+        const endTime = Date.now();
 
-      return {
-        content: response.content as string,
-        usage: response.usage_metadata ? {
-          promptTokens: response.usage_metadata.prompt_tokens || 0,
-          completionTokens: response.usage_metadata.completion_tokens || 0,
-          totalTokens: response.usage_metadata.total_tokens || 0,
-        } : undefined,
-        model: this.config.model,
-        provider: 'openai',
-      };
-    } catch (error) {
-      throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+        return {
+          content: response.content as string,
+          usage: response.usage_metadata ? {
+            promptTokens: response.usage_metadata.prompt_tokens || 0,
+            completionTokens: response.usage_metadata.completion_tokens || 0,
+            totalTokens: response.usage_metadata.total_tokens || 0,
+          } : undefined,
+          model: this.config.model,
+          provider: 'openai',
+        };
+      } catch (error) {
+        throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    });
   }
 
   async generateStreamResponse(messages: LLMMessage[]): Promise<AsyncIterable<LLMResponse>> {
@@ -118,7 +152,7 @@ export class OpenAIClient extends BaseLLMClient {
 
       const stream = await this.client.stream(langchainMessages);
 
-      return (async function*() {
+      return (async function* () {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
@@ -204,7 +238,7 @@ export class AnthropicClient extends BaseLLMClient {
 
       const stream = await this.client.stream(langchainMessages);
 
-      return (async function*() {
+      return (async function* () {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
@@ -292,7 +326,7 @@ export class OllamaClient extends BaseLLMClient {
 
       const stream = await this.client.stream(langchainMessages);
 
-      return (async function*() {
+      return (async function* () {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
@@ -386,7 +420,7 @@ export class OpenRouterClient extends BaseLLMClient {
 
       const stream = await this.client.stream(langchainMessages);
 
-      return (async function*() {
+      return (async function* () {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
@@ -486,7 +520,7 @@ export class AzureOpenAIClient extends BaseLLMClient {
 
       const stream = await this.client.stream(langchainMessages);
 
-      return (async function*() {
+      return (async function* () {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
@@ -581,7 +615,7 @@ export class CustomLLMClient extends BaseLLMClient {
 
       const stream = await this.client.stream(langchainMessages);
 
-      return (async function*() {
+      return (async function* () {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
