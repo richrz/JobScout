@@ -13,7 +13,7 @@ If the TDD-in-a-Box assets were just copied into this repository, run the automa
 2. Install Task-master and scaffold its state:
    ```bash
    npm install --save-dev task-master-ai
-   npx task-master init
+   npx task-master initf
    ```
 3. Make the helper scripts executable:
    ```bash
