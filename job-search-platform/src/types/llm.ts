@@ -39,12 +39,69 @@ export interface ResumeGenerationRequest {
   customInstructions?: string;
 }
 
+export type LLMTestError =
+  | string
+  | {
+      category: 'authentication' | 'network' | 'configuration' | 'model_unavailable' | 'timeout' | 'unknown';
+      message: string;
+      code?: string;
+    };
+
 export interface LLMConnectionTest {
   provider: LLMProvider;
   model: string;
-  status: 'success' | 'error';
+  status: 'success' | 'failed' | 'error';
   responseTime?: number;
-  error?: string;
+  error?: LLMTestError;
+  errorCategory?: 'authentication' | 'network' | 'configuration' | 'model_unavailable' | 'timeout' | 'unknown';
+}
+
+export interface ConnectionTestError {
+  category: 'authentication' | 'network' | 'configuration' | 'model_unavailable' | 'timeout' | 'unknown';
+  message: string;
+  code: string;
+}
+
+export interface DetailedConnectionTest extends LLMConnectionTest {
+  diagnostics: {
+    apiEndpoint: string;
+    modelAvailability: boolean;
+    responseFormat: 'json' | 'text' | 'unknown';
+    connectionLatency: number;
+  };
+  performance: {
+    throughput?: number;
+    latency: number;
+    reliability: number;
+  };
+  healthCheck: {
+    isHealthy: boolean;
+    issues?: string[];
+    recommendations?: string[];
+  };
+}
+
+export interface BatchConnectionTest {
+  results: LLMConnectionTest[];
+  summary: {
+    total: number;
+    success: number;
+    failed: number;
+    errors: string[];
+  };
+  statistics: {
+    averageResponseTime: number;
+    successRate: number;
+    errorBreakdown: Record<string, number>;
+  };
+  successCount: number;
+  failureCount: number;
+  responseTime: {
+    total: number;
+    average: number;
+    min: number;
+    max: number;
+  };
 }
 
 // Temperature mapping for exaggeration levels

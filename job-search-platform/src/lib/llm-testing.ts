@@ -110,11 +110,11 @@ export class LLMConnectionTester {
     const testMessage = options.customTestMessage || this.DEFAULT_TEST_MESSAGE;
 
     let lastError: Error | null = null;
-    let actualRetries = 0;
+
+    const client = getLLMClient(config);
 
     for (let attempt = 0; attempt <= retryAttempts; attempt++) {
       try {
-        const client = getLLMClient(config);
 
         // Test basic connection
         const connectionTest = await Promise.race([
@@ -122,13 +122,16 @@ export class LLMConnectionTester {
           this.createTimeoutPromise(timeout),
         ]);
 
-        const responseTime = Date.now() - startTime;
+        // Prefer provider-reported response time, fallback to measured
+        const responseTime = connectionTest && typeof connectionTest === 'object' && 'responseTime' in connectionTest
+          ? (connectionTest as any).responseTime ?? (Date.now() - startTime)
+          : (Date.now() - startTime);
 
         // If model availability testing is requested, perform additional test
-        let modelAvailable = true;
-        if (options.testModelAvailability) {
+        let modelAvailable = options.testModelAvailability ? true : undefined;
+        if (options.testModelAvailability && typeof (client as any).generateResponse === 'function') {
           try {
-            await client.generateResponse([
+            await (client as any).generateResponse([
               { role: 'user', content: testMessage }
             ]);
           } catch (error) {
@@ -155,13 +158,12 @@ export class LLMConnectionTester {
           },
           metadata: {
             testType: options.testModelAvailability ? 'comprehensive' : 'basic',
-            retryAttempts: actualRetries,
+            retryAttempts: attempt,
           },
         };
 
       } catch (error) {
         lastError = error instanceof Error ? error : new Error('Unknown error');
-        actualRetries = attempt;
 
         // If this is the last attempt, categorize and return the error
         if (attempt === retryAttempts) {
@@ -187,7 +189,7 @@ export class LLMConnectionTester {
             },
             metadata: {
               testType: 'basic',
-              retryAttempts: actualRetries,
+              retryAttempts: attempt,
             },
           };
         }
@@ -240,8 +242,11 @@ export class LLMConnectionTester {
     const errorCounts = results
       .filter(r => r.status === 'error' && r.error)
       .reduce((counts, r) => {
-        const error = r.error || 'Unknown error';
-        counts[error] = (counts[error] || 0) + 1;
+        const rawError = r.error || 'Unknown error';
+        const normalizedError = typeof rawError === 'string'
+          ? (rawError.includes(':') ? rawError.split(':')[0].trim() : rawError)
+          : 'Unknown error';
+        counts[normalizedError] = (counts[normalizedError] || 0) + 1;
         return counts;
       }, {} as Record<string, number>);
 
@@ -378,11 +383,20 @@ export class LLMConnectionTester {
       );
     }
 
+    // Timeout errors (checked before generic network)
+    if (message.includes('timeout') || message.includes('timed out') || message.includes('aborted')) {
+      return new ConnectionTestError(
+        `Request timeout: ${error.message}`,
+        'timeout',
+        error,
+        provider
+      );
+    }
+
     // Network errors
     if (
       message.includes('network') ||
       message.includes('connection') ||
-      message.includes('timeout') ||
       message.includes('econnrefused') ||
       message.includes('enotfound') ||
       message.includes('fetch') ||
@@ -407,16 +421,6 @@ export class LLMConnectionTester {
       return new ConnectionTestError(
         `Model unavailable: ${error.message}`,
         'model_unavailable',
-        error,
-        provider
-      );
-    }
-
-    // Timeout errors
-    if (message.includes('timeout') || message.includes('aborted')) {
-      return new ConnectionTestError(
-        `Request timeout: ${error.message}`,
-        'timeout',
         error,
         provider
       );

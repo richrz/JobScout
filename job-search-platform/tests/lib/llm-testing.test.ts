@@ -73,8 +73,8 @@ describe('LLM Connection Testing Framework', () => {
       const configWithInvalidModel = { ...validOpenAIConfig, model: 'invalid-model-name' };
       const result = await LLMConnectionTester.testProviderConfiguration(configWithInvalidModel);
 
-      expect(result.warnings).toContain(
-        expect.stringContaining('may not be available')
+      expect(result.warnings).toEqual(
+        expect.arrayContaining([expect.stringContaining('may not be available')])
       );
     });
 
