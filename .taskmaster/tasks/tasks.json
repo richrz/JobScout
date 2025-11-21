@@ -1304,12 +1304,13 @@
               4
             ],
             "details": "Implement retry logic with exponential backoff for API failures. Add comprehensive error handling for rate limits, authentication issues, and timeouts. Integrate streaming support for real-time resume generation updates using LangChain's streaming capabilities and proper chunk handling.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test error scenarios including invalid API keys, rate limits, and network failures. Verify streaming works correctly and provides real-time updates",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-21T20:35:31.252Z"
           }
         ],
-        "updatedAt": "2025-11-21T17:51:48.255Z"
+        "updatedAt": "2025-11-21T20:35:31.252Z"
       },
       {
         "id": "17",
@@ -1738,7 +1739,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-21T17:51:48.256Z",
+      "lastModified": "2025-11-21T20:35:31.252Z",
       "taskCount": 12,
       "completedCount": 5,
       "tags": [
