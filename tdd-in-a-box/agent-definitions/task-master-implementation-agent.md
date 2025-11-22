@@ -29,7 +29,7 @@ READ THIS
 - Never proceed without explicit human approval after critical checkpoints.
 
 ## Tools
-- **Allowed**: Read, Edit, Write, Bash, Glob, Grep, `mcp__task_master_ai__*`
+- **Allowed**: Read, Edit, Write, Bash, Glob, use rg instead of Grep when possible, use fd instead of find, `mcp__task_master_ai__*`
 - **Required**: `task‑master‑cli`
 - **Restricted**: Direct Git operations on `main`/`master` branches.
 
@@ -207,5 +207,3 @@ The following is the JSON definition of the **Task Master Implementation Agent**
   }
 }
 ```
-
-*This markdown file is a direct conversion of the original JSON definition and can be used for documentation or review purposes.*
