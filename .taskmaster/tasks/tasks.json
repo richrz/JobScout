@@ -1354,10 +1354,10 @@
               2
             ],
             "details": "Implement the provided Haversine distance calculation function, create geographic filtering service that processes jobs against user-defined search areas (cities with radius), handle cases where job locations can't be geocoded, and optimize for performance with spatial indexing where possible.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test with known coordinate pairs and verified distances, validate edge cases (antipodal points, same location), test performance with large job datasets, verify filtering accuracy against manual calculations",
             "parentId": "undefined",
-            "updatedAt": "2025-11-22T03:57:01.620Z"
+            "updatedAt": "2025-11-22T07:21:50.982Z"
           },
           {
             "id": 4,
@@ -1369,9 +1369,10 @@
               3
             ],
             "details": "Implement weighted scoring system where each criterion (recency, keyword match strength, salary level, geographic proximity) contributes to overall relevance score. Allow configurable weights through system settings. Normalize scores across different criteria for fair comparison.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test with controlled datasets where expected ranking is known, verify weight adjustments affect results as expected, test edge cases (jobs with missing data), validate score distribution across large datasets",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-22T07:43:53.409Z"
           },
           {
             "id": 5,
@@ -1402,7 +1403,7 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-11-22T03:57:01.620Z"
+        "updatedAt": "2025-11-22T07:43:53.409Z"
       },
       {
         "id": "18",
@@ -1743,7 +1744,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-22T03:57:01.621Z",
+      "lastModified": "2025-11-22T07:43:53.416Z",
       "taskCount": 12,
       "completedCount": 6,
       "tags": [
