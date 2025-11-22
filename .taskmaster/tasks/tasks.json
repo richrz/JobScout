@@ -1316,7 +1316,7 @@
         "id": "17",
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           "12"
         ],
@@ -1330,9 +1330,10 @@
             "description": "Create and configure n8n workflows to scrape job listings from Indeed RSS feed, LinkedIn Jobs, and configurable company career pages",
             "dependencies": [],
             "details": "Implement three separate workflows: 1) Indeed RSS feed workflow using RSS node, 2) LinkedIn Jobs scraping workflow using HTTP Request nodes with proper headers and pagination, 3) Company career page scraping workflow with configurable URL templates and CSS selectors. Each workflow must extract title, company, location, description, salary, and posting date.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test each workflow individually with sample URLs, verify data extraction completeness, check error handling for failed requests, validate output structure matches expected schema",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-22T02:50:25.401Z"
           },
           {
             "id": 2,
@@ -1340,9 +1341,10 @@
             "description": "Implement Mapbox Geocoding service to convert job locations to latitude/longitude coordinates with rate limiting and caching",
             "dependencies": [],
             "details": "Create geocoding service using provided TypeScript implementation, add rate limiting to respect Mapbox API limits, implement Redis caching for previously geocoded locations, handle API errors and retries, and add circuit breaker pattern for API failures.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test with various location formats (city names, addresses), verify cache hits/misses, test error scenarios (invalid locations, API rate limits), validate coordinate accuracy against known locations",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-22T02:58:19.603Z"
           },
           {
             "id": 3,
@@ -1398,7 +1400,8 @@
             "testStrategy": "Test scheduling with shortened intervals, verify monitoring metrics are accurately recorded, test error notification channels, validate retry logic works as expected, test manual trigger API endpoint functionality",
             "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-22T02:58:19.603Z"
       },
       {
         "id": "18",
@@ -1739,7 +1742,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-21T21:21:16.950Z",
+      "lastModified": "2025-11-22T02:58:19.604Z",
       "taskCount": 12,
       "completedCount": 6,
       "tags": [
