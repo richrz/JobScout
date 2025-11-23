@@ -456,11 +456,11 @@
           },
           {
             "id": 2,
-            "title": "Integrate Mapbox Geocoding API with error handling and caching",
-            "description": "Implement Mapbox Geocoding service to convert job locations to latitude/longitude coordinates with rate limiting and caching",
+            "title": "Integrate Google Maps Geocoding API with error handling and caching",
+            "description": "Implement Google Maps Geocoding service to convert job locations to latitude/longitude coordinates with rate limiting and caching",
             "dependencies": [],
-            "details": "Create geocoding service using provided TypeScript implementation, add rate limiting to respect Mapbox API limits, implement Redis caching for previously geocoded locations, handle API errors and retries, and add circuit breaker pattern for API failures.",
-            "status": "pending",
+            "details": "Create geocoding service using Google Maps Client, add rate limiting to respect API limits, implement Redis caching for previously geocoded locations, handle API errors and retries.",
+            "status": "done",
             "testStrategy": "Test with various location formats (city names, addresses), verify cache hits/misses, test error scenarios (invalid locations, API rate limits), validate coordinate accuracy against known locations"
           },
           {
@@ -484,7 +484,7 @@
               3
             ],
             "details": "Implement weighted scoring system where each criterion (recency, keyword match strength, salary level, geographic proximity) contributes to overall relevance score. Allow configurable weights through system settings. Normalize scores across different criteria for fair comparison.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with controlled datasets where expected ranking is known, verify weight adjustments affect results as expected, test edge cases (jobs with missing data), validate score distribution across large datasets"
           },
           {
@@ -495,7 +495,7 @@
               1
             ],
             "details": "Develop fuzzy matching algorithm using Levenshtein distance or similar technique to compare job titles and company names. Implement configurable similarity thresholds. Create merge strategy for duplicate jobs that preserves the most complete information from each source.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with known duplicate job pairs with varying degrees of similarity, verify threshold adjustments affect deduplication results, test performance with large job datasets, validate merged job data integrity"
           },
           {
@@ -510,64 +510,64 @@
               5
             ],
             "details": "Implement cron scheduler to run aggregation every 6 hours, create monitoring dashboard showing success rates and performance metrics, set up error notifications via email/Slack, implement retry logic for failed jobs, and create manual trigger API endpoint for on-demand runs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test scheduling with shortened intervals, verify monitoring metrics are accurately recorded, test error notification channels, validate retry logic works as expected, test manual trigger API endpoint functionality"
           }
         ]
       },
       {
         "id": 18,
-        "title": "Create Interactive Map Visualization with Mapbox GL JS",
-        "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls as specified in the PRD.",
+        "title": "Create Interactive Map Visualization with Google Maps",
+        "description": "Build the geographic job visualization using Google Maps JavaScript API with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls.",
         "status": "pending",
         "dependencies": [
           17
         ],
         "priority": "high",
-        "details": "1. Install Mapbox dependencies:\n   ```bash\n   npm install mapbox-gl react-map-gl\n   npm install -D @types/mapbox-gl\n   ```\n\n2. Create Map component:\n   ```typescript\n   // src/components/map/JobMap.tsx\n   import Map, { Marker, Source, Layer, Popup } from 'react-map-gl';\n   import 'mapbox-gl/dist/mapbox-gl.css';\n\n   export function JobMap({ jobs, cities, filters }) {\n     const [viewState, setViewState] = useState({\n       longitude: -98.5795,\n       latitude: 39.8283,\n       zoom: 4\n     });\n\n     const [selectedJob, setSelectedJob] = useState(null);\n\n     return (\n       <Map\n         {...viewState}\n         onMove={evt => setViewState(evt.viewState)}\n         mapStyle=\"mapbox://styles/mapbox/dark-v11\"\n         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}\n       >\n         {/* Radius circles */}\n         {cities.map(city => (\n           <Source key={city.name} type=\"geojson\" data={createCircle(city)}>\n             <Layer\n               type=\"fill\"\n               paint={{\n                 'fill-color': '#3b82f6',\n                 'fill-opacity': 0.1\n               }}\n             />\n             <Layer\n               type=\"line\"\n               paint={{\n                 'line-color': '#3b82f6',\n                 'line-width': 2\n               }}\n             />\n           </Source>\n         ))}\n\n         {/* Job markers */}\n         {jobs.map(job => (\n           <Marker\n             key={job.id}\n             longitude={job.longitude}\n             latitude={job.latitude}\n             onClick={() => setSelectedJob(job)}\n           >\n             <div className={`marker ${getMarkerColor(job.compositeScore)}`} />\n           </Marker>\n         ))}\n\n         {/* Popup */}\n         {selectedJob && (\n           <Popup\n             longitude={selectedJob.longitude}\n             latitude={selectedJob.latitude}\n             onClose={() => setSelectedJob(null)}\n           >\n             <div>\n               <h3>{selectedJob.title}</h3>\n               <p>{selectedJob.company}</p>\n               <p>{selectedJob.salary}</p>\n               <button>View Details</button>\n             </div>\n           </Popup>\n         )}\n       </Map>\n     );\n   }\n   ```\n\n3. Implement marker color coding:\n   ```typescript\n   function getMarkerColor(score: number): string {\n     if (score >= 80) return 'bg-green-500'; // Top 20%\n     if (score >= 20) return 'bg-yellow-500'; // Middle 60%\n     return 'bg-red-500'; // Bottom 20%\n   }\n   ```\n\n4. Add clustering for nearby jobs:\n   ```typescript\n   <Source\n     type=\"geojson\"\n     data={jobsGeoJSON}\n     cluster={true}\n     clusterMaxZoom={14}\n     clusterRadius={50}\n   >\n     <Layer {...clusterLayer} />\n     <Layer {...clusterCountLayer} />\n   </Source>\n   ```\n\n5. Create heatmap layer (toggleable)\n6. Implement mobile touch gestures (pinch/zoom, swipe)\n7. Add filter controls (status, date range, score threshold)\n8. Create dark/light theme toggle",
-        "testStrategy": "1. Verify map loads with correct initial view\n2. Test marker rendering for all jobs\n3. Validate color coding (green/yellow/red by score)\n4. Test radius circles display correctly\n5. Verify clustering works (groups nearby markers)\n6. Test popup opens on marker click\n7. Validate heatmap toggle functionality\n8. Test mobile touch gestures (pinch/zoom)\n9. Verify filters update map in real-time\n10. Test theme toggle (dark/light mode)\n11. Check performance with 500+ markers",
+        "details": "1. Install Google Maps dependencies:\n   ```bash\n   npm install @vis.gl/react-google-maps @googlemaps/google-maps-services-js\n   ```\n\n2. Create Map component:\n   ```typescript\n   // src/components/map/JobMap.tsx\n   import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';\n\n   export function JobMap({ jobs, cities }) {\n     return (\n       <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>\n         <Map\n           defaultCenter={{ lat: 39.8283, lng: -98.5795 }}\n           defaultZoom={4}\n           mapId=\"YOUR_MAP_ID\"\n         >\n           {jobs.map(job => (\n             <AdvancedMarker key={job.id} position={{ lat: job.latitude, lng: job.longitude }}>\n               <Pin background={getMarkerColor(job.compositeScore)} />\n             </AdvancedMarker>\n           ))}\n         </Map>\n       </APIProvider>\n     );\n   }\n   ```\n\n3. Implement marker color coding and clustering.\n4. Add radius circles using google.maps.Circle.\n5. Implement mobile touch gestures (native to Google Maps).",
+        "testStrategy": "1. Verify map loads with Google Maps base layer\n2. Test marker rendering for all jobs\n3. Validate color coding\n4. Test radius circles display correctly\n5. Verify clustering works\n6. Test mobile touch gestures",
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up Mapbox GL JS integration and base map configuration",
-            "description": "Install dependencies, configure Mapbox token, and initialize the base map component with proper styling and view state management",
+            "title": "Set up Google Maps integration and base map configuration",
+            "description": "Install dependencies, configure Google Maps API key, and initialize the base map component with proper styling and view state management",
             "dependencies": [],
-            "details": "Install mapbox-gl and react-map-gl packages, create JobMap component with TypeScript typing, configure dark-v11 map style, implement viewState management with useState, and ensure proper CSS imports",
+            "details": "Install @vis.gl/react-google-maps and @googlemaps/google-maps-services-js packages, create JobMap component with TypeScript typing, configure map with Map ID, implement center and zoom management, and ensure proper API key configuration",
             "status": "pending",
-            "testStrategy": "Verify map loads with correct initial view, check token authentication works, validate CSS styles are properly applied"
+            "testStrategy": "Verify map loads with correct initial view, check API key authentication works, validate map renders properly"
           },
           {
             "id": 2,
             "title": "Implement color-coded job markers with clustering functionality",
-            "description": "Create color-coded markers based on job scores and implement clustering for dense job locations with proper visual representation",
+            "description": "Create color-coded markers based on job scores using AdvancedMarker and Pin components, and implement clustering for dense job locations",
             "dependencies": [
               1
             ],
-            "details": "Implement getMarkerColor function for score-based coloring, create marker components with proper styling, configure clustering with clusterMaxZoom=14 and clusterRadius=50, implement cluster layers for both cluster points and counts",
+            "details": "Implement getMarkerColor function for score-based coloring, create AdvancedMarker components with Pin styling, integrate @googlemaps/markerclusterer for clustering, configure cluster appearance and behavior",
             "status": "pending",
             "testStrategy": "Test marker rendering for all jobs, validate color coding (green/yellow/red by score), verify clustering works (groups nearby markers), check cluster count display"
           },
           {
             "id": 3,
             "title": "Develop city radius circle visualization with proper styling",
-            "description": "Create and render radius circles around configured cities with appropriate fill and border styling as specified in requirements",
+            "description": "Create and render radius circles around configured cities using google.maps.Circle with appropriate fill and border styling",
             "dependencies": [
               1
             ],
-            "details": "Implement createCircle utility function to generate GeoJSON for city radii, add Source and Layer components for both fill and line representations, apply proper styling with blue color (#3b82f6) and appropriate opacity/width values",
+            "details": "Implement Circle components for city radii, apply proper styling with blue color (#3b82f6) and appropriate opacity/width values, ensure circles update when cities change",
             "status": "pending",
             "testStrategy": "Validate radius circles display correctly around cities, verify styling matches requirements, test with multiple cities of different radii"
           },
           {
             "id": 4,
             "title": "Implement mobile-optimized touch controls and responsive design",
-            "description": "Add support for mobile touch gestures including pinch/zoom, swipe navigation, and ensure proper responsive behavior across device sizes",
+            "description": "Ensure mobile touch gestures work properly (native to Google Maps) and implement responsive behavior across device sizes",
             "dependencies": [
               1
             ],
-            "details": "Configure Map component with touchZoomRotate and dragPan enabled, implement responsive breakpoints for different screen sizes, add mobile-specific UI adjustments for markers and popups, ensure proper touch event handling",
+            "details": "Configure Map component with proper gesture settings, implement responsive breakpoints for different screen sizes, add mobile-specific UI adjustments for markers and info windows, ensure proper touch event handling",
             "status": "pending",
-            "testStrategy": "Test pinch/zoom functionality on mobile devices, verify swipe navigation works, check popup behavior on touch events, validate responsive layout across device sizes"
+            "testStrategy": "Test pinch/zoom functionality on mobile devices, verify swipe navigation works, check info window behavior on touch events, validate responsive layout across device sizes"
           },
           {
             "id": 5,
@@ -578,7 +578,7 @@
               2,
               3
             ],
-            "details": "Implement data filtering based on current viewport, optimize GeoJSON data structure, use Mapbox's feature filtering capabilities, implement lazy loading for markers outside current view, optimize React component rendering with memoization",
+            "details": "Implement data filtering based on current viewport, optimize marker rendering with clustering, use React memoization for components, implement lazy loading for markers outside current view",
             "status": "pending",
             "testStrategy": "Benchmark performance with 500+ job markers, verify frame rate remains above 30fps during interactions, test memory usage during extended use, validate smooth transitions during zoom/pan operations"
           }
@@ -1316,7 +1316,7 @@
         "id": "17",
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           "12"
         ],
@@ -1382,9 +1382,10 @@
               1
             ],
             "details": "Develop fuzzy matching algorithm using Levenshtein distance or similar technique to compare job titles and company names. Implement configurable similarity thresholds. Create merge strategy for duplicate jobs that preserves the most complete information from each source.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with known duplicate job pairs with varying degrees of similarity, verify threshold adjustments affect deduplication results, test performance with large job datasets, validate merged job data integrity",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-22T09:08:51.944Z"
           },
           {
             "id": 6,
@@ -1398,12 +1399,13 @@
               5
             ],
             "details": "Implement cron scheduler to run aggregation every 6 hours, create monitoring dashboard showing success rates and performance metrics, set up error notifications via email/Slack, implement retry logic for failed jobs, and create manual trigger API endpoint for on-demand runs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test scheduling with shortened intervals, verify monitoring metrics are accurately recorded, test error notification channels, validate retry logic works as expected, test manual trigger API endpoint functionality",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-22T09:08:53.216Z"
           }
         ],
-        "updatedAt": "2025-11-22T08:14:30.090Z"
+        "updatedAt": "2025-11-22T09:08:53.216Z"
       },
       {
         "id": "18",
@@ -1744,9 +1746,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-22T08:14:30.091Z",
+      "lastModified": "2025-11-22T09:08:53.218Z",
       "taskCount": 12,
-      "completedCount": 6,
+      "completedCount": 7,
       "tags": [
         "tdd"
       ]
