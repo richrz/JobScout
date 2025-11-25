@@ -838,7 +838,7 @@
   "tdd": {
     "tasks": [
       {
-        "id": "11",
+        "id": 11,
         "title": "Initialize Next.js 14 Project with Core Dependencies and Docker Configuration",
         "description": "Set up the foundational Next.js 14 project structure with TypeScript, configure Docker Compose stack (app, PostgreSQL 15, n8n, nginx, Redis), and establish the development environment with all required dependencies.",
         "status": "done",
@@ -928,7 +928,7 @@
         ]
       },
       {
-        "id": "12",
+        "id": 12,
         "title": "Design and Implement Prisma Database Schema with Migrations",
         "description": "Create the complete Prisma schema matching the PRD specifications (User, Profile, Job, Application, Config models) and set up initial database migrations with proper indexes and relationships.",
         "status": "done",
@@ -989,7 +989,7 @@
         ]
       },
       {
-        "id": "13",
+        "id": 13,
         "title": "Implement Authentication System with NextAuth and Single-User Mode",
         "description": "Set up NextAuth with Google OAuth provider, email/password fallback using bcrypt, JWT session management, and implement single-user mode bypass option as specified in the PRD.",
         "status": "done",
@@ -1068,7 +1068,7 @@
         "updatedAt": "2025-11-19T21:26:36.748Z"
       },
       {
-        "id": "14",
+        "id": 14,
         "title": "Build Multi-Step Configuration Wizard with Form Validation",
         "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking and data persistence.",
         "status": "done",
@@ -1158,7 +1158,7 @@
         ]
       },
       {
-        "id": "15",
+        "id": 15,
         "title": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
         "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes.",
         "status": "done",
@@ -1231,7 +1231,7 @@
         ]
       },
       {
-        "id": "16",
+        "id": 16,
         "title": "Develop LLM Integration Layer with Multi-Provider Support",
         "description": "Build the provider-agnostic LLM client using LangChain that supports OpenAI, Anthropic, Ollama, OpenRouter, Azure OpenAI, and custom endpoints with configurable temperature/token settings and resume generation prompts.",
         "status": "done",
@@ -1313,10 +1313,10 @@
         "updatedAt": "2025-11-21T21:21:16.949Z"
       },
       {
-        "id": "17",
+        "id": 17,
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
-        "status": "done",
+        "status": "in-progress",
         "dependencies": [
           "12"
         ],
@@ -1330,7 +1330,7 @@
             "description": "Create and configure n8n workflows to scrape job listings from Indeed RSS feed, LinkedIn Jobs, and configurable company career pages",
             "dependencies": [],
             "details": "Implement three separate workflows: 1) Indeed RSS feed workflow using RSS node, 2) LinkedIn Jobs scraping workflow using HTTP Request nodes with proper headers and pagination, 3) Company career page scraping workflow with configurable URL templates and CSS selectors. Each workflow must extract title, company, location, description, salary, and posting date.",
-            "status": "done",
+            "status": "in-progress",
             "testStrategy": "Test each workflow individually with sample URLs, verify data extraction completeness, check error handling for failed requests, validate output structure matches expected schema",
             "parentId": "undefined",
             "updatedAt": "2025-11-22T02:50:25.401Z"
@@ -1341,7 +1341,7 @@
             "description": "Implement Mapbox Geocoding service to convert job locations to latitude/longitude coordinates with rate limiting and caching",
             "dependencies": [],
             "details": "Create geocoding service using provided TypeScript implementation, add rate limiting to respect Mapbox API limits, implement Redis caching for previously geocoded locations, handle API errors and retries, and add circuit breaker pattern for API failures.",
-            "status": "done",
+            "status": "in-progress",
             "testStrategy": "Test with various location formats (city names, addresses), verify cache hits/misses, test error scenarios (invalid locations, API rate limits), validate coordinate accuracy against known locations",
             "parentId": "undefined",
             "updatedAt": "2025-11-22T03:27:56.730Z"
@@ -1354,7 +1354,7 @@
               2
             ],
             "details": "Implement the provided Haversine distance calculation function, create geographic filtering service that processes jobs against user-defined search areas (cities with radius), handle cases where job locations can't be geocoded, and optimize for performance with spatial indexing where possible.",
-            "status": "done",
+            "status": "in-progress",
             "testStrategy": "Test with known coordinate pairs and verified distances, validate edge cases (antipodal points, same location), test performance with large job datasets, verify filtering accuracy against manual calculations",
             "parentId": "undefined",
             "updatedAt": "2025-11-22T07:21:50.982Z"
@@ -1369,7 +1369,7 @@
               3
             ],
             "details": "Implement weighted scoring system where each criterion (recency, keyword match strength, salary level, geographic proximity) contributes to overall relevance score. Allow configurable weights through system settings. Normalize scores across different criteria for fair comparison.",
-            "status": "done",
+            "status": "in-progress",
             "testStrategy": "Test with controlled datasets where expected ranking is known, verify weight adjustments affect results as expected, test edge cases (jobs with missing data), validate score distribution across large datasets",
             "parentId": "undefined",
             "updatedAt": "2025-11-22T08:14:30.090Z"
@@ -1382,7 +1382,7 @@
               1
             ],
             "details": "Develop fuzzy matching algorithm using Levenshtein distance or similar technique to compare job titles and company names. Implement configurable similarity thresholds. Create merge strategy for duplicate jobs that preserves the most complete information from each source.",
-            "status": "done",
+            "status": "in-progress",
             "testStrategy": "Test with known duplicate job pairs with varying degrees of similarity, verify threshold adjustments affect deduplication results, test performance with large job datasets, validate merged job data integrity",
             "parentId": "undefined",
             "updatedAt": "2025-11-22T09:08:51.944Z"
@@ -1399,7 +1399,7 @@
               5
             ],
             "details": "Implement cron scheduler to run aggregation every 6 hours, create monitoring dashboard showing success rates and performance metrics, set up error notifications via email/Slack, implement retry logic for failed jobs, and create manual trigger API endpoint for on-demand runs.",
-            "status": "done",
+            "status": "in-progress",
             "testStrategy": "Test scheduling with shortened intervals, verify monitoring metrics are accurately recorded, test error notification channels, validate retry logic works as expected, test manual trigger API endpoint functionality",
             "parentId": "undefined",
             "updatedAt": "2025-11-22T09:08:53.216Z"
@@ -1408,7 +1408,7 @@
         "updatedAt": "2025-11-22T09:08:53.216Z"
       },
       {
-        "id": "18",
+        "id": 18,
         "title": "Create Interactive Map Visualization with Mapbox GL JS",
         "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls as specified in the PRD.",
         "status": "pending",
@@ -1482,7 +1482,7 @@
         ]
       },
       {
-        "id": "19",
+        "id": 19,
         "title": "Implement Kanban Application Pipeline Tracker with Drag-and-Drop",
         "description": "Build the application tracking system using dnd-kit with customizable pipeline stages, drag-and-drop functionality, status timeline, file attachments, notes, bulk operations, and CSV export as specified in the PRD.",
         "status": "pending",
@@ -1544,7 +1544,7 @@
         ]
       },
       {
-        "id": "20",
+        "id": 20,
         "title": "Build Resume Generation and PDF Export System",
         "description": "Create the resume tailoring interface with live preview using ProseMirror editor, integrate with LLM service for generation, implement ATS-friendly PDF export with react-pdf, and add configurable file naming templates.",
         "status": "pending",
@@ -1613,7 +1613,7 @@
         ]
       },
       {
-        "id": "21",
+        "id": 21,
         "title": "Develop Settings Management UI and Configuration Hot Reload",
         "description": "Create the comprehensive settings interface with tabbed layout (Search, LLM, Automation, Advanced), implement live validation, LLM connection testing, JSON Schema validation, version control for configs, and hot reload functionality without server restart.",
         "status": "pending",
@@ -1682,7 +1682,7 @@
         ]
       },
       {
-        "id": "22",
+        "id": 22,
         "title": "Implement Responsive UI with Tailwind CSS and shadcn/ui Components",
         "description": "Build the complete mobile-first responsive design system using Tailwind CSS and shadcn/ui, implement dark/light theme toggle, create mobile optimizations (touch targets, swipe gestures, bottom navigation), and ensure performance targets (FCP < 1.5s, TTI < 3s).",
         "status": "pending",
@@ -1751,7 +1751,10 @@
       "completedCount": 7,
       "tags": [
         "tdd"
-      ]
+      ],
+      "created": "2025-11-25T01:59:11.652Z",
+      "description": "Tasks for tdd context",
+      "updated": "2025-11-25T01:59:11.654Z"
     }
   }
 }

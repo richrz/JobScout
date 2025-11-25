@@ -1,10 +1,10 @@
 import cron from 'node-cron';
 import { startScheduler } from '../../../src/lib/scheduler';
-import { runAggregation } from '../../../src/lib/n8n-workflows';
+import { runAggregation } from '../../../src/lib/job-scrapers';
 import { sendErrorReport } from '../../../src/lib/error-reporting';
 
 jest.mock('node-cron');
-jest.mock('../../../src/lib/n8n-workflows');
+jest.mock('../../../src/lib/job-scrapers');
 jest.mock('../../../src/lib/error-reporting');
 
 describe('Scheduler', () => {

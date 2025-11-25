@@ -9,7 +9,7 @@
       "version": "1.0.0",
       "license": "ISC",
       "devDependencies": {
-        "task-master-ai": "0.34.0"
+        "task-master-ai": "0.35.0"
       },
       "engines": {
         "node": ">=18.0.0"
@@ -10317,9 +10317,9 @@
       }
     },
     "node_modules/task-master-ai": {
-      "version": "0.34.0",
-      "resolved": "https://registry.npmjs.org/task-master-ai/-/task-master-ai-0.34.0.tgz",
-      "integrity": "sha512-+rs9BqJIwz5TM/fdfbuAm0Nq3MmySe/iCFtvC03mBTu5ZXm2X0K1+iaZtjntRZATlLVGHCszJQDOCTutrJQVGA==",
+      "version": "0.35.0",
+      "resolved": "https://registry.npmjs.org/task-master-ai/-/task-master-ai-0.35.0.tgz",
+      "integrity": "sha512-UyxkJ/sk6SK+cMYotEZLZBNKeb0tzGCbyg9WBjK0+5yoXSGEfXj6ncPxmMQccsILyPar8GsLewmqolxLXMPVXg==",
       "dev": true,
       "license": "MIT WITH Commons-Clause",
       "workspaces": [
@@ -10347,9 +10347,9 @@
         "@streamparser/json": "^0.0.22",
         "@supabase/supabase-js": "^2.57.4",
         "ai": "^5.0.51",
-        "ai-sdk-provider-claude-code": "^2.1.0",
+        "ai-sdk-provider-claude-code": "^2.2.0",
         "ai-sdk-provider-codex-cli": "^0.3.0",
-        "ai-sdk-provider-gemini-cli": "^1.1.1",
+        "ai-sdk-provider-gemini-cli": "^1.4.0",
         "ajv": "^8.17.1",
         "ajv-formats": "^3.0.1",
         "boxen": "^8.0.1",
@@ -10391,7 +10391,7 @@
         "task-master-mcp": "dist/mcp-server.js"
       },
       "engines": {
-        "node": ">=18.0.0"
+        "node": ">=20.0.0"
       },
       "optionalDependencies": {
         "@anthropic-ai/claude-code": "^1.0.88",

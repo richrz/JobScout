@@ -1,15 +1,13 @@
 {
   "name": "jobs",
   "version": "1.0.0",
-  "description": "TDD-in-a-Box is a ready-to-run starter bundle that wires Task-master task orchestration, Autopilot’s RED→GREEN→COMMIT loop, and mandatory guardrails into any repository so automated agents and humans can ship code safely.",
+  "description": "TDD-in-a-Box is a ready-to-run starter bundle that wires Task-master task orchestration, Autopilot's RED→GREEN→COMMIT loop, and mandatory guardrails into any repository so automated agents and humans can ship code safely.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "npm install task-master-ai@0.34.0 --no-save",
-    "preinstall": "echo 'Forcing task-master-ai to version 0.34.0' && npm install task-master-ai@0.34.0 --no-save"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -24,16 +22,10 @@
   },
   "homepage": "https://github.com/richrz/JobScout#readme",
   "devDependencies": {
-    "task-master-ai": "0.34.0"
+    "task-master-ai": "0.35.0"
   },
   "packageManager": "npm@10.9.2",
   "engines": {
     "node": ">=18.0.0"
-  },
-  "resolutions": {
-    "task-master-ai": "0.34.0"
-  },
-  "overrides": {
-    "task-master-ai": "0.34.0"
   }
 }

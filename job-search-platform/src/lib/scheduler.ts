@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { runAggregation } from './n8n-workflows';
+import { runAggregation } from './job-scrapers';
 import { sendErrorReport } from './error-reporting';
 
 /**
