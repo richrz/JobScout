@@ -7,7 +7,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npm install task-master-ai@0.34.0 --no-save",
+    "preinstall": "echo 'Forcing task-master-ai to version 0.34.0' && npm install task-master-ai@0.34.0 --no-save"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,16 @@
   },
   "homepage": "https://github.com/richrz/JobScout#readme",
   "devDependencies": {
+    "task-master-ai": "0.34.0"
+  },
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "resolutions": {
+    "task-master-ai": "0.34.0"
+  },
+  "overrides": {
     "task-master-ai": "0.34.0"
   }
 }

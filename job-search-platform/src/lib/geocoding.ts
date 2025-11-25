@@ -1,11 +1,12 @@
 import { Redis } from 'ioredis';
+import { Client } from "@googlemaps/google-maps-services-js";
 
 // Initialize Redis client lazily or allow injection
 let redisClient: Redis | null = null;
 
 export function getRedisClient(): Redis {
     if (!redisClient) {
-        redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+        redisClient ??= new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
     }
     return redisClient;
 }
@@ -15,13 +16,13 @@ export function setRedisClient(client: any) {
     redisClient = client;
 }
 
-
 const CACHE_TTL = 60 * 60 * 24 * 30; // 30 days
+const googleMapsClient = new Client({});
 
 export async function geocodeLocation(location: string): Promise<{ lat: number; lng: number } | null> {
-    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-    if (!token) {
-        throw new Error('Mapbox token missing');
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+        throw new Error('Google Maps API key missing');
     }
 
     const cacheKey = `geo:${location}`;
@@ -34,23 +35,16 @@ export async function geocodeLocation(location: string): Promise<{ lat: number; 
             return JSON.parse(cached);
         }
 
-        // Rate limiting could be implemented here using Redis (e.g., sliding window)
-        // For now, we'll rely on the API's rate limits and handle 429s if needed
+        // Call Google Maps Geocoding API
+        const response = await googleMapsClient.geocode({
+            params: {
+                address: location,
+                key: apiKey
+            }
+        });
 
-        // Call Mapbox API
-        const encodedLocation = encodeURIComponent(location);
-        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedLocation}.json?access_token=${token}&limit=1`;
-
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`Mapbox API error: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        if (data.features && data.features.length > 0) {
-            const [lng, lat] = data.features[0].center;
+        if (response.data.results.length > 0) {
+            const { lat, lng } = response.data.results[0].geometry.location;
             const result = { lat, lng };
 
             // Cache result
@@ -60,13 +54,13 @@ export async function geocodeLocation(location: string): Promise<{ lat: number; 
         }
 
         return null;
-    } catch (error) {
+    } catch (error: any) {
         // Re-throw known errors
-        if (error instanceof Error && (error.message === 'Mapbox token missing' || error.message.startsWith('Mapbox API error'))) {
+        if (error.message === 'Google Maps API key missing') {
             throw error;
         }
         // Log other errors and re-throw or handle gracefully
-        console.error('Geocoding error:', error);
+        console.error('Geocoding error:', error.response ? error.response.data : error.message);
         throw error;
     }
 }

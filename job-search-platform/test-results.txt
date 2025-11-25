@@ -1,0 +1,966 @@
+
+> job-search-platform@0.1.0 test
+> jest
+
+PASS tests/unit/lib/scoring.test.ts
+FAIL tests/integration/db.test.ts
+  ● Database Integration Tests (Task 12) › should create a user with profile and config
+
+    PrismaClientInitializationError: 
+    Invalid `prisma.application.deleteMany()` invocation in
+    /home/richard/code/jobs/job-search-platform/tests/integration/db.test.ts:9:30
+
+      6 describe('Database Integration Tests (Task 12)', () => {
+      7   beforeAll(async () => {
+      8     // Cleanup database before tests
+    → 9     await prisma.application.deleteMany(
+    Can't reach database server at `localhost:5435`
+
+    Please make sure your database server is running at `localhost:5435`.
+
+       7 |   beforeAll(async () => {
+       8 |     // Cleanup database before tests
+    >  9 |     await prisma.application.deleteMany();
+         |     ^
+      10 |     await prisma.job.deleteMany();
+      11 |     await prisma.profile.deleteMany();
+      12 |     await prisma.config.deleteMany();
+
+      at $n.handleRequestError (node_modules/@prisma/client/runtime/library.js:121:7615)
+      at $n.handleAndLogRequestError (node_modules/@prisma/client/runtime/library.js:121:6623)
+      at $n.request (node_modules/@prisma/client/runtime/library.js:121:6307)
+      at l (node_modules/@prisma/client/runtime/library.js:130:9633)
+      at Object.<anonymous> (tests/integration/db.test.ts:9:5)
+
+  ● Database Integration Tests (Task 12) › should create a job and application linked to user
+
+    PrismaClientInitializationError: 
+    Invalid `prisma.application.deleteMany()` invocation in
+    /home/richard/code/jobs/job-search-platform/tests/integration/db.test.ts:9:30
+
+      6 describe('Database Integration Tests (Task 12)', () => {
+      7   beforeAll(async () => {
+      8     // Cleanup database before tests
+    → 9     await prisma.application.deleteMany(
+    Can't reach database server at `localhost:5435`
+
+    Please make sure your database server is running at `localhost:5435`.
+
+       7 |   beforeAll(async () => {
+       8 |     // Cleanup database before tests
+    >  9 |     await prisma.application.deleteMany();
+         |     ^
+      10 |     await prisma.job.deleteMany();
+      11 |     await prisma.profile.deleteMany();
+      12 |     await prisma.config.deleteMany();
+
+      at $n.handleRequestError (node_modules/@prisma/client/runtime/library.js:121:7615)
+      at $n.handleAndLogRequestError (node_modules/@prisma/client/runtime/library.js:121:6623)
+      at $n.request (node_modules/@prisma/client/runtime/library.js:121:6307)
+      at l (node_modules/@prisma/client/runtime/library.js:130:9633)
+      at Object.<anonymous> (tests/integration/db.test.ts:9:5)
+
+  ● Database Integration Tests (Task 12) › should support cascade delete (deleting user removes profile)
+
+    PrismaClientInitializationError: 
+    Invalid `prisma.application.deleteMany()` invocation in
+    /home/richard/code/jobs/job-search-platform/tests/integration/db.test.ts:9:30
+
+      6 describe('Database Integration Tests (Task 12)', () => {
+      7   beforeAll(async () => {
+      8     // Cleanup database before tests
+    → 9     await prisma.application.deleteMany(
+    Can't reach database server at `localhost:5435`
+
+    Please make sure your database server is running at `localhost:5435`.
+
+       7 |   beforeAll(async () => {
+       8 |     // Cleanup database before tests
+    >  9 |     await prisma.application.deleteMany();
+         |     ^
+      10 |     await prisma.job.deleteMany();
+      11 |     await prisma.profile.deleteMany();
+      12 |     await prisma.config.deleteMany();
+
+      at $n.handleRequestError (node_modules/@prisma/client/runtime/library.js:121:7615)
+      at $n.handleAndLogRequestError (node_modules/@prisma/client/runtime/library.js:121:6623)
+      at $n.request (node_modules/@prisma/client/runtime/library.js:121:6307)
+      at l (node_modules/@prisma/client/runtime/library.js:130:9633)
+      at Object.<anonymous> (tests/integration/db.test.ts:9:5)
+
+PASS tests/unit/lib/geocoding.test.ts
+  ● Console
+
+    console.error
+      Geocoding error: Internal Server Error
+
+      61 |         }
+      62 |         // Log other errors and re-throw or handle gracefully
+    > 63 |         console.error('Geocoding error:', error.response ? error.response.data : error.message);
+         |                 ^
+      64 |         throw error;
+      65 |     }
+      66 | }
+
+      at geocodeLocation (src/lib/geocoding.ts:63:17)
+      at Object.<anonymous> (tests/unit/lib/geocoding.test.ts:117:9)
+
+PASS tests/unit/n8n-workflows.test.ts
+PASS tests/unit/validations/config.test.ts
+PASS tests/unit/lib/scheduler.test.ts
+  ● Console
+
+    console.log
+      Initializing scheduler with cron expression: 0 * * * *
+
+      at startScheduler (src/lib/scheduler.ts:11:13)
+
+    console.log
+      Initializing scheduler with cron expression: */15 * * * *
+
+      at startScheduler (src/lib/scheduler.ts:11:13)
+
+    console.log
+      Initializing scheduler with cron expression: 0 * * * *
+
+      at startScheduler (src/lib/scheduler.ts:11:13)
+
+    console.log
+      Triggering scheduled job aggregation...
+
+      at src/lib/scheduler.ts:14:17
+
+    console.log
+      Initializing scheduler with cron expression: 0 * * * *
+
+      at startScheduler (src/lib/scheduler.ts:11:13)
+
+    console.log
+      Triggering scheduled job aggregation...
+
+      at src/lib/scheduler.ts:14:17
+
+    console.error
+      Scheduled aggregation failed.
+
+      16 |             await runAggregation();
+      17 |         } catch (error) {
+    > 18 |             console.error('Scheduled aggregation failed.');
+         |                     ^
+      19 |             await sendErrorReport(error);
+      20 |         }
+      21 |     });
+
+      at src/lib/scheduler.ts:18:21
+      at Object.<anonymous> (tests/unit/lib/scheduler.test.ts:39:9)
+
+PASS tests/unit/lib/profile-utils.test.ts
+PASS tests/unit/lib/deduplication.test.ts
+FAIL tests/unit/llm-error-handling.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '@langchain/core/output_parsers' from 'node_modules/@langchain/anthropic/dist/output_parsers.cjs'
+
+    Require stack:
+      node_modules/@langchain/anthropic/dist/output_parsers.cjs
+      node_modules/@langchain/anthropic/dist/chat_models.cjs
+      node_modules/@langchain/anthropic/dist/index.cjs
+      src/lib/llm.ts
+      tests/unit/llm-error-handling.test.ts
+
+      13 | // LangChain imports
+      14 | import { ChatOpenAI } from '@langchain/openai';
+    > 15 | import { ChatAnthropic } from '@langchain/anthropic';
+         | ^
+      16 |
+      17 | // Provider-agnostic interface for LLM implementations
+      18 | export interface LLMClient {
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@langchain/anthropic/dist/output_parsers.cjs:2:74)
+      at Object.<anonymous> (node_modules/@langchain/anthropic/dist/chat_models.cjs:2:32)
+      at Object.<anonymous> (node_modules/@langchain/anthropic/dist/index.cjs:1:29)
+      at Object.<anonymous> (src/lib/llm.ts:15:1)
+      at Object.<anonymous> (tests/unit/llm-error-handling.test.ts:1:1)
+
+FAIL tests/unit/connection-testing.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '@langchain/core/messages' from 'node_modules/@langchain/openai/dist/utils/misc.cjs'
+
+    Require stack:
+      node_modules/@langchain/openai/dist/utils/misc.cjs
+      node_modules/@langchain/openai/dist/index.cjs
+      src/lib/llm.ts
+      tests/unit/connection-testing.test.ts
+
+      12 |
+      13 | // LangChain imports
+    > 14 | import { ChatOpenAI } from '@langchain/openai';
+         | ^
+      15 | import { ChatAnthropic } from '@langchain/anthropic';
+      16 |
+      17 | // Provider-agnostic interface for LLM implementations
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@langchain/openai/dist/utils/misc.cjs:2:68)
+      at Object.<anonymous> (node_modules/@langchain/openai/dist/index.cjs:3:22)
+      at Object.<anonymous> (src/lib/llm.ts:14:1)
+      at tests/unit/connection-testing.test.ts:14:31
+      at Object.<anonymous> (src/lib/llm-testing.ts:1:1)
+      at Object.<anonymous> (tests/unit/connection-testing.test.ts:4:1)
+
+FAIL tests/unit/lib/resume-generator.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '@langchain/core/messages' from 'node_modules/@langchain/openai/dist/utils/misc.cjs'
+
+    Require stack:
+      node_modules/@langchain/openai/dist/utils/misc.cjs
+      node_modules/@langchain/openai/dist/index.cjs
+      src/lib/llm.ts
+      tests/unit/lib/resume-generator.test.ts
+
+      12 |
+      13 | // LangChain imports
+    > 14 | import { ChatOpenAI } from '@langchain/openai';
+         | ^
+      15 | import { ChatAnthropic } from '@langchain/anthropic';
+      16 |
+      17 | // Provider-agnostic interface for LLM implementations
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@langchain/openai/dist/utils/misc.cjs:2:68)
+      at Object.<anonymous> (node_modules/@langchain/openai/dist/index.cjs:3:22)
+      at Object.<anonymous> (src/lib/llm.ts:14:1)
+      at Object.<anonymous> (tests/unit/lib/resume-generator.test.ts:1:1)
+
+PASS tests/integration/auth.test.ts
+FAIL tests/unit/components/steps/Step4Exclude.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step4Exclude.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step4Exclude } from '../../../../src/components/onboarding/steps/Step4Exclude';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step4Exclude.test.tsx:5:1)
+
+FAIL tests/unit/components/ConfigActions.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/ConfigActions.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen, fireEvent } from '@testing-library/react';
+        | ^
+      6 | import { ConfigActions } from '../../../src/components/onboarding/ConfigActions';
+      7 | import '@testing-library/jest-dom';
+      8 | import { jest } from '@jest/globals';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/ConfigActions.test.tsx:5:1)
+
+FAIL tests/unit/hooks/useAutoSave.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/hooks/useAutoSave.test.ts
+
+      2 |  * @jest-environment jsdom
+      3 |  */
+    > 4 | import { renderHook, act } from '@testing-library/react';
+        | ^
+      5 | import { useAutoSave } from '../../../src/hooks/useAutoSave';
+      6 | import { jest, describe, test, expect } from '@jest/globals';
+      7 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/hooks/useAutoSave.test.ts:4:1)
+
+FAIL tests/unit/components/steps/Step5Salary.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step5Salary.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step5Salary } from '../../../../src/components/onboarding/steps/Step5Salary';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step5Salary.test.tsx:5:1)
+
+FAIL tests/unit/components/steps/Step3Include.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step3Include.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step3Include } from '../../../../src/components/onboarding/steps/Step3Include';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step3Include.test.tsx:5:1)
+
+FAIL tests/unit/components/profile/ProfileBuilder.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/profile/ProfileBuilder.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { ProfileBuilder } from '../../../../src/components/profile/ProfileBuilder';
+      7 | import '@testing-library/jest-dom';
+      8 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/profile/ProfileBuilder.test.tsx:5:1)
+
+FAIL tests/unit/components/steps/Step6Freshness.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step6Freshness.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step6Freshness } from '../../../../src/components/onboarding/steps/Step6Freshness';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step6Freshness.test.tsx:5:1)
+
+FAIL tests/unit/components/steps/Step1Cities.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step1Cities.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step1Cities } from '../../../../src/components/onboarding/steps/Step1Cities';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step1Cities.test.tsx:5:1)
+
+FAIL tests/unit/components/steps/Step2Titles.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step2Titles.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step2Titles } from '../../../../src/components/onboarding/steps/Step2Titles';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step2Titles.test.tsx:5:1)
+
+FAIL tests/unit/components/ProgressBar.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/ProgressBar.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { ProgressBar } from '../../../src/components/ui/ProgressBar';
+      7 | import '@testing-library/jest-dom';
+      8 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/ProgressBar.test.tsx:5:1)
+
+FAIL tests/unit/components/editor/RichTextEditor.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/editor/RichTextEditor.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { RichTextEditor } from '../../../../src/components/ui/RichTextEditor';
+      7 | import '@testing-library/jest-dom';
+      8 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/editor/RichTextEditor.test.tsx:5:1)
+
+PASS tests/unit/lib/geographic-filter.test.ts
+FAIL tests/unit/components/ConfigWizard.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/ConfigWizard.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { ConfigWizard } from '../../../src/components/onboarding/ConfigWizard';
+      7 | import '@testing-library/jest-dom';
+      8 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/ConfigWizard.test.tsx:5:1)
+
+PASS tests/unit/lib/resume-parser.test.ts
+PASS tests/lib/llm-testing.test.ts (55.617 s)
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+
+Summary of all failing tests
+FAIL tests/integration/db.test.ts
+  ● Database Integration Tests (Task 12) › should create a user with profile and config
+
+    PrismaClientInitializationError: 
+    Invalid `prisma.application.deleteMany()` invocation in
+    /home/richard/code/jobs/job-search-platform/tests/integration/db.test.ts:9:30
+
+      6 describe('Database Integration Tests (Task 12)', () => {
+      7   beforeAll(async () => {
+      8     // Cleanup database before tests
+    → 9     await prisma.application.deleteMany(
+    Can't reach database server at `localhost:5435`
+
+    Please make sure your database server is running at `localhost:5435`.
+
+       7 |   beforeAll(async () => {
+       8 |     // Cleanup database before tests
+    >  9 |     await prisma.application.deleteMany();
+         |     ^
+      10 |     await prisma.job.deleteMany();
+      11 |     await prisma.profile.deleteMany();
+      12 |     await prisma.config.deleteMany();
+
+      at $n.handleRequestError (node_modules/@prisma/client/runtime/library.js:121:7615)
+      at $n.handleAndLogRequestError (node_modules/@prisma/client/runtime/library.js:121:6623)
+      at $n.request (node_modules/@prisma/client/runtime/library.js:121:6307)
+      at l (node_modules/@prisma/client/runtime/library.js:130:9633)
+      at Object.<anonymous> (tests/integration/db.test.ts:9:5)
+
+  ● Database Integration Tests (Task 12) › should create a job and application linked to user
+
+    PrismaClientInitializationError: 
+    Invalid `prisma.application.deleteMany()` invocation in
+    /home/richard/code/jobs/job-search-platform/tests/integration/db.test.ts:9:30
+
+      6 describe('Database Integration Tests (Task 12)', () => {
+      7   beforeAll(async () => {
+      8     // Cleanup database before tests
+    → 9     await prisma.application.deleteMany(
+    Can't reach database server at `localhost:5435`
+
+    Please make sure your database server is running at `localhost:5435`.
+
+       7 |   beforeAll(async () => {
+       8 |     // Cleanup database before tests
+    >  9 |     await prisma.application.deleteMany();
+         |     ^
+      10 |     await prisma.job.deleteMany();
+      11 |     await prisma.profile.deleteMany();
+      12 |     await prisma.config.deleteMany();
+
+      at $n.handleRequestError (node_modules/@prisma/client/runtime/library.js:121:7615)
+      at $n.handleAndLogRequestError (node_modules/@prisma/client/runtime/library.js:121:6623)
+      at $n.request (node_modules/@prisma/client/runtime/library.js:121:6307)
+      at l (node_modules/@prisma/client/runtime/library.js:130:9633)
+      at Object.<anonymous> (tests/integration/db.test.ts:9:5)
+
+  ● Database Integration Tests (Task 12) › should support cascade delete (deleting user removes profile)
+
+    PrismaClientInitializationError: 
+    Invalid `prisma.application.deleteMany()` invocation in
+    /home/richard/code/jobs/job-search-platform/tests/integration/db.test.ts:9:30
+
+      6 describe('Database Integration Tests (Task 12)', () => {
+      7   beforeAll(async () => {
+      8     // Cleanup database before tests
+    → 9     await prisma.application.deleteMany(
+    Can't reach database server at `localhost:5435`
+
+    Please make sure your database server is running at `localhost:5435`.
+
+       7 |   beforeAll(async () => {
+       8 |     // Cleanup database before tests
+    >  9 |     await prisma.application.deleteMany();
+         |     ^
+      10 |     await prisma.job.deleteMany();
+      11 |     await prisma.profile.deleteMany();
+      12 |     await prisma.config.deleteMany();
+
+      at $n.handleRequestError (node_modules/@prisma/client/runtime/library.js:121:7615)
+      at $n.handleAndLogRequestError (node_modules/@prisma/client/runtime/library.js:121:6623)
+      at $n.request (node_modules/@prisma/client/runtime/library.js:121:6307)
+      at l (node_modules/@prisma/client/runtime/library.js:130:9633)
+      at Object.<anonymous> (tests/integration/db.test.ts:9:5)
+
+FAIL tests/unit/llm-error-handling.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '@langchain/core/output_parsers' from 'node_modules/@langchain/anthropic/dist/output_parsers.cjs'
+
+    Require stack:
+      node_modules/@langchain/anthropic/dist/output_parsers.cjs
+      node_modules/@langchain/anthropic/dist/chat_models.cjs
+      node_modules/@langchain/anthropic/dist/index.cjs
+      src/lib/llm.ts
+      tests/unit/llm-error-handling.test.ts
+
+      13 | // LangChain imports
+      14 | import { ChatOpenAI } from '@langchain/openai';
+    > 15 | import { ChatAnthropic } from '@langchain/anthropic';
+         | ^
+      16 |
+      17 | // Provider-agnostic interface for LLM implementations
+      18 | export interface LLMClient {
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@langchain/anthropic/dist/output_parsers.cjs:2:74)
+      at Object.<anonymous> (node_modules/@langchain/anthropic/dist/chat_models.cjs:2:32)
+      at Object.<anonymous> (node_modules/@langchain/anthropic/dist/index.cjs:1:29)
+      at Object.<anonymous> (src/lib/llm.ts:15:1)
+      at Object.<anonymous> (tests/unit/llm-error-handling.test.ts:1:1)
+
+FAIL tests/unit/connection-testing.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '@langchain/core/messages' from 'node_modules/@langchain/openai/dist/utils/misc.cjs'
+
+    Require stack:
+      node_modules/@langchain/openai/dist/utils/misc.cjs
+      node_modules/@langchain/openai/dist/index.cjs
+      src/lib/llm.ts
+      tests/unit/connection-testing.test.ts
+
+      12 |
+      13 | // LangChain imports
+    > 14 | import { ChatOpenAI } from '@langchain/openai';
+         | ^
+      15 | import { ChatAnthropic } from '@langchain/anthropic';
+      16 |
+      17 | // Provider-agnostic interface for LLM implementations
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@langchain/openai/dist/utils/misc.cjs:2:68)
+      at Object.<anonymous> (node_modules/@langchain/openai/dist/index.cjs:3:22)
+      at Object.<anonymous> (src/lib/llm.ts:14:1)
+      at tests/unit/connection-testing.test.ts:14:31
+      at Object.<anonymous> (src/lib/llm-testing.ts:1:1)
+      at Object.<anonymous> (tests/unit/connection-testing.test.ts:4:1)
+
+FAIL tests/unit/lib/resume-generator.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '@langchain/core/messages' from 'node_modules/@langchain/openai/dist/utils/misc.cjs'
+
+    Require stack:
+      node_modules/@langchain/openai/dist/utils/misc.cjs
+      node_modules/@langchain/openai/dist/index.cjs
+      src/lib/llm.ts
+      tests/unit/lib/resume-generator.test.ts
+
+      12 |
+      13 | // LangChain imports
+    > 14 | import { ChatOpenAI } from '@langchain/openai';
+         | ^
+      15 | import { ChatAnthropic } from '@langchain/anthropic';
+      16 |
+      17 | // Provider-agnostic interface for LLM implementations
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@langchain/openai/dist/utils/misc.cjs:2:68)
+      at Object.<anonymous> (node_modules/@langchain/openai/dist/index.cjs:3:22)
+      at Object.<anonymous> (src/lib/llm.ts:14:1)
+      at Object.<anonymous> (tests/unit/lib/resume-generator.test.ts:1:1)
+
+FAIL tests/unit/components/steps/Step4Exclude.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step4Exclude.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step4Exclude } from '../../../../src/components/onboarding/steps/Step4Exclude';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step4Exclude.test.tsx:5:1)
+
+FAIL tests/unit/components/ConfigActions.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/ConfigActions.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen, fireEvent } from '@testing-library/react';
+        | ^
+      6 | import { ConfigActions } from '../../../src/components/onboarding/ConfigActions';
+      7 | import '@testing-library/jest-dom';
+      8 | import { jest } from '@jest/globals';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/ConfigActions.test.tsx:5:1)
+
+FAIL tests/unit/hooks/useAutoSave.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/hooks/useAutoSave.test.ts
+
+      2 |  * @jest-environment jsdom
+      3 |  */
+    > 4 | import { renderHook, act } from '@testing-library/react';
+        | ^
+      5 | import { useAutoSave } from '../../../src/hooks/useAutoSave';
+      6 | import { jest, describe, test, expect } from '@jest/globals';
+      7 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/hooks/useAutoSave.test.ts:4:1)
+
+FAIL tests/unit/components/steps/Step5Salary.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step5Salary.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step5Salary } from '../../../../src/components/onboarding/steps/Step5Salary';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step5Salary.test.tsx:5:1)
+
+FAIL tests/unit/components/steps/Step3Include.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step3Include.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step3Include } from '../../../../src/components/onboarding/steps/Step3Include';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step3Include.test.tsx:5:1)
+
+FAIL tests/unit/components/profile/ProfileBuilder.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/profile/ProfileBuilder.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { ProfileBuilder } from '../../../../src/components/profile/ProfileBuilder';
+      7 | import '@testing-library/jest-dom';
+      8 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/profile/ProfileBuilder.test.tsx:5:1)
+
+FAIL tests/unit/components/steps/Step6Freshness.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step6Freshness.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step6Freshness } from '../../../../src/components/onboarding/steps/Step6Freshness';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step6Freshness.test.tsx:5:1)
+
+FAIL tests/unit/components/steps/Step1Cities.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step1Cities.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step1Cities } from '../../../../src/components/onboarding/steps/Step1Cities';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step1Cities.test.tsx:5:1)
+
+FAIL tests/unit/components/steps/Step2Titles.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/steps/Step2Titles.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { Step2Titles } from '../../../../src/components/onboarding/steps/Step2Titles';
+      7 | import { useForm, FormProvider } from 'react-hook-form';
+      8 | import '@testing-library/jest-dom';
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/steps/Step2Titles.test.tsx:5:1)
+
+FAIL tests/unit/components/ProgressBar.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/ProgressBar.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { ProgressBar } from '../../../src/components/ui/ProgressBar';
+      7 | import '@testing-library/jest-dom';
+      8 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/ProgressBar.test.tsx:5:1)
+
+FAIL tests/unit/components/editor/RichTextEditor.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/editor/RichTextEditor.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { RichTextEditor } from '../../../../src/components/ui/RichTextEditor';
+      7 | import '@testing-library/jest-dom';
+      8 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/editor/RichTextEditor.test.tsx:5:1)
+
+FAIL tests/unit/components/ConfigWizard.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/dom' from 'node_modules/@testing-library/react/dist/pure.js'
+
+    Require stack:
+      node_modules/@testing-library/react/dist/pure.js
+      node_modules/@testing-library/react/dist/index.js
+      tests/unit/components/ConfigWizard.test.tsx
+
+      3 |  */
+      4 | import React from 'react';
+    > 5 | import { render, screen } from '@testing-library/react';
+        | ^
+      6 | import { ConfigWizard } from '../../../src/components/onboarding/ConfigWizard';
+      7 | import '@testing-library/jest-dom';
+      8 |
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/pure.js:46:12)
+      at Object.<anonymous> (node_modules/@testing-library/react/dist/index.js:7:13)
+      at Object.<anonymous> (tests/unit/components/ConfigWizard.test.tsx:5:1)
+
+
+Test Suites: 16 failed, 11 passed, 27 total
+Tests:       3 failed, 89 passed, 92 total
+Snapshots:   0 total
+Time:        56.436 s
+Ran all test suites.

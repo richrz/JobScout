@@ -436,14 +436,14 @@
       {
         "id": 17,
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
-        "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
+        "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Google Maps Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
         "status": "pending",
         "dependencies": [
           12
         ],
         "priority": "high",
-        "details": "1. Create n8n workflows for each job source:\n   - Indeed RSS feed workflow\n   - LinkedIn Jobs scraping workflow (using HTTP Request nodes)\n   - Company career page scraping (configurable URLs)\n\n2. Set up Mapbox Geocoding integration:\n   ```typescript\n   // src/lib/geocoding.ts\n   import mapboxgl from 'mapbox-gl';\n\n   export async function geocodeCity(cityName: string): Promise<{ lat: number; lng: number }> {\n     const response = await fetch(\n       `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cityName)}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`\n     );\n     const data = await response.json();\n     const [lng, lat] = data.features[0].center;\n     return { lat, lng };\n   }\n   ```\n\n3. Implement Haversine distance calculation:\n   ```typescript\n   function haversineDistance(\n     lat1: number, lon1: number,\n     lat2: number, lon2: number\n   ): number {\n     const R = 3959; // Earth radius in miles\n     const dLat = (lat2 - lat1) * Math.PI / 180;\n     const dLon = (lon2 - lon1) * Math.PI / 180;\n     const a = Math.sin(dLat/2) * Math.sin(dLat/2) +\n               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *\n               Math.sin(dLon/2) * Math.sin(dLon/2);\n     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));\n     return R * c;\n   }\n   ```\n\n4. Create job filtering service:\n   ```typescript\n   // src/lib/job-filter.ts\n   export function filterJobs(jobs: Job[], config: Config): Job[] {\n     return jobs.filter(job => {\n       // Geographic filter\n       const withinRadius = config.searchParams.cities.some(city => {\n         if (!job.latitude || !job.longitude) return false;\n         const distance = haversineDistance(\n           city.lat, city.lng,\n           job.latitude, job.longitude\n         );\n         return distance <= city.radius_miles;\n       });\n\n       // Temporal filter\n       const hoursSincePosted = (Date.now() - job.postedAt.getTime()) / (1000 * 60 * 60);\n       const isFresh = hoursSincePosted <= config.searchParams.posted_within_hours;\n\n       // Keyword filter (OR logic for include, AND NOT for exclude)\n       const hasIncludeKeyword = config.searchParams.include_keywords.some(kw =>\n         job.title.toLowerCase().includes(kw.toLowerCase()) ||\n         job.description.toLowerCase().includes(kw.toLowerCase())\n       );\n       const hasExcludeKeyword = config.searchParams.exclude_keywords.some(kw =>\n         job.title.toLowerCase().includes(kw.toLowerCase()) ||\n         job.description.toLowerCase().includes(kw.toLowerCase())\n       );\n\n       // Salary filter\n       const salaryMatch = !job.salary || (\n         (!config.searchParams.salary_usd.min || parseSalary(job.salary) >= config.searchParams.salary_usd.min) &&\n         (!config.searchParams.salary_usd.max || parseSalary(job.salary) <= config.searchParams.salary_usd.max)\n       );\n\n       return withinRadius && isFresh && hasIncludeKeyword && !hasExcludeKeyword && salaryMatch;\n     });\n   }\n   ```\n\n5. Implement deduplication using fuzzy matching (title + company)\n6. Create composite scoring system\n7. Set up cron job to run every 6 hours\n8. Build API endpoint to trigger manual aggregation",
-        "testStrategy": "1. Test n8n workflows fetch jobs from each source\n2. Verify Mapbox geocoding returns correct coordinates\n3. Test Haversine distance calculation accuracy\n4. Validate geographic filtering (jobs within radius)\n5. Test temporal filtering (only jobs within X hours)\n6. Verify keyword filtering (include OR, exclude AND NOT)\n7. Test salary parsing and filtering\n8. Validate deduplication removes duplicates\n9. Test composite scoring calculation\n10. Verify cron job runs every 6 hours\n11. Test manual trigger endpoint",
+        "details": "1. Create n8n workflows for each job source:\n   - Indeed RSS feed workflow\n   - LinkedIn Jobs scraping workflow (using HTTP Request nodes)\n   - Company career page scraping (configurable URLs)\n\n2. Set up Google Maps Geocoding integration:\n   ```typescript\n   // src/lib/geocoding.ts\n   import { Client } from '@googlemaps/google-maps-services-js';\n\n   export async function geocodeLocation(location: string): Promise<{ lat: number; lng: number } | null> {\n     const apiKey = process.env.GOOGLE_MAPS_API_KEY;\n     const client = new Client({});\n     const response = await client.geocode({\n       params: { address: location, key: apiKey }\n     });\n     if (response.data.results.length > 0) {\n       const { lat, lng } = response.data.results[0].geometry.location;\n       return { lat, lng };\n     }\n     return null;\n   }\n   ```\n\n3. Implement Haversine distance calculation:\n   ```typescript\n   function haversineDistance(\n     lat1: number, lon1: number,\n     lat2: number, lon2: number\n   ): number {\n     const R = 3959; // Earth radius in miles\n     const dLat = (lat2 - lat1) * Math.PI / 180;\n     const dLon = (lon2 - lon1) * Math.PI / 180;\n     const a = Math.sin(dLat/2) * Math.sin(dLat/2) +\n               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *\n               Math.sin(dLon/2) * Math.sin(dLon/2);\n     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));\n     return R * c;\n   }\n   ```\n\n4. Create job filtering service:\n   ```typescript\n   // src/lib/job-filter.ts\n   export function filterJobs(jobs: Job[], config: Config): Job[] {\n     return jobs.filter(job => {\n       // Geographic filter\n       const withinRadius = config.searchParams.cities.some(city => {\n         if (!job.latitude || !job.longitude) return false;\n         const distance = haversineDistance(\n           city.lat, city.lng,\n           job.latitude, job.longitude\n         );\n         return distance <= city.radius_miles;\n       });\n\n       // Temporal filter\n       const hoursSincePosted = (Date.now() - job.postedAt.getTime()) / (1000 * 60 * 60);\n       const isFresh = hoursSincePosted <= config.searchParams.posted_within_hours;\n\n       // Keyword filter (OR logic for include, AND NOT for exclude)\n       const hasIncludeKeyword = config.searchParams.include_keywords.some(kw =>\n         job.title.toLowerCase().includes(kw.toLowerCase()) ||\n         job.description.toLowerCase().includes(kw.toLowerCase())\n       );\n       const hasExcludeKeyword = config.searchParams.exclude_keywords.some(kw =>\n         job.title.toLowerCase().includes(kw.toLowerCase()) ||\n         job.description.toLowerCase().includes(kw.toLowerCase())\n       );\n\n       // Salary filter\n       const salaryMatch = !job.salary || (\n         (!config.searchParams.salary_usd.min || parseSalary(job.salary) >= config.searchParams.salary_usd.min) &&\n         (!config.searchParams.salary_usd.max || parseSalary(job.salary) <= config.searchParams.salary_usd.max)\n       );\n\n       return withinRadius && isFresh && hasIncludeKeyword && !hasExcludeKeyword && salaryMatch;\n     });\n   }\n   ```\n\n5. Implement deduplication using fuzzy matching (title + company)\n6. Create composite scoring system\n7. Set up cron job to run every 6 hours\n8. Build API endpoint to trigger manual aggregation",
+        "testStrategy": "1. Test n8n workflows fetch jobs from each source\n2. Verify Google Maps geocoding returns correct coordinates\n3. Test Haversine distance calculation accuracy\n4. Validate geographic filtering (jobs within radius)\n5. Test temporal filtering (only jobs within X hours)\n6. Verify keyword filtering (include OR, exclude AND NOT)\n7. Test salary parsing and filtering\n8. Validate deduplication removes duplicates\n9. Test composite scoring calculation\n10. Verify cron job runs every 6 hours\n11. Test manual trigger endpoint",
         "subtasks": [
           {
             "id": 1,
@@ -451,17 +451,17 @@
             "description": "Create and configure n8n workflows to scrape job listings from Indeed RSS feed, LinkedIn Jobs, and configurable company career pages",
             "dependencies": [],
             "details": "Implement three separate workflows: 1) Indeed RSS feed workflow using RSS node, 2) LinkedIn Jobs scraping workflow using HTTP Request nodes with proper headers and pagination, 3) Company career page scraping workflow with configurable URL templates and CSS selectors. Each workflow must extract title, company, location, description, salary, and posting date.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test each workflow individually with sample URLs, verify data extraction completeness, check error handling for failed requests, validate output structure matches expected schema"
           },
           {
             "id": 2,
             "title": "Integrate Google Maps Geocoding API with error handling and caching",
-            "description": "Implement Google Maps Geocoding service to convert job locations to latitude/longitude coordinates with rate limiting and caching",
+            "description": "Implement Google Maps Geocoding service to convert job locations to latitude/longitude coordinates with Redis caching",
             "dependencies": [],
-            "details": "Create geocoding service using Google Maps Client, add rate limiting to respect API limits, implement Redis caching for previously geocoded locations, handle API errors and retries.",
+            "details": "Create geocoding service using @googlemaps/google-maps-services-js client, implement Redis caching for previously geocoded locations with 30-day TTL, handle API errors and retries, validate API key configuration.",
             "status": "done",
-            "testStrategy": "Test with various location formats (city names, addresses), verify cache hits/misses, test error scenarios (invalid locations, API rate limits), validate coordinate accuracy against known locations"
+            "testStrategy": "Test with various location formats (city names, addresses), verify cache hits/misses, test error scenarios (invalid locations, missing API key), validate coordinate accuracy against known locations, ensure all unit tests pass"
           },
           {
             "id": 3,
@@ -471,7 +471,7 @@
               2
             ],
             "details": "Implement the provided Haversine distance calculation function, create geographic filtering service that processes jobs against user-defined search areas (cities with radius), handle cases where job locations can't be geocoded, and optimize for performance with spatial indexing where possible.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with known coordinate pairs and verified distances, validate edge cases (antipodal points, same location), test performance with large job datasets, verify filtering accuracy against manual calculations"
           },
           {
@@ -532,42 +532,42 @@
             "title": "Set up Google Maps integration and base map configuration",
             "description": "Install dependencies, configure Google Maps API key, and initialize the base map component with proper styling and view state management",
             "dependencies": [],
-            "details": "Install @vis.gl/react-google-maps and @googlemaps/google-maps-services-js packages, create JobMap component with TypeScript typing, configure map with Map ID, implement center and zoom management, and ensure proper API key configuration",
+            "details": "Install @vis.gl/react-google-maps package, create JobMap component with TypeScript typing, configure APIProvider with NEXT_PUBLIC_GOOGLE_MAPS_API_KEY, implement Map component with default center and zoom, create Map ID in Google Cloud Console for Advanced Markers",
             "status": "pending",
-            "testStrategy": "Verify map loads with correct initial view, check API key authentication works, validate map renders properly"
+            "testStrategy": "Verify map loads with correct initial view, check API key authentication works, validate Google Maps base layer displays correctly"
           },
           {
             "id": 2,
             "title": "Implement color-coded job markers with clustering functionality",
-            "description": "Create color-coded markers based on job scores using AdvancedMarker and Pin components, and implement clustering for dense job locations",
+            "description": "Create color-coded markers based on job scores and implement clustering for dense job locations with proper visual representation",
             "dependencies": [
               1
             ],
-            "details": "Implement getMarkerColor function for score-based coloring, create AdvancedMarker components with Pin styling, integrate @googlemaps/markerclusterer for clustering, configure cluster appearance and behavior",
+            "details": "Implement getMarkerColor function for score-based coloring, create marker components with proper styling, configure clustering with clusterMaxZoom=14 and clusterRadius=50, implement cluster layers for both cluster points and counts",
             "status": "pending",
             "testStrategy": "Test marker rendering for all jobs, validate color coding (green/yellow/red by score), verify clustering works (groups nearby markers), check cluster count display"
           },
           {
             "id": 3,
             "title": "Develop city radius circle visualization with proper styling",
-            "description": "Create and render radius circles around configured cities using google.maps.Circle with appropriate fill and border styling",
+            "description": "Create and render radius circles around configured cities with appropriate fill and border styling as specified in requirements",
             "dependencies": [
               1
             ],
-            "details": "Implement Circle components for city radii, apply proper styling with blue color (#3b82f6) and appropriate opacity/width values, ensure circles update when cities change",
+            "details": "Implement createCircle utility function to generate GeoJSON for city radii, add Source and Layer components for both fill and line representations, apply proper styling with blue color (#3b82f6) and appropriate opacity/width values",
             "status": "pending",
             "testStrategy": "Validate radius circles display correctly around cities, verify styling matches requirements, test with multiple cities of different radii"
           },
           {
             "id": 4,
             "title": "Implement mobile-optimized touch controls and responsive design",
-            "description": "Ensure mobile touch gestures work properly (native to Google Maps) and implement responsive behavior across device sizes",
+            "description": "Add support for mobile touch gestures including pinch/zoom, swipe navigation, and ensure proper responsive behavior across device sizes",
             "dependencies": [
               1
             ],
-            "details": "Configure Map component with proper gesture settings, implement responsive breakpoints for different screen sizes, add mobile-specific UI adjustments for markers and info windows, ensure proper touch event handling",
+            "details": "Configure Map component with touchZoomRotate and dragPan enabled, implement responsive breakpoints for different screen sizes, add mobile-specific UI adjustments for markers and popups, ensure proper touch event handling",
             "status": "pending",
-            "testStrategy": "Test pinch/zoom functionality on mobile devices, verify swipe navigation works, check info window behavior on touch events, validate responsive layout across device sizes"
+            "testStrategy": "Test pinch/zoom functionality on mobile devices, verify swipe navigation works, check popup behavior on touch events, validate responsive layout across device sizes"
           },
           {
             "id": 5,
@@ -578,7 +578,7 @@
               2,
               3
             ],
-            "details": "Implement data filtering based on current viewport, optimize marker rendering with clustering, use React memoization for components, implement lazy loading for markers outside current view",
+            "details": "Implement data filtering based on current viewport, optimize marker data structure, use Google Maps clustering capabilities, implement lazy loading for markers outside current view, optimize React component rendering with memoization",
             "status": "pending",
             "testStrategy": "Benchmark performance with 500+ job markers, verify frame rate remains above 30fps during interactions, test memory usage during extended use, validate smooth transitions during zoom/pan operations"
           }

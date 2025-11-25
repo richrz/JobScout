@@ -1,16 +1,25 @@
 import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
 import { geocodeLocation, setRedisClient } from '../../../src/lib/geocoding';
 
-// Mock fetch
-global.fetch = jest.fn() as unknown as typeof fetch;
+// Mock Google Maps Client - use a factory function
+const mockGeocodeImpl = jest.fn();
 
-describe('Geocoding Service - TDD RED PHASE', () => {
+jest.mock('@googlemaps/google-maps-services-js', () => {
+    return {
+        Client: jest.fn().mockImplementation(() => ({
+            geocode: (...args: any[]) => mockGeocodeImpl(...args)
+        }))
+    };
+});
+
+describe('Geocoding Service - Google Maps', () => {
     let mockRedisGet: jest.Mock;
     let mockRedisSet: jest.Mock;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        process.env.NEXT_PUBLIC_MAPBOX_TOKEN = 'test-token';
+        mockGeocodeImpl.mockClear();
+        process.env.GOOGLE_MAPS_API_KEY = 'test-api-key';
 
         mockRedisGet = jest.fn();
         mockRedisSet = jest.fn();
@@ -23,36 +32,39 @@ describe('Geocoding Service - TDD RED PHASE', () => {
     });
 
     afterEach(() => {
-        delete process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+        delete process.env.GOOGLE_MAPS_API_KEY;
     });
 
     it('should return coordinates for a valid location', async () => {
-        // Mock Mapbox API response
-        (global.fetch as jest.Mock).mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({
-                features: [
+        // Mock Google Maps API response
+        mockGeocodeImpl.mockResolvedValueOnce({
+            data: {
+                results: [
                     {
-                        center: [-74.006, 40.7128], // lng, lat
-                    },
-                ],
-            }),
+                        geometry: {
+                            location: { lat: 40.7128, lng: -74.006 }
+                        }
+                    }
+                ]
+            }
         });
 
         const result = await geocodeLocation('New York, NY');
 
         expect(result).toEqual({ lat: 40.7128, lng: -74.006 });
-        expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringContaining('mapbox.places/New%20York%2C%20NY.json')
-        );
+        expect(mockGeocodeImpl).toHaveBeenCalledWith({
+            params: {
+                address: 'New York, NY',
+                key: 'test-api-key'
+            }
+        });
     });
 
     it('should return null if no results found', async () => {
-        (global.fetch as jest.Mock).mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({
-                features: [],
-            }),
+        mockGeocodeImpl.mockResolvedValueOnce({
+            data: {
+                results: []
+            }
         });
 
         const result = await geocodeLocation('Nonexistent Place');
@@ -69,21 +81,22 @@ describe('Geocoding Service - TDD RED PHASE', () => {
 
         expect(result).toEqual(cachedCoords);
         expect(mockRedisGet).toHaveBeenCalledWith('geo:Los Angeles, CA');
-        expect(global.fetch).not.toHaveBeenCalled();
+        expect(mockGeocodeImpl).not.toHaveBeenCalled();
     });
 
     it('should cache new results in Redis', async () => {
         // Mock Redis miss then API hit
         mockRedisGet.mockResolvedValueOnce(null);
-        (global.fetch as jest.Mock).mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({
-                features: [
+        mockGeocodeImpl.mockResolvedValueOnce({
+            data: {
+                results: [
                     {
-                        center: [-0.1276, 51.5074],
-                    },
-                ],
-            }),
+                        geometry: {
+                            location: { lat: 51.5074, lng: -0.1276 }
+                        }
+                    }
+                ]
+            }
         });
 
         await geocodeLocation('London, UK');
@@ -97,17 +110,15 @@ describe('Geocoding Service - TDD RED PHASE', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-        (global.fetch as jest.Mock).mockResolvedValueOnce({
-            ok: false,
-            status: 500,
-            statusText: 'Internal Server Error',
-        });
+        const apiError = new Error('API Error');
+        (apiError as any).response = { data: 'Internal Server Error' };
+        mockGeocodeImpl.mockRejectedValueOnce(apiError);
 
-        await expect(geocodeLocation('Error City')).rejects.toThrow('Mapbox API error');
+        await expect(geocodeLocation('Error City')).rejects.toThrow('API Error');
     });
 
-    it('should throw error if Mapbox token is missing', async () => {
-        delete process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-        await expect(geocodeLocation('Anywhere')).rejects.toThrow('Mapbox token missing');
+    it('should throw error if API key is missing', async () => {
+        delete process.env.GOOGLE_MAPS_API_KEY;
+        await expect(geocodeLocation('Anywhere')).rejects.toThrow('Google Maps API key missing');
     });
 });

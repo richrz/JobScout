@@ -333,3 +333,39 @@ function getMockLinkedInJobs(pageCount: number = 1): JobListing[] {
 
     return jobs;
 }
+
+/**
+ * Orchestrate the aggregation of jobs from all sources.
+ * This function is called by the scheduler.
+ */
+export async function runAggregation(): Promise<void> {
+    console.log('Starting job aggregation run...');
+    const startTime = Date.now();
+
+    try {
+        // 1. Fetch from all sources in parallel
+        const [indeedJobs, linkedInJobs] = await Promise.all([
+            fetchIndeedJobs().catch(err => {
+                console.error('Error fetching Indeed jobs:', err);
+                return [];
+            }),
+            fetchLinkedInJobs().catch(err => {
+                console.error('Error fetching LinkedIn jobs:', err);
+                return [];
+            })
+        ]);
+
+        const totalJobs = indeedJobs.length + linkedInJobs.length;
+        const duration = Date.now() - startTime;
+
+        console.log(`Aggregation completed in ${duration}ms. Fetched ${totalJobs} jobs.`);
+
+        // TODO: Add deduplication and database storage here
+        // const uniqueJobs = findDuplicates([...indeedJobs, ...linkedInJobs]);
+        // await saveJobs(uniqueJobs);
+
+    } catch (error) {
+        console.error('Critical error during aggregation:', error);
+        throw error; // Re-throw to be caught by scheduler error reporting
+    }
+}
