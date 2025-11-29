@@ -16,10 +16,10 @@ export interface JobWithCoordinates {
  * Calculate the great-circle distance between two points using the Haversine formula
  * @param point1 First coordinate
  * @param point2 Second coordinate
- * @returns Distance in kilometers
+ * @returns Distance in miles
  */
 export function calculateDistance(point1: Coordinates, point2: Coordinates): number {
-    const R = 6371; // Earth's radius in kilometers
+    const R = 3959; // Earth's radius in miles
 
     const lat1Rad = toRadians(point1.lat);
     const lat2Rad = toRadians(point2.lat);
@@ -42,18 +42,18 @@ export function calculateDistance(point1: Coordinates, point2: Coordinates): num
  * Filter jobs by distance from user location
  * @param jobs List of jobs with coordinates
  * @param userLocation User's current location
- * @param radiusKm Search radius in kilometers
+ * @param radiusMiles Search radius in miles
  * @param includeRemote Whether to include remote jobs (jobs without coordinates)
  * @returns Filtered jobs sorted by distance (closest first)
  */
 export function filterJobsByDistance(
     jobs: JobWithCoordinates[],
     userLocation: Coordinates,
-    radiusKm: number,
+    radiusMiles: number,
     includeRemote: boolean = false
 ): JobWithCoordinates[] {
     // Validate radius
-    if (radiusKm <= 0) {
+    if (radiusMiles <= 0) {
         throw new Error('Radius must be a positive number');
     }
 
@@ -80,7 +80,7 @@ export function filterJobsByDistance(
             return includeRemote;
         }
         // Otherwise check if within radius
-        return job.distance! <= radiusKm;
+        return job.distance! <= radiusMiles;
     });
 
     // Sort by distance (closest first)

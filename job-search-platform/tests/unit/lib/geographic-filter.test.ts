@@ -8,15 +8,15 @@ import {
 describe('Geographic Filtering - TDD RED PHASE', () => {
     describe('Haversine Distance Calculation', () => {
         it('should calculate distance between two coordinates correctly', () => {
-            // New York to Los Angeles (approx 3944 km)
+            // New York to Los Angeles (approx 2451 miles)
             const nyc = { lat: 40.7128, lng: -74.006 };
             const la = { lat: 34.0522, lng: -118.2437 };
 
             const distance = calculateDistance(nyc, la);
 
-            // Should be approximately 3944 km (within 50km tolerance)
-            expect(distance).toBeGreaterThan(3900);
-            expect(distance).toBeLessThan(4000);
+            // Should be approximately 2451 miles (within 50 miles tolerance)
+            expect(distance).toBeGreaterThan(2400);
+            expect(distance).toBeLessThan(2500);
         });
 
         it('should return 0 for same location', () => {
@@ -32,9 +32,9 @@ describe('Geographic Filtering - TDD RED PHASE', () => {
 
             const distance = calculateDistance(tokyo, sanFrancisco);
 
-            // Should be approximately 8280 km
-            expect(distance).toBeGreaterThan(8200);
-            expect(distance).toBeLessThan(8400);
+            // Should be approximately 5136 miles
+            expect(distance).toBeGreaterThan(5100);
+            expect(distance).toBeLessThan(5200);
         });
 
         it('should handle antipodal points (opposite sides of Earth)', () => {
@@ -43,9 +43,9 @@ describe('Geographic Filtering - TDD RED PHASE', () => {
 
             const distance = calculateDistance(north, south);
 
-            // Should be approximately 20,000 km for antipodal points
-            expect(distance).toBeGreaterThan(19000);
-            expect(distance).toBeLessThan(21000);
+            // Should be approximately 12,450 miles (half circumference)
+            expect(distance).toBeGreaterThan(12000);
+            expect(distance).toBeLessThan(13000);
         });
     });
 
@@ -87,9 +87,9 @@ describe('Geographic Filtering - TDD RED PHASE', () => {
 
         it('should filter jobs within specified radius', () => {
             const userLocation = { lat: 40.7128, lng: -74.006 }; // NYC
-            const radiusKm = 50;
+            const radiusMiles = 30;
 
-            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusKm);
+            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusMiles);
 
             // Should include NYC and Brooklyn jobs, exclude SF
             expect(filtered).toHaveLength(2);
@@ -100,22 +100,22 @@ describe('Geographic Filtering - TDD RED PHASE', () => {
 
         it('should include distance in filtered results', () => {
             const userLocation = { lat: 40.7128, lng: -74.006 };
-            const radiusKm = 50;
+            const radiusMiles = 30;
 
-            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusKm);
+            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusMiles);
 
             filtered.forEach(job => {
                 expect(job).toHaveProperty('distance');
                 expect(typeof job.distance).toBe('number');
-                expect(job.distance).toBeLessThanOrEqual(radiusKm);
+                expect(job.distance).toBeLessThanOrEqual(radiusMiles);
             });
         });
 
         it('should sort results by distance (closest first)', () => {
             const userLocation = { lat: 40.7128, lng: -74.006 };
-            const radiusKm = 100;
+            const radiusMiles = 100;
 
-            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusKm);
+            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusMiles);
 
             // Results should be sorted by distance
             for (let i = 1; i < filtered.length; i++) {
@@ -125,22 +125,22 @@ describe('Geographic Filtering - TDD RED PHASE', () => {
 
         it('should handle jobs without coordinates based on includeRemote flag', () => {
             const userLocation = { lat: 40.7128, lng: -74.006 };
-            const radiusKm = 50;
+            const radiusMiles = 30;
 
             // Without includeRemote flag (default false)
-            const filteredWithoutRemote = filterJobsByDistance(mockJobs, userLocation, radiusKm, false);
+            const filteredWithoutRemote = filterJobsByDistance(mockJobs, userLocation, radiusMiles, false);
             expect(filteredWithoutRemote.map(j => j.id)).not.toContain('4');
 
             // With includeRemote flag
-            const filteredWithRemote = filterJobsByDistance(mockJobs, userLocation, radiusKm, true);
+            const filteredWithRemote = filterJobsByDistance(mockJobs, userLocation, radiusMiles, true);
             expect(filteredWithRemote.map(j => j.id)).toContain('4');
         });
 
         it('should set distance to Infinity for remote jobs', () => {
             const userLocation = { lat: 40.7128, lng: -74.006 };
-            const radiusKm = 50;
+            const radiusMiles = 30;
 
-            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusKm, true);
+            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusMiles, true);
             const remoteJob = filtered.find(j => j.id === '4');
 
             expect(remoteJob?.distance).toBe(Infinity);
@@ -148,19 +148,19 @@ describe('Geographic Filtering - TDD RED PHASE', () => {
 
         it('should return empty array if no jobs within radius', () => {
             const userLocation = { lat: 40.7128, lng: -74.006 }; // NYC
-            const radiusKm = 5; // Very small radius (5km)
+            const radiusMiles = 3; // Very small radius (3 miles)
 
-            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusKm);
+            const filtered = filterJobsByDistance(mockJobs, userLocation, radiusMiles);
 
-            // With 5km radius, only the exact NYC location should match
+            // With 3 miles radius, only the exact NYC location should match
             expect(filtered.length).toBeLessThanOrEqual(1);
         });
 
         it('should handle empty job list', () => {
             const userLocation = { lat: 40.7128, lng: -74.006 };
-            const radiusKm = 50;
+            const radiusMiles = 50;
 
-            const filtered = filterJobsByDistance([], userLocation, radiusKm);
+            const filtered = filterJobsByDistance([], userLocation, radiusMiles);
 
             expect(filtered).toEqual([]);
         });
