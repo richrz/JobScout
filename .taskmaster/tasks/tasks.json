@@ -437,7 +437,7 @@
         "id": 17,
         "title": "Build Job Aggregation System with TypeScript Scrapers and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using TypeScript with Cheerio for HTML parsing, integrate Google Maps Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           12
         ],
@@ -519,7 +519,7 @@
         "id": 18,
         "title": "Create Interactive Map Visualization with Google Maps",
         "description": "Build the geographic job visualization using Google Maps JavaScript API with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           17
         ],
@@ -533,7 +533,7 @@
             "description": "Install dependencies, configure Google Maps API key, and initialize the base map component with proper styling and view state management",
             "dependencies": [],
             "details": "Install @vis.gl/react-google-maps package, create JobMap component with TypeScript typing, configure APIProvider with NEXT_PUBLIC_GOOGLE_MAPS_API_KEY, implement Map component with default center and zoom, create Map ID in Google Cloud Console for Advanced Markers",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify map loads with correct initial view, check API key authentication works, validate Google Maps base layer displays correctly"
           },
           {
@@ -544,7 +544,7 @@
               1
             ],
             "details": "Implement getMarkerColor function for score-based coloring, create marker components with proper styling, configure clustering with clusterMaxZoom=14 and clusterRadius=50, implement cluster layers for both cluster points and counts",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test marker rendering for all jobs, validate color coding (green/yellow/red by score), verify clustering works (groups nearby markers), check cluster count display"
           },
           {
@@ -555,7 +555,7 @@
               1
             ],
             "details": "Implement createCircle utility function to generate GeoJSON for city radii, add Source and Layer components for both fill and line representations, apply proper styling with blue color (#3b82f6) and appropriate opacity/width values",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate radius circles display correctly around cities, verify styling matches requirements, test with multiple cities of different radii"
           },
           {
@@ -566,7 +566,7 @@
               1
             ],
             "details": "Configure Map component with touchZoomRotate and dragPan enabled, implement responsive breakpoints for different screen sizes, add mobile-specific UI adjustments for markers and popups, ensure proper touch event handling",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test pinch/zoom functionality on mobile devices, verify swipe navigation works, check popup behavior on touch events, validate responsive layout across device sizes"
           },
           {
@@ -579,8 +579,31 @@
               3
             ],
             "details": "Implement data filtering based on current viewport, optimize marker data structure, use Google Maps clustering capabilities, implement lazy loading for markers outside current view, optimize React component rendering with memoization",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Benchmark performance with 500+ job markers, verify frame rate remains above 30fps during interactions, test memory usage during extended use, validate smooth transitions during zoom/pan operations"
+          },
+          {
+            "id": 6,
+            "title": "Implement density heatmap visualization for job concentration",
+            "description": "Add Google Maps Heatmap Layer to visualize job density across geographic regions, weighted by composite score or job count",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Load Google Maps visualization library, implement HeatmapLayer using google.maps.visualization.HeatmapLayer, configure weighted data points from job locations, add toggle UI to switch between marker and heatmap modes, style heatmap with appropriate gradient (red=high density, blue=low density), weight by compositeScore for quality-weighted density",
+            "status": "done",
+            "testStrategy": "Verify heatmap layer renders with job data, test weighted vs unweighted modes, validate gradient displays correctly, test toggle between markers and heatmap, verify performance with large datasets"
+          },
+          {
+            "id": 7,
+            "title": "Add interactive job detail popups on marker click",
+            "description": "Implement InfoWindow popups that display job details when users click on map markers",
+            "dependencies": [
+              2
+            ],
+            "details": "Use google.maps.InfoWindow for marker clicks, display job title, company, location, composite score, salary range (if available), remote status, posted date, add 'View Details' link to full job page, implement popup close functionality, ensure mobile-friendly sizing",
+            "status": "done",
+            "testStrategy": "Test popup opens on marker click, verify all job data displays correctly, test close functionality, validate mobile responsiveness, ensure only one popup open at a time"
           }
         ]
       },

@@ -9,7 +9,7 @@
       "version": "1.0.0",
       "license": "ISC",
       "devDependencies": {
-        "task-master-ai": "0.35.0"
+        "task-master-ai": "0.36.0"
       },
       "engines": {
         "node": ">=18.0.0"
@@ -10317,9 +10317,9 @@
       }
     },
     "node_modules/task-master-ai": {
-      "version": "0.35.0",
-      "resolved": "https://registry.npmjs.org/task-master-ai/-/task-master-ai-0.35.0.tgz",
-      "integrity": "sha512-UyxkJ/sk6SK+cMYotEZLZBNKeb0tzGCbyg9WBjK0+5yoXSGEfXj6ncPxmMQccsILyPar8GsLewmqolxLXMPVXg==",
+      "version": "0.36.0",
+      "resolved": "https://registry.npmjs.org/task-master-ai/-/task-master-ai-0.36.0.tgz",
+      "integrity": "sha512-Zfj0wPno1Kwtm5phbGyk91JVrQci5a7YtomCo6xyeChw/IFgbYpYU4AvkLICTw2TqCOfdeOZ1ktFGvjWmQtoBg==",
       "dev": true,
       "license": "MIT WITH Commons-Clause",
       "workspaces": [
