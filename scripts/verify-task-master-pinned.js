@@ -7,8 +7,8 @@ const checkTaskMasterVersion = () => {
   const packageJsonPath = path.join(__dirname, '..', 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-  const expectedVersion = '0.34.0';
-  const actualVersion = packageJson.devDependencies['task-master-ai'];
+  const expectedVersion = '0.37.0';
+  const actualVersion = packageJson.devDependencies?.['task-master-ai'] || packageJson.dependencies?.['task-master-ai'];
 
   console.log('🔍 Verifying Task Master version...');
   console.log(`Expected: ${expectedVersion}`);
@@ -22,11 +22,14 @@ const checkTaskMasterVersion = () => {
     console.log('This violates the stability requirements.');
     console.log(`Reverting to version ${expectedVersion}...`);
 
-    // Revert to expected version
-    packageJson.devDependencies['task-master-ai'] = expectedVersion;
+    if (packageJson.devDependencies?.['task-master-ai']) {
+        packageJson.devDependencies['task-master-ai'] = expectedVersion;
+    } else {
+        packageJson.dependencies['task-master-ai'] = expectedVersion;
+    }
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
 
-    console.log('✅ Reverted to version 0.34.0');
+    console.log(`✅ Reverted to version ${expectedVersion}`);
     process.exit(1);
   }
 };
