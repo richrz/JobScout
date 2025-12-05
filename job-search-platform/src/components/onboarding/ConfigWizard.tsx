@@ -10,6 +10,8 @@ import { Step4Exclude } from '@/components/onboarding/steps/Step4Exclude';
 import { Step5Salary } from '@/components/onboarding/steps/Step5Salary';
 import { Step6Freshness } from '@/components/onboarding/steps/Step6Freshness';
 import { ConfigActions } from '@/components/onboarding/ConfigActions';
+import { useConfig } from '@/contexts/ConfigContext';
+import { useRouter } from 'next/navigation';
 
 const steps = [
   { id: 1, title: 'Target Cities' },
@@ -34,6 +36,9 @@ export function ConfigWizard() {
     }
   });
 
+  const { updateConfig } = useConfig();
+  const router = useRouter();
+
   const progress = (currentStep / steps.length) * 100;
 
   const handleExport = () => {
@@ -48,8 +53,38 @@ export function ConfigWizard() {
   };
 
   const handleImport = (data: any) => {
-    // Ideally run validation against schema here
-    methods.reset(data);
+    try {
+      // Validate imported data against schema
+      // Note: We might need to transform data if the export structure differs from form structure
+      // For now assuming export matches form structure exactly.
+      const validData = configSchema.parse(data);
+      methods.reset(validData);
+      alert('Configuration imported successfully!');
+    } catch (error) {
+      console.error('Import validation failed:', error);
+      alert('Failed to import configuration: Invalid format.');
+    }
+  };
+
+  const onSubmit = async (data: any) => {
+    try {
+      const searchConfig = {
+        cities: data.cities,
+        categories: data.categories || [],
+        keywords: data.include_keywords || [],
+        excludeKeywords: data.exclude_keywords || [],
+        minSalary: data.salary_usd?.min,
+        maxSalary: data.salary_usd?.max,
+        recencyDays: data.posted_within_hours ? data.posted_within_hours / 24 : 30,
+      };
+
+      await updateConfig({ search: searchConfig as any });
+      alert('Configuration saved!');
+      router.push('/');
+    } catch (error) {
+      console.error('Failed to save config:', error);
+      alert('Failed to save configuration');
+    }
   };
 
   return (
@@ -71,22 +106,30 @@ export function ConfigWizard() {
 
         <div className="flex justify-between items-center">
           <div className="space-x-4">
-             <button
+            <button
               onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
               disabled={currentStep === 1}
               className="px-4 py-2 border rounded disabled:opacity-50"
             >
               Previous
             </button>
-            <button
-              onClick={() => setCurrentStep(prev => Math.min(steps.length, prev + 1))}
-              disabled={currentStep === steps.length}
-              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-            >
-              Next
-            </button>
+            {currentStep < steps.length ? (
+              <button
+                onClick={() => setCurrentStep(prev => prev + 1)}
+                className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                onClick={methods.handleSubmit(onSubmit)}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Finish & Save
+              </button>
+            )}
           </div>
-          
+
           <ConfigActions onExport={handleExport} onImport={handleImport} />
         </div>
       </div>

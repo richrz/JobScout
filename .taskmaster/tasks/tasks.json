@@ -1093,15 +1093,39 @@
       {
         "id": 14,
         "title": "Build Multi-Step Configuration Wizard with Form Validation",
-        "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking and data persistence.",
+        "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking, data persistence, and a dedicated /onboarding route verified by E2E tests.",
         "status": "done",
         "dependencies": [
           "13"
         ],
         "priority": "high",
-        "details": "1. Create Zod schemas for each step:\n   ```typescript\n   // src/lib/validations/config.ts\n   import { z } from 'zod';\n\n   export const citySchema = z.object({\n     name: z.string().min(1, 'City name required'),\n     radius_miles: z.number().min(5).max(100),\n     weight: z.number().min(0).max(100)\n   });\n\n   export const step1Schema = z.object({\n     cities: z.array(citySchema).min(1, 'At least one city required')\n   });\n\n   export const step2Schema = z.object({\n     categories: z.array(z.string()).min(1, 'At least one job title required')\n   });\n\n   export const configSchema = z.object({\n     cities: z.array(citySchema),\n     categories: z.array(z.string()),\n     include_keywords: z.array(z.string()),\n     exclude_keywords: z.array(z.string()),\n     salary_usd: z.object({\n       min: z.number().optional(),\n       max: z.number().optional()\n     }),\n     posted_within_hours: z.number()\n   });\n   ```\n\n2. Build wizard component with shadcn/ui:\n   ```typescript\n   // src/components/onboarding/ConfigWizard.tsx\n   import { useState } from 'react';\n   import { useForm } from 'react-hook-form';\n   import { zodResolver } from '@hookform/resolvers/zod';\n\n   const steps = [\n     { id: 1, title: 'Target Cities', component: Step1Cities },\n     { id: 2, title: 'Job Titles', component: Step2Titles },\n     { id: 3, title: 'Include Keywords', component: Step3Include },\n     { id: 4, title: 'Exclude Keywords', component: Step4Exclude },\n     { id: 5, title: 'Salary Range', component: Step5Salary },\n     { id: 6, title: 'Job Freshness', component: Step6Recency }\n   ];\n   ```\n\n3. Implement auto-save every 30 seconds using useEffect\n4. Create progress indicator component (0-100%)\n5. Build each step component with appropriate inputs:\n   - Step 1: City autocomplete + radius slider + weight slider\n   - Step 2: Tag input for job titles\n   - Step 3: Keyword tag input with OR logic explanation\n   - Step 4: Exclusion keyword tag input\n   - Step 5: Min/max salary inputs with checkbox for undisclosed\n   - Step 6: Radio buttons for recency options\n6. Add navigation (Back/Next/Skip buttons)\n7. Implement data persistence to Config model\n8. Create JSON export/import functionality",
-        "testStrategy": "1. Test form validation for each step (invalid inputs rejected)\n2. Verify progress indicator updates correctly (0% → 100%)\n3. Test auto-save functionality (check DB after 30s)\n4. Validate navigation (Back/Next/Skip work correctly)\n5. Test city autocomplete with real geocoding API\n6. Verify weight sliders sum to 100% validation\n7. Test JSON export/import round-trip\n8. Confirm data persists to Config table\n9. Test wizard completion creates valid config.json\n10. Verify tooltips and help text display correctly",
+        "details": "1. Create Zod schemas for each step:\n   ```typescript\n   // src/lib/validations/config.ts\n   import { z } from 'zod';\n\n   export const citySchema = z.object({\n     name: z.string().min(1, 'City name required'),\n     radius_miles: z.number().min(5).max(100),\n     weight: z.number().min(0).max(100)\n   });\n\n   export const step1Schema = z.object({\n     cities: z.array(citySchema).min(1, 'At least one city required')\n   });\n\n   export const step2Schema = z.object({\n     categories: z.array(z.string()).min(1, 'At least one job title required')\n   });\n\n   export const configSchema = z.object({\n     cities: z.array(citySchema),\n     categories: z.array(z.string()),\n     include_keywords: z.array(z.string()),\n     exclude_keywords: z.array(z.string()),\n     salary_usd: z.object({\n       min: z.number().optional(),\n       max: z.number().optional()\n     }),\n     posted_within_hours: z.number()\n   });\n   ```\n\n2. Build wizard component with shadcn/ui:\n   ```typescript\n   // src/components/onboarding/ConfigWizard.tsx\n   import { useState } from 'react';\n   import { useForm } from 'react-hook-form';\n   import { zodResolver } from '@hookform/resolvers/zod';\n\n   const steps = [\n     { id: 1, title: 'Target Cities', component: Step1Cities },\n     { id: 2, title: 'Job Titles', component: Step2Titles },\n     { id: 3, title: 'Include Keywords', component: Step3Include },\n     { id: 4, title: 'Exclude Keywords', component: Step4Exclude },\n     { id: 5, title: 'Salary Range', component: Step5Salary },\n     { id: 6, title: 'Job Freshness', component: Step6Recency }\n   ];\n   ```\n\n3. Implement auto-save every 30 seconds using useEffect\n4. Create progress indicator component (0-100%)\n5. Build each step component with appropriate inputs:\n   - Step 1: City autocomplete + radius slider + weight slider\n   - Step 2: Tag input for job titles\n   - Step 3: Keyword tag input with OR logic explanation\n   - Step 4: Exclusion keyword tag input\n   - Step 5: Min/max salary inputs with checkbox for undisclosed\n   - Step 6: Radio buttons for recency options\n6. Add navigation (Back/Next/Skip buttons)\n7. Implement data persistence to Config model\n8. Create JSON export/import functionality\n9. Create /onboarding route to host the wizard\n10. Wire up API integration for saving data to database\n11. Implement E2E tests using Playwright/Cypress",
+        "testStrategy": "1. Test form validation for each step (invalid inputs rejected)\n2. Verify progress indicator updates correctly (0% → 100%)\n3. Test auto-save functionality (check DB after 30s)\n4. Validate navigation (Back/Next/Skip work correctly)\n5. Test city autocomplete with real geocoding API\n6. Verify weight sliders sum to 100% validation\n7. Test JSON export/import round-trip\n8. Confirm data persists to Config table\n9. Test wizard completion creates valid config.json\n10. Verify tooltips and help text display correctly\n11. E2E: Verify full wizard flow loads at /onboarding\n12. E2E: Confirm data is saved to DB upon completion",
         "subtasks": [
+          {
+            "id": 7,
+            "title": "Implement /onboarding route and API integration",
+            "description": "Create the page route and ensure the wizard communicates with the backend database",
+            "dependencies": [
+              6
+            ],
+            "details": "Create the `/onboarding` route (e.g., `src/app/onboarding/page.tsx`) and wrap the `ConfigWizard` component. Wire up the `useAutoSave` hook and manual save actions to call the backend API endpoints that utilize the service layer created in subtask 6. Ensure proper error handling and loading states during data persistence.",
+            "status": "pending",
+            "testStrategy": "Verify the route loads the wizard component. Test that changes in the wizard trigger API calls to save data. Confirm that refreshing the page loads persisted data from the database.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 8,
+            "title": "Create E2E tests for Onboarding Wizard",
+            "description": "Implement end-to-end tests covering the full user journey through the configuration wizard",
+            "dependencies": [
+              7
+            ],
+            "details": "Develop E2E tests using Playwright or Cypress. Scenarios should include: navigating to `/onboarding`, completing all 6 steps with valid data, verifying progress bar updates, testing validation errors, checking auto-save behavior, and confirming final submission results in a database record.",
+            "status": "pending",
+            "testStrategy": "Run E2E suite in CI environment. Verify all critical paths pass, including happy path and error states. Check for visual regressions if applicable.",
+            "parentId": "undefined"
+          },
           {
             "id": 1,
             "title": "Design and implement Zod validation schemas for all configuration steps",
@@ -1177,21 +1201,116 @@
             "status": "done",
             "testStrategy": "Test round-trip JSON export/import, verify data integrity after import, and confirm proper validation of imported data against configSchema. Test edge cases with malformed JSON",
             "parentId": "undefined"
+          },
+          {
+            "id": 9,
+            "title": "Initialize Wizard Architecture and Validation Schemas",
+            "description": "Set up the /onboarding route, create the main wizard layout wrapper, and define Zod schemas for all configuration steps.",
+            "dependencies": [
+              13
+            ],
+            "details": "Create `src/lib/validations/config.ts` with Zod schemas for cities, categories, keywords, salary, and recency. Build the `ConfigWizard` shell using shadcn/ui components. Configure the `/onboarding` route in the application router to host the wizard.",
+            "status": "pending",
+            "testStrategy": "Verify the route is accessible and that Zod schemas correctly validate valid and invalid sample data objects via unit tests."
+          },
+          {
+            "id": 10,
+            "title": "Build UI Components for Configuration Steps",
+            "description": "Implement the interactive UI components for all 6 wizard steps including city autocomplete, tag inputs, and sliders.",
+            "dependencies": [
+              9
+            ],
+            "details": "Develop `Step1Cities` (with autocomplete & radius slider), `Step2Titles` (tag input), `Step3Include`, `Step4Exclude` (keyword tags), `Step5Salary` (min/max inputs), and `Step6Recency` (radio buttons). Ensure all inputs bind correctly to the React Hook Form context.",
+            "status": "pending",
+            "testStrategy": "Component testing (React Testing Library) for each step to ensure inputs render, accept user interaction, and display validation errors."
+          },
+          {
+            "id": 11,
+            "title": "Implement Navigation, Progress, and Auto-Save Logic",
+            "description": "Add state management for wizard navigation, progress bar calculation, and auto-save functionality using React hooks.",
+            "dependencies": [
+              10
+            ],
+            "details": "Implement `handleNext` and `handleBack` functions with form validation triggers. Create a progress bar component that reflects step completion percentage. Add a `useEffect` hook to trigger an auto-save action every 30 seconds of inactivity.",
+            "status": "pending",
+            "testStrategy": "Verify navigation is blocked on invalid data, progress bar updates correctly from 0-100%, and auto-save timer fires as expected."
+          },
+          {
+            "id": 12,
+            "title": "Integrate Data Persistence and Import/Export",
+            "description": "Connect the wizard to the backend API for saving configurations and implement JSON file import/export capabilities.",
+            "dependencies": [
+              11
+            ],
+            "details": "Implement API integration to persist the `Config` model to the database. Add UI and logic to export the current form state to a JSON file and import/validate a JSON configuration file, populating the form fields upon success.",
+            "status": "pending",
+            "testStrategy": "Mock API calls to verify data payload structure matches the schema; test JSON import with valid and invalid files to ensure robustness."
+          },
+          {
+            "id": 13,
+            "title": "Develop E2E Tests for Onboarding Workflow",
+            "description": "Create comprehensive end-to-end tests to validate the full user journey through the configuration wizard.",
+            "dependencies": [
+              12
+            ],
+            "details": "Use Playwright to simulate a user completing all steps, testing validation barriers, verifying successful data submission, checking the persistence of data upon page reload, and validating the JSON export/import flow.",
+            "status": "pending",
+            "testStrategy": "Run the Playwright suite in a CI environment; verify all scenarios pass including happy paths and edge cases."
           }
-        ]
+        ],
+        "updatedAt": "2025-12-05T20:14:42.681Z"
       },
       {
         "id": 15,
         "title": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
-        "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes.",
+        "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes. Includes integration of the /profile route, database persistence, and E2E testing.",
         "status": "done",
         "dependencies": [
           "13"
         ],
         "priority": "high",
-        "details": "1. Install Tiptap dependencies:\n   ```bash\n   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder\n   ```\n\n2. Create Profile form structure:\n   ```typescript\n   // src/components/profile/ProfileBuilder.tsx\n   const sections = [\n     { id: 'contact', title: 'Contact Information', weight: 10 },\n     { id: 'work', title: 'Work History', weight: 40 },\n     { id: 'education', title: 'Education', weight: 15 },\n     { id: 'skills', title: 'Skills', weight: 15 },\n     { id: 'projects', title: 'Projects', weight: 10 },\n     { id: 'certifications', title: 'Certifications', weight: 10 }\n   ];\n   ```\n\n3. Build Tiptap editor component for work history/project descriptions:\n   ```typescript\n   import { useEditor, EditorContent } from '@tiptap/react';\n   import StarterKit from '@tiptap/starter-kit';\n\n   const editor = useEditor({\n     extensions: [StarterKit],\n     content: initialContent,\n     onUpdate: ({ editor }) => {\n       // Auto-save logic\n     }\n   });\n   ```\n\n4. Implement progress calculation:\n   ```typescript\n   function calculateCompleteness(profile: Profile): number {\n     let score = 0;\n     if (profile.contactInfo.email) score += 10;\n     if (profile.workHistory.length > 0) score += 40;\n     if (profile.education.length > 0) score += 15;\n     if (profile.skills.length >= 5) score += 15;\n     if (profile.projects.length > 0) score += 10;\n     if (profile.certifications.length > 0) score += 10;\n     return score;\n   }\n   ```\n\n5. Create resume import feature using GPT-4 Vision:\n   ```typescript\n   async function importFromResume(file: File) {\n     const base64 = await fileToBase64(file);\n     const response = await openai.chat.completions.create({\n       model: 'gpt-5.1-vision-preview',\n       messages: [{\n         role: 'user',\n         content: [\n           { type: 'text', text: 'Extract structured profile data from this resume' },\n           { type: 'image_url', image_url: { url: base64 } }\n         ]\n       }]\n     });\n     return JSON.parse(response.choices[0].message.content);\n   }\n   ```\n\n6. Implement auto-save with debouncing (30 second intervals)\n7. Add JSON export functionality\n8. Create skill tag input with proficiency levels\n9. Build dynamic work history/education entry forms",
-        "testStrategy": "1. Test auto-save triggers after 30 seconds of inactivity\n2. Verify progress calculation updates correctly (0-100%)\n3. Test Tiptap editor saves rich text properly\n4. Validate resume import with sample PDF (check 80%+ accuracy)\n5. Test JSON export/import round-trip\n6. Verify all form validations work\n7. Test skill tag input (add/remove/edit)\n8. Confirm data persists to Profile table\n9. Test with incomplete profiles (partial data)\n10. Verify proficiency level dropdowns work",
+        "details": "1. Install Tiptap dependencies:\n   ```bash\n   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder\n   ```\n\n2. Create Profile form structure:\n   ```typescript\n   // src/components/profile/ProfileBuilder.tsx\n   const sections = [\n     { id: 'contact', title: 'Contact Information', weight: 10 },\n     { id: 'work', title: 'Work History', weight: 40 },\n     { id: 'education', title: 'Education', weight: 15 },\n     { id: 'skills', title: 'Skills', weight: 15 },\n     { id: 'projects', title: 'Projects', weight: 10 },\n     { id: 'certifications', title: 'Certifications', weight: 10 }\n   ];\n   ```\n\n3. Build Tiptap editor component for work history/project descriptions:\n   ```typescript\n   import { useEditor, EditorContent } from '@tiptap/react';\n   import StarterKit from '@tiptap/starter-kit';\n\n   const editor = useEditor({\n     extensions: [StarterKit],\n     content: initialContent,\n     onUpdate: ({ editor }) => {\n       // Auto-save logic\n     }\n   });\n   ```\n\n4. Implement progress calculation:\n   ```typescript\n   function calculateCompleteness(profile: Profile): number {\n     let score = 0;\n     if (profile.contactInfo.email) score += 10;\n     if (profile.workHistory.length > 0) score += 40;\n     if (profile.education.length > 0) score += 15;\n     if (profile.skills.length >= 5) score += 15;\n     if (profile.projects.length > 0) score += 10;\n     if (profile.certifications.length > 0) score += 10;\n     return score;\n   }\n   ```\n\n5. Create resume import feature using GPT-4 Vision:\n   ```typescript\n   async function importFromResume(file: File) {\n     const base64 = await fileToBase64(file);\n     const response = await openai.chat.completions.create({\n       model: 'gpt-5.1-vision-preview',\n       messages: [{\n         role: 'user',\n         content: [\n           { type: 'text', text: 'Extract structured profile data from this resume' },\n           { type: 'image_url', image_url: { url: base64 } }\n         ]\n       }]\n     });\n     return JSON.parse(response.choices[0].message.content);\n   }\n   ```\n\n6. Implement auto-save with debouncing (30 second intervals)\n7. Add JSON export functionality\n8. Create skill tag input with proficiency levels\n9. Build dynamic work history/education entry forms\n10. Create /profile route and wire ProfileBuilder component\n11. Connect to database for persistent storage\n12. Implement E2E tests",
+        "testStrategy": "1. Test auto-save triggers after 30 seconds of inactivity\n2. Verify progress calculation updates correctly (0-100%)\n3. Test Tiptap editor saves rich text properly\n4. Validate resume import with sample PDF (check 80%+ accuracy)\n5. Test JSON export/import round-trip\n6. Verify all form validations work\n7. Test skill tag input (add/remove/edit)\n8. Confirm data persists to Profile table\n9. Test with incomplete profiles (partial data)\n10. Verify proficiency level dropdowns work\n11. E2E: Verify user can access /profile and save data\n12. E2E: Verify data persistence across sessions",
         "subtasks": [
+          {
+            "id": 6,
+            "title": "Create /profile route and page integration",
+            "description": "Create the /profile route and integrate the ProfileBuilder component into the page layout",
+            "dependencies": [
+              2,
+              5
+            ],
+            "details": "Create the page file for /profile route; import and render ProfileBuilder; ensure proper layout wrapping and authentication checks are in place so the builder is accessible to logged-in users",
+            "status": "pending",
+            "testStrategy": "Verify /profile route loads the builder component correctly and is protected by auth",
+            "parentId": "undefined"
+          },
+          {
+            "id": 7,
+            "title": "Integrate ProfileBuilder with Database API",
+            "description": "Wire the ProfileBuilder to the backend API to ensure data is saved to the database",
+            "dependencies": [
+              5,
+              6
+            ],
+            "details": "Connect the auto-save and manual save actions to the actual backend API endpoints; ensure data structure matches database schema; handle API responses and errors",
+            "status": "pending",
+            "testStrategy": "Verify data saved in the UI appears in the database; verify loading the page retrieves saved data",
+            "parentId": "undefined"
+          },
+          {
+            "id": 8,
+            "title": "Develop E2E tests for Profile Builder",
+            "description": "Create comprehensive E2E tests for the profile building flow",
+            "dependencies": [
+              6,
+              7
+            ],
+            "details": "Write E2E tests using the project's testing framework (e.g., Playwright/Cypress) to simulate a user navigating to /profile, filling out the form, saving, and verifying persistence",
+            "status": "pending",
+            "testStrategy": "Run E2E suite and ensure all profile builder scenarios pass",
+            "parentId": "undefined"
+          },
           {
             "id": 1,
             "title": "Configure Tiptap Rich Text Editor with required extensions",
@@ -1251,20 +1370,33 @@
             "testStrategy": "Verify auto-save triggers after 30s inactivity, test with rapid typing, validate data persistence after page refresh",
             "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-12-05T20:21:55.607Z"
       },
       {
         "id": 16,
         "title": "Develop LLM Integration Layer with Multi-Provider Support",
         "description": "Build the provider-agnostic LLM client using LangChain that supports OpenAI, Anthropic, Ollama, OpenRouter, Azure OpenAI, and custom endpoints with configurable temperature/token settings and resume generation prompts.",
-        "status": "done",
+        "status": "pending",
         "dependencies": [
           "15"
         ],
         "priority": "high",
-        "details": "1. Install LangChain dependencies:\n   ```bash\n   npm install @langchain/openai @langchain/anthropic @langchain/community\n   npm install langchain\n   ```\n\n2. Create LLM client factory:\n   ```typescript\n   // src/lib/llm.ts\n   import { ChatOpenAI } from '@langchain/openai';\n   import { ChatAnthropic } from '@langchain/anthropic';\n\n   export interface LLMConfig {\n     provider: 'openai' | 'anthropic' | 'ollama' | 'openrouter' | 'azure' | 'custom';\n     model: string;\n     temperature: number;\n     maxTokens: number;\n     apiKey?: string;\n     apiEndpoint?: string;\n   }\n\n   export function getLLMClient(config: LLMConfig) {\n     switch (config.provider) {\n       case 'openai':\n         return new ChatOpenAI({\n           modelName: config.model,\n           temperature: config.temperature,\n           maxTokens: config.maxTokens,\n           openAIApiKey: config.apiKey || process.env.OPENAI_API_KEY,\n         });\n       case 'anthropic':\n         return new ChatAnthropic({\n           modelName: config.model,\n           temperature: config.temperature,\n           maxTokens: config.maxTokens,\n           anthropicApiKey: config.apiKey || process.env.ANTHROPIC_API_KEY,\n         });\n       case 'ollama':\n         return new ChatOpenAI({\n           modelName: config.model,\n           temperature: config.temperature,\n           maxTokens: config.maxTokens,\n           configuration: {\n             baseURL: config.apiEndpoint || process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1',\n           },\n         });\n       case 'custom':\n         return new ChatOpenAI({\n           modelName: config.model,\n           temperature: config.temperature,\n           maxTokens: config.maxTokens,\n           openAIApiKey: config.apiKey,\n           configuration: {\n             baseURL: config.apiEndpoint,\n           },\n         });\n       default:\n         throw new Error(`Unsupported provider: ${config.provider}`);\n     }\n   }\n   ```\n\n3. Create resume generation service:\n   ```typescript\n   // src/lib/resume-generator.ts\n   export async function generateTailoredResume(\n     jobDescription: string,\n     userProfile: Profile,\n     exaggerationLevel: 'conservative' | 'balanced' | 'strategic',\n     llmConfig: LLMConfig\n   ) {\n     const llm = getLLMClient(llmConfig);\n     \n     const systemPrompt = `You are an expert resume writer. Given a job description and a candidate's master profile, generate a tailored resume that:\n     1. Highlights relevant experience for this specific role\n     2. Uses keywords from the job description naturally\n     3. Reorders work history to prioritize relevant roles\n     4. Adjusts tone based on exaggeration level: ${exaggerationLevel}\n        - Conservative: Factual, no embellishment\n        - Balanced: Professional emphasis\n        - Strategic: Confident, persuasive\n     \n     Output should be ATS-friendly markdown format.`;\n\n     const userPrompt = `Job Description:\\n${jobDescription}\\n\\nCandidate Profile:\\n${JSON.stringify(userProfile)}\\n\\nGenerate tailored resume sections: Summary, Experience, Skills, Education.`;\n\n     const response = await llm.invoke([\n       { role: 'system', content: systemPrompt },\n       { role: 'user', content: userPrompt }\n     ]);\n\n     return response.content;\n   }\n   ```\n\n4. Map exaggeration levels to temperature:\n   - Conservative: 0.3\n   - Balanced: 0.5\n   - Strategic: 0.7\n\n5. Create LLM connection test endpoint\n6. Implement error handling and retry logic\n7. Add streaming support for real-time generation",
-        "testStrategy": "1. Test each provider (OpenAI, Anthropic, Ollama) with valid API keys\n2. Verify temperature mapping affects output tone\n3. Test resume generation with sample job description + profile\n4. Validate markdown output is ATS-friendly\n5. Test connection test endpoint for each provider\n6. Verify error handling for invalid API keys\n7. Test retry logic on API failures\n8. Confirm streaming works for real-time updates\n9. Test custom endpoint configuration\n10. Validate token limits are respected",
+        "details": "1. Install LangChain dependencies:\n   ```bash\n   npm install @langchain/openai @langchain/anthropic @langchain/community\n   npm install langchain\n   ```\n\n2. Create LLM client factory:\n   ```typescript\n   // src/lib/llm.ts\n   import { ChatOpenAI } from '@langchain/openai';\n   import { ChatAnthropic } from '@langchain/anthropic';\n\n   export interface LLMConfig {\n     provider: 'openai' | 'anthropic' | 'ollama' | 'openrouter' | 'azure' | 'custom';\n     model: string;\n     temperature: number;\n     maxTokens: number;\n     apiKey?: string;\n     apiEndpoint?: string;\n   }\n\n   export function getLLMClient(config: LLMConfig) {\n     switch (config.provider) {\n       case 'openai':\n         return new ChatOpenAI({\n           modelName: config.model,\n           temperature: config.temperature,\n           maxTokens: config.maxTokens,\n           openAIApiKey: config.apiKey || process.env.OPENAI_API_KEY,\n         });\n       case 'anthropic':\n         return new ChatAnthropic({\n           modelName: config.model,\n           temperature: config.temperature,\n           maxTokens: config.maxTokens,\n           anthropicApiKey: config.apiKey || process.env.ANTHROPIC_API_KEY,\n         });\n       case 'ollama':\n         return new ChatOpenAI({\n           modelName: config.model,\n           temperature: config.temperature,\n           maxTokens: config.maxTokens,\n           configuration: {\n             baseURL: config.apiEndpoint || process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1',\n           },\n         });\n       case 'custom':\n         return new ChatOpenAI({\n           modelName: config.model,\n           temperature: config.temperature,\n           maxTokens: config.maxTokens,\n           openAIApiKey: config.apiKey,\n           configuration: {\n             baseURL: config.apiEndpoint,\n           },\n         });\n       default:\n         throw new Error(`Unsupported provider: ${config.provider}`);\n     }\n   }\n   ```\n\n3. Create resume generation service:\n   ```typescript\n   // src/lib/resume-generator.ts\n   export async function generateTailoredResume(\n     jobDescription: string,\n     userProfile: Profile,\n     exaggerationLevel: 'conservative' | 'balanced' | 'strategic',\n     llmConfig: LLMConfig\n   ) {\n     const llm = getLLMClient(llmConfig);\n     \n     const systemPrompt = `You are an expert resume writer. Given a job description and a candidate's master profile, generate a tailored resume that:\n     1. Highlights relevant experience for this specific role\n     2. Uses keywords from the job description naturally\n     3. Reorders work history to prioritize relevant roles\n     4. Adjusts tone based on exaggeration level: ${exaggerationLevel}\n        - Conservative: Factual, no embellishment\n        - Balanced: Professional emphasis\n        - Strategic: Confident, persuasive\n     \n     Output should be ATS-friendly markdown format.`;\n\n     const userPrompt = `Job Description:\\n${jobDescription}\\n\\nCandidate Profile:\\n${JSON.stringify(userProfile)}\\n\\nGenerate tailored resume sections: Summary, Experience, Skills, Education.`;\n\n     const response = await llm.invoke([\n       { role: 'system', content: systemPrompt },\n       { role: 'user', content: userPrompt }\n     ]);\n\n     return response.content;\n   }\n   ```\n\n4. Map exaggeration levels to temperature:\n   - Conservative: 0.3\n   - Balanced: 0.5\n   - Strategic: 0.7\n\n5. Create LLM connection test endpoint\n6. Implement error handling and retry logic\n7. Add streaming support for real-time generation\n8. Perform end-to-end integration verification with Settings page",
+        "testStrategy": "1. Test each provider (OpenAI, Anthropic, Ollama) with valid API keys\n2. Verify temperature mapping affects output tone\n3. Test resume generation with sample job description + profile\n4. Validate markdown output is ATS-friendly\n5. Test connection test endpoint for each provider\n6. Verify error handling for invalid API keys\n7. Test retry logic on API failures\n8. Confirm streaming works for real-time updates\n9. Test custom endpoint configuration\n10. Validate token limits are respected\n11. Verify end-to-end flow from Settings page (API key entry -> Connection Test -> Generation)",
         "subtasks": [
+          {
+            "id": 6,
+            "title": "Verify End-to-End Integration with Settings UI",
+            "description": "Validate full integration between LLM backend and Settings page, ensuring connection tests and resume generation work as expected",
+            "dependencies": [
+              5
+            ],
+            "details": "Conduct end-to-end testing to verify that the LLM integration layer functions correctly when interacted with via the Settings page. Ensure that: 1. API keys provided in the Settings UI are correctly used for authentication. 2. The Connection Test feature in Settings returns success for valid credentials. 3. The resume generation process can be initiated and produces non-empty, valid output. 4. Verify that the system handles configuration changes (hot reload) correctly without restart.",
+            "status": "pending",
+            "testStrategy": "Manual verification via Settings UI: Enter keys, test connection, generate sample resume. Check logs for proper config loading.",
+            "parentId": "undefined"
+          },
           {
             "id": 1,
             "title": "Design Provider-Agnostic LLM Client Interface",
@@ -1332,31 +1464,56 @@
             "parentId": "undefined",
             "updatedAt": "2025-11-21T21:21:16.949Z"
           }
-        ],
-        "updatedAt": "2025-11-21T21:21:16.949Z"
+        ]
       },
       {
         "id": 17,
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
-        "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, and create filtering logic for geographic, temporal, keyword, and salary criteria.",
-        "status": "in-progress",
+        "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, persist scraped data to the PostgreSQL database, and integrate the real data feed into the /jobs UI.",
+        "status": "pending",
         "dependencies": [
           "12"
         ],
         "priority": "high",
-        "details": "1. Create n8n workflows for each job source:\n   - Indeed RSS feed workflow\n   - LinkedIn Jobs scraping workflow (using HTTP Request nodes)\n   - Company career page scraping (configurable URLs)\n\n2. Set up Mapbox Geocoding integration:\n   ```typescript\n   // src/lib/geocoding.ts\n   import mapboxgl from 'mapbox-gl';\n\n   export async function geocodeCity(cityName: string): Promise<{ lat: number; lng: number }> {\n     const response = await fetch(\n       `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cityName)}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`\n     );\n     const data = await response.json();\n     const [lng, lat] = data.features[0].center;\n     return { lat, lng };\n   }\n   ```\n\n3. Implement Haversine distance calculation:\n   ```typescript\n   function haversineDistance(\n     lat1: number, lon1: number,\n     lat2: number, lon2: number\n   ): number {\n     const R = 3959; // Earth radius in miles\n     const dLat = (lat2 - lat1) * Math.PI / 180;\n     const dLon = (lon2 - lon1) * Math.PI / 180;\n     const a = Math.sin(dLat/2) * Math.sin(dLat/2) +\n               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *\n               Math.sin(dLon/2) * Math.sin(dLon/2);\n     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));\n     return R * c;\n   }\n   ```\n\n4. Create job filtering service:\n   ```typescript\n   // src/lib/job-filter.ts\n   export function filterJobs(jobs: Job[], config: Config): Job[] {\n     return jobs.filter(job => {\n       // Geographic filter\n       const withinRadius = config.searchParams.cities.some(city => {\n         if (!job.latitude || !job.longitude) return false;\n         const distance = haversineDistance(\n           city.lat, city.lng,\n           job.latitude, job.longitude\n         );\n         return distance <= city.radius_miles;\n       });\n\n       // Temporal filter\n       const hoursSincePosted = (Date.now() - job.postedAt.getTime()) / (1000 * 60 * 60);\n       const isFresh = hoursSincePosted <= config.searchParams.posted_within_hours;\n\n       // Keyword filter (OR logic for include, AND NOT for exclude)\n       const hasIncludeKeyword = config.searchParams.include_keywords.some(kw =>\n         job.title.toLowerCase().includes(kw.toLowerCase()) ||\n         job.description.toLowerCase().includes(kw.toLowerCase())\n       );\n       const hasExcludeKeyword = config.searchParams.exclude_keywords.some(kw =>\n         job.title.toLowerCase().includes(kw.toLowerCase()) ||\n         job.description.toLowerCase().includes(kw.toLowerCase())\n       );\n\n       // Salary filter\n       const salaryMatch = !job.salary || (\n         (!config.searchParams.salary_usd.min || parseSalary(job.salary) >= config.searchParams.salary_usd.min) &&\n         (!config.searchParams.salary_usd.max || parseSalary(job.salary) <= config.searchParams.salary_usd.max)\n       );\n\n       return withinRadius && isFresh && hasIncludeKeyword && !hasExcludeKeyword && salaryMatch;\n     });\n   }\n   ```\n\n5. Implement deduplication using fuzzy matching (title + company)\n6. Create composite scoring system\n7. Set up cron job to run every 6 hours\n8. Build API endpoint to trigger manual aggregation",
-        "testStrategy": "1. Test n8n workflows fetch jobs from each source\n2. Verify Mapbox geocoding returns correct coordinates\n3. Test Haversine distance calculation accuracy\n4. Validate geographic filtering (jobs within radius)\n5. Test temporal filtering (only jobs within X hours)\n6. Verify keyword filtering (include OR, exclude AND NOT)\n7. Test salary parsing and filtering\n8. Validate deduplication removes duplicates\n9. Test composite scoring calculation\n10. Verify cron job runs every 6 hours\n11. Test manual trigger endpoint",
+        "details": "1. Create n8n workflows for each job source:\n   - Indeed RSS feed workflow\n   - LinkedIn Jobs scraping workflow (using HTTP Request nodes)\n   - Company career page scraping (configurable URLs)\n\n2. Set up Mapbox Geocoding integration:\n   ```typescript\n   // src/lib/geocoding.ts\n   import mapboxgl from 'mapbox-gl';\n\n   export async function geocodeCity(cityName: string): Promise<{ lat: number; lng: number }> {\n     const response = await fetch(\n       `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cityName)}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`\n     );\n     const data = await response.json();\n     const [lng, lat] = data.features[0].center;\n     return { lat, lng };\n   }\n   ```\n\n3. Implement Haversine distance calculation.\n\n4. Create job filtering service.\n\n5. Implement deduplication using fuzzy matching (title + company).\n\n6. Create composite scoring system.\n\n7. Set up cron job to run every 6 hours.\n\n8. **Database Persistence**: Implement a service to save processed, geocoded, and scored jobs into the PostgreSQL database using Prisma. Ensure proper field mapping and upsert logic.\n\n9. **UI Integration**: Connect the `/jobs` page to the real database, ensuring that scraped jobs are displayed correctly and that the UI reflects the production data state.",
+        "testStrategy": "1. Test n8n workflows fetch jobs from each source\n2. Verify Mapbox geocoding returns correct coordinates\n3. Test Haversine distance calculation accuracy\n4. Validate geographic filtering (jobs within radius)\n5. Test temporal filtering (only jobs within X hours)\n6. Verify keyword filtering (include OR, exclude AND NOT)\n7. Test salary parsing and filtering\n8. Validate deduplication removes duplicates\n9. Test composite scoring calculation\n10. Verify cron job runs every 6 hours\n11. Test manual trigger endpoint\n12. **Verify Database Persistence**: Check that scraped jobs are correctly inserted into the `Job` table in PostgreSQL.\n13. **Verify UI Display**: Confirm that the `/jobs` page renders the list of jobs fetched from the real database.",
         "subtasks": [
+          {
+            "id": 7,
+            "title": "Implement Database Persistence Service for Aggregated Jobs",
+            "description": "Develop the service layer to persist processed job data into PostgreSQL using Prisma, ensuring data integrity and proper mapping",
+            "dependencies": [
+              1,
+              5,
+              6
+            ],
+            "details": "Create a `JobService` or repository that accepts the output from the aggregation pipeline. Map the internal job objects to the Prisma `Job` model defined in Task 12. Implement `upsert` logic to handle existing jobs (updating them if changed) and insert new ones. Ensure all fields including location coordinates, salary, and calculated scores are correctly persisted to the database.",
+            "status": "pending",
+            "testStrategy": "Run the aggregation pipeline and verify that records are created in the local PostgreSQL database. Check for correct field mapping. Verify that re-running the pipeline updates existing records without creating duplicates.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 8,
+            "title": "Connect /jobs UI to Real Database and Verify Display",
+            "description": "Update the jobs dashboard to fetch and display live data from the database, replacing any mock data sources",
+            "dependencies": [
+              7
+            ],
+            "details": "Modify the data fetching strategy on the `/jobs` route (using Server Components or Actions) to query the real `Job` table via Prisma. Ensure that the frontend components correctly render the data fetched from the DB. Verify that the page displays the jobs that were scraped and saved in Subtask 7.",
+            "status": "pending",
+            "testStrategy": "Navigate to the `/jobs` page in a production-like environment (non-mock mode). Verify that the list of jobs matches the data in the database. Check that job details (title, company, location) are displayed correctly.",
+            "parentId": "undefined"
+          },
           {
             "id": 1,
             "title": "Design and implement n8n workflows for job scraping from multiple sources",
             "description": "Create and configure n8n workflows to scrape job listings from Indeed RSS feed, LinkedIn Jobs, and configurable company career pages",
             "dependencies": [],
             "details": "Implement three separate workflows: 1) Indeed RSS feed workflow using RSS node, 2) LinkedIn Jobs scraping workflow using HTTP Request nodes with proper headers and pagination, 3) Company career page scraping workflow with configurable URL templates and CSS selectors. Each workflow must extract title, company, location, description, salary, and posting date.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test each workflow individually with sample URLs, verify data extraction completeness, check error handling for failed requests, validate output structure matches expected schema",
             "parentId": "undefined",
-            "updatedAt": "2025-11-22T02:50:25.401Z"
+            "updatedAt": "2025-12-04T15:31:00.061Z"
           },
           {
             "id": 2,
@@ -1364,10 +1521,10 @@
             "description": "Implement Mapbox Geocoding service to convert job locations to latitude/longitude coordinates with rate limiting and caching",
             "dependencies": [],
             "details": "Create geocoding service using provided TypeScript implementation, add rate limiting to respect Mapbox API limits, implement Redis caching for previously geocoded locations, handle API errors and retries, and add circuit breaker pattern for API failures.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test with various location formats (city names, addresses), verify cache hits/misses, test error scenarios (invalid locations, API rate limits), validate coordinate accuracy against known locations",
             "parentId": "undefined",
-            "updatedAt": "2025-11-22T03:27:56.730Z"
+            "updatedAt": "2025-12-04T15:31:00.092Z"
           },
           {
             "id": 3,
@@ -1377,10 +1534,10 @@
               2
             ],
             "details": "Implement the provided Haversine distance calculation function, create geographic filtering service that processes jobs against user-defined search areas (cities with radius), handle cases where job locations can't be geocoded, and optimize for performance with spatial indexing where possible.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test with known coordinate pairs and verified distances, validate edge cases (antipodal points, same location), test performance with large job datasets, verify filtering accuracy against manual calculations",
             "parentId": "undefined",
-            "updatedAt": "2025-11-22T07:21:50.982Z"
+            "updatedAt": "2025-12-04T15:31:00.116Z"
           },
           {
             "id": 4,
@@ -1392,10 +1549,10 @@
               3
             ],
             "details": "Implement weighted scoring system where each criterion (recency, keyword match strength, salary level, geographic proximity) contributes to overall relevance score. Allow configurable weights through system settings. Normalize scores across different criteria for fair comparison.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test with controlled datasets where expected ranking is known, verify weight adjustments affect results as expected, test edge cases (jobs with missing data), validate score distribution across large datasets",
             "parentId": "undefined",
-            "updatedAt": "2025-11-22T08:14:30.090Z"
+            "updatedAt": "2025-12-04T15:31:00.147Z"
           },
           {
             "id": 5,
@@ -1405,10 +1562,10 @@
               1
             ],
             "details": "Develop fuzzy matching algorithm using Levenshtein distance or similar technique to compare job titles and company names. Implement configurable similarity thresholds. Create merge strategy for duplicate jobs that preserves the most complete information from each source.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test with known duplicate job pairs with varying degrees of similarity, verify threshold adjustments affect deduplication results, test performance with large job datasets, validate merged job data integrity",
             "parentId": "undefined",
-            "updatedAt": "2025-11-22T09:08:51.944Z"
+            "updatedAt": "2025-12-04T15:31:00.169Z"
           },
           {
             "id": 6,
@@ -1422,35 +1579,84 @@
               5
             ],
             "details": "Implement cron scheduler to run aggregation every 6 hours, create monitoring dashboard showing success rates and performance metrics, set up error notifications via email/Slack, implement retry logic for failed jobs, and create manual trigger API endpoint for on-demand runs.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test scheduling with shortened intervals, verify monitoring metrics are accurately recorded, test error notification channels, validate retry logic works as expected, test manual trigger API endpoint functionality",
             "parentId": "undefined",
-            "updatedAt": "2025-11-22T09:08:53.216Z"
+            "updatedAt": "2025-12-04T15:31:00.186Z"
           }
-        ],
-        "updatedAt": "2025-11-22T09:08:53.216Z"
+        ]
       },
       {
         "id": 18,
         "title": "Create Interactive Map Visualization with Mapbox GL JS",
-        "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls as specified in the PRD.",
-        "status": "pending",
+        "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls. Integrate into the application via the /map route, displaying real job data from the database and accessible via main navigation.",
+        "status": "done",
         "dependencies": [
           "17"
         ],
         "priority": "high",
-        "details": "1. Install Mapbox dependencies:\n   ```bash\n   npm install mapbox-gl react-map-gl\n   npm install -D @types/mapbox-gl\n   ```\n\n2. Create Map component:\n   ```typescript\n   // src/components/map/JobMap.tsx\n   import Map, { Marker, Source, Layer, Popup } from 'react-map-gl';\n   import 'mapbox-gl/dist/mapbox-gl.css';\n\n   export function JobMap({ jobs, cities, filters }) {\n     const [viewState, setViewState] = useState({\n       longitude: -98.5795,\n       latitude: 39.8283,\n       zoom: 4\n     });\n\n     const [selectedJob, setSelectedJob] = useState(null);\n\n     return (\n       <Map\n         {...viewState}\n         onMove={evt => setViewState(evt.viewState)}\n         mapStyle=\"mapbox://styles/mapbox/dark-v11\"\n         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}\n       >\n         {/* Radius circles */}\n         {cities.map(city => (\n           <Source key={city.name} type=\"geojson\" data={createCircle(city)}>\n             <Layer\n               type=\"fill\"\n               paint={{\n                 'fill-color': '#3b82f6',\n                 'fill-opacity': 0.1\n               }}\n             />\n             <Layer\n               type=\"line\"\n               paint={{\n                 'line-color': '#3b82f6',\n                 'line-width': 2\n               }}\n             />\n           </Source>\n         ))}\n\n         {/* Job markers */}\n         {jobs.map(job => (\n           <Marker\n             key={job.id}\n             longitude={job.longitude}\n             latitude={job.latitude}\n             onClick={() => setSelectedJob(job)}\n           >\n             <div className={`marker ${getMarkerColor(job.compositeScore)}`} />\n           </Marker>\n         ))}\n\n         {/* Popup */}\n         {selectedJob && (\n           <Popup\n             longitude={selectedJob.longitude}\n             latitude={selectedJob.latitude}\n             onClose={() => setSelectedJob(null)}\n           >\n             <div>\n               <h3>{selectedJob.title}</h3>\n               <p>{selectedJob.company}</p>\n               <p>{selectedJob.salary}</p>\n               <button>View Details</button>\n             </div>\n           </Popup>\n         )}\n       </Map>\n     );\n   }\n   ```\n\n3. Implement marker color coding:\n   ```typescript\n   function getMarkerColor(score: number): string {\n     if (score >= 80) return 'bg-green-500'; // Top 20%\n     if (score >= 20) return 'bg-yellow-500'; // Middle 60%\n     return 'bg-red-500'; // Bottom 20%\n   }\n   ```\n\n4. Add clustering for nearby jobs:\n   ```typescript\n   <Source\n     type=\"geojson\"\n     data={jobsGeoJSON}\n     cluster={true}\n     clusterMaxZoom={14}\n     clusterRadius={50}\n   >\n     <Layer {...clusterLayer} />\n     <Layer {...clusterCountLayer} />\n   </Source>\n   ```\n\n5. Create heatmap layer (toggleable)\n6. Implement mobile touch gestures (pinch/zoom, swipe)\n7. Add filter controls (status, date range, score threshold)\n8. Create dark/light theme toggle",
-        "testStrategy": "1. Verify map loads with correct initial view\n2. Test marker rendering for all jobs\n3. Validate color coding (green/yellow/red by score)\n4. Test radius circles display correctly\n5. Verify clustering works (groups nearby markers)\n6. Test popup opens on marker click\n7. Validate heatmap toggle functionality\n8. Test mobile touch gestures (pinch/zoom)\n9. Verify filters update map in real-time\n10. Test theme toggle (dark/light mode)\n11. Check performance with 500+ markers",
+        "details": "1. Install Mapbox dependencies:\n   ```bash\n   npm install mapbox-gl react-map-gl\n   npm install -D @types/mapbox-gl\n   ```\n\n2. Create Map component:\n   ```typescript\n   // src/components/map/JobMap.tsx\n   import Map, { Marker, Source, Layer, Popup } from 'react-map-gl';\n   import 'mapbox-gl/dist/mapbox-gl.css';\n\n   export function JobMap({ jobs, cities, filters }) {\n     // ... implementation details\n   }\n   ```\n\n3. Implement marker color coding based on composite score.\n4. Add clustering for nearby jobs.\n5. Create heatmap layer (toggleable).\n6. Implement mobile touch gestures.\n7. Add filter controls (status, date range, score threshold).\n8. Create dark/light theme toggle.\n\n9. Create Page Route:\n   ```typescript\n   // src/app/map/page.tsx\n   import { JobMap } from '@/components/map/JobMap';\n   import { getJobs } from '@/lib/api/jobs';\n\n   export default async function MapPage() {\n     const jobs = await getJobs();\n     return <JobMap jobs={jobs} ... />;\n   }\n   ```\n\n10. Update Navigation: Add link to /map in Navbar component.",
+        "testStrategy": "1. Verify map loads with correct initial view\n2. Test marker rendering for all jobs\n3. Validate color coding (green/yellow/red by score)\n4. Test radius circles display correctly\n5. Verify clustering works (groups nearby markers)\n6. Test popup opens on marker click\n7. Validate heatmap toggle functionality\n8. Test mobile touch gestures (pinch/zoom)\n9. Verify filters update map in real-time\n10. Test theme toggle (dark/light mode)\n11. Check performance with 500+ markers\n12. Verify /map route is accessible\n13. Validate real data loads from database\n14. Test navigation link works",
         "subtasks": [
+          {
+            "id": 6,
+            "title": "Create /map route and page wrapper",
+            "description": "Implement the /map route using the application router and wrap the JobMap component for display.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create src/app/map/page.tsx (or equivalent), import the JobMap component, ensure proper layout wrapping, and verify route accessibility.",
+            "status": "pending",
+            "testStrategy": "Verify /map route loads the map component correctly without errors.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 7,
+            "title": "Integrate real job data from database",
+            "description": "Connect the map visualization to the actual job database instead of mock data.",
+            "dependencies": [
+              6
+            ],
+            "details": "Fetch job data using server actions or API hooks, transform database records to GeoJSON format required by Mapbox, handle loading states and empty data scenarios.",
+            "status": "pending",
+            "testStrategy": "Validate that markers on the map correspond to actual records in the database.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 8,
+            "title": "Add Map to main navigation",
+            "description": "Update the global navigation menu to include a link to the Map visualization.",
+            "dependencies": [
+              6
+            ],
+            "details": "Add 'Map' item to the main Navbar/Sidebar, ensure active state highlighting when on the /map route, and verify navigation links work.",
+            "status": "pending",
+            "testStrategy": "Click Map link in navigation and verify correct routing and active state styling.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 9,
+            "title": "Implement advanced map controls (Heatmap, Filters, Theme)",
+            "description": "Add the remaining interactive controls including heatmap toggle, job filters, and theme switching.",
+            "dependencies": [
+              2,
+              7
+            ],
+            "details": "Implement heatmap layer toggling, add filter UI for status/date/score, and implement dark/light mode switching for the map style.",
+            "status": "pending",
+            "testStrategy": "Test toggling heatmap, applying filters updates markers, and switching themes changes map style.",
+            "parentId": "undefined"
+          },
           {
             "id": 1,
             "title": "Set up Mapbox GL JS integration and base map configuration",
             "description": "Install dependencies, configure Mapbox token, and initialize the base map component with proper styling and view state management",
             "dependencies": [],
             "details": "Install mapbox-gl and react-map-gl packages, create JobMap component with TypeScript typing, configure dark-v11 map style, implement viewState management with useState, and ensure proper CSS imports",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify map loads with correct initial view, check token authentication works, validate CSS styles are properly applied",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:31:07.145Z"
           },
           {
             "id": 2,
@@ -1460,9 +1666,10 @@
               1
             ],
             "details": "Implement getMarkerColor function for score-based coloring, create marker components with proper styling, configure clustering with clusterMaxZoom=14 and clusterRadius=50, implement cluster layers for both cluster points and counts",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test marker rendering for all jobs, validate color coding (green/yellow/red by score), verify clustering works (groups nearby markers), check cluster count display",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:31:07.165Z"
           },
           {
             "id": 3,
@@ -1472,9 +1679,10 @@
               1
             ],
             "details": "Implement createCircle utility function to generate GeoJSON for city radii, add Source and Layer components for both fill and line representations, apply proper styling with blue color (#3b82f6) and appropriate opacity/width values",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate radius circles display correctly around cities, verify styling matches requirements, test with multiple cities of different radii",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:31:07.187Z"
           },
           {
             "id": 4,
@@ -1484,9 +1692,10 @@
               1
             ],
             "details": "Configure Map component with touchZoomRotate and dragPan enabled, implement responsive breakpoints for different screen sizes, add mobile-specific UI adjustments for markers and popups, ensure proper touch event handling",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test pinch/zoom functionality on mobile devices, verify swipe navigation works, check popup behavior on touch events, validate responsive layout across device sizes",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:31:07.204Z"
           },
           {
             "id": 5,
@@ -1498,17 +1707,19 @@
               3
             ],
             "details": "Implement data filtering based on current viewport, optimize GeoJSON data structure, use Mapbox's feature filtering capabilities, implement lazy loading for markers outside current view, optimize React component rendering with memoization",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Benchmark performance with 500+ job markers, verify frame rate remains above 30fps during interactions, test memory usage during extended use, validate smooth transitions during zoom/pan operations",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:31:07.225Z"
           }
-        ]
+        ],
+        "updatedAt": "2025-12-05T20:55:02.962Z"
       },
       {
         "id": 19,
         "title": "Implement Kanban Application Pipeline Tracker with Drag-and-Drop",
         "description": "Build the application tracking system using dnd-kit with customizable pipeline stages, drag-and-drop functionality, status timeline, file attachments, notes, bulk operations, and CSV export as specified in the PRD.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           "12"
         ],
@@ -1522,9 +1733,10 @@
             "description": "Set up dnd-kit library with proper collision detection, drag handlers, and state management for the Kanban board",
             "dependencies": [],
             "details": "Install required dnd-kit packages, configure DndContext with collision detection strategy, implement drag start/end handlers, and set up state management for drag operations between pipeline stages",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify drag-and-drop works between all columns, test edge cases like rapid dragging, validate smooth UI transitions during drag operations",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-03T23:57:14.718Z"
           },
           {
             "id": 2,
@@ -1534,9 +1746,10 @@
               1
             ],
             "details": "Implement Column component for pipeline stages, ApplicationCard component with job details, action buttons, file attachment input, and notes textarea. Style components using Tailwind CSS with responsive design considerations",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate responsive layout across device sizes, test all UI elements are accessible, verify all interactive elements function correctly",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-03T23:57:14.725Z"
           },
           {
             "id": 3,
@@ -1547,9 +1760,10 @@
               2
             ],
             "details": "Design database schema for status history, implement updateApplicationStatus function that records timeline entries with proper database transactions, create UI component to display status history in a timeline format with visual indicators",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test status changes are properly recorded with timestamps, verify timeline displays correctly, validate data persists through application restarts",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-03T23:57:14.729Z"
           },
           {
             "id": 4,
@@ -1560,44 +1774,86 @@
               3
             ],
             "details": "Create selection mechanism for multiple applications with visual feedback, implement bulk archive/delete operations with confirmation dialogs, develop CSV export functionality with proper data formatting, headers, and download handling",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test bulk selection and operations with various application counts, validate CSV format matches requirements, verify exported data matches application state",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-03T23:57:14.737Z"
           }
-        ]
+        ],
+        "updatedAt": "2025-12-03T23:57:14.737Z"
       },
       {
         "id": 20,
         "title": "Build Resume Generation and PDF Export System",
-        "description": "Create the resume tailoring interface with live preview using ProseMirror editor, integrate with LLM service for generation, implement ATS-friendly PDF export with react-pdf, and add configurable file naming templates.",
-        "status": "pending",
+        "description": "Create the resume tailoring interface at /resume with live preview using ProseMirror editor, integrate with LLM service for generation, implement ATS-friendly PDF export with react-pdf, and add configurable file naming templates.",
+        "status": "in-progress",
         "dependencies": [
           "16",
           "19"
         ],
         "priority": "medium",
-        "details": "1. Install PDF generation dependencies:\n   ```bash\n   npm install @react-pdf/renderer react-pdf\n   npm install prosemirror-state prosemirror-view prosemirror-model\n   ```\n\n2. Create resume preview component:\n   ```typescript\n   // src/components/resume/ResumePreview.tsx\n   import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';\n\n   const styles = StyleSheet.create({\n     page: { padding: 30, fontFamily: 'Helvetica' },\n     section: { marginBottom: 10 },\n     heading: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },\n     text: { fontSize: 11, lineHeight: 1.5 }\n   });\n\n   function ResumePDF({ content }) {\n     return (\n       <Document>\n         <Page size=\"A4\" style={styles.page}>\n           <View style={styles.section}>\n             <Text style={styles.heading}>{content.name}</Text>\n             <Text style={styles.text}>{content.email} | {content.phone}</Text>\n           </View>\n           <View style={styles.section}>\n             <Text style={styles.heading}>Professional Summary</Text>\n             <Text style={styles.text}>{content.summary}</Text>\n           </View>\n           {/* Additional sections */}\n         </Page>\n       </Document>\n     );\n   }\n   ```\n\n3. Create ProseMirror editor for live editing:\n   ```typescript\n   import { EditorState } from 'prosemirror-state';\n   import { EditorView } from 'prosemirror-view';\n   import { Schema, DOMParser } from 'prosemirror-model';\n\n   const schema = new Schema({\n     nodes: {\n       doc: { content: 'block+' },\n       paragraph: { content: 'inline*', toDOM: () => ['p', 0] },\n       text: { inline: true }\n     },\n     marks: {\n       strong: { toDOM: () => ['strong', 0] },\n       em: { toDOM: () => ['em', 0] }\n     }\n   });\n   ```\n\n4. Implement resume generation flow:\n   ```typescript\n   async function generateAndPreviewResume(\n     jobId: string,\n     exaggerationLevel: 'conservative' | 'balanced' | 'strategic'\n   ) {\n     const job = await prisma.job.findUnique({ where: { id: jobId } });\n     const profile = await prisma.profile.findUnique({ where: { userId } });\n     const config = await prisma.config.findUnique({ where: { userId } });\n\n     const resumeContent = await generateTailoredResume(\n       job.description,\n       profile,\n       exaggerationLevel,\n       config.llmConfig\n     );\n\n     return resumeContent;\n   }\n   ```\n\n5. Create file naming template engine:\n   ```typescript\n   function generateFileName(template: string, job: Job): string {\n     const date = new Date().toISOString().split('T')[0];\n     return template\n       .replace('YYYY-MM-DD', date)\n       .replace('{company}', job.company)\n       .replace('{role}', job.title.replace(/[^a-zA-Z0-9]/g, '-'));\n   }\n   ```\n\n6. Add ATS-friendly formatting rules (no tables, simple fonts, clear sections)\n7. Implement save to Application record\n8. Create batch generation for multiple jobs",
-        "testStrategy": "1. Test resume generation with sample job + profile\n2. Verify LLM produces valid markdown output\n3. Test ProseMirror editor allows editing\n4. Validate PDF export is ATS-friendly (no complex formatting)\n5. Test file naming template with various patterns\n6. Verify PDF downloads with correct filename\n7. Test all exaggeration levels produce different tones\n8. Validate resume saves to Application.resumePath\n9. Test batch generation for multiple jobs\n10. Verify PDF renders correctly on mobile\n11. Test with long content (pagination works)",
+        "details": "1. Install PDF generation dependencies:\n   ```bash\n   npm install @react-pdf/renderer react-pdf\n   npm install prosemirror-state prosemirror-view prosemirror-model\n   ```\n\n2. Create resume preview component:\n   ```typescript\n   // src/components/resume/ResumePreview.tsx\n   import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';\n\n   const styles = StyleSheet.create({\n     page: { padding: 30, fontFamily: 'Helvetica' },\n     section: { marginBottom: 10 },\n     heading: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },\n     text: { fontSize: 11, lineHeight: 1.5 }\n   });\n\n   function ResumePDF({ content }) {\n     return (\n       <Document>\n         <Page size=\"A4\" style={styles.page}>\n           <View style={styles.section}>\n             <Text style={styles.heading}>{content.name}</Text>\n             <Text style={styles.text}>{content.email} | {content.phone}</Text>\n           </View>\n           <View style={styles.section}>\n             <Text style={styles.heading}>Professional Summary</Text>\n             <Text style={styles.text}>{content.summary}</Text>\n           </View>\n           {/* Additional sections */}\n         </Page>\n       </Document>\n     );\n   }\n   ```\n\n3. Create ProseMirror editor for live editing:\n   ```typescript\n   import { EditorState } from 'prosemirror-state';\n   import { EditorView } from 'prosemirror-view';\n   import { Schema, DOMParser } from 'prosemirror-model';\n\n   const schema = new Schema({\n     nodes: {\n       doc: { content: 'block+' },\n       paragraph: { content: 'inline*', toDOM: () => ['p', 0] },\n       text: { inline: true }\n     },\n     marks: {\n       strong: { toDOM: () => ['strong', 0] },\n       em: { toDOM: () => ['em', 0] }\n     }\n   });\n   ```\n\n4. Implement resume generation flow:\n   ```typescript\n   async function generateAndPreviewResume(\n     jobId: string,\n     exaggerationLevel: 'conservative' | 'balanced' | 'strategic'\n   ) {\n     const job = await prisma.job.findUnique({ where: { id: jobId } });\n     const profile = await prisma.profile.findUnique({ where: { userId } });\n     const config = await prisma.config.findUnique({ where: { userId } });\n\n     const resumeContent = await generateTailoredResume(\n       job.description,\n       profile,\n       exaggerationLevel,\n       config.llmConfig\n     );\n\n     return resumeContent;\n   }\n   ```\n\n5. Create file naming template engine:\n   ```typescript\n   function generateFileName(template: string, job: Job): string {\n     const date = new Date().toISOString().split('T')[0];\n     return template\n       .replace('YYYY-MM-DD', date)\n       .replace('{company}', job.company)\n       .replace('{role}', job.title.replace(/[^a-zA-Z0-9]/g, '-'));\n   }\n   ```\n\n6. Create /resume route and page layout:\n   ```typescript\n   // src/app/resume/page.tsx\n   export default function ResumePage() {\n     return (\n       <div className=\"flex h-screen\">\n         <div className=\"w-1/2\"><ResumeEditor /></div>\n         <div className=\"w-1/2\"><ResumePreview /></div>\n       </div>\n     );\n   }\n   ```\n\n7. Wire LLM enhancement and PDF download actions.\n8. Implement save to Application record.",
+        "testStrategy": "1. Test resume generation with sample job + profile\n2. Verify LLM produces valid markdown output\n3. Test ProseMirror editor allows editing\n4. Validate PDF export is ATS-friendly (no complex formatting)\n5. Test file naming template with various patterns\n6. Verify PDF downloads with correct filename\n7. Test all exaggeration levels produce different tones\n8. Validate resume saves to Application.resumePath\n9. Test batch generation for multiple jobs\n10. Verify PDF renders correctly on mobile\n11. Test with long content (pagination works)\n12. Verify /resume route is accessible and renders components correctly\n13. Test full flow: Enter /resume -> Generate with LLM -> Edit -> Download",
         "subtasks": [
+          {
+            "id": 6,
+            "title": "Implement /resume Route and Page Layout",
+            "description": "Create the main resume page route and layout structure to host the editor and preview components",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/app/resume/page.tsx`, implement a split-pane layout (or responsive equivalent) to display `ResumeEditor` and `ResumePreview` side-by-side, ensure the route is accessible via main navigation, and set up shared state context for data synchronization.",
+            "status": "pending",
+            "testStrategy": "Verify /resume route loads without errors, check responsive layout on different screen sizes, ensure both editor and preview components are mounted",
+            "parentId": "undefined"
+          },
+          {
+            "id": 7,
+            "title": "Wire Editor, Preview, and LLM Integration",
+            "description": "Connect the UI components to the backend services for a complete user flow",
+            "dependencies": [
+              4,
+              6
+            ],
+            "details": "Integrate the `generateAndPreviewResume` function with the UI 'Enhance' button, ensure LLM output populates the ProseMirror editor, wire the editor's state changes to update the PDF preview in real-time, and implement the 'Download PDF' button using the file naming engine.",
+            "status": "pending",
+            "testStrategy": "Test the full flow: Click Enhance -> Wait for LLM -> Verify Editor Content -> Edit Text -> Verify PDF Preview Updates -> Click Download -> Verify File",
+            "parentId": "undefined"
+          },
+          {
+            "id": 8,
+            "title": "Implement Resume Persistence and Application Association",
+            "description": "Save the generated resume and associate it with the specific job application record",
+            "dependencies": [
+              7
+            ],
+            "details": "Implement the save functionality to store the final resume content (JSON/PDF path) to the database, update the `Application` record with the reference to the generated resume, and ensure the user can retrieve saved resumes later.",
+            "status": "pending",
+            "testStrategy": "Generate a resume, click save, query the database to verify the Application record is updated with the correct resume path/content",
+            "parentId": "undefined"
+          },
           {
             "id": 1,
             "title": "Implement PDF Generation with @react-pdf/renderer",
             "description": "Set up PDF generation system using @react-pdf/renderer library for ATS-friendly resume output",
             "dependencies": [],
-            "details": "Install @react-pdf/renderer dependencies, create ResumePDF component with proper styling, implement Document/Page structure with ATS-compliant formatting, integrate PDFDownloadLink functionality, and verify text extraction works correctly",
-            "status": "pending",
+            "details": "Install @react-pdf/renderer dependencies, create ResumePDF component with proper styling, implement Document/Page structure with ATS-compliant formatting, integrate PDFDownloadLink functionality, and verify text extraction works correctly\n<info added on 2025-12-04T00:15:38.805Z>\nPlan: Create ResumePDF component with basic layout and ATS-friendly styles. Write unit test to verify rendering.\n</info added on 2025-12-04T00:15:38.805Z>",
+            "status": "done",
             "testStrategy": "Validate PDF output with ATS simulator tools, test text extraction, verify no complex formatting elements",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T01:20:24.205Z"
           },
           {
             "id": 2,
             "title": "Integrate ProseMirror Editor with React",
             "description": "Create live resume editing interface using ProseMirror editor integrated with React",
             "dependencies": [],
-            "details": "Set up prosemirror-state/view/model dependencies, implement react-prosemirror library for proper React integration, configure schema with resume-specific nodes/marks, create live preview component that syncs with PDF output",
-            "status": "pending",
+            "details": "Set up prosemirror-state/view/model dependencies, implement react-prosemirror library for proper React integration, configure schema with resume-specific nodes/marks, create live preview component that syncs with PDF output\n<info added on 2025-12-04T01:20:41.885Z>\nPlan: Install prosemirror packages. Create ResumeEditor component with basic schema. Write test for editor initialization and content sync.\n</info added on 2025-12-04T01:20:41.885Z>",
+            "status": "done",
             "testStrategy": "Test editor functionality including text formatting, verify content syncs with PDF preview, check for React reconciliation issues",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T01:21:58.747Z"
           },
           {
             "id": 3,
@@ -1606,10 +1862,11 @@
             "dependencies": [
               1
             ],
-            "details": "Configure PDF styles with simple fonts (Helvetica/Arial), implement section organization without tables, ensure proper spacing and margins, validate text is selectable/not images, add semantic structure for ATS parsing",
-            "status": "pending",
+            "details": "Configure PDF styles with simple fonts (Helvetica/Arial), implement section organization without tables, ensure proper spacing and margins, validate text is selectable/not images, add semantic structure for ATS parsing\n<info added on 2025-12-04T01:22:18.399Z>\nPlan: Validate ResumePDF styles meet ATS requirements - simple fonts, no tables, proper text hierarchy. Add test to verify PDF structure.\n</info added on 2025-12-04T01:22:18.399Z>",
+            "status": "done",
             "testStrategy": "Test with multiple ATS platforms, verify text extraction works, check for formatting warnings using ATS validation tools",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T01:23:34.880Z"
           },
           {
             "id": 4,
@@ -1618,28 +1875,31 @@
             "dependencies": [
               2
             ],
-            "details": "Implement generateAndPreviewResume function, integrate with LLM service API, handle job description/profile data, create exaggeration level configuration, establish content flow from generation to editor and PDF preview",
-            "status": "pending",
+            "details": "Implement generateAndPreviewResume function, integrate with LLM service API, handle job description/profile data, create exaggeration level configuration, establish content flow from generation to editor and PDF preview\n<info added on 2025-12-04T01:24:03.256Z>\nPlan: Create generateAndPreviewResume server action that integrates with LLM service. Accept job description and generate tailored resume content. Write test for generation workflow.\n</info added on 2025-12-04T01:24:03.256Z>",
+            "status": "done",
             "testStrategy": "Test with sample job descriptions, verify LLM output formatting, check content preservation through editor/PDF pipeline",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T01:25:49.799Z"
           },
           {
             "id": 5,
             "title": "Build File Naming Template Engine",
             "description": "Create configurable system for generating resume filenames based on templates",
             "dependencies": [],
-            "details": "Implement generateFileName function with variable replacement (date, company, role), add validation for template syntax, create UI for template configuration, integrate with PDF export functionality to apply naming rules",
-            "status": "pending",
+            "details": "Implement generateFileName function with variable replacement (date, company, role), add validation for template syntax, create UI for template configuration, integrate with PDF export functionality to apply naming rules\n<info added on 2025-12-04T01:26:13.160Z>\nPlan: Create generateFileName utility function with template variable replacement. Add test for file naming with various patterns.\n</info added on 2025-12-04T01:26:13.160Z>",
+            "status": "done",
             "testStrategy": "Test various template patterns, verify special character handling, check date formatting, validate integration with PDF download functionality",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T01:27:29.602Z"
           }
-        ]
+        ],
+        "updatedAt": "2025-12-05T20:55:12.576Z"
       },
       {
         "id": 21,
         "title": "Develop Settings Management UI and Configuration Hot Reload",
         "description": "Create the comprehensive settings interface with tabbed layout (Search, LLM, Automation, Advanced), implement live validation, LLM connection testing, JSON Schema validation, version control for configs, and hot reload functionality without server restart.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           "14"
         ],
@@ -1652,10 +1912,11 @@
             "title": "Implement Tabbed Settings Interface with Dynamic Content",
             "description": "Create responsive tabbed interface with four sections (Search, LLM, Automation, Advanced) that dynamically renders content based on active tab selection",
             "dependencies": [],
-            "details": "Build using React Tabs component with proper accessibility attributes (aria-selected, aria-controls). Implement keyboard navigation support with arrow keys. Create separate components for each tab section. Integrate LLM connection test button in LLM tab. Add visual indicators for validation status on each form field.",
-            "status": "pending",
+            "details": "Build using React Tabs component with proper accessibility attributes (aria-selected, aria-controls). Implement keyboard navigation support with arrow keys. Create separate components for each tab section. Integrate LLM connection test button in LLM tab. Add visual indicators for validation status on each form field.\n<info added on 2025-12-04T02:02:05.101Z>\nPlan: Create SettingsPage component with tabbed interface using shadcn/ui Tabs. Implement Search, LLM, Automation, and Advanced tabs. Write test to verify tab navigation.\n</info added on 2025-12-04T02:02:05.101Z>\n<info added on 2025-12-04T15:26:58.659Z>\nPlan: Implement functional SearchSettings component with form fields for cities, keywords, salary, and recency. Use React Hook Form for validation. Write tests for form submission and validation.\n</info added on 2025-12-04T15:26:58.659Z>",
+            "status": "done",
             "testStrategy": "Verify all tabs render correctly, test keyboard navigation between tabs, confirm content changes when tab is selected, validate accessibility attributes are properly set",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:40:47.087Z"
           },
           {
             "id": 2,
@@ -1663,9 +1924,10 @@
             "description": "Implement comprehensive validation system using Ajv to validate configuration against defined schema with real-time error feedback",
             "dependencies": [],
             "details": "Create validation service that compiles schema and validates config objects. Implement field-specific error messages for nested structures. Integrate with form components to show live validation status. Handle complex validation rules for search parameters and LLM configurations. Add visual indicators for invalid fields with descriptive error messages.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test validation with valid and invalid configurations, verify error messages match schema constraints, confirm nested object validation works correctly, test edge cases like minimum/maximum values",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:40:47.094Z"
           },
           {
             "id": 3,
@@ -1673,9 +1935,10 @@
             "description": "Create system to track configuration changes, store historical versions, and enable rollback functionality with proper version management",
             "dependencies": [],
             "details": "Build service to save config versions to database with timestamps. Implement history tracking that stores previous versions before updates. Create UI for viewing version history and selecting previous versions to restore. Add confirmation dialogs for version restoration. Ensure atomic updates to prevent data corruption during concurrent edits.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test version saving after config changes, verify history is correctly stored, confirm rollback functionality works as expected, test concurrent edit handling",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:40:47.100Z"
           },
           {
             "id": 4,
@@ -1685,9 +1948,10 @@
               3
             ],
             "details": "Create ConfigContext provider that polls for changes at regular intervals. Implement comparison logic to detect updates based on timestamp. Add event listeners for immediate updates when config is saved. Ensure state updates trigger re-renders of dependent components. Add loading states during configuration updates and handle potential race conditions.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test hot reload by modifying config in another tab/window, verify UI updates automatically, confirm dependent components re-render correctly, test polling interval configuration",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:40:47.110Z"
           },
           {
             "id": 5,
@@ -1698,17 +1962,19 @@
               3
             ],
             "details": "Implement export button that generates downloadable JSON file of current config. Create import UI with file picker and validation. Add preview of imported config before applying. Implement security checks to prevent malicious config imports. Add success/error notifications for import/export operations and integrate with version control system.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test export generates valid JSON file, verify imported config matches exported file, confirm validation runs on imported config, test error handling for invalid JSON files",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T15:40:47.119Z"
           }
-        ]
+        ],
+        "updatedAt": "2025-12-04T16:03:26.156Z"
       },
       {
         "id": 22,
         "title": "Implement Responsive UI with Tailwind CSS and shadcn/ui Components",
         "description": "Build the complete mobile-first responsive design system using Tailwind CSS and shadcn/ui, implement dark/light theme toggle, create mobile optimizations (touch targets, swipe gestures, bottom navigation), and ensure performance targets (FCP < 1.5s, TTI < 3s).",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           "11"
         ],
@@ -1721,10 +1987,11 @@
             "title": "Configure shadcn/ui Component Library",
             "description": "Set up shadcn/ui component library with required components and proper configuration",
             "dependencies": [],
-            "details": "Execute 'npx shadcn-ui@latest init' to initialize the library. Configure components.json with proper settings including style, rsc, tsx, tailwind configuration, and icon library. Add required components using 'npx shadcn-ui@latest add button card input label select tabs dialog'. Verify component installation by importing and rendering a test button component.",
-            "status": "pending",
+            "details": "Execute 'npx shadcn-ui@latest init' to initialize the library. Configure components.json with proper settings including style, rsc, tsx, tailwind configuration, and icon library. Add required components using 'npx shadcn-ui@latest add button card input label select tabs dialog'. Verify component installation by importing and rendering a test button component.\n<info added on 2025-12-04T16:18:15.780Z>\nVerify shadcn/ui configuration and check tailwind.config.ts theme setup. Add any missing UI components. Write tests to verify the component library is accessible.\n</info added on 2025-12-04T16:18:15.780Z>",
+            "status": "done",
             "testStrategy": "Verify components are properly installed by checking component files in project structure and rendering a test button component",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T16:22:15.242Z"
           },
           {
             "id": 2,
@@ -1733,10 +2000,11 @@
             "dependencies": [
               1
             ],
-            "details": "Configure Tailwind CSS breakpoints for mobile (<640px), tablet (640px-1024px), and desktop (>1024px). Implement mobile-specific optimizations including bottom navigation bar, touch targets of minimum 44x44px, and swipe gesture handling using react-swipeable. Create responsive container classes with appropriate padding for each breakpoint. Test layouts on various device sizes.",
-            "status": "pending",
+            "details": "Configure Tailwind CSS breakpoints for mobile (<640px), tablet (640px-1024px), and desktop (>1024px). Implement mobile-specific optimizations including bottom navigation bar, touch targets of minimum 44x44px, and swipe gesture handling using react-swipeable. Create responsive container classes with appropriate padding for each breakpoint. Test layouts on various device sizes.\n<info added on 2025-12-04T16:23:33.250Z>\nPlan: Create MobileNav component with bottom navigation. Implement responsive breakpoints. Add touch-friendly tap targets (min 44px). Write tests for mobile navigation and responsive behavior.\n</info added on 2025-12-04T16:23:33.250Z>",
+            "status": "done",
             "testStrategy": "Test responsive design on mobile (<640px), tablet (640px-1024px), and desktop (>1024px) viewports. Verify touch targets meet minimum size requirements and swipe gestures function correctly on mobile devices.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T16:25:10.687Z"
           },
           {
             "id": 3,
@@ -1746,9 +2014,10 @@
               1
             ],
             "details": "Configure Tailwind CSS with darkMode: ['class'] setting. Implement theme provider component that manages theme state (light, dark, system) and applies appropriate CSS classes. Set up CSS variables for border, background, foreground, and primary colors. Create theme toggle button component that allows users to switch between themes. Ensure all shadcn/ui components properly respond to theme changes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify theme toggle button works correctly. Test all components render properly in both light and dark modes. Confirm theme preference persists across page reloads. Validate theme system works with system preference detection.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T16:37:22.530Z"
           },
           {
             "id": 4,
@@ -1760,24 +2029,82 @@
               3
             ],
             "details": "Implement lazy loading for images using next/image component. Apply code splitting for routes using dynamic imports. Implement virtual scrolling for long lists using libraries like react-virtualized. Add service worker for offline support and caching. Optimize component rendering with React.memo and useCallback. Measure performance metrics using Lighthouse and implement necessary improvements to meet targets.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Measure FCP and TTI using Lighthouse and Web Vitals. Verify lazy loading works for images. Confirm code splitting reduces initial bundle size. Test virtual scrolling performance with large datasets. Validate service worker caching strategy.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-04T16:25:10.693Z"
           }
-        ]
+        ],
+        "updatedAt": "2025-12-04T19:07:23.673Z"
+      },
+      {
+        "id": 23,
+        "title": "Audit Process Reform and Runtime Verification Protocols",
+        "description": "Update project documentation to mandate runtime verification for all future task audits, ensuring the application builds, starts, and serves valid responses before approval.",
+        "details": "1. Modify `AUDITOR.md` to explicitly state: 'No task shall be marked as completed based solely on static code analysis.'\n2. Define the 'Runtime Verification Standard' in the documentation:\n   - Clean dependency install (`npm ci`).\n   - Successful production build (`npm run build`).\n   - Dev server startup (`npm run dev`) without immediate crash.\n   - Manual or automated check that core routes (/, /pipeline, /settings, /map) return HTTP 200.\n3. Create a convenience script `scripts/pre-audit-check.sh` that runs linting, type checking, and a build test.\n4. Update `CONTRIBUTING.md` to reflect that broken builds or runtime errors will result in immediate task rejection.",
+        "testStrategy": "1. Review `AUDITOR.md` for the new mandatory runtime checks.\n2. Run the `scripts/pre-audit-check.sh` on the current main branch to ensure the current state passes.\n3. Manually verify `npm run dev` starts successfully.\n4. Navigate to the Dashboard, Kanban, and Settings pages to verify they load (HTTP 200).\n5. Introduce a deliberate syntax error and verify the audit check script fails.",
+        "status": "pending",
+        "dependencies": [
+          "22"
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "Implement Core Route Pages and Navigation Structure",
+        "description": "Assemble the primary application pages (/jobs, /settings, /dashboard) by integrating existing feature components, establishing the routing architecture, and ensuring all navigation links return valid HTTP 200 responses.",
+        "details": "1. **Route Configuration**: Set up the routing architecture (e.g., Next.js App Router) to define endpoints for `/jobs`, `/settings`, and `/dashboard`.\n2. **Settings Page Integration**: Create `src/app/settings/page.tsx` and import the `SettingsPage` component (from Task 21). Wrap it in the main application layout to ensure consistent navigation.\n3. **Jobs Page Implementation**: Develop the `/jobs` route to display a paginated list or grid of job opportunities fetched via Prisma. Reuse the `JobCard` or similar UI components defined in Task 22.\n4. **Dashboard Aggregation**: Update the root dashboard to display summary widgets:\n   - Pipeline status summary (counts of jobs in 'Applied', 'Interviewing' from Task 19).\n   - Recent activity feed.\n   - Quick actions menu.\n5. **Navigation Wiring**: Update the global `Sidebar` or `Navbar` component (from Task 22) to ensure all `Link` components point to the correct routes.\n6. **Error Handling**: Implement a global `not-found.tsx` and `error.tsx` to handle invalid routes gracefully.",
+        "testStrategy": "1. **Route Verification**: Manually navigate to `/jobs`, `/settings`, and `/dashboard` to confirm HTTP 200 status and correct rendering.\n2. **Settings Rendering**: Verify that the Settings tabs (Search, LLM, Automation) appear and function within the `/settings` route.\n3. **Navigation Integrity**: Click every link in the main navigation menu to ensure no broken links or client-side routing errors occur.\n4. **Data Display**: Confirm the Jobs page renders a list of jobs (or an empty state) and the Dashboard correctly reflects counts from the Kanban pipeline.\n5. **Responsiveness**: Check that these new pages adhere to the mobile-first design established in Task 22.",
+        "status": "pending",
+        "dependencies": [
+          "19",
+          "21",
+          "22"
+        ],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "Implement Database-Free Mock Mode and Data Fallbacks",
+        "description": "Develop a mock data layer that intercepts database calls when the application is in 'Mock Mode', enabling full UI navigation, testing, and building without active PostgreSQL or Redis connections.",
+        "details": "1. **Environment Configuration**: Add `NEXT_PUBLIC_MOCK_MODE` to `.env` and create a utility to check this status.\n2. **Mock Data Generators**: Install `@faker-js/faker` and create factory functions for all Prisma models defined in Task 12 (User, Profile, Job, Application, Config). Ensure data adheres to the schema types.\n3. **Repository Pattern / Abstraction**: Refactor direct `prisma` calls in API routes and Server Actions into a data access layer or service wrapper. \n   ```typescript\n   // src/lib/db-access.ts\n   import { prisma } from '@/lib/prisma';\n   import { mockDb } from '@/lib/mock-db';\n   \n   export const getJobs = async () => {\n     if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') return mockDb.job.findMany();\n     return prisma.job.findMany();\n   };\n   ```\n4. **Mock Implementation**: Implement an in-memory store (singleton) for the mock DB to persist state during the session (e.g., creating a job in mock mode should show up in the list until refresh).\n5. **Script Update**: Add `npm run dev:mock` to `package.json` that sets the environment variable before starting Next.js.",
+        "testStrategy": "1. **Environment Isolation**: Stop all local database containers (PostgreSQL/Redis).\n2. **Startup Verification**: Run `npm run dev:mock` and verify the application starts without connection errors.\n3. **Navigation Check**: Navigate to `/settings` (Task 21) and verify that configuration data loads from the mock source.\n4. **Interaction Test**: Perform a 'write' operation (e.g., update a setting) in mock mode and verify the UI reflects the change immediately (in-memory persistence).\n5. **Build Verification**: Run `npm run build` with mock mode enabled to ensure CI pipelines can pass without a live database.",
+        "status": "pending",
+        "dependencies": [
+          "12",
+          "21"
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 26,
+        "title": "Implement End-to-End Testing Suite with Playwright",
+        "description": "Set up and configure Playwright to run browser-based E2E tests verifying application startup, core route navigation, authentication flows, and UI interactivity like theme toggling.",
+        "details": "1. **Installation & Configuration**: Initialize Playwright (`npm init playwright@latest`). Configure `playwright.config.ts` to support multiple browsers (Chromium, Firefox, Webkit) and set the `webServer` command to run the Next.js app in Mock Mode (leveraging Task 25).\n2. **Test Environment Setup**: Ensure tests run against `NEXT_PUBLIC_MOCK_MODE=true` to avoid database dependencies during CI execution. Create a `global-setup.ts` if necessary to seed mock state.\n3. **Core Specs Implementation**:\n   - `specs/navigation.spec.ts`: Verify navigation to `/dashboard`, `/jobs`, and `/settings` (Task 24) results in HTTP 200 and correct page headers.\n   - `specs/theme.spec.ts`: Locate the theme toggle button (Task 22), click it, and assert that the `<html>` class attribute switches between 'light' and 'dark'.\n   - `specs/auth.spec.ts`: Specific test for the login form submission and redirection logic.\n4. **CI Integration**: Add scripts to `package.json` (`test:e2e`, `test:e2e:ui`) and ensure HTML reports are generated.",
+        "testStrategy": "1. **Local Execution**: Run `npm run test:e2e` and confirm all tests pass in headless mode.\n2. **Visual Verification**: Run `npx playwright test --ui` to visually inspect the browser interactions during test execution.\n3. **Theme Logic**: Specifically verify that the theme toggle test fails if the class name does not update on the `html` element.\n4. **Mock Integration**: Confirm tests pass without a running PostgreSQL container, validating the integration with Task 25.",
+        "status": "pending",
+        "dependencies": [
+          "22",
+          "24",
+          "25"
+        ],
+        "priority": "high",
+        "subtasks": []
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-22T09:08:53.218Z",
-      "taskCount": 12,
-      "completedCount": 7,
+      "lastModified": "2025-12-05T20:55:12.577Z",
+      "taskCount": 16,
+      "completedCount": 9,
       "tags": [
         "tdd"
       ],
-      "created": "2025-11-25T01:59:11.652Z",
-      "description": "Tasks for tdd context",
-      "updated": "2025-11-25T01:59:11.654Z"
+      "created": "2025-12-05T21:22:14.971Z",
+      "description": "Tasks for tdd context"
     }
   }
 }
