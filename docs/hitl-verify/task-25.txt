@@ -1,0 +1,21 @@
+Task 25: Database-Free Mock Mode
+==============================================================================
+
+PREREQUISITES
+  Stop PostgreSQL or set MOCK_MODE=true
+
+CHECK 1: App starts without DB
+  MOCK_MODE=true npm run dev
+  EXPECTED: No database connection errors
+
+CHECK 2: Mock data loads
+  Navigate to /jobs
+  EXPECTED: Sample job cards display
+
+CHECK 3: Features work with mock
+  Test search, filter, map
+  EXPECTED: UI responds with mock data
+
+==============================================================================
+IF ALL CHECKS PASS, RUN:
+  npx task-master set-status --id=25 --status=done

@@ -1,0 +1,22 @@
+Task 17: Job Aggregation System
+==============================================================================
+
+PREREQUISITES
+  Docker compose running (PostgreSQL)
+  n8n accessible at http://localhost:5678
+
+CHECK 1: n8n workflows exist
+  Open n8n dashboard
+  EXPECTED: Workflows for Indeed, LinkedIn, Career Pages visible
+
+CHECK 2: Jobs in database
+  psql -c "SELECT COUNT(*) FROM jobs"
+  EXPECTED: Non-zero count
+
+CHECK 3: Jobs display on UI
+  Navigate to http://localhost:3000/jobs
+  EXPECTED: Job cards with real data (not mock)
+
+==============================================================================
+IF ALL CHECKS PASS, RUN:
+  npx task-master set-status --id=17 --status=done

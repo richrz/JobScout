@@ -16,6 +16,44 @@ export interface CityConfig {
 interface JobMapProps {
   jobs: Job[];
   cities?: CityConfig[];
+  showHeatmap?: boolean;
+}
+
+function MockMap({ jobs }: { jobs: Job[] }) {
+  // Simple US-centric projection
+  // US Bounds: Lat 24-50, Lng -125 to -66
+  const getPos = (lat: number, lng: number) => {
+    const y = (50 - lat) / (50 - 24) * 100;
+    const x = (lng - -125) / (-66 - -125) * 100;
+    return { top: `${y}%`, left: `${x}%` };
+  };
+
+  return (
+    <div className="relative w-full h-full bg-slate-100 rounded-lg overflow-hidden border">
+      <div className="absolute inset-0 flex items-center justify-center text-slate-300 font-bold text-4xl select-none">
+        MOCK MAP PREVIEW
+      </div>
+      {jobs.map(job => {
+        if (!job.latitude || !job.longitude) return null;
+        const style = getPos(job.latitude, job.longitude);
+        if (parseFloat(style.top) < 0 || parseFloat(style.top) > 100) return null; // Out of bounds
+        if (parseFloat(style.left) < 0 || parseFloat(style.left) > 100) return null;
+
+        return (
+          <div
+            key={job.id}
+            className="absolute w-3 h-3 bg-blue-600 rounded-full border-2 border-white shadow-sm hover:scale-150 transition-transform cursor-pointer"
+            style={style}
+            title={`${job.title} - ${job.company}`}
+            onClick={() => alert(`Job: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location}`)}
+          />
+        );
+      })}
+      <div className="absolute bottom-2 right-2 bg-white/80 p-2 text-xs rounded shadow">
+        Use legitimate API Key for interactive map.
+      </div>
+    </div>
+  );
 }
 
 function getMarkerColor(score: number | null | undefined): string {
@@ -64,6 +102,8 @@ function JobMarkers({ jobs }: { jobs: Job[] }) {
   const clusterer = useRef<MarkerClusterer | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
 
+
+  /* Clustering disabled for debugging
   useEffect(() => {
     if (!map) return;
     if (!clusterer.current) {
@@ -80,42 +120,35 @@ function JobMarkers({ jobs }: { jobs: Job[] }) {
     clusterer.current?.clearMarkers();
     clusterer.current?.addMarkers(Object.values(markers));
   }, [markers]);
+  */
 
-  const setMarkerRef = useCallback((marker: Marker | null, key: string, job: Job) => {
-    setMarkers(prev => {
-      if (marker && prev[key]) return prev;
-      if (!marker && !prev[key]) return prev;
+  // Simple InfoWindow logic
+  const handleMarkerClick = useCallback((job: Job) => {
+    if (infoWindowRef.current) {
+      const content = `
+            <div class="p-2">
+            <h3 class="font-bold text-lg mb-1">${job.title}</h3>
+            <p class="text-sm font-semibold text-gray-700 mb-1">${job.company}</p>
+            <p class="text-sm text-gray-600 mb-2">${job.location}</p>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                Score: ${Math.round((job.compositeScore || 0) * 100)}%
+                </span>
+                ${job.salary ? `<span class="text-xs text-green-700 font-medium">${job.salary}</span>` : ''}
+            </div>
+            <a href="/jobs/${job.id}" class="text-sm text-blue-600 hover:text-blue-800 underline">View Details</a>
+            </div>
+        `;
+      infoWindowRef.current.setContent(content);
+      // Open at position since we don't have marker instance
+      infoWindowRef.current.setPosition({ lat: job.latitude!, lng: job.longitude! });
+      infoWindowRef.current.open(map);
+    }
+  }, [map]);
 
-      if (marker) {
-        // Add click listener
-        marker.addListener('click', () => {
-          if (infoWindowRef.current) {
-            const content = `
-              <div class="p-2">
-                <h3 class="font-bold text-lg mb-1">${job.title}</h3>
-                <p class="text-sm font-semibold text-gray-700 mb-1">${job.company}</p>
-                <p class="text-sm text-gray-600 mb-2">${job.location}</p>
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                    Score: ${Math.round((job.compositeScore || 0) * 100)}%
-                  </span>
-                  ${job.salary ? `<span class="text-xs text-green-700 font-medium">${job.salary}</span>` : ''}
-                </div>
-                <a href="/jobs/${job.id}" class="text-sm text-blue-600 hover:text-blue-800 underline">View Details</a>
-              </div>
-            `;
-            infoWindowRef.current.setContent(content);
-            infoWindowRef.current.open(map, marker);
-          }
-        });
-        return { ...prev, [key]: marker };
-      } else {
-        const newMarkers = { ...prev };
-        delete newMarkers[key];
-        return newMarkers;
-      }
-    });
-  }, [map]); // Added map dependency for InfoWindow opening
+  const setMarkerRef = useCallback((marker: any, key: string, job: Job) => {
+    // No-op ref for now
+  }, []);
 
   return (
     <>
@@ -125,7 +158,7 @@ function JobMarkers({ jobs }: { jobs: Job[] }) {
             key={job.id}
             position={{ lat: job.latitude, lng: job.longitude }}
             title={job.title}
-            ref={(marker) => setMarkerRef(marker, job.id, job)}
+            onClick={() => handleMarkerClick(job)}
           >
             <Pin background={getMarkerColor(job.compositeScore)} glyphColor={'#ffffff'} borderColor={'#1d4ed8'} />
           </AdvancedMarker>
@@ -134,16 +167,6 @@ function JobMarkers({ jobs }: { jobs: Job[] }) {
     </>
   );
 }
-
-// ... imports
-
-interface JobMapProps {
-  jobs: Job[];
-  cities?: CityConfig[];
-  showHeatmap?: boolean;
-}
-
-// ... existing code ...
 
 function JobHeatmap({ jobs }: { jobs: Job[] }) {
   const map = useMap();
@@ -197,12 +220,21 @@ function JobHeatmap({ jobs }: { jobs: Job[] }) {
 
 export function JobMap({ jobs, cities, showHeatmap = false }: JobMapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const [isMounted, setIsMounted] = useState(false);
 
-  if (!apiKey) {
-    console.error('Google Maps API Key is missing');
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className="h-[400px] md:h-[600px] w-full bg-slate-100 rounded-lg animate-pulse" />;
+  }
+
+  // Use Mock Map if no key or mock key
+  if (!apiKey || apiKey.startsWith('mock-')) {
     return (
-      <div className="flex items-center justify-center h-[600px] bg-gray-100 rounded-lg text-red-500">
-        Map cannot be loaded. Configuration error.
+      <div className="h-[400px] md:h-[600px] w-full rounded-lg overflow-hidden shadow-lg border border-gray-200 relative">
+        <MockMap jobs={jobs} />
       </div>
     );
   }

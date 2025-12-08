@@ -1,0 +1,22 @@
+Task 16: LLM Integration Layer
+==============================================================================
+
+PREREQUISITES
+  npm run dev &
+  Ensure API keys in Settings page
+
+CHECK 1: LLM client loads
+  Navigate to Settings > LLM Configuration
+  EXPECTED: Provider dropdown visible (OpenAI, Anthropic, Ollama)
+
+CHECK 2: Connection test
+  Enter valid API key, click "Test Connection"
+  EXPECTED: "Connection successful" message
+
+CHECK 3: Resume generation
+  Go to a job detail, click "Generate Resume"
+  EXPECTED: Generated resume text appears in preview
+
+==============================================================================
+IF ALL CHECKS PASS, RUN:
+  npx task-master set-status --id=16 --status=done

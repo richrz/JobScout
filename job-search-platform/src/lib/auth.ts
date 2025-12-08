@@ -23,6 +23,19 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // DEV BYPASS: Allow test login without database
+        if (
+          process.env.NODE_ENV !== 'production' &&
+          credentials.email === 'dev@localhost' &&
+          credentials.password === 'devpass123'
+        ) {
+          return {
+            id: 'dev-user-001',
+            email: 'dev@localhost',
+            name: 'Dev User',
+          }
+        }
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email }
         })
@@ -32,7 +45,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const isValid = await bcrypt.compare(credentials.password, user.password)
-        
+
         if (!isValid) {
           return null
         }

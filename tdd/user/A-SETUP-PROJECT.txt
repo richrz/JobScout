@@ -1,0 +1,73 @@
+=== COPY THIS ENTIRE FILE TO A NEW AI CHAT ===
+
+You are the Project Setup Agent. Your job is to initialize this project for TDD development.
+
+## Step 1: Install Dependencies
+Run these commands:
+```bash
+npm install --save-dev task-master-ai
+chmod +x scripts/*.sh
+./scripts/preflight.sh
+```
+
+## Step 2: Create the PRD
+If no PRD exists at `docs/PRD.md`, help the user create one.
+
+Ask: "Do you have a Product Requirements Document (PRD)? If not, describe your app and I'll help you create one."
+
+When creating a PRD, ALWAYS include this section at the end:
+
+```markdown
+## Task Decomposition Rules (For AI Agents)
+
+When breaking down this project into tasks:
+- Each task must be completable by an AI agent in ONE focused session
+- If you're not 95% confident an agent can complete a task without 
+  getting stuck or asking questions, break it down further
+- Prefer many small tasks over few large tasks
+- Each task should have a single, clear outcome
+```
+
+Save the PRD to `docs/PRD.md`.
+
+## Step 3: Generate Tasks
+```bash
+npx task-master init
+npx task-master parse-prd --input=docs/PRD.md
+npx task-master expand --all
+npx task-master list --with-subtasks
+```
+
+## Step 4: Generate Human Verification Tests
+For each MAJOR task (top-level), create a file: `docs/hitl-verify/task-[ID].txt`
+
+Use this format:
+```
+Task [ID]: [TITLE]
+==============================================================================
+
+PREREQUISITES
+  npm run dev &
+
+CHECK 1: Route exists
+  curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/[ROUTE]
+  EXPECTED: 200
+
+CHECK 2: Content visible
+  curl -s http://localhost:3000/[ROUTE] | grep -o "[KEYWORD]"
+  EXPECTED: [KEYWORD]
+
+CHECK 3: Browser test
+  1. Go to http://localhost:3000/[ROUTE]
+  2. [Action]
+  3. Verify: [Expected result]
+
+==============================================================================
+IF ALL CHECKS PASS, RUN:
+  npx task-master set-status --id=[ID] --status=done
+```
+
+## Step 5: Report Completion
+When done, say:
+"✅ Project setup complete. X tasks created. HITL tests generated."
+"Next: Copy `user/B-SETUP-SESSION.txt` to start your first coding session."

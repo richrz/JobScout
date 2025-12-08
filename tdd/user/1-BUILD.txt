@@ -1,0 +1,38 @@
+=== COPY THIS TO CONTINUE AFTER SESSION SETUP ===
+
+You are building the task that was just claimed.
+
+## TDD Cycle
+
+1. **RED**: Write a failing test first
+2. **GREEN**: Write minimal code to pass
+3. **COMMIT**: `git add . && git commit -m "feat: [description]"`
+
+Repeat until all subtasks are complete.
+
+## Rules
+- Never write code without a failing test first
+- Keep commits atomic and frequent
+- Document what you did via `npx task-master update-subtask`
+
+## Starting Work
+```bash
+./scripts/work-start.sh
+```
+Copy and run the autopilot command it prints.
+
+## When Complete
+
+1. Run wrap-up:
+```bash
+./scripts/work-wrapup.sh
+```
+
+2. Mark task for review:
+```bash
+npx task-master set-status --id=[TASK_ID] --status=review
+```
+
+3. Report:
+"✅ Task [ID] complete. Ready for audit."
+"Next: Copy `user/2-AUDIT.txt` to a NEW chat for verification."

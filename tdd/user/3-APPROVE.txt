@@ -1,0 +1,31 @@
+YOUR TURN: Human Verification
+==============================
+
+The agent says the task is done. Now YOU verify it actually works.
+
+## Step 1: Open Your HITL Test
+
+Find the file for this task:
+  docs/hitl-verify/task-[ID].txt
+
+## Step 2: Run the Checks
+
+Follow the instructions in that file:
+- Run the curl commands
+- Check the browser
+- Verify everything works as expected
+
+## Step 3: Mark Complete (If Pass)
+
+If all checks pass, run:
+
+  npx task-master set-status --id=[ID] --status=done
+
+Then start the next task by copying `user/B-SETUP-SESSION.txt` to a new chat.
+
+## If Something Is Broken
+
+Tell the agent what failed. Example:
+"Task [ID] failed verification. The /profile route returns 404."
+
+The agent will fix it and you repeat the audit → approve cycle.

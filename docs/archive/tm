@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENTRY="$ROOT/node_modules/.bin/task-master"
+if [[ ! -x "$ENTRY" ]]; then ENTRY="$ROOT/task-master-mcp/dist/mcp-server.js"; fi
+if [[ ! -e "$ENTRY" ]]; then echo "Task Master binary not found locally" >&2; exit 1; fi
+cd "$ROOT"
+exec "$ENTRY" "$@"

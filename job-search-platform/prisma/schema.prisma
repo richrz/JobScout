@@ -84,9 +84,23 @@ model Config {
   llmConfig     Json
   dailyCaps     Json
   fileNaming    String   @default("YYYY-MM-DD - {company} - {role}.pdf")
-  version       String   @default("1.0")
+  version       Int      @default(1)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model ConfigHistory {
+  id            String   @id @default(cuid())
+  configId      String
+  userId        String
+  searchParams  Json
+  llmConfig     Json
+  dailyCaps     Json
+  fileNaming    String
+  version       Int
+  createdAt     DateTime @default(now())
+  
+  @@index([userId, createdAt])
 }
 
 model Session {

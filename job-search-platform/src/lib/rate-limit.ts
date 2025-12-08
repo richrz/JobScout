@@ -1,17 +1,11 @@
-import Redis from 'ioredis'
-
-const redis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
-  db: parseInt(process.env.REDIS_DB || '0'),
-})
-
 interface RateLimitOptions {
   windowMs: number
   maxRequests: number
   keyPrefix: string
 }
+
+// In-memory fallback for rate limiting when Redis is not available
+const inMemoryStore = new Map<string, { count: number; expires: number }>()
 
 export class RateLimiter {
   private windowMs: number
@@ -26,25 +20,39 @@ export class RateLimiter {
 
   async isRateLimited(key: string): Promise<boolean> {
     const redisKey = `${this.keyPrefix}:${key}`
-    const current = await redis.incr(redisKey)
-    
-    if (current === 1) {
-      // Set expiry on first request
-      await redis.pexpire(redisKey, this.windowMs)
+    const now = Date.now()
+
+    // Use in-memory store (works in Edge Runtime)
+    const entry = inMemoryStore.get(redisKey)
+
+    if (!entry || entry.expires < now) {
+      // Create new entry
+      inMemoryStore.set(redisKey, {
+        count: 1,
+        expires: now + this.windowMs
+      })
+      return false
     }
-    
-    return current > this.maxRequests
+
+    entry.count++
+    return entry.count > this.maxRequests
   }
 
   async getRemainingRequests(key: string): Promise<number> {
     const redisKey = `${this.keyPrefix}:${key}`
-    const current = await redis.get(redisKey)
-    return Math.max(0, this.maxRequests - (parseInt(current || '0')))
+    const now = Date.now()
+    const entry = inMemoryStore.get(redisKey)
+
+    if (!entry || entry.expires < now) {
+      return this.maxRequests
+    }
+
+    return Math.max(0, this.maxRequests - entry.count)
   }
 
   async reset(key: string): Promise<void> {
     const redisKey = `${this.keyPrefix}:${key}`
-    await redis.del(redisKey)
+    inMemoryStore.delete(redisKey)
   }
 }
 

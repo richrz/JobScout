@@ -1,0 +1,24 @@
+Task 26: End-to-End Testing Suite
+==============================================================================
+
+PREREQUISITES
+  npm run dev &
+  Playwright/Cypress installed
+
+CHECK 1: Test suite runs
+  npm run test:e2e
+  EXPECTED: Test runner starts
+
+CHECK 2: Core flows pass
+  - Login flow
+  - Job search flow
+  - Profile save flow
+  EXPECTED: All green
+
+CHECK 3: CI integration
+  Check .github/workflows for e2e step
+  EXPECTED: E2E tests run on PR
+
+==============================================================================
+IF ALL CHECKS PASS, RUN:
+  npx task-master set-status --id=26 --status=done

@@ -1,0 +1,21 @@
+Task 24: Core Route Pages and Navigation
+==============================================================================
+
+PREREQUISITES
+  npm run dev &
+
+CHECK 1: Dashboard route
+  curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/
+  EXPECTED: 200
+
+CHECK 2: All routes accessible
+  /jobs, /map, /settings, /profile, /onboarding
+  EXPECTED: All return 200
+
+CHECK 3: Navigation links work
+  Click each nav item in header
+  EXPECTED: Correct page loads, active state visible
+
+==============================================================================
+IF ALL CHECKS PASS, RUN:
+  npx task-master set-status --id=24 --status=done

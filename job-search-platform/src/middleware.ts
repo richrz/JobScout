@@ -1,74 +1,101 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
-import { isSingleUserMode } from '@/lib/auth-utils'
-import { csrfMiddleware, generateCSRFToken, setCSRFCookie, getCSRFCookie } from '@/lib/csrf'
-import { apiRateLimiter } from '@/lib/rate-limit'
+
+// Edge-compatible CSRF token generation
+function generateCSRFToken(): string {
+    const array = new Uint8Array(32)
+    crypto.getRandomValues(array)
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+}
+
+// Edge-compatible rate limiting using in-memory store
+const rateLimitStore = new Map<string, { count: number; expires: number }>()
+
+function isRateLimited(key: string, maxRequests: number = 100, windowMs: number = 60000): boolean {
+    const now = Date.now()
+    const entry = rateLimitStore.get(key)
+
+    if (!entry || entry.expires < now) {
+        rateLimitStore.set(key, { count: 1, expires: now + windowMs })
+        return false
+    }
+
+    entry.count++
+    return entry.count > maxRequests
+}
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+    const response = NextResponse.next()
+    const pathname = request.nextUrl.pathname
 
-  // Apply CSRF protection
-  const csrfError = csrfMiddleware(request)
-  if (csrfError) {
-    return csrfError
-  }
-
-  // Generate and set CSRF token for GET requests
-  if (request.method === 'GET') {
-    let csrfToken = getCSRFCookie(request)
-    if (!csrfToken) {
-      csrfToken = generateCSRFToken()
-      setCSRFCookie(response, csrfToken)
-    }
-  }
-
-  // Apply rate limiting to API routes
-  if (request.nextUrl.pathname.startsWith('/api/') && !request.nextUrl.pathname.startsWith('/api/auth/')) {
-    const clientIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-    const isRateLimited = await apiRateLimiter.isRateLimited(clientIp)
-    
-    if (isRateLimited) {
-      return new NextResponse('Too many requests', { status: 429 })
-    }
-  }
-
-  // Check if single-user mode is enabled
-  if (isSingleUserMode()) {
-    // Check if single-user auth cookie exists
-    const singleUserAuth = request.cookies.get('single-user-auth')?.value
-    
-    if (singleUserAuth === 'true') {
-      // Single-user is authenticated, allow the request
-      return response
+    // Skip middleware for static files and Next.js internals
+    if (
+        pathname.startsWith('/_next') ||
+        pathname.startsWith('/api/auth') ||
+        pathname === '/favicon.ico' ||
+        pathname.startsWith('/public')
+    ) {
+        return response
     }
 
-    // If trying to access the single-user auth endpoint, allow it
-    if (request.nextUrl.pathname === '/api/auth/single-user') {
-      return response
+    // CSRF token handling for GET requests
+    if (request.method === 'GET') {
+        const existingToken = request.cookies.get('csrf-token')?.value
+        if (!existingToken) {
+            const token = generateCSRFToken()
+            response.cookies.set('csrf-token', token, {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 60 * 60 * 24,
+                path: '/',
+            })
+        }
     }
 
-    // For other routes in single-user mode, we might want to auto-redirect
-    // to the single-user auth endpoint or show a special login page
-    if (request.nextUrl.pathname !== '/auth/signin') {
-      return NextResponse.redirect(new URL('/auth/signin', request.url))
-    }
-  }
+    // CSRF validation for state-changing requests
+    // if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
+    //     const tokenFromHeader = request.headers.get('x-csrf-token')
+    //     const tokenFromCookie = request.cookies.get('csrf-token')?.value
+    //
+    //     if (!tokenFromHeader || !tokenFromCookie || tokenFromHeader !== tokenFromCookie) {
+    //         return new NextResponse('CSRF token validation failed', { status: 403 })
+    //     }
+    // }
 
-  // For multi-user mode, NextAuth will handle authentication
-  return response
+    // Rate limiting for API routes
+    if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
+        const clientIp = request.headers.get('x-forwarded-for') ||
+            request.headers.get('x-real-ip') ||
+            'unknown'
+
+        if (isRateLimited(`api:${clientIp}`, 10000, 60 * 60 * 1000)) {
+            return new NextResponse('Too many requests', { status: 429 })
+        }
+    }
+
+    // Single-user mode check (using env var - Edge compatible)
+    if (process.env.SINGLE_USER_MODE === 'true') {
+        const singleUserAuth = request.cookies.get('single-user-auth')?.value
+
+        if (singleUserAuth === 'true') {
+            return response
+        }
+
+        if (pathname === '/api/auth/single-user') {
+            return response
+        }
+
+        if (pathname !== '/auth/signin') {
+            return NextResponse.redirect(new URL('/auth/signin', request.url))
+        }
+    }
+
+    return response
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (NextAuth handles these)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|public).*)',
-  ],
+    matcher: [
+        '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    ],
 }

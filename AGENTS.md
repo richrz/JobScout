@@ -1,3 +1,5 @@
+#1 User is vibe-coding this app. User is not a developer but understands development. do not show code-level details, only strategic ideas. Be concise and do not forget it. It is not helpful to ask questions unless you genuinely feel stuck. 
+
 # Agent Operating Agreement
 
 Welcome! Follow every step below before touching code. These rules keep the Autopilot + Task-master workflow sane.
