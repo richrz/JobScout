@@ -409,18 +409,6 @@
         "testStrategy": "1. Test each provider (OpenAI, Anthropic, Ollama) with valid API keys\n2. Verify temperature mapping affects output tone\n3. Test resume generation with sample job description + profile\n4. Validate markdown output is ATS-friendly\n5. Test connection test endpoint for each provider\n6. Verify error handling for invalid API keys\n7. Test retry logic on API failures\n8. Confirm streaming works for real-time updates\n9. Test custom endpoint configuration\n10. Validate token limits are respected\n11. Verify end-to-end flow from Settings page (API key entry -> Connection Test -> Generation)",
         "subtasks": [
           {
-            "id": 6,
-            "title": "Verify End-to-End Integration with Settings UI",
-            "description": "Validate full integration between LLM backend and Settings page, ensuring connection tests and resume generation work as expected",
-            "dependencies": [
-              5
-            ],
-            "details": "Conduct end-to-end testing to verify that the LLM integration layer functions correctly when interacted with via the Settings page. Ensure that: 1. API keys provided in the Settings UI are correctly used for authentication. 2. The Connection Test feature in Settings returns success for valid credentials. 3. The resume generation process can be initiated and produces non-empty, valid output. 4. Verify that the system handles configuration changes (hot reload) correctly without restart.",
-            "status": "pending",
-            "testStrategy": "Manual verification via Settings UI: Enter keys, test connection, generate sample resume. Check logs for proper config loading.",
-            "parentId": "undefined"
-          },
-          {
             "id": 1,
             "title": "Design Provider-Agnostic LLM Client Interface",
             "description": "Create the foundational interface and configuration structure for the multi-provider LLM client",
@@ -486,6 +474,18 @@
             "testStrategy": "Test error scenarios including invalid API keys, rate limits, and network failures. Verify streaming works correctly and provides real-time updates",
             "parentId": "undefined",
             "updatedAt": "2025-11-21T21:21:16.949Z"
+          },
+          {
+            "id": 6,
+            "title": "Verify End-to-End Integration with Settings UI",
+            "description": "Validate full integration between LLM backend and Settings page, ensuring connection tests and resume generation work as expected",
+            "dependencies": [
+              5
+            ],
+            "details": "Conduct end-to-end testing to verify that the LLM integration layer functions correctly when interacted with via the Settings page. Ensure that: 1. API keys provided in the Settings UI are correctly used for authentication. 2. The Connection Test feature in Settings returns success for valid credentials. 3. The resume generation process can be initiated and produces non-empty, valid output. 4. Verify that the system handles configuration changes (hot reload) correctly without restart.",
+            "status": "pending",
+            "testStrategy": "Manual verification via Settings UI: Enter keys, test connection, generate sample resume. Check logs for proper config loading.",
+            "parentId": "undefined"
           }
         ]
       },
@@ -501,32 +501,6 @@
         "details": "1. Create n8n workflows for each job source:\n   - Indeed RSS feed workflow\n   - LinkedIn Jobs scraping workflow (using HTTP Request nodes)\n   - Company career page scraping (configurable URLs)\n\n2. Set up Mapbox Geocoding integration:\n   ```typescript\n   // src/lib/geocoding.ts\n   import mapboxgl from 'mapbox-gl';\n\n   export async function geocodeCity(cityName: string): Promise<{ lat: number; lng: number }> {\n     const response = await fetch(\n       `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cityName)}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`\n     );\n     const data = await response.json();\n     const [lng, lat] = data.features[0].center;\n     return { lat, lng };\n   }\n   ```\n\n3. Implement Haversine distance calculation.\n\n4. Create job filtering service.\n\n5. Implement deduplication using fuzzy matching (title + company).\n\n6. Create composite scoring system.\n\n7. Set up cron job to run every 6 hours.\n\n8. **Database Persistence**: Implement a service to save processed, geocoded, and scored jobs into the PostgreSQL database using Prisma. Ensure proper field mapping and upsert logic.\n\n9. **UI Integration**: Connect the `/jobs` page to the real database, ensuring that scraped jobs are displayed correctly and that the UI reflects the production data state.",
         "testStrategy": "1. Test n8n workflows fetch jobs from each source\n2. Verify Mapbox geocoding returns correct coordinates\n3. Test Haversine distance calculation accuracy\n4. Validate geographic filtering (jobs within radius)\n5. Test temporal filtering (only jobs within X hours)\n6. Verify keyword filtering (include OR, exclude AND NOT)\n7. Test salary parsing and filtering\n8. Validate deduplication removes duplicates\n9. Test composite scoring calculation\n10. Verify cron job runs every 6 hours\n11. Test manual trigger endpoint\n12. **Verify Database Persistence**: Check that scraped jobs are correctly inserted into the `Job` table in PostgreSQL.\n13. **Verify UI Display**: Confirm that the `/jobs` page renders the list of jobs fetched from the real database.",
         "subtasks": [
-          {
-            "id": 7,
-            "title": "Implement Database Persistence Service for Aggregated Jobs",
-            "description": "Develop the service layer to persist processed job data into PostgreSQL using Prisma, ensuring data integrity and proper mapping",
-            "dependencies": [
-              1,
-              5,
-              6
-            ],
-            "details": "Create a `JobService` or repository that accepts the output from the aggregation pipeline. Map the internal job objects to the Prisma `Job` model defined in Task 12. Implement `upsert` logic to handle existing jobs (updating them if changed) and insert new ones. Ensure all fields including location coordinates, salary, and calculated scores are correctly persisted to the database.",
-            "status": "pending",
-            "testStrategy": "Run the aggregation pipeline and verify that records are created in the local PostgreSQL database. Check for correct field mapping. Verify that re-running the pipeline updates existing records without creating duplicates.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 8,
-            "title": "Connect /jobs UI to Real Database and Verify Display",
-            "description": "Update the jobs dashboard to fetch and display live data from the database, replacing any mock data sources",
-            "dependencies": [
-              7
-            ],
-            "details": "Modify the data fetching strategy on the `/jobs` route (using Server Components or Actions) to query the real `Job` table via Prisma. Ensure that the frontend components correctly render the data fetched from the DB. Verify that the page displays the jobs that were scraped and saved in Subtask 7.",
-            "status": "pending",
-            "testStrategy": "Navigate to the `/jobs` page in a production-like environment (non-mock mode). Verify that the list of jobs matches the data in the database. Check that job details (title, company, location) are displayed correctly.",
-            "parentId": "undefined"
-          },
           {
             "id": 1,
             "title": "Design and implement n8n workflows for job scraping from multiple sources",
@@ -606,6 +580,32 @@
             "testStrategy": "Test scheduling with shortened intervals, verify monitoring metrics are accurately recorded, test error notification channels, validate retry logic works as expected, test manual trigger API endpoint functionality",
             "parentId": "undefined",
             "updatedAt": "2025-12-04T15:31:00.186Z"
+          },
+          {
+            "id": 7,
+            "title": "Implement Database Persistence Service for Aggregated Jobs",
+            "description": "Develop the service layer to persist processed job data into PostgreSQL using Prisma, ensuring data integrity and proper mapping",
+            "dependencies": [
+              1,
+              5,
+              6
+            ],
+            "details": "Create a `JobService` or repository that accepts the output from the aggregation pipeline. Map the internal job objects to the Prisma `Job` model defined in Task 12. Implement `upsert` logic to handle existing jobs (updating them if changed) and insert new ones. Ensure all fields including location coordinates, salary, and calculated scores are correctly persisted to the database.",
+            "status": "pending",
+            "testStrategy": "Run the aggregation pipeline and verify that records are created in the local PostgreSQL database. Check for correct field mapping. Verify that re-running the pipeline updates existing records without creating duplicates.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 8,
+            "title": "Connect /jobs UI to Real Database and Verify Display",
+            "description": "Update the jobs dashboard to fetch and display live data from the database, replacing any mock data sources",
+            "dependencies": [
+              7
+            ],
+            "details": "Modify the data fetching strategy on the `/jobs` route (using Server Components or Actions) to query the real `Job` table via Prisma. Ensure that the frontend components correctly render the data fetched from the DB. Verify that the page displays the jobs that were scraped and saved in Subtask 7.",
+            "status": "pending",
+            "testStrategy": "Navigate to the `/jobs` page in a production-like environment (non-mock mode). Verify that the list of jobs matches the data in the database. Check that job details (title, company, location) are displayed correctly.",
+            "parentId": "undefined"
           }
         ]
       },
@@ -621,55 +621,6 @@
         "details": "1. Install Mapbox dependencies:\n   ```bash\n   npm install mapbox-gl react-map-gl\n   npm install -D @types/mapbox-gl\n   ```\n\n2. Create Map component:\n   ```typescript\n   // src/components/map/JobMap.tsx\n   import Map, { Marker, Source, Layer, Popup } from 'react-map-gl';\n   import 'mapbox-gl/dist/mapbox-gl.css';\n\n   export function JobMap({ jobs, cities, filters }) {\n     // ... implementation details\n   }\n   ```\n\n3. Implement marker color coding based on composite score.\n4. Add clustering for nearby jobs.\n5. Create heatmap layer (toggleable).\n6. Implement mobile touch gestures.\n7. Add filter controls (status, date range, score threshold).\n8. Create dark/light theme toggle.\n\n9. Create Page Route:\n   ```typescript\n   // src/app/map/page.tsx\n   import { JobMap } from '@/components/map/JobMap';\n   import { getJobs } from '@/lib/api/jobs';\n\n   export default async function MapPage() {\n     const jobs = await getJobs();\n     return <JobMap jobs={jobs} ... />;\n   }\n   ```\n\n10. Update Navigation: Add link to /map in Navbar component.",
         "testStrategy": "1. Verify map loads with correct initial view\n2. Test marker rendering for all jobs\n3. Validate color coding (green/yellow/red by score)\n4. Test radius circles display correctly\n5. Verify clustering works (groups nearby markers)\n6. Test popup opens on marker click\n7. Validate heatmap toggle functionality\n8. Test mobile touch gestures (pinch/zoom)\n9. Verify filters update map in real-time\n10. Test theme toggle (dark/light mode)\n11. Check performance with 500+ markers\n12. Verify /map route is accessible\n13. Validate real data loads from database\n14. Test navigation link works",
         "subtasks": [
-          {
-            "id": 6,
-            "title": "Create /map route and page wrapper",
-            "description": "Implement the /map route using the application router and wrap the JobMap component for display.",
-            "dependencies": [
-              1
-            ],
-            "details": "Create src/app/map/page.tsx (or equivalent), import the JobMap component, ensure proper layout wrapping, and verify route accessibility.",
-            "status": "pending",
-            "testStrategy": "Verify /map route loads the map component correctly without errors.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 7,
-            "title": "Integrate real job data from database",
-            "description": "Connect the map visualization to the actual job database instead of mock data.",
-            "dependencies": [
-              6
-            ],
-            "details": "Fetch job data using server actions or API hooks, transform database records to GeoJSON format required by Mapbox, handle loading states and empty data scenarios.",
-            "status": "pending",
-            "testStrategy": "Validate that markers on the map correspond to actual records in the database.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 8,
-            "title": "Add Map to main navigation",
-            "description": "Update the global navigation menu to include a link to the Map visualization.",
-            "dependencies": [
-              6
-            ],
-            "details": "Add 'Map' item to the main Navbar/Sidebar, ensure active state highlighting when on the /map route, and verify navigation links work.",
-            "status": "pending",
-            "testStrategy": "Click Map link in navigation and verify correct routing and active state styling.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 9,
-            "title": "Implement advanced map controls (Heatmap, Filters, Theme)",
-            "description": "Add the remaining interactive controls including heatmap toggle, job filters, and theme switching.",
-            "dependencies": [
-              2,
-              7
-            ],
-            "details": "Implement heatmap layer toggling, add filter UI for status/date/score, and implement dark/light mode switching for the map style.",
-            "status": "pending",
-            "testStrategy": "Test toggling heatmap, applying filters updates markers, and switching themes changes map style.",
-            "parentId": "undefined"
-          },
           {
             "id": 1,
             "title": "Set up Mapbox GL JS integration and base map configuration",
@@ -734,6 +685,55 @@
             "testStrategy": "Benchmark performance with 500+ job markers, verify frame rate remains above 30fps during interactions, test memory usage during extended use, validate smooth transitions during zoom/pan operations",
             "parentId": "undefined",
             "updatedAt": "2025-12-04T15:31:07.225Z"
+          },
+          {
+            "id": 6,
+            "title": "Create /map route and page wrapper",
+            "description": "Implement the /map route using the application router and wrap the JobMap component for display.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create src/app/map/page.tsx (or equivalent), import the JobMap component, ensure proper layout wrapping, and verify route accessibility.",
+            "status": "pending",
+            "testStrategy": "Verify /map route loads the map component correctly without errors.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 7,
+            "title": "Integrate real job data from database",
+            "description": "Connect the map visualization to the actual job database instead of mock data.",
+            "dependencies": [
+              6
+            ],
+            "details": "Fetch job data using server actions or API hooks, transform database records to GeoJSON format required by Mapbox, handle loading states and empty data scenarios.",
+            "status": "pending",
+            "testStrategy": "Validate that markers on the map correspond to actual records in the database.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 8,
+            "title": "Add Map to main navigation",
+            "description": "Update the global navigation menu to include a link to the Map visualization.",
+            "dependencies": [
+              6
+            ],
+            "details": "Add 'Map' item to the main Navbar/Sidebar, ensure active state highlighting when on the /map route, and verify navigation links work.",
+            "status": "pending",
+            "testStrategy": "Click Map link in navigation and verify correct routing and active state styling.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 9,
+            "title": "Implement advanced map controls (Heatmap, Filters, Theme)",
+            "description": "Add the remaining interactive controls including heatmap toggle, job filters, and theme switching.",
+            "dependencies": [
+              2,
+              7
+            ],
+            "details": "Implement heatmap layer toggling, add filter UI for status/date/score, and implement dark/light mode switching for the map style.",
+            "status": "pending",
+            "testStrategy": "Test toggling heatmap, applying filters updates markers, and switching themes changes map style.",
+            "parentId": "undefined"
           }
         ],
         "updatedAt": "2025-12-05T20:55:02.962Z"
@@ -819,44 +819,6 @@
         "testStrategy": "1. Test resume generation with sample job + profile\n2. Verify LLM produces valid markdown output\n3. Test ProseMirror editor allows editing\n4. Validate PDF export is ATS-friendly (no complex formatting)\n5. Test file naming template with various patterns\n6. Verify PDF downloads with correct filename\n7. Test all exaggeration levels produce different tones\n8. Validate resume saves to Application.resumePath\n9. Test batch generation for multiple jobs\n10. Verify PDF renders correctly on mobile\n11. Test with long content (pagination works)\n12. Verify /resume route is accessible and renders components correctly\n13. Test full flow: Enter /resume -> Generate with LLM -> Edit -> Download",
         "subtasks": [
           {
-            "id": 6,
-            "title": "Implement /resume Route and Page Layout",
-            "description": "Create the main resume page route and layout structure to host the editor and preview components",
-            "dependencies": [
-              1,
-              2
-            ],
-            "details": "Create `src/app/resume/page.tsx`, implement a split-pane layout (or responsive equivalent) to display `ResumeEditor` and `ResumePreview` side-by-side, ensure the route is accessible via main navigation, and set up shared state context for data synchronization.",
-            "status": "pending",
-            "testStrategy": "Verify /resume route loads without errors, check responsive layout on different screen sizes, ensure both editor and preview components are mounted",
-            "parentId": "undefined"
-          },
-          {
-            "id": 7,
-            "title": "Wire Editor, Preview, and LLM Integration",
-            "description": "Connect the UI components to the backend services for a complete user flow",
-            "dependencies": [
-              4,
-              6
-            ],
-            "details": "Integrate the `generateAndPreviewResume` function with the UI 'Enhance' button, ensure LLM output populates the ProseMirror editor, wire the editor's state changes to update the PDF preview in real-time, and implement the 'Download PDF' button using the file naming engine.",
-            "status": "pending",
-            "testStrategy": "Test the full flow: Click Enhance -> Wait for LLM -> Verify Editor Content -> Edit Text -> Verify PDF Preview Updates -> Click Download -> Verify File",
-            "parentId": "undefined"
-          },
-          {
-            "id": 8,
-            "title": "Implement Resume Persistence and Application Association",
-            "description": "Save the generated resume and associate it with the specific job application record",
-            "dependencies": [
-              7
-            ],
-            "details": "Implement the save functionality to store the final resume content (JSON/PDF path) to the database, update the `Application` record with the reference to the generated resume, and ensure the user can retrieve saved resumes later.",
-            "status": "pending",
-            "testStrategy": "Generate a resume, click save, query the database to verify the Application record is updated with the correct resume path/content",
-            "parentId": "undefined"
-          },
-          {
             "id": 1,
             "title": "Implement PDF Generation with @react-pdf/renderer",
             "description": "Set up PDF generation system using @react-pdf/renderer library for ATS-friendly resume output",
@@ -914,6 +876,44 @@
             "testStrategy": "Test various template patterns, verify special character handling, check date formatting, validate integration with PDF download functionality",
             "parentId": "undefined",
             "updatedAt": "2025-12-04T01:27:29.602Z"
+          },
+          {
+            "id": 6,
+            "title": "Implement /resume Route and Page Layout",
+            "description": "Create the main resume page route and layout structure to host the editor and preview components",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/app/resume/page.tsx`, implement a split-pane layout (or responsive equivalent) to display `ResumeEditor` and `ResumePreview` side-by-side, ensure the route is accessible via main navigation, and set up shared state context for data synchronization.",
+            "status": "pending",
+            "testStrategy": "Verify /resume route loads without errors, check responsive layout on different screen sizes, ensure both editor and preview components are mounted",
+            "parentId": "undefined"
+          },
+          {
+            "id": 7,
+            "title": "Wire Editor, Preview, and LLM Integration",
+            "description": "Connect the UI components to the backend services for a complete user flow",
+            "dependencies": [
+              4,
+              6
+            ],
+            "details": "Integrate the `generateAndPreviewResume` function with the UI 'Enhance' button, ensure LLM output populates the ProseMirror editor, wire the editor's state changes to update the PDF preview in real-time, and implement the 'Download PDF' button using the file naming engine.",
+            "status": "pending",
+            "testStrategy": "Test the full flow: Click Enhance -> Wait for LLM -> Verify Editor Content -> Edit Text -> Verify PDF Preview Updates -> Click Download -> Verify File",
+            "parentId": "undefined"
+          },
+          {
+            "id": 8,
+            "title": "Implement Resume Persistence and Application Association",
+            "description": "Save the generated resume and associate it with the specific job application record",
+            "dependencies": [
+              7
+            ],
+            "details": "Implement the save functionality to store the final resume content (JSON/PDF path) to the database, update the `Application` record with the reference to the generated resume, and ensure the user can retrieve saved resumes later.",
+            "status": "pending",
+            "testStrategy": "Generate a resume, click save, query the database to verify the Application record is updated with the correct resume path/content",
+            "parentId": "undefined"
           }
         ],
         "updatedAt": "2025-12-05T20:55:12.576Z"
