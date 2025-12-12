@@ -27,6 +27,6 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
-    "task-master-ai": "0.37.1"
+    "task-master-ai": "0.37.0"
   }
 }
