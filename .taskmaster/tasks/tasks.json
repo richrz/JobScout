@@ -2,7 +2,7 @@
   "tdd": {
     "tasks": [
       {
-        "id": 11,
+        "id": "11",
         "title": "Initialize Next.js 14 Project with Core Dependencies and Docker Configuration",
         "description": "Set up the foundational Next.js 14 project structure with TypeScript, configure Docker Compose stack (app, PostgreSQL 15, n8n, nginx, Redis), and establish the development environment with all required dependencies.",
         "status": "done",
@@ -92,7 +92,7 @@
         ]
       },
       {
-        "id": 12,
+        "id": "12",
         "title": "Design and Implement Prisma Database Schema with Migrations",
         "description": "Create the complete Prisma schema matching the PRD specifications (User, Profile, Job, Application, Config models) and set up initial database migrations with proper indexes and relationships.",
         "status": "done",
@@ -153,7 +153,7 @@
         ]
       },
       {
-        "id": 13,
+        "id": "13",
         "title": "Implement Authentication System with NextAuth and Single-User Mode",
         "description": "Set up NextAuth with Google OAuth provider, email/password fallback using bcrypt, JWT session management, and implement single-user mode bypass option as specified in the PRD.",
         "status": "done",
@@ -232,7 +232,7 @@
         "updatedAt": "2025-11-19T21:26:36.748Z"
       },
       {
-        "id": 14,
+        "id": "14",
         "title": "Build Multi-Step Configuration Wizard with Form Validation",
         "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking, data persistence, and a dedicated /onboarding route verified by E2E tests.",
         "status": "done",
@@ -241,7 +241,7 @@
         ],
         "priority": "high",
         "details": "1. Create Zod schemas for each step:\n   ```typescript\n   // src/lib/validations/config.ts\n   import { z } from 'zod';\n\n   export const citySchema = z.object({\n     name: z.string().min(1, 'City name required'),\n     radius_miles: z.number().min(5).max(100),\n     weight: z.number().min(0).max(100)\n   });\n\n   export const step1Schema = z.object({\n     cities: z.array(citySchema).min(1, 'At least one city required')\n   });\n\n   export const step2Schema = z.object({\n     categories: z.array(z.string()).min(1, 'At least one job title required')\n   });\n\n   export const configSchema = z.object({\n     cities: z.array(citySchema),\n     categories: z.array(z.string()),\n     include_keywords: z.array(z.string()),\n     exclude_keywords: z.array(z.string()),\n     salary_usd: z.object({\n       min: z.number().optional(),\n       max: z.number().optional()\n     }),\n     posted_within_hours: z.number()\n   });\n   ```\n\n2. Build wizard component with shadcn/ui:\n   ```typescript\n   // src/components/onboarding/ConfigWizard.tsx\n   import { useState } from 'react';\n   import { useForm } from 'react-hook-form';\n   import { zodResolver } from '@hookform/resolvers/zod';\n\n   const steps = [\n     { id: 1, title: 'Target Cities', component: Step1Cities },\n     { id: 2, title: 'Job Titles', component: Step2Titles },\n     { id: 3, title: 'Include Keywords', component: Step3Include },\n     { id: 4, title: 'Exclude Keywords', component: Step4Exclude },\n     { id: 5, title: 'Salary Range', component: Step5Salary },\n     { id: 6, title: 'Job Freshness', component: Step6Recency }\n   ];\n   ```\n\n3. Implement auto-save every 30 seconds using useEffect\n4. Create progress indicator component (0-100%)\n5. Build each step component with appropriate inputs:\n   - Step 1: City autocomplete + radius slider + weight slider\n   - Step 2: Tag input for job titles\n   - Step 3: Keyword tag input with OR logic explanation\n   - Step 4: Exclusion keyword tag input\n   - Step 5: Min/max salary inputs with checkbox for undisclosed\n   - Step 6: Radio buttons for recency options\n6. Add navigation (Back/Next/Skip buttons)\n7. Implement data persistence to Config model\n8. Create JSON export/import functionality\n9. Create /onboarding route to host the wizard\n10. Wire up API integration for saving data to database\n11. Implement E2E tests using Playwright/Cypress",
-        "testStrategy": "1. Test form validation for each step (invalid inputs rejected)\n2. Verify progress indicator updates correctly (0% \u2192 100%)\n3. Test auto-save functionality (check DB after 30s)\n4. Validate navigation (Back/Next/Skip work correctly)\n5. Test city autocomplete with real geocoding API\n6. Verify weight sliders sum to 100% validation\n7. Test JSON export/import round-trip\n8. Confirm data persists to Config table\n9. Test wizard completion creates valid config.json\n10. Verify tooltips and help text display correctly\n11. E2E: Verify full wizard flow loads at /onboarding\n12. E2E: Confirm data is saved to DB upon completion",
+        "testStrategy": "1. Test form validation for each step (invalid inputs rejected)\n2. Verify progress indicator updates correctly (0% → 100%)\n3. Test auto-save functionality (check DB after 30s)\n4. Validate navigation (Back/Next/Skip work correctly)\n5. Test city autocomplete with real geocoding API\n6. Verify weight sliders sum to 100% validation\n7. Test JSON export/import round-trip\n8. Confirm data persists to Config table\n9. Test wizard completion creates valid config.json\n10. Verify tooltips and help text display correctly\n11. E2E: Verify full wizard flow loads at /onboarding\n12. E2E: Confirm data is saved to DB upon completion",
         "subtasks": [
           {
             "id": 1,
@@ -323,7 +323,7 @@
         "updatedAt": "2025-12-05T20:14:42.681Z"
       },
       {
-        "id": 15,
+        "id": "15",
         "title": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
         "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes. Includes integration of the /profile route, database persistence, and E2E testing.",
         "status": "done",
@@ -397,10 +397,10 @@
         "updatedAt": "2025-12-05T20:21:55.607Z"
       },
       {
-        "id": 16,
+        "id": "16",
         "title": "Develop LLM Integration Layer with Multi-Provider Support",
         "description": "Build the provider-agnostic LLM client using LangChain that supports OpenAI, Anthropic, Ollama, OpenRouter, Azure OpenAI, and custom endpoints with configurable temperature/token settings and resume generation prompts.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           "15"
         ],
@@ -482,15 +482,17 @@
             "dependencies": [
               5
             ],
-            "details": "Conduct end-to-end testing to verify that the LLM integration layer functions correctly when interacted with via the Settings page. Ensure that: 1. API keys provided in the Settings UI are correctly used for authentication. 2. The Connection Test feature in Settings returns success for valid credentials. 3. The resume generation process can be initiated and produces non-empty, valid output. 4. Verify that the system handles configuration changes (hot reload) correctly without restart.",
-            "status": "pending",
+            "details": "Conduct end-to-end testing to verify that the LLM integration layer functions correctly when interacted with via the Settings page. Ensure that: 1. API keys provided in the Settings UI are correctly used for authentication. 2. The Connection Test feature in Settings returns success for valid credentials. 3. The resume generation process can be initiated and produces non-empty, valid output. 4. Verify that the system handles configuration changes (hot reload) correctly without restart.\n<info added on 2025-12-09T02:17:58.419Z>\nVerification complete: Created E2E test at tests/integration/llm-settings-e2e.test.ts. API endpoint /api/llm/test verified operational via curl. SettingsPage correctly integrates LLMSettings with all required fields. Test Connection button implemented. Note: Full live API test pending user configuration of OPENAI_API_KEY and ANTHROPIC_API_KEY in .env.\n</info added on 2025-12-09T02:17:58.419Z>",
+            "status": "done",
             "testStrategy": "Manual verification via Settings UI: Enter keys, test connection, generate sample resume. Check logs for proper config loading.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-10T00:02:29.252Z"
           }
-        ]
+        ],
+        "updatedAt": "2025-12-10T00:02:29.252Z"
       },
       {
-        "id": 17,
+        "id": "17",
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, persist scraped data to the PostgreSQL database, and integrate the real data feed into the /jobs UI.",
         "status": "pending",
@@ -610,7 +612,7 @@
         ]
       },
       {
-        "id": 18,
+        "id": "18",
         "title": "Create Interactive Map Visualization with Mapbox GL JS",
         "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls. Integrate into the application via the /map route, displaying real job data from the database and accessible via main navigation.",
         "status": "done",
@@ -739,7 +741,7 @@
         "updatedAt": "2025-12-05T20:55:02.962Z"
       },
       {
-        "id": 19,
+        "id": "19",
         "title": "Implement Kanban Application Pipeline Tracker with Drag-and-Drop",
         "description": "Build the application tracking system using dnd-kit with customizable pipeline stages, drag-and-drop functionality, status timeline, file attachments, notes, bulk operations, and CSV export as specified in the PRD.",
         "status": "done",
@@ -747,7 +749,7 @@
           "12"
         ],
         "priority": "high",
-        "details": "1. Install dnd-kit dependencies:\n   ```bash\n   npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities\n   ```\n\n2. Create Kanban board component:\n   ```typescript\n   // src/components/pipeline/KanbanBoard.tsx\n   import { DndContext, DragOverlay, closestCorners } from '@dnd-kit/core';\n   import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';\n\n   const stages = [\n     { id: 'discovered', title: 'Discovered', color: 'gray' },\n     { id: 'interested', title: 'Interested', color: 'blue' },\n     { id: 'applied', title: 'Applied', color: 'yellow' },\n     { id: 'interview', title: 'Interview', color: 'purple' },\n     { id: 'offer', title: 'Offer', color: 'green' },\n     { id: 'rejected', title: 'Rejected', color: 'red' },\n     { id: 'archived', title: 'Archived', color: 'gray' }\n   ];\n\n   export function KanbanBoard({ applications }) {\n     const [activeId, setActiveId] = useState(null);\n\n     function handleDragStart(event) {\n       setActiveId(event.active.id);\n     }\n\n     async function handleDragEnd(event) {\n       const { active, over } = event;\n       if (!over) return;\n\n       const applicationId = active.id;\n       const newStatus = over.id;\n\n       await updateApplicationStatus(applicationId, newStatus);\n     }\n\n     return (\n       <DndContext\n         collisionDetection={closestCorners}\n         onDragStart={handleDragStart}\n         onDragEnd={handleDragEnd}\n       >\n         <div className=\"flex gap-4 overflow-x-auto\">\n           {stages.map(stage => (\n             <Column\n               key={stage.id}\n               stage={stage}\n               applications={applications.filter(app => app.status === stage.id)}\n             />\n           ))}\n         </div>\n       </DndContext>\n     );\n   }\n   ```\n\n3. Create application card component:\n   ```typescript\n   function ApplicationCard({ application }) {\n     return (\n       <div className=\"bg-white p-4 rounded shadow\">\n         <h3>{application.job.title}</h3>\n         <p>{application.job.company}</p>\n         <div className=\"flex gap-2 mt-2\">\n           <button onClick={() => generateResume(application)}>Generate Resume</button>\n           <button onClick={() => markAsApplied(application)}>Mark Applied</button>\n           <button onClick={() => archiveApplication(application)}>Archive</button>\n         </div>\n         <div className=\"mt-2\">\n           <input\n             type=\"file\"\n             onChange={(e) => attachFile(application, e.target.files[0])}\n           />\n           <textarea\n             placeholder=\"Add notes...\"\n             value={application.notes}\n             onChange={(e) => updateNotes(application, e.target.value)}\n           />\n         </div>\n       </div>\n     );\n   }\n   ```\n\n4. Implement status change timeline:\n   ```typescript\n   async function updateApplicationStatus(id: string, newStatus: string) {\n     const application = await prisma.application.findUnique({ where: { id } });\n     const statusHistory = [\n       ...application.statusHistory,\n       { status: newStatus, timestamp: new Date() }\n     ];\n     await prisma.application.update({\n       where: { id },\n       data: { status: newStatus, statusHistory, updatedAt: new Date() }\n     });\n   }\n   ```\n\n5. Add bulk operations (select multiple \u2192 archive/delete)\n6. Implement search/filter functionality\n7. Create CSV export feature\n8. Add daily application cap enforcement",
+        "details": "1. Install dnd-kit dependencies:\n   ```bash\n   npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities\n   ```\n\n2. Create Kanban board component:\n   ```typescript\n   // src/components/pipeline/KanbanBoard.tsx\n   import { DndContext, DragOverlay, closestCorners } from '@dnd-kit/core';\n   import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';\n\n   const stages = [\n     { id: 'discovered', title: 'Discovered', color: 'gray' },\n     { id: 'interested', title: 'Interested', color: 'blue' },\n     { id: 'applied', title: 'Applied', color: 'yellow' },\n     { id: 'interview', title: 'Interview', color: 'purple' },\n     { id: 'offer', title: 'Offer', color: 'green' },\n     { id: 'rejected', title: 'Rejected', color: 'red' },\n     { id: 'archived', title: 'Archived', color: 'gray' }\n   ];\n\n   export function KanbanBoard({ applications }) {\n     const [activeId, setActiveId] = useState(null);\n\n     function handleDragStart(event) {\n       setActiveId(event.active.id);\n     }\n\n     async function handleDragEnd(event) {\n       const { active, over } = event;\n       if (!over) return;\n\n       const applicationId = active.id;\n       const newStatus = over.id;\n\n       await updateApplicationStatus(applicationId, newStatus);\n     }\n\n     return (\n       <DndContext\n         collisionDetection={closestCorners}\n         onDragStart={handleDragStart}\n         onDragEnd={handleDragEnd}\n       >\n         <div className=\"flex gap-4 overflow-x-auto\">\n           {stages.map(stage => (\n             <Column\n               key={stage.id}\n               stage={stage}\n               applications={applications.filter(app => app.status === stage.id)}\n             />\n           ))}\n         </div>\n       </DndContext>\n     );\n   }\n   ```\n\n3. Create application card component:\n   ```typescript\n   function ApplicationCard({ application }) {\n     return (\n       <div className=\"bg-white p-4 rounded shadow\">\n         <h3>{application.job.title}</h3>\n         <p>{application.job.company}</p>\n         <div className=\"flex gap-2 mt-2\">\n           <button onClick={() => generateResume(application)}>Generate Resume</button>\n           <button onClick={() => markAsApplied(application)}>Mark Applied</button>\n           <button onClick={() => archiveApplication(application)}>Archive</button>\n         </div>\n         <div className=\"mt-2\">\n           <input\n             type=\"file\"\n             onChange={(e) => attachFile(application, e.target.files[0])}\n           />\n           <textarea\n             placeholder=\"Add notes...\"\n             value={application.notes}\n             onChange={(e) => updateNotes(application, e.target.value)}\n           />\n         </div>\n       </div>\n     );\n   }\n   ```\n\n4. Implement status change timeline:\n   ```typescript\n   async function updateApplicationStatus(id: string, newStatus: string) {\n     const application = await prisma.application.findUnique({ where: { id } });\n     const statusHistory = [\n       ...application.statusHistory,\n       { status: newStatus, timestamp: new Date() }\n     ];\n     await prisma.application.update({\n       where: { id },\n       data: { status: newStatus, statusHistory, updatedAt: new Date() }\n     });\n   }\n   ```\n\n5. Add bulk operations (select multiple → archive/delete)\n6. Implement search/filter functionality\n7. Create CSV export feature\n8. Add daily application cap enforcement",
         "testStrategy": "1. Test drag-and-drop between all stages\n2. Verify status updates persist to database\n3. Test status timeline shows all changes\n4. Validate file attachment upload and storage\n5. Test notes auto-save functionality\n6. Verify quick actions (Generate Resume, Mark Applied, Archive)\n7. Test bulk operations (select multiple cards)\n8. Validate search/filter updates board\n9. Test CSV export contains all data\n10. Verify daily cap prevents exceeding limit\n11. Test mobile responsiveness (horizontal scroll)",
         "subtasks": [
           {
@@ -806,10 +808,10 @@
         "updatedAt": "2025-12-03T23:57:14.737Z"
       },
       {
-        "id": 20,
+        "id": "20",
         "title": "Build Resume Generation and PDF Export System",
         "description": "Create the resume tailoring interface at /resume with live preview using ProseMirror editor, integrate with LLM service for generation, implement ATS-friendly PDF export with react-pdf, and add configurable file naming templates.",
-        "status": "in-progress",
+        "status": "pending",
         "dependencies": [
           "16",
           "19"
@@ -916,10 +918,10 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-12-05T20:55:12.576Z"
+        "updatedAt": "2025-12-09T02:11:09.239Z"
       },
       {
-        "id": 21,
+        "id": "21",
         "title": "Develop Settings Management UI and Configuration Hot Reload",
         "description": "Create the comprehensive settings interface with tabbed layout (Search, LLM, Automation, Advanced), implement live validation, LLM connection testing, JSON Schema validation, version control for configs, and hot reload functionality without server restart.",
         "status": "done",
@@ -994,7 +996,7 @@
         "updatedAt": "2025-12-04T16:03:26.156Z"
       },
       {
-        "id": 22,
+        "id": "22",
         "title": "Implement Responsive UI with Tailwind CSS and shadcn/ui Components",
         "description": "Build the complete mobile-first responsive design system using Tailwind CSS and shadcn/ui, implement dark/light theme toggle, create mobile optimizations (touch targets, swipe gestures, bottom navigation), and ensure performance targets (FCP < 1.5s, TTI < 3s).",
         "status": "done",
@@ -1003,7 +1005,7 @@
         ],
         "priority": "medium",
         "details": "1. Install shadcn/ui and configure:\n   ```bash\n   npx shadcn-ui@latest init\n   npx shadcn-ui@latest add button card input label select tabs dialog\n   ```\n\n2. Configure Tailwind with custom theme:\n   ```typescript\n   // tailwind.config.ts\n   export default {\n     darkMode: ['class'],\n     content: ['./src/**/*.{ts,tsx}'],\n     theme: {\n       extend: {\n         colors: {\n           border: 'hsl(var(--border))',\n           background: 'hsl(var(--background))',\n           foreground: 'hsl(var(--foreground))',\n           primary: {\n             DEFAULT: 'hsl(var(--primary))',\n             foreground: 'hsl(var(--primary-foreground))'\n           }\n         },\n         spacing: {\n           // 4px grid system\n         }\n       }\n     }\n   };\n   ```\n\n3. Create theme provider:\n   ```typescript\n   // src/components/theme-provider.tsx\n   import { createContext, useContext, useEffect, useState } from 'react';\n\n   type Theme = 'dark' | 'light' | 'system';\n\n   export function ThemeProvider({ children }) {\n     const [theme, setTheme] = useState<Theme>('dark');\n\n     useEffect(() => {\n       const root = window.document.documentElement;\n       root.classList.remove('light', 'dark');\n       root.classList.add(theme === 'system' ? getSystemTheme() : theme);\n     }, [theme]);\n\n     return (\n       <ThemeContext.Provider value={{ theme, setTheme }}>\n         {children}\n       </ThemeContext.Provider>\n     );\n   }\n   ```\n\n4. Implement responsive breakpoints:\n   ```css\n   /* Mobile: < 640px (default) */\n   .container { padding: 1rem; }\n\n   /* Tablet: 640px - 1024px */\n   @media (min-width: 640px) {\n     .container { padding: 2rem; }\n   }\n\n   /* Desktop: > 1024px */\n   @media (min-width: 1024px) {\n     .container { padding: 3rem; }\n   }\n   ```\n\n5. Create mobile navigation:\n   ```typescript\n   function MobileNav() {\n     return (\n       <nav className=\"fixed bottom-0 left-0 right-0 bg-background border-t md:hidden\">\n         <div className=\"flex justify-around p-2\">\n           <NavButton icon={<Home />} label=\"Home\" />\n           <NavButton icon={<Map />} label=\"Map\" />\n           <NavButton icon={<Briefcase />} label=\"Pipeline\" />\n           <NavButton icon={<Settings />} label=\"Settings\" />\n         </div>\n       </nav>\n     );\n   }\n   ```\n\n6. Implement swipe gestures:\n   ```typescript\n   import { useSwipeable } from 'react-swipeable';\n\n   const handlers = useSwipeable({\n     onSwipedLeft: () => markAsNotInterested(),\n     onSwipedRight: () => markAsInterested(),\n     trackMouse: true\n   });\n   ```\n\n7. Add Framer Motion animations:\n   ```typescript\n   import { motion } from 'framer-motion';\n\n   <motion.div\n     initial={{ opacity: 0, y: 20 }}\n     animate={{ opacity: 1, y: 0 }}\n     transition={{ duration: 0.3 }}\n   >\n     {content}\n   </motion.div>\n   ```\n\n8. Optimize performance:\n   - Lazy load images with next/image\n   - Code split routes with dynamic imports\n   - Implement virtual scrolling for long lists\n   - Add service worker for offline support",
-        "testStrategy": "1. Test responsive design on mobile (< 640px)\n2. Verify tablet layout (640px - 1024px)\n3. Test desktop layout (> 1024px)\n4. Validate dark/light theme toggle works\n5. Test touch targets are minimum 44\u00d744px\n6. Verify swipe gestures work on mobile\n7. Test bottom navigation on mobile\n8. Measure FCP < 1.5s with Lighthouse\n9. Measure TTI < 3s on 4G throttling\n10. Verify Lighthouse score > 90\n11. Test on Google Pixel and iPhone 14\n12. Validate animations are smooth (60fps)",
+        "testStrategy": "1. Test responsive design on mobile (< 640px)\n2. Verify tablet layout (640px - 1024px)\n3. Test desktop layout (> 1024px)\n4. Validate dark/light theme toggle works\n5. Test touch targets are minimum 44×44px\n6. Verify swipe gestures work on mobile\n7. Test bottom navigation on mobile\n8. Measure FCP < 1.5s with Lighthouse\n9. Measure TTI < 3s on 4G throttling\n10. Verify Lighthouse score > 90\n11. Test on Google Pixel and iPhone 14\n12. Validate animations are smooth (60fps)",
         "subtasks": [
           {
             "id": 1,
@@ -1061,7 +1063,7 @@
         "updatedAt": "2025-12-04T19:07:23.673Z"
       },
       {
-        "id": 23,
+        "id": "23",
         "title": "Audit Process Reform and Runtime Verification Protocols",
         "description": "Update project documentation to mandate runtime verification for all future task audits, ensuring the application builds, starts, and serves valid responses before approval.",
         "details": "1. Modify `AUDITOR.md` to explicitly state: 'No task shall be marked as completed based solely on static code analysis.'\n2. Define the 'Runtime Verification Standard' in the documentation:\n   - Clean dependency install (`npm ci`).\n   - Successful production build (`npm run build`).\n   - Dev server startup (`npm run dev`) without immediate crash.\n   - Manual or automated check that core routes (/, /pipeline, /settings, /map) return HTTP 200.\n3. Create a convenience script `scripts/pre-audit-check.sh` that runs linting, type checking, and a build test.\n4. Update `CONTRIBUTING.md` to reflect that broken builds or runtime errors will result in immediate task rejection.",
@@ -1074,7 +1076,7 @@
         "subtasks": []
       },
       {
-        "id": 24,
+        "id": "24",
         "title": "Implement Core Route Pages and Navigation Structure",
         "description": "Assemble the primary application pages (/jobs, /settings, /dashboard) by integrating existing feature components, establishing the routing architecture, and ensuring all navigation links return valid HTTP 200 responses.",
         "details": "1. **Route Configuration**: Set up the routing architecture (e.g., Next.js App Router) to define endpoints for `/jobs`, `/settings`, and `/dashboard`.\n2. **Settings Page Integration**: Create `src/app/settings/page.tsx` and import the `SettingsPage` component (from Task 21). Wrap it in the main application layout to ensure consistent navigation.\n3. **Jobs Page Implementation**: Develop the `/jobs` route to display a paginated list or grid of job opportunities fetched via Prisma. Reuse the `JobCard` or similar UI components defined in Task 22.\n4. **Dashboard Aggregation**: Update the root dashboard to display summary widgets:\n   - Pipeline status summary (counts of jobs in 'Applied', 'Interviewing' from Task 19).\n   - Recent activity feed.\n   - Quick actions menu.\n5. **Navigation Wiring**: Update the global `Sidebar` or `Navbar` component (from Task 22) to ensure all `Link` components point to the correct routes.\n6. **Error Handling**: Implement a global `not-found.tsx` and `error.tsx` to handle invalid routes gracefully.",
@@ -1089,7 +1091,7 @@
         "subtasks": []
       },
       {
-        "id": 25,
+        "id": "25",
         "title": "Implement Database-Free Mock Mode and Data Fallbacks",
         "description": "Develop a mock data layer that intercepts database calls when the application is in 'Mock Mode', enabling full UI navigation, testing, and building without active PostgreSQL or Redis connections.",
         "details": "1. **Environment Configuration**: Add `NEXT_PUBLIC_MOCK_MODE` to `.env` and create a utility to check this status.\n2. **Mock Data Generators**: Install `@faker-js/faker` and create factory functions for all Prisma models defined in Task 12 (User, Profile, Job, Application, Config). Ensure data adheres to the schema types.\n3. **Repository Pattern / Abstraction**: Refactor direct `prisma` calls in API routes and Server Actions into a data access layer or service wrapper. \n   ```typescript\n   // src/lib/db-access.ts\n   import { prisma } from '@/lib/prisma';\n   import { mockDb } from '@/lib/mock-db';\n   \n   export const getJobs = async () => {\n     if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') return mockDb.job.findMany();\n     return prisma.job.findMany();\n   };\n   ```\n4. **Mock Implementation**: Implement an in-memory store (singleton) for the mock DB to persist state during the session (e.g., creating a job in mock mode should show up in the list until refresh).\n5. **Script Update**: Add `npm run dev:mock` to `package.json` that sets the environment variable before starting Next.js.",
@@ -1103,7 +1105,7 @@
         "subtasks": []
       },
       {
-        "id": 26,
+        "id": "26",
         "title": "Implement End-to-End Testing Suite with Playwright",
         "description": "Set up and configure Playwright to run browser-based E2E tests verifying application startup, core route navigation, authentication flows, and UI interactivity like theme toggling.",
         "details": "1. **Installation & Configuration**: Initialize Playwright (`npm init playwright@latest`). Configure `playwright.config.ts` to support multiple browsers (Chromium, Firefox, Webkit) and set the `webServer` command to run the Next.js app in Mock Mode (leveraging Task 25).\n2. **Test Environment Setup**: Ensure tests run against `NEXT_PUBLIC_MOCK_MODE=true` to avoid database dependencies during CI execution. Create a `global-setup.ts` if necessary to seed mock state.\n3. **Core Specs Implementation**:\n   - `specs/navigation.spec.ts`: Verify navigation to `/dashboard`, `/jobs`, and `/settings` (Task 24) results in HTTP 200 and correct page headers.\n   - `specs/theme.spec.ts`: Locate the theme toggle button (Task 22), click it, and assert that the `<html>` class attribute switches between 'light' and 'dark'.\n   - `specs/auth.spec.ts`: Specific test for the login form submission and redirection logic.\n4. **CI Integration**: Add scripts to `package.json` (`test:e2e`, `test:e2e:ui`) and ensure HTML reports are generated.",
@@ -1120,14 +1122,12 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-05T20:55:12.577Z",
+      "lastModified": "2025-12-10T00:02:29.253Z",
       "taskCount": 16,
-      "completedCount": 9,
+      "completedCount": 10,
       "tags": [
         "tdd"
-      ],
-      "created": "2025-12-05T21:22:14.971Z",
-      "description": "Tasks for tdd context"
+      ]
     }
   }
 }

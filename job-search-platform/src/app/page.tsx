@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import AuthStatus from '@/components/auth-status';
 import { Button } from '@/components/ui/button';
+import type { Route } from 'next';
 
 const stats = [
   { label: 'Jobs Found', value: '127', change: '+12 today' },
@@ -45,13 +46,13 @@ export default function Home() {
       <div className="rounded-lg border bg-card p-6">
         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
         <div className="flex flex-wrap gap-3">
-          <Link href="/jobs">
+          <Link href={"/jobs" as Route}>
             <Button>🔍 Browse Jobs</Button>
           </Link>
-          <Link href="/pipeline">
+          <Link href={"/pipeline" as Route}>
             <Button variant="outline">📋 View Pipeline</Button>
           </Link>
-          <Link href="/settings">
+          <Link href={"/settings" as Route}>
             <Button variant="outline">⚙️ Settings</Button>
           </Link>
           <Button variant="outline">📄 Update Resume</Button>
@@ -82,7 +83,7 @@ export default function Home() {
       <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 text-center">
         <p className="text-sm">
           🚀 <strong>Pro tip:</strong> Set up your job sources in{' '}
-          <Link href="/settings" className="text-primary underline">Settings</Link> to start receiving personalized job matches.
+          <Link href={"/settings" as Route} className="text-primary underline">Settings</Link> to start receiving personalized job matches.
         </p>
       </div>
     </div>

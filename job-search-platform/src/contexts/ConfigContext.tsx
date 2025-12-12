@@ -61,7 +61,7 @@ const DEFAULT_CONFIG: AppConfig = {
     },
     llm: {
         provider: 'openai',
-        model: 'gpt-4o-mini',
+        model: 'gpt-5.2',
         apiKey: '',
         temperature: 0.7,
         maxTokens: 2000,
@@ -111,7 +111,9 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
 
     const updateConfig = async (updates: Partial<AppConfig>) => {
         try {
-            const newConfig = { ...config!, ...updates, lastUpdated: new Date() };
+            // Use current config or default if null
+            const baseConfig = config || DEFAULT_CONFIG;
+            const newConfig = { ...baseConfig, ...updates, lastUpdated: new Date() };
 
             const response = await fetch('/api/config', {
                 method: 'POST',
@@ -121,13 +123,24 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
 
             if (response.ok) {
                 const savedConfig = await response.json();
-                setConfig(savedConfig);
+                // Merge with defaults to ensure all fields present
+                const mergedConfig = {
+                    ...DEFAULT_CONFIG,
+                    ...savedConfig,
+                    search: { ...DEFAULT_CONFIG.search, ...savedConfig.search },
+                    llm: { ...DEFAULT_CONFIG.llm, ...savedConfig.llm },
+                    automation: { ...DEFAULT_CONFIG.automation, ...savedConfig.automation },
+                    lastUpdated: savedConfig.lastUpdated ? new Date(savedConfig.lastUpdated) : new Date(),
+                };
+                setConfig(mergedConfig);
             } else {
-                throw new Error('Failed to save config');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to save config');
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update config');
-            throw err;
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update config';
+            setError(errorMessage);
+            throw new Error(errorMessage);
         }
     };
 

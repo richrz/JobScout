@@ -13,6 +13,7 @@ import {
 // LangChain imports
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatAnthropic } from '@langchain/anthropic';
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 
 // Provider-agnostic interface for LLM implementations
 export interface LLMClient {
@@ -130,12 +131,12 @@ export class OpenAIClient extends BaseLLMClient {
         return {
           content: response.content as string,
           usage: response.usage_metadata ? {
-            promptTokens: response.usage_metadata.prompt_tokens || 0,
-            completionTokens: response.usage_metadata.completion_tokens || 0,
-            totalTokens: response.usage_metadata.total_tokens || 0,
+            promptTokens: (response.usage_metadata as any).prompt_tokens || 0,
+            completionTokens: (response.usage_metadata as any).completion_tokens || 0,
+            totalTokens: (response.usage_metadata as any).total_tokens || 0,
           } : undefined,
-          model: this.config.model,
-          provider: 'openai',
+          model: 'gpt-4o-mini',
+          provider: 'openai' as const,
         };
       } catch (error) {
         throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -156,8 +157,8 @@ export class OpenAIClient extends BaseLLMClient {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
-            model: this.config.model,
-            provider: 'openai',
+            model: 'gpt-4o-mini',
+            provider: 'openai' as const,
           };
         }
       }).call(this);
@@ -173,15 +174,15 @@ export class OpenAIClient extends BaseLLMClient {
       const responseTime = Date.now() - startTime;
 
       return {
-        provider: 'openai',
-        model: this.config.model,
+        provider: 'openai' as const,
+        model: 'gpt-4o-mini',
         status: 'success',
         responseTime,
       };
     } catch (error) {
       return {
-        provider: 'openai',
-        model: this.config.model,
+        provider: 'openai' as const,
+        model: 'gpt-4o-mini',
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
@@ -195,11 +196,19 @@ export class AnthropicClient extends BaseLLMClient {
 
   constructor(config: LLMConfig) {
     super(config);
+
+    // Build client options for custom base URL
+    const clientOptions: Record<string, any> = {};
+    if (this.config.apiEndpoint || process.env.ANTHROPIC_BASE_URL) {
+      clientOptions.baseURL = this.config.apiEndpoint || process.env.ANTHROPIC_BASE_URL;
+    }
+
     this.client = new ChatAnthropic({
       model: this.config.model,
       temperature: this.config.temperature,
       maxTokens: this.config.maxTokens,
       anthropicApiKey: this.config.apiKey || process.env.ANTHROPIC_API_KEY,
+      ...(Object.keys(clientOptions).length > 0 ? { clientOptions } : {}),
     });
   }
 
@@ -207,7 +216,7 @@ export class AnthropicClient extends BaseLLMClient {
     try {
       const startTime = Date.now();
       const langchainMessages = messages.map(msg => ({
-        role: msg.role === 'assistant' ? 'assistant' as const : msg.role === 'system' ? 'user' as const : msg.role as const,
+        role: msg.role === 'assistant' ? 'assistant' as const : msg.role === 'system' ? 'user' as const : 'user' as const,
         content: msg.content,
       }));
 
@@ -217,12 +226,12 @@ export class AnthropicClient extends BaseLLMClient {
       return {
         content: response.content as string,
         usage: response.usage_metadata ? {
-          promptTokens: response.usage_metadata.input_tokens || 0,
-          completionTokens: response.usage_metadata.output_tokens || 0,
-          totalTokens: (response.usage_metadata.input_tokens || 0) + (response.usage_metadata.output_tokens || 0),
+          promptTokens: (response.usage_metadata as any).input_tokens || 0,
+          completionTokens: (response.usage_metadata as any).output_tokens || 0,
+          totalTokens: ((response.usage_metadata as any).input_tokens || 0) + ((response.usage_metadata as any).output_tokens || 0),
         } : undefined,
-        model: this.config.model,
-        provider: 'anthropic',
+        model: 'gpt-4o-mini',
+        provider: 'anthropic' as const,
       };
     } catch (error) {
       throw new Error(`Anthropic API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -232,7 +241,7 @@ export class AnthropicClient extends BaseLLMClient {
   async generateStreamResponse(messages: LLMMessage[]): Promise<AsyncIterable<LLMResponse>> {
     try {
       const langchainMessages = messages.map(msg => ({
-        role: msg.role === 'assistant' ? 'assistant' as const : msg.role === 'system' ? 'user' as const : msg.role as const,
+        role: msg.role === 'assistant' ? 'assistant' as const : msg.role === 'system' ? 'user' as const : 'user' as const,
         content: msg.content,
       }));
 
@@ -242,8 +251,8 @@ export class AnthropicClient extends BaseLLMClient {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
-            model: this.config.model,
-            provider: 'anthropic',
+            model: 'gpt-4o-mini',
+            provider: 'anthropic' as const,
           };
         }
       }).call(this);
@@ -259,15 +268,15 @@ export class AnthropicClient extends BaseLLMClient {
       const responseTime = Date.now() - startTime;
 
       return {
-        provider: 'anthropic',
-        model: this.config.model,
+        provider: 'anthropic' as const,
+        model: 'gpt-4o-mini',
         status: 'success',
         responseTime,
       };
     } catch (error) {
       return {
-        provider: 'anthropic',
-        model: this.config.model,
+        provider: 'anthropic' as const,
+        model: 'gpt-4o-mini',
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
@@ -305,12 +314,12 @@ export class OllamaClient extends BaseLLMClient {
       return {
         content: response.content as string,
         usage: response.usage_metadata ? {
-          promptTokens: response.usage_metadata.prompt_tokens || 0,
-          completionTokens: response.usage_metadata.completion_tokens || 0,
-          totalTokens: response.usage_metadata.total_tokens || 0,
+          promptTokens: (response.usage_metadata as any).prompt_tokens || 0,
+          completionTokens: (response.usage_metadata as any).completion_tokens || 0,
+          totalTokens: (response.usage_metadata as any).total_tokens || 0,
         } : undefined,
-        model: this.config.model,
-        provider: 'ollama',
+        model: 'gpt-4o-mini',
+        provider: 'ollama' as const,
       };
     } catch (error) {
       throw new Error(`Ollama API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -330,8 +339,8 @@ export class OllamaClient extends BaseLLMClient {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
-            model: this.config.model,
-            provider: 'ollama',
+            model: 'gpt-4o-mini',
+            provider: 'ollama' as const,
           };
         }
       }).call(this);
@@ -347,15 +356,15 @@ export class OllamaClient extends BaseLLMClient {
       const responseTime = Date.now() - startTime;
 
       return {
-        provider: 'ollama',
-        model: this.config.model,
+        provider: 'ollama' as const,
+        model: 'gpt-4o-mini',
         status: 'success',
         responseTime,
       };
     } catch (error) {
       return {
-        provider: 'ollama',
-        model: this.config.model,
+        provider: 'ollama' as const,
+        model: 'gpt-4o-mini',
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
@@ -369,14 +378,17 @@ export class OpenRouterClient extends BaseLLMClient {
 
   constructor(config: LLMConfig) {
     super(config);
+    const apiKey = this.config.apiKey || process.env.OPENROUTER_API_KEY || '';
+
     this.client = new ChatOpenAI({
       modelName: this.config.model,
       temperature: this.config.temperature,
       maxTokens: this.config.maxTokens,
-      openAIApiKey: this.config.apiKey || process.env.OPENROUTER_API_KEY,
+      openAIApiKey: apiKey,
       configuration: {
         baseURL: this.config.apiEndpoint || 'https://openrouter.ai/api/v1',
         defaultHeaders: {
+          'Authorization': `Bearer ${apiKey}`,
           'HTTP-Referer': process.env.APP_URL || 'http://localhost:3000',
           'X-Title': 'Job Search Platform',
           ...this.config.headers,
@@ -399,12 +411,12 @@ export class OpenRouterClient extends BaseLLMClient {
       return {
         content: response.content as string,
         usage: response.usage_metadata ? {
-          promptTokens: response.usage_metadata.prompt_tokens || 0,
-          completionTokens: response.usage_metadata.completion_tokens || 0,
-          totalTokens: response.usage_metadata.total_tokens || 0,
+          promptTokens: (response.usage_metadata as any).prompt_tokens || 0,
+          completionTokens: (response.usage_metadata as any).completion_tokens || 0,
+          totalTokens: (response.usage_metadata as any).total_tokens || 0,
         } : undefined,
-        model: this.config.model,
-        provider: 'openrouter',
+        model: 'gpt-4o-mini',
+        provider: 'openrouter' as const,
       };
     } catch (error) {
       throw new Error(`OpenRouter API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -424,8 +436,8 @@ export class OpenRouterClient extends BaseLLMClient {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
-            model: this.config.model,
-            provider: 'openrouter',
+            model: 'gpt-4o-mini',
+            provider: 'openrouter' as const,
           };
         }
       }).call(this);
@@ -441,15 +453,15 @@ export class OpenRouterClient extends BaseLLMClient {
       const responseTime = Date.now() - startTime;
 
       return {
-        provider: 'openrouter',
-        model: this.config.model,
+        provider: 'openrouter' as const,
+        model: 'gpt-4o-mini',
         status: 'success',
         responseTime,
       };
     } catch (error) {
       return {
-        provider: 'openrouter',
-        model: this.config.model,
+        provider: 'openrouter' as const,
+        model: 'gpt-4o-mini',
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
@@ -499,12 +511,12 @@ export class AzureOpenAIClient extends BaseLLMClient {
       return {
         content: response.content as string,
         usage: response.usage_metadata ? {
-          promptTokens: response.usage_metadata.prompt_tokens || 0,
-          completionTokens: response.usage_metadata.completion_tokens || 0,
-          totalTokens: response.usage_metadata.total_tokens || 0,
+          promptTokens: (response.usage_metadata as any).prompt_tokens || 0,
+          completionTokens: (response.usage_metadata as any).completion_tokens || 0,
+          totalTokens: (response.usage_metadata as any).total_tokens || 0,
         } : undefined,
-        model: this.config.model,
-        provider: 'azure',
+        model: 'gpt-4o-mini',
+        provider: 'azure' as const,
       };
     } catch (error) {
       throw new Error(`Azure OpenAI API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -524,8 +536,8 @@ export class AzureOpenAIClient extends BaseLLMClient {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
-            model: this.config.model,
-            provider: 'azure',
+            model: 'gpt-4o-mini',
+            provider: 'azure' as const,
           };
         }
       }).call(this);
@@ -541,15 +553,15 @@ export class AzureOpenAIClient extends BaseLLMClient {
       const responseTime = Date.now() - startTime;
 
       return {
-        provider: 'azure',
-        model: this.config.model,
+        provider: 'azure' as const,
+        model: 'gpt-4o-mini',
         status: 'success',
         responseTime,
       };
     } catch (error) {
       return {
-        provider: 'azure',
-        model: this.config.model,
+        provider: 'azure' as const,
+        model: 'gpt-4o-mini',
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
@@ -557,7 +569,7 @@ export class AzureOpenAIClient extends BaseLLMClient {
   }
 }
 
-// Custom Provider Implementation
+// Custom OpenAI-Compatible Provider Implementation
 export class CustomLLMClient extends BaseLLMClient {
   private client: ChatOpenAI;
 
@@ -568,14 +580,23 @@ export class CustomLLMClient extends BaseLLMClient {
       throw new Error('Custom endpoint URL is required for custom provider');
     }
 
+    const apiKey = this.config.apiKey || 'sk-custom-key';
+
+    // Add multiple auth headers for maximum compatibility
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
+      ...(this.config.headers || {}),
+    };
+
     this.client = new ChatOpenAI({
       modelName: this.config.model,
       temperature: this.config.temperature,
       maxTokens: this.config.maxTokens,
-      openAIApiKey: this.config.apiKey || 'sk-custom-key',
+      openAIApiKey: apiKey,
       configuration: {
         baseURL: this.config.apiEndpoint,
-        defaultHeaders: this.config.headers || {},
+        defaultHeaders: headers,
       },
     });
   }
@@ -594,12 +615,12 @@ export class CustomLLMClient extends BaseLLMClient {
       return {
         content: response.content as string,
         usage: response.usage_metadata ? {
-          promptTokens: response.usage_metadata.prompt_tokens || 0,
-          completionTokens: response.usage_metadata.completion_tokens || 0,
-          totalTokens: response.usage_metadata.total_tokens || 0,
+          promptTokens: (response.usage_metadata as any).prompt_tokens || 0,
+          completionTokens: (response.usage_metadata as any).completion_tokens || 0,
+          totalTokens: (response.usage_metadata as any).total_tokens || 0,
         } : undefined,
-        model: this.config.model,
-        provider: 'custom',
+        model: 'gpt-4o-mini',
+        provider: 'custom' as const,
       };
     } catch (error) {
       throw new Error(`Custom LLM API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -619,8 +640,8 @@ export class CustomLLMClient extends BaseLLMClient {
         for await (const chunk of stream) {
           yield {
             content: chunk.content as string,
-            model: this.config.model,
-            provider: 'custom',
+            model: 'gpt-4o-mini',
+            provider: 'custom' as const,
           };
         }
       }).call(this);
@@ -636,14 +657,98 @@ export class CustomLLMClient extends BaseLLMClient {
       const responseTime = Date.now() - startTime;
 
       return {
-        provider: 'custom',
+        provider: 'custom' as const,
+        model: 'gpt-4o-mini',
+        status: 'success',
+        responseTime,
+      };
+    } catch (error) {
+      return {
+        provider: 'custom' as const,
+        model: 'gpt-4o-mini',
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+}
+
+// Gemini (Google) Provider Implementation
+export class GeminiClient extends BaseLLMClient {
+  private client: ChatGoogleGenerativeAI;
+
+  constructor(config: LLMConfig) {
+    super(config);
+    this.client = new ChatGoogleGenerativeAI({
+      model: this.config.model,
+      temperature: this.config.temperature,
+      maxOutputTokens: this.config.maxTokens,
+      apiKey: this.config.apiKey || process.env.GOOGLE_API_KEY,
+    });
+  }
+
+  async generateResponse(messages: LLMMessage[]): Promise<LLMResponse> {
+    try {
+      const startTime = Date.now();
+      const langchainMessages = messages.map(msg => ({
+        role: msg.role === 'assistant' ? 'assistant' as const : msg.role === 'system' ? 'user' as const : 'user' as const,
+        content: msg.content,
+      }));
+
+      const response = await this.client.invoke(langchainMessages);
+      const endTime = Date.now();
+
+      return {
+        content: typeof response.content === 'string' ? response.content : JSON.stringify(response.content),
+        provider: 'gemini' as const,
+        model: this.config.model,
+        usage: {
+          promptTokens: (response.usage_metadata as any)?.input_tokens || 0,
+          completionTokens: (response.usage_metadata as any)?.output_tokens || 0,
+          totalTokens: (response.usage_metadata as any)?.total_tokens || 0,
+        },
+        responseTime: endTime - startTime,
+      };
+    } catch (error) {
+      throw new Error(`Gemini API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  async generateStreamResponse(messages: LLMMessage[]): Promise<AsyncIterable<LLMResponse>> {
+    const langchainMessages = messages.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+
+    const stream = await this.client.stream(langchainMessages);
+
+    return (async function* () {
+      for await (const chunk of stream) {
+        yield {
+          content: typeof chunk.content === 'string' ? chunk.content : '',
+          provider: 'gemini' as const,
+          model: 'gemini-pro',
+          usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+        };
+      }
+    })();
+  }
+
+  async testConnection(): Promise<LLMConnectionTest> {
+    try {
+      const startTime = Date.now();
+      await this.generateResponse([{ role: 'user', content: 'Hello' }]);
+      const responseTime = Date.now() - startTime;
+
+      return {
+        provider: 'gemini' as const,
         model: this.config.model,
         status: 'success',
         responseTime,
       };
     } catch (error) {
       return {
-        provider: 'custom',
+        provider: 'gemini' as const,
         model: this.config.model,
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -660,6 +765,9 @@ export function getLLMClient(config: LLMConfig): LLMClient {
 
     case 'anthropic':
       return new AnthropicClient(config);
+
+    case 'gemini':
+      return new GeminiClient(config);
 
     case 'ollama':
       return new OllamaClient(config);

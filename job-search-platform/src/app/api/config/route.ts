@@ -11,7 +11,7 @@ export async function GET() {
         if (!config) {
             return NextResponse.json({
                 search: { cities: [], keywords: [], categories: [], excludeKeywords: [], recencyDays: 30 },
-                llm: { provider: 'openai', model: 'gpt-4o-mini', apiKey: '', temperature: 0.7, maxTokens: 2000 },
+                llm: { provider: 'openai', model: 'gpt-5.2', apiKey: '', temperature: 0.7, maxTokens: 2000 },
                 automation: { dailyApplicationLimit: 20, autoApply: false, requireManualReview: true },
                 version: 1,
                 lastUpdated: new Date(),
@@ -39,12 +39,26 @@ export async function POST(request: Request) {
         let config = await prisma.config.findFirst();
 
         if (!config) {
+            // First, get or create a default user for single-user mode
+            let defaultUser = await prisma.user.findFirst({
+                where: { email: 'default@localhost' }
+            });
+
+            if (!defaultUser) {
+                defaultUser = await prisma.user.create({
+                    data: {
+                        email: 'default@localhost',
+                        name: 'Default User',
+                    }
+                });
+            }
+
             config = await prisma.config.create({
                 data: {
-                    userId: 'default-user',
-                    searchParams: body.search,
-                    llmConfig: body.llm,
-                    dailyCaps: body.automation,
+                    userId: defaultUser.id,
+                    searchParams: body.search || {},
+                    llmConfig: body.llm || {},
+                    dailyCaps: body.automation || {},
                     version: 1,
                 },
             });

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import type { Route } from 'next';
+import { JobDetailClient } from '@/components/jobs/JobDetailClient';
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -14,10 +16,17 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         notFound();
     }
 
+    // Serialize the job for client component
+    const serializedJob = {
+        ...job,
+        postedAt: job.postedAt.toISOString(),
+        createdAt: job.createdAt.toISOString(),
+    };
+
     return (
         <div className="container mx-auto py-8">
             <div className="mb-6">
-                <Link href="/jobs">
+                <Link href={"/jobs" as Route}>
                     <Button variant="ghost" size="sm">← Back to Jobs</Button>
                 </Link>
             </div>
@@ -57,10 +66,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     <p className="whitespace-pre-wrap">{job.description}</p>
                 </div>
 
-                <div className="mt-8 pt-6 border-t flex gap-4">
-                    <Button size="lg">Apply Now</Button>
-                    <Button size="lg" variant="outline">Save Job</Button>
-                </div>
+                {/* Action Buttons */}
+                <JobDetailClient job={serializedJob} />
             </div>
         </div>
     );

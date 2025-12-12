@@ -1,4 +1,4 @@
-export type LLMProvider = 'openai' | 'anthropic' | 'ollama' | 'openrouter' | 'azure' | 'custom';
+export type LLMProvider = 'openai' | 'anthropic' | 'gemini' | 'ollama' | 'openrouter' | 'azure' | 'custom';
 
 export type ExaggerationLevel = 'conservative' | 'balanced' | 'strategic';
 
@@ -14,6 +14,8 @@ export interface LLMConfig {
   azureDeployment?: string;
   // Custom headers for advanced configurations
   headers?: Record<string, string>;
+  // Retry configuration
+  maxRetries?: number;
 }
 
 export interface LLMResponse {
@@ -25,6 +27,7 @@ export interface LLMResponse {
   };
   model: string;
   provider: LLMProvider;
+  responseTime?: number;
 }
 
 export interface LLMMessage {
@@ -42,10 +45,10 @@ export interface ResumeGenerationRequest {
 export type LLMTestError =
   | string
   | {
-      category: 'authentication' | 'network' | 'configuration' | 'model_unavailable' | 'timeout' | 'unknown';
-      message: string;
-      code?: string;
-    };
+    category: 'authentication' | 'network' | 'configuration' | 'model_unavailable' | 'timeout' | 'unknown';
+    message: string;
+    code?: string;
+  };
 
 export interface LLMConnectionTest {
   provider: LLMProvider;
@@ -115,6 +118,7 @@ export const EXAGGERATION_TEMPERATURE_MAP: Record<ExaggerationLevel, number> = {
 export const DEFAULT_MODELS: Record<LLMProvider, string> = {
   openai: 'gpt-4',
   anthropic: 'claude-3-sonnet-20240229',
+  gemini: 'gemini-3-pro-preview',
   ollama: 'llama2',
   openrouter: 'meta-llama/llama-3-8b-instruct',
   azure: 'gpt-4',
@@ -176,5 +180,12 @@ export const PROVIDER_CONFIGS: Record<LLMProvider, ProviderConfig> = {
     supportedModels: ['custom-model'],
     defaultTemperature: 0.7,
     maxTokens: 4096,
+  },
+  gemini: {
+    requiresApiKey: true,
+    requiresEndpoint: false,
+    supportedModels: ['gemini-3-pro-preview', 'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash'],
+    defaultTemperature: 0.7,
+    maxTokens: 8192,
   },
 };

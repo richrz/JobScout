@@ -26,6 +26,23 @@ jest.mock('@/components/ui/tabs', () => ({
     ),
 }));
 
+// Mock child components that use useConfig
+jest.mock('@/components/settings/SearchSettings', () => ({
+    SearchSettings: () => <div data-testid="search-settings-mock">Search Settings Mock</div>,
+}));
+
+jest.mock('@/components/settings/LLMSettings', () => ({
+    LLMSettings: () => <div data-testid="llm-settings-mock">LLM Settings Mock</div>,
+}));
+
+jest.mock('@/components/settings/AutomationSettings', () => ({
+    AutomationSettings: () => <div data-testid="automation-settings-mock">Automation Settings Mock</div>,
+}));
+
+jest.mock('@/components/settings/AdvancedSettings', () => ({
+    AdvancedSettings: () => <div data-testid="advanced-settings-mock">Advanced Settings Mock</div>,
+}));
+
 describe('SettingsPage', () => {
     it('renders all tab triggers', () => {
         render(<SettingsPage />);

@@ -20,7 +20,7 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
         // For now, use default OpenAI configuration
         const llmConfig = {
             provider: 'openai' as const,
-            model: 'gpt-4o-mini',
+            model: 'gpt-5.2',
             temperature: 0.7,
             maxTokens: 2000,
             apiKey: process.env.OPENAI_API_KEY,
@@ -31,7 +31,7 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
 
         const response = await generator.generateTailoredResume({
             jobDescription: request.jobDescription,
-            profile: request.profile,
+            userProfile: request.profile,
             exaggerationLevel: request.exaggerationLevel,
         });
 

@@ -1,22 +1,105 @@
-Task 16: LLM Integration Layer
+Task 16: LLM Integration Layer - HITL Verification
 ==============================================================================
 
 PREREQUISITES
-  npm run dev &
-  Ensure API keys in Settings page
-
-CHECK 1: LLM client loads
-  Navigate to Settings > LLM Configuration
-  EXPECTED: Provider dropdown visible (OpenAI, Anthropic, Ollama)
-
-CHECK 2: Connection test
-  Enter valid API key, click "Test Connection"
-  EXPECTED: "Connection successful" message
-
-CHECK 3: Resume generation
-  Go to a job detail, click "Generate Resume"
-  EXPECTED: Generated resume text appears in preview
+  1. Ensure dev server running: npm run dev (in job-search-platform/)
+  2. Your working Anthropic credentials:
+     ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic  
+     ANTHROPIC_API_KEY=97912d63033247a2b86c028e5be6a1be.AjT2MPTvJjFJZClg
 
 ==============================================================================
-IF ALL CHECKS PASS, RUN:
+CHECK 1: LLM Settings UI
+  Navigate to: http://localhost:3000/settings
+  Click on "LLM" tab
+  
+  VERIFY:
+  [ ] Provider dropdown visible (OpenAI, Anthropic/Compatible, Ollama, etc.)
+  [ ] Model dropdown/input visible
+  [ ] API Key input field visible
+  
+  RESULT: _______________
+
+CHECK 2: Dynamic Model Fetching
+  In Settings > LLM:
+  1. Select "Anthropic / Compatible" as provider
+  2. Enter API Endpoint: https://api.z.ai/api/anthropic
+  3. Enter API Key: 97912d63033247a2b86c028e5be6a1be.AjT2MPTvJjFJZClg
+  4. Click "🔄 Fetch Models" button
+  
+  EXPECTED: Model dropdown populates with models from your endpoint (GLM, etc.)
+  OR: Shows "✓ X models loaded from endpoint" message
+  
+  ALTERNATIVE: Check "Enter manually" checkbox and type model name directly
+  
+  RESULT: _______________
+
+CHECK 3: Connection Test
+  With settings from CHECK 2:
+  1. Select a model (from fetched list or typed manually)
+  2. Click "🔌 Test Connection"
+  
+  EXPECTED: "✅ Connection successful!" message
+  RESULT: _______________
+
+CHECK 4: Save Settings
+  1. Click "💾 Save Settings" button
+  2. VERIFY: "✅ Settings saved successfully!" message appears
+  3. Refresh the page (F5)
+  4. VERIFY: Settings are preserved (Anthropic selected, endpoint/key saved)
+  
+  RESULT: _______________
+
+CHECK 5: Generate Resume Button Exists
+  Navigate to any job detail page: http://localhost:3000/jobs
+  Click on any job to view details
+  
+  VERIFY:
+  [ ] "✨ Generate Resume" button visible  
+  [ ] Exaggeration level dropdown visible (Conservative, Balanced, Strategic)
+  [ ] Apply Now and Save Job buttons also present
+  
+  RESULT: _______________
+
+CHECK 6: Resume Generation Works
+  On a job detail page:
+  1. Select exaggeration level (e.g., "Balanced")
+  2. Click "✨ Generate Resume" button
+  
+  EXPECTED: Resume content appears below, tailored to the job
+  OR ERROR: "Please set up your profile first" (if no profile exists - go to /profile)
+  
+  RESULT: _______________
+
+==============================================================================
+SUMMARY
+  [ ] CHECK 1 - LLM Settings UI: PASS / FAIL
+  [ ] CHECK 2 - Dynamic Model Fetch: PASS / FAIL  
+  [ ] CHECK 3 - Connection Test: PASS / FAIL
+  [ ] CHECK 4 - Save Settings: PASS / FAIL
+  [ ] CHECK 5 - Generate Resume Button: PASS / FAIL
+  [ ] CHECK 6 - Resume Generation: PASS / FAIL
+
+IF ALL CHECKS PASS:
   npx task-master set-status --id=16 --status=done
+
+==============================================================================
+NEW FEATURES:
+- "🔄 Fetch Models" button queries your endpoint for available models
+- "Enter manually" checkbox lets you type any model name directly
+- Supports OpenAI-compatible /v1/models and Ollama /models endpoints
+- Custom base URL for Anthropic-compatible APIs (z.ai, GLM, etc.)
+
+==============================================================================
+PROVIDER STATUS (Verified Dec 2025):
+  ✅ OpenAI       - Uses OPENAI_API_KEY from .env
+  ✅ Anthropic    - Works with z.ai endpoint (https://api.z.ai/api/anthropic)
+  ✅ Gemini       - Uses GOOGLE_API_KEY (same as Maps key)
+  ✅ OpenRouter   - Uses OPENROUTER_API_KEY from .env
+  ✅ Custom       - Works with z.ai coding endpoint (https://api.z.ai/api/coding/paas/v4/)
+  ⚠️ Azure OpenAI - NOT TESTED (no GPT model deployments in Azure account)
+  ⚠️ Ollama       - Local only (requires Ollama server running locally)
+
+NOTE: Azure OpenAI requires creating model deployments in Azure Portal first.
+      The deskwiseio account has no deployments. The jbs-rg-resource account 
+      has Claude models deployed but is AIServices type, not OpenAI type.
+==============================================================================

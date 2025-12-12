@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Briefcase, List, Settings } from 'lucide-react';
+import type { Route } from 'next';
 
 const navItems = [
     { href: '/', label: 'Dashboard', icon: Home },
@@ -25,10 +26,10 @@ export function MobileNav() {
                     return (
                         <Link
                             key={item.href}
-                            href={item.href}
+                            href={item.href as Route}
                             className={`flex flex-col items-center justify-center gap-1 px-3 py-2 min-h-[44px] min-w-[44px] rounded-lg transition-colors ${isActive
-                                    ? 'text-primary bg-primary/10'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                                ? 'text-primary bg-primary/10'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                                 }`}
                         >
                             <Icon className="h-5 w-5" />

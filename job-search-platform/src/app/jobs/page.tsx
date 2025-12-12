@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import type { Route } from 'next';
 
 // Server Component
 export default async function JobsPage() {
@@ -59,7 +60,7 @@ export default async function JobsPage() {
                         </div>
                         <div className="mt-4 flex gap-2">
                             <Button size="sm" variant="outline" asChild>
-                                <Link href={`/jobs/${job.id}`}>View Details</Link>
+                                <Link href={`/jobs/${job.id}` as Route}>View Details</Link>
                             </Button>
                             <Button size="sm">Apply</Button>
                         </div>
