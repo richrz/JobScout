@@ -49,7 +49,7 @@ model Job {
   salary          String?
   postedAt        DateTime
   source          String
-  sourceUrl       String
+  sourceUrl       String        @unique
   cityMatch       String?
   distanceMiles   Float?
   compositeScore  Float?

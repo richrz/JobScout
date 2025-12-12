@@ -495,7 +495,7 @@
         "id": "17",
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, persist scraped data to the PostgreSQL database, and integrate the real data feed into the /jobs UI.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           "12"
         ],
@@ -592,10 +592,11 @@
               5,
               6
             ],
-            "details": "Create a `JobService` or repository that accepts the output from the aggregation pipeline. Map the internal job objects to the Prisma `Job` model defined in Task 12. Implement `upsert` logic to handle existing jobs (updating them if changed) and insert new ones. Ensure all fields including location coordinates, salary, and calculated scores are correctly persisted to the database.",
-            "status": "pending",
+            "details": "Create a `JobService` or repository that accepts the output from the aggregation pipeline. Map the internal job objects to the Prisma `Job` model defined in Task 12. Implement `upsert` logic to handle existing jobs (updating them if changed) and insert new ones. Ensure all fields including location coordinates, salary, and calculated scores are correctly persisted to the database.\n<info added on 2025-12-12T23:34:24.519Z>\nCreate job-service.ts with a saveJobs() function that accepts JobListing[] and persists to the DB using Prisma. Add a unique constraint to the sourceUrl field to prevent duplicates. Implement geocoding integration to fetch coordinates. Write comprehensive unit tests. Ensure geocoding API errors are handled gracefully.\n</info added on 2025-12-12T23:34:24.519Z>",
+            "status": "in-progress",
             "testStrategy": "Run the aggregation pipeline and verify that records are created in the local PostgreSQL database. Check for correct field mapping. Verify that re-running the pipeline updates existing records without creating duplicates.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-12T23:34:31.036Z"
           },
           {
             "id": 8,
@@ -609,7 +610,8 @@
             "testStrategy": "Navigate to the `/jobs` page in a production-like environment (non-mock mode). Verify that the list of jobs matches the data in the database. Check that job details (title, company, location) are displayed correctly.",
             "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-12-12T23:34:31.036Z"
       },
       {
         "id": "18",
@@ -1122,7 +1124,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-10T00:02:29.253Z",
+      "lastModified": "2025-12-12T23:34:31.037Z",
       "taskCount": 16,
       "completedCount": 10,
       "tags": [

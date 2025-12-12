@@ -6,6 +6,7 @@
  */
 
 import * as cheerio from 'cheerio';
+import { saveJobs } from './job-service';
 
 export interface JobListing {
     title: string;
@@ -278,10 +279,17 @@ export async function runAggregation(): Promise<void> {
             })
         ]);
 
-        const totalJobs = indeedJobs.length + linkedInJobs.length;
+        const allJobs = [...indeedJobs, ...linkedInJobs];
+
+        // Save jobs to database
+        if (allJobs.length > 0) {
+            await saveJobs(allJobs);
+        }
+
+        const totalJobs = allJobs.length;
         const duration = Date.now() - startTime;
 
-        console.log(`Aggregation completed in ${duration}ms. Fetched ${totalJobs} jobs.`);
+        console.log(`Aggregation completed in ${duration}ms. Fetched and saved ${totalJobs} jobs.`);
 
     } catch (error) {
         console.error('Critical error during aggregation:', error);
