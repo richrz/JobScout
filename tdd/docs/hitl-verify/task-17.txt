@@ -8,15 +8,43 @@ Implement automated job scraping from Indeed, LinkedIn, and company career pages
 - Google Maps API key configured in `.env`
 - Database migrated and seeded
 
-## Verification Checklist
+## Verification Instructions
 
-[ ] **Scraping logic**: Verify TypeScript scrapers (Indeed, LinkedIn) fetch jobs correctly via `npm test` or manual trigger.
-[ ] **Geocoding**: Verify Google Maps API integration returns coordinates and caches results in Redis.
-[ ] **Persistence**: Run the aggregation pipeline and verify new jobs appear in the `Job` table in PostgreSQL.
-[ ] **Deduplication**: Verify that re-running the scraper does not create duplicate entries (check `Job.sourceUrl` unique constraint).
-[ ] **UI Integration**: Open `/jobs` in browser and confirm it displays the specific seeded/scraped jobs (e.g., "AI Developer").
-[ ] **Scheduling**: Verify the cron scheduler is configured (via `scheduler.ts` logic) to run every 6 hours.
-[ ] **Manual Trigger**: Verify `/api/admin/trigger-aggregation` endpoint successfully starts a scrape job.
+### 1. Verify Logic & Database (Automated)
+Run these test commands to confirm the scrapers, geocoding, and database saving logic work correctly:
+
+```bash
+cd ~/code/jobs/job-search-platform
+npm test -- job-scrapers.test.ts job-service.test.ts
+```
+**Success Criteria:** You should see green checkmarks and "Pass".
+
+### 2. Verify UI Display (Manual)
+Start the application server to visually check the data:
+
+```bash
+# In ~/code/jobs/job-search-platform
+npm run dev
+```
+
+Once the server says "Ready", open your browser to:
+**[http://localhost:3000/jobs](http://localhost:3000/jobs)**
+
+**What to check:**
+- [ ] Do you see a list of job cards?
+- [ ] Do you see titles like **"AI Developer"** or **"Sales Engineering"**? (These were seeded).
+- [ ] Does the page say something like **"Found 51 jobs"**?
+
+### 3. Verify Manual Trigger (Optional)
+While the server is still running, open a **new terminal tab** and trigger the scraper manually:
+
+```bash
+curl -X POST http://localhost:3000/api/admin/trigger-aggregation
+```
+
+**Success Criteria:**
+- The command should return a success message.
+- Look at the **first terminal** (where `npm run dev` is running) — you should see logs saying "Starting job aggregation run..." and then "Aggregation completed".
 
 ## If Pass
 Mark task as done in task-master.
