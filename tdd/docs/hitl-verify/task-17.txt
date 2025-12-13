@@ -1,0 +1,22 @@
+# Build Job Aggregation System with TypeScript Scrapers and Geocoding (Task 17)
+
+## Description
+Implement automated job scraping from Indeed, LinkedIn, and company career pages using TypeScript functions (replacing n8n), integrate Google Maps Geocoding API for location processing, persist scraped data to the PostgreSQL database using Prisma, and integrate the real data feed into the /jobs UI.
+
+## Pre-requisites
+- Redis running (for geocoding cache)
+- Google Maps API key configured in `.env`
+- Database migrated and seeded
+
+## Verification Checklist
+
+[ ] **Scraping logic**: Verify TypeScript scrapers (Indeed, LinkedIn) fetch jobs correctly via `npm test` or manual trigger.
+[ ] **Geocoding**: Verify Google Maps API integration returns coordinates and caches results in Redis.
+[ ] **Persistence**: Run the aggregation pipeline and verify new jobs appear in the `Job` table in PostgreSQL.
+[ ] **Deduplication**: Verify that re-running the scraper does not create duplicate entries (check `Job.sourceUrl` unique constraint).
+[ ] **UI Integration**: Open `/jobs` in browser and confirm it displays the specific seeded/scraped jobs (e.g., "AI Developer").
+[ ] **Scheduling**: Verify the cron scheduler is configured (via `scheduler.ts` logic) to run every 6 hours.
+[ ] **Manual Trigger**: Verify `/api/admin/trigger-aggregation` endpoint successfully starts a scrape job.
+
+## If Pass
+Mark task as done in task-master.
