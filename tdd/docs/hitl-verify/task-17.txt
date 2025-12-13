@@ -3,14 +3,27 @@
 ## Description
 Implement automated job scraping from Indeed, LinkedIn, and company career pages using TypeScript functions (replacing n8n), integrate Google Maps Geocoding API for location processing, persist scraped data to the PostgreSQL database using Prisma, and integrate the real data feed into the /jobs UI.
 
-## Pre-requisites
-- Redis running (for geocoding cache)
-- Google Maps API key configured in `.env`
-- Database migrated and seeded
-
 ## Verification Instructions
 
-### 1. Verify Logic & Database (Automated)
+### 1. Prerequisites Setup
+If you are unsure if these are running, execute the following commands in order:
+
+**A. Start Redis and Database (Docker)**
+```bash
+cd ~/code/jobs/job-search-platform
+docker-compose up -d redis db
+```
+*Note: If you see errors about ports being in use, they might already be running. Check with `docker ps`.*
+
+**B. Prepare Database (Migrate & Seed)**
+```bash
+# In ~/code/jobs/job-search-platform
+npx prisma migrate dev
+npx prisma db seed
+```
+*Success if: You see "The seed command has been executed."*
+
+### 2. Verify Logic & Database (Automated)
 Run these test commands to confirm the scrapers, geocoding, and database saving logic work correctly:
 
 ```bash
@@ -19,7 +32,7 @@ npm test -- job-scrapers.test.ts job-service.test.ts
 ```
 **Success Criteria:** You should see green checkmarks and "Pass".
 
-### 2. Verify UI Display (Manual)
+### 3. Verify UI Display (Manual)
 Start the application server to visually check the data:
 
 ```bash
@@ -35,7 +48,7 @@ Once the server says "Ready", open your browser to:
 - [ ] Do you see titles like **"AI Developer"** or **"Sales Engineering"**? (These were seeded).
 - [ ] Does the page say something like **"Found 51 jobs"**?
 
-### 3. Verify Manual Trigger (Optional)
+### 4. Verify Manual Trigger (Optional)
 While the server is still running, open a **new terminal tab** and trigger the scraper manually:
 
 ```bash
