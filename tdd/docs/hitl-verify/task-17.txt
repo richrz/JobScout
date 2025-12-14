@@ -6,58 +6,54 @@ Implement automated job scraping from Indeed, LinkedIn, and company career pages
 ## Verification Instructions
 
 ### 1. Prerequisites Setup
-If you are unsure if these are running, execute the following commands in order:
 
-**A. Start Redis and Database (Docker)**
+**A. Check what's already running**
+```bash
+docker ps --format "table {{.Names}}\t{{.Ports}}" | grep -E "redis|db|postgres"
+```
+*If you see `jobsearch-db` or similar on port 5435, the DB is already running. Skip to Redis.*
+
+**B. Start Redis (if not running)**
 ```bash
 cd ~/code/jobs/job-search-platform
-docker-compose up -d redis db
+docker compose up -d redis
 ```
-*Note: If you see errors about ports being in use, they might already be running. Check with `docker ps`.*
+*Success: Container starts or says "already running".*
 
-**B. Prepare Database (Migrate & Seed)**
+**C. Prepare Database (Migrate & Seed)**
 ```bash
-# In ~/code/jobs/job-search-platform
+cd ~/code/jobs/job-search-platform
 npx prisma migrate dev
 npx prisma db seed
 ```
-*Success if: You see "The seed command has been executed."*
+*Success: You see "The seed command has been executed."*
 
 ### 2. Verify Logic & Database (Automated)
-Run these test commands to confirm the scrapers, geocoding, and database saving logic work correctly:
-
 ```bash
 cd ~/code/jobs/job-search-platform
 npm test -- job-scrapers.test.ts job-service.test.ts
 ```
-**Success Criteria:** You should see green checkmarks and "Pass".
+**Success:** Green checkmarks and "Pass".
 
 ### 3. Verify UI Display (Manual)
-Start the application server to visually check the data:
-
 ```bash
-# In ~/code/jobs/job-search-platform
+cd ~/code/jobs/job-search-platform
 npm run dev
 ```
 
-Once the server says "Ready", open your browser to:
-**[http://localhost:3000/jobs](http://localhost:3000/jobs)**
+Once "Ready", open browser to: **http://localhost:3000/jobs**
 
-**What to check:**
-- [ ] Do you see a list of job cards?
-- [ ] Do you see titles like **"AI Developer"** or **"Sales Engineering"**? (These were seeded).
-- [ ] Does the page say something like **"Found 51 jobs"**?
+**Checklist:**
+- [ ] See a list of job cards?
+- [ ] See titles like **"AI Developer"** or **"Sales Engineering"**?
+- [ ] See **"Found 51 jobs"** (or similar count)?
 
 ### 4. Verify Manual Trigger (Optional)
-While the server is still running, open a **new terminal tab** and trigger the scraper manually:
-
+In a new terminal:
 ```bash
 curl -X POST http://localhost:3000/api/admin/trigger-aggregation
 ```
-
-**Success Criteria:**
-- The command should return a success message.
-- Look at the **first terminal** (where `npm run dev` is running) — you should see logs saying "Starting job aggregation run..." and then "Aggregation completed".
+**Success:** Returns success message. Server terminal shows "Aggregation completed".
 
 ## If Pass
 Mark task as done in task-master.
