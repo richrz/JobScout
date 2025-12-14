@@ -1,0 +1,18 @@
+# Implement Core Route Pages and Navigation Structure (Task 24)
+
+## Description
+Assemble the primary application pages (/jobs, /settings, /dashboard) by integrating existing feature components, establishing the routing architecture, and ensuring all navigation links return valid HTTP 200 responses.
+
+## Pre-requisites
+- Tasks 19, 21, 22 completed
+
+## Verification Checklist
+
+[ ] Route Verification: Manually navigate to `/jobs`, `/settings`, and `/dashboard` to confirm HTTP 200 status and correct rendering.
+[ ] Settings Rendering: Verify that the Settings tabs (Search, LLM, Automation) appear and function within the `/settings` route.
+[ ] Navigation Integrity: Click every link in the main navigation menu to ensure no broken links or client-side routing errors occur.
+[ ] Data Display: Confirm the Jobs page renders a list of jobs (or an empty state) and the Dashboard correctly reflects counts from the Kanban pipeline.
+[ ] Responsiveness: Check that these new pages adhere to the mobile-first design established in Task 22.
+
+## If Pass
+Mark task as done in task-master.

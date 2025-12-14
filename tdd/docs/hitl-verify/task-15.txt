@@ -1,0 +1,25 @@
+# Create Master Profile Builder with Rich Text Editor and Auto-Save (Task 15)
+
+## Description
+Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes. Includes integration of the /profile route, database persistence, and E2E testing.
+
+## Pre-requisites
+- Task 13 completed
+
+## Verification Checklist
+
+[ ] Test auto-save triggers after 30 seconds of inactivity
+[ ] Verify progress calculation updates correctly (0-100%)
+[ ] Test Tiptap editor saves rich text properly
+[ ] Validate resume import with sample PDF (check 80%+ accuracy)
+[ ] Test JSON export/import round-trip
+[ ] Verify all form validations work
+[ ] Test skill tag input (add/remove/edit)
+[ ] Confirm data persists to Profile table
+[ ] Test with incomplete profiles (partial data)
+[ ] Verify proficiency level dropdowns work
+[ ] E2E: Verify user can access /profile and save data
+[ ] E2E: Verify data persistence across sessions
+
+## If Pass
+Mark task as done in task-master.

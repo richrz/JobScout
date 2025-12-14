@@ -1,0 +1,25 @@
+# Build Multi-Step Configuration Wizard with Form Validation (Task 14)
+
+## Description
+Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking, data persistence, and a dedicated /onboarding route verified by E2E tests.
+
+## Pre-requisites
+- Task 13 completed
+
+## Verification Checklist
+
+[ ] Test form validation for each step (invalid inputs rejected)
+[ ] Verify progress indicator updates correctly (0% → 100%)
+[ ] Test auto-save functionality (check DB after 30s)
+[ ] Validate navigation (Back/Next/Skip work correctly)
+[ ] Test city autocomplete with real geocoding API
+[ ] Verify weight sliders sum to 100% validation
+[ ] Test JSON export/import round-trip
+[ ] Confirm data persists to Config table
+[ ] Test wizard completion creates valid config.json
+[ ] Verify tooltips and help text display correctly
+[ ] E2E: Verify full wizard flow loads at /onboarding
+[ ] E2E: Confirm data is saved to DB upon completion
+
+## If Pass
+Mark task as done in task-master.

@@ -1,0 +1,19 @@
+# Implement Database-Free Mock Mode and Data Fallbacks (Task 25)
+
+## Description
+Develop a mock data layer that intercepts database calls when the application is in 'Mock Mode', enabling full UI navigation, testing, and building without active PostgreSQL or Redis connections.
+
+## Pre-requisites
+- Task 12, 21 completed
+- NEXT_PUBLIC_MOCK_MODE=true
+
+## Verification Checklist
+
+[ ] Environment Isolation: Stop all local database containers (PostgreSQL/Redis).
+[ ] Startup Verification: Run `npm run dev:mock` and verify the application starts without connection errors.
+[ ] Navigation Check: Navigate to `/settings` (Task 21) and verify that configuration data loads from the mock source.
+[ ] Interaction Test: Perform a 'write' operation (e.g., update a setting) in mock mode and verify the UI reflects the change immediately (in-memory persistence).
+[ ] Build Verification: Run `npm run build` with mock mode enabled to ensure CI pipelines can pass without a live database.
+
+## If Pass
+Mark task as done in task-master.

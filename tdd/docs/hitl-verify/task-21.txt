@@ -1,0 +1,23 @@
+# Develop Settings Management UI and Configuration Hot Reload (Task 21)
+
+## Description
+Create the comprehensive settings interface with tabbed layout (Search, LLM, Automation, Advanced), implement live validation, LLM connection testing, JSON Schema validation, version control for configs, and hot reload functionality without server restart.
+
+## Pre-requisites
+- Application running
+
+## Verification Checklist
+
+[ ] Test all tabs render correctly
+[ ] Verify live validation shows errors immediately
+[ ] Test LLM connection test button for each provider
+[ ] Validate JSON Schema rejects invalid configs
+[ ] Test version control saves previous configs
+[ ] Verify rollback to previous version works
+[ ] Test hot reload updates UI without refresh
+[ ] Validate reset to defaults restores original config
+[ ] Test export/import round-trip
+[ ] Verify changes persist to database and config.json
+
+## If Pass
+Mark task as done in task-master.

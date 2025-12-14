@@ -1,0 +1,28 @@
+# Create Interactive Map Visualization with Mapbox GL JS (Task 18)
+
+## Description
+Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls. Integrate into the application via the /map route, displaying real job data from the database and accessible via main navigation.
+
+## Pre-requisites
+- Mapbox token configured
+- Job data in database
+
+## Verification Checklist
+
+[ ] Verify map loads with correct initial view
+[ ] Test marker rendering for all jobs
+[ ] Validate color coding (green/yellow/red by score)
+[ ] Test radius circles display correctly
+[ ] Verify clustering works (groups nearby markers)
+[ ] Test popup opens on marker click
+[ ] Validate heatmap toggle functionality
+[ ] Test mobile touch gestures (pinch/zoom)
+[ ] Verify filters update map in real-time
+[ ] Test theme toggle (dark/light mode)
+[ ] Check performance with 500+ markers
+[ ] Verify /map route is accessible
+[ ] Validate real data loads from database
+[ ] Test navigation link works
+
+## If Pass
+Mark task as done in task-master.
