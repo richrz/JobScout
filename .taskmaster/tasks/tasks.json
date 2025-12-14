@@ -725,10 +725,10 @@
               6
             ],
             "details": "Add 'Map' item to the main Navbar/Sidebar, ensure active state highlighting when on the /map route, and verify navigation links work.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Click Map link in navigation and verify correct routing and active state styling.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-14T00:30:27.358Z"
+            "updatedAt": "2025-12-14T00:31:21.553Z"
           },
           {
             "id": 9,
@@ -739,12 +739,13 @@
               7
             ],
             "details": "Implement heatmap layer toggling, add filter UI for status/date/score, and implement dark/light mode switching for the map style.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test toggling heatmap, applying filters updates markers, and switching themes changes map style.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-14T00:31:28.483Z"
           }
         ],
-        "updatedAt": "2025-12-14T00:30:27.358Z"
+        "updatedAt": "2025-12-14T00:31:28.483Z"
       },
       {
         "id": "19",
@@ -1128,7 +1129,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-14T00:30:27.359Z",
+      "lastModified": "2025-12-14T00:31:28.483Z",
       "taskCount": 16,
       "completedCount": 10,
       "tags": [

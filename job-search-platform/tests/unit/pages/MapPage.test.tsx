@@ -223,3 +223,73 @@ describe('MapPage Route - Task 18.6', () => {
         expect(screen.getByText(/MOCK MAP PREVIEW/i)).toBeInTheDocument();
     });
 });
+
+describe('MapPage Advanced Controls - Task 18.9', () => {
+    beforeEach(() => {
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY = 'test-api-key';
+
+        global.google = {
+            maps: {
+                InfoWindow: jest.fn().mockImplementation(() => ({
+                    open: jest.fn(),
+                    close: jest.fn(),
+                    setContent: jest.fn(),
+                    setPosition: jest.fn()
+                })),
+                LatLng: jest.fn(),
+                Circle: jest.fn().mockImplementation(() => ({
+                    setMap: jest.fn()
+                })),
+                visualization: {
+                    HeatmapLayer: jest.fn().mockImplementation(() => ({
+                        setMap: jest.fn(),
+                        setData: jest.fn()
+                    }))
+                }
+            }
+        } as any;
+
+        jest.clearAllMocks();
+    });
+
+    it('should render with heatmap enabled (showHeatmap=true)', () => {
+        const mockJobs: Partial<Job>[] = [{
+            id: '1',
+            title: 'Test Job',
+            company: 'Corp',
+            location: 'SF',
+            latitude: 37.7749,
+            longitude: -122.4194,
+            postedAt: new Date(),
+            source: 'test',
+            sourceUrl: 'https://test.com',
+            createdAt: new Date(),
+            compositeScore: 0.5
+        }];
+
+        render(<JobMap jobs={mockJobs as Job[]} showHeatmap={true} />);
+        expect(screen.getByTestId('google-map')).toBeInTheDocument();
+        // When heatmap is on, no markers should be visible (heatmap replaces them)
+        expect(screen.queryAllByTestId('marker').length).toBe(0);
+    });
+
+    it('should render markers when heatmap is disabled (default)', () => {
+        const mockJobs: Partial<Job>[] = [{
+            id: '1',
+            title: 'Test Job',
+            company: 'Corp',
+            location: 'SF',
+            latitude: 37.7749,
+            longitude: -122.4194,
+            postedAt: new Date(),
+            source: 'test',
+            sourceUrl: 'https://test.com',
+            createdAt: new Date(),
+            compositeScore: 0.5
+        }];
+
+        render(<JobMap jobs={mockJobs as Job[]} showHeatmap={false} />);
+        expect(screen.getByTestId('google-map')).toBeInTheDocument();
+        expect(screen.getAllByTestId('marker').length).toBeGreaterThan(0);
+    });
+});
