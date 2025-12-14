@@ -699,9 +699,10 @@
               1
             ],
             "details": "Create src/app/map/page.tsx (or equivalent), import the JobMap component, ensure proper layout wrapping, and verify route accessibility.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Verify /map route loads the map component correctly without errors.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-14T00:28:27.895Z"
           },
           {
             "id": 7,
@@ -741,7 +742,7 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-12-14T00:17:31.360Z"
+        "updatedAt": "2025-12-14T00:28:27.895Z"
       },
       {
         "id": "19",
@@ -1125,7 +1126,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-14T00:17:31.360Z",
+      "lastModified": "2025-12-14T00:28:27.896Z",
       "taskCount": 16,
       "completedCount": 10,
       "tags": [
