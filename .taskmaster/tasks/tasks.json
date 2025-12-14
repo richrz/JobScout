@@ -699,10 +699,10 @@
               1
             ],
             "details": "Create src/app/map/page.tsx (or equivalent), import the JobMap component, ensure proper layout wrapping, and verify route accessibility.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Verify /map route loads the map component correctly without errors.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-14T00:28:27.895Z"
+            "updatedAt": "2025-12-14T00:29:32.903Z"
           },
           {
             "id": 7,
@@ -712,9 +712,10 @@
               6
             ],
             "details": "Fetch job data using server actions or API hooks, transform database records to GeoJSON format required by Mapbox, handle loading states and empty data scenarios.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Validate that markers on the map correspond to actual records in the database.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-14T00:29:39.459Z"
           },
           {
             "id": 8,
@@ -742,7 +743,7 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-12-14T00:28:27.895Z"
+        "updatedAt": "2025-12-14T00:29:39.459Z"
       },
       {
         "id": "19",
@@ -1126,7 +1127,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-14T00:28:27.896Z",
+      "lastModified": "2025-12-14T00:29:39.459Z",
       "taskCount": 16,
       "completedCount": 10,
       "tags": [

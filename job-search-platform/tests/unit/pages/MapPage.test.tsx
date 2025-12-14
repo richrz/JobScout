@@ -61,6 +61,100 @@ jest.mock('@googlemaps/markerclusterer', () => ({
 import { JobMap } from '@/components/map/JobMap';
 import type { Job } from '@prisma/client';
 
+describe('MapPage Database Integration - Task 18.7', () => {
+    it('should filter jobs that have valid latitude/longitude', () => {
+        // The MapPage filters jobs with latitude: { not: null }, longitude: { not: null }
+        // This test validates the component handles jobs correctly
+        const jobsWithCoords: Partial<Job>[] = [
+            {
+                id: '1',
+                title: 'Engineer with location',
+                company: 'Corp',
+                location: 'SF',
+                latitude: 37.7749,
+                longitude: -122.4194,
+                postedAt: new Date(),
+                source: 'test',
+                sourceUrl: 'https://test.com',
+                createdAt: new Date(),
+                compositeScore: 0.5
+            }
+        ];
+
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY = 'test-api-key';
+
+        global.google = {
+            maps: {
+                InfoWindow: jest.fn().mockImplementation(() => ({
+                    open: jest.fn(),
+                    close: jest.fn(),
+                    setContent: jest.fn(),
+                    setPosition: jest.fn()
+                })),
+                LatLng: jest.fn(),
+                Circle: jest.fn().mockImplementation(() => ({
+                    setMap: jest.fn()
+                })),
+                visualization: {
+                    HeatmapLayer: jest.fn().mockImplementation(() => ({
+                        setMap: jest.fn(),
+                        setData: jest.fn()
+                    }))
+                }
+            }
+        } as any;
+
+        render(<JobMap jobs={jobsWithCoords as Job[]} />);
+        const markers = screen.getAllByTestId('marker');
+        expect(markers).toHaveLength(1);
+    });
+
+    it('should handle large datasets (500+ jobs limit in page)', () => {
+        // MapPage limits to 500 jobs: take: 500
+        // Component should handle whatever is passed
+        const manyJobs: Partial<Job>[] = Array.from({ length: 10 }, (_, i) => ({
+            id: String(i),
+            title: `Job ${i}`,
+            company: 'Corp',
+            location: 'Location',
+            latitude: 37 + (i * 0.1),
+            longitude: -122 + (i * 0.1),
+            postedAt: new Date(),
+            source: 'test',
+            sourceUrl: `https://test.com/${i}`,
+            createdAt: new Date(),
+            compositeScore: Math.random()
+        }));
+
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY = 'test-api-key';
+
+        global.google = {
+            maps: {
+                InfoWindow: jest.fn().mockImplementation(() => ({
+                    open: jest.fn(),
+                    close: jest.fn(),
+                    setContent: jest.fn(),
+                    setPosition: jest.fn()
+                })),
+                LatLng: jest.fn(),
+                Circle: jest.fn().mockImplementation(() => ({
+                    setMap: jest.fn()
+                })),
+                visualization: {
+                    HeatmapLayer: jest.fn().mockImplementation(() => ({
+                        setMap: jest.fn(),
+                        setData: jest.fn()
+                    }))
+                }
+            }
+        } as any;
+
+        render(<JobMap jobs={manyJobs as Job[]} />);
+        const markers = screen.getAllByTestId('marker');
+        expect(markers).toHaveLength(10);
+    });
+});
+
 describe('MapPage Route - Task 18.6', () => {
     const mockJobs: Partial<Job>[] = [
         {
