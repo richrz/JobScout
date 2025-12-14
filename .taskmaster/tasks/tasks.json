@@ -618,7 +618,7 @@
         "id": "18",
         "title": "Create Interactive Map Visualization with Mapbox GL JS",
         "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls. Integrate into the application via the /map route, displaying real job data from the database and accessible via main navigation.",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           "17"
         ],
@@ -739,13 +739,13 @@
               7
             ],
             "details": "Implement heatmap layer toggling, add filter UI for status/date/score, and implement dark/light mode switching for the map style.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test toggling heatmap, applying filters updates markers, and switching themes changes map style.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-14T00:31:28.483Z"
+            "updatedAt": "2025-12-14T00:34:04.759Z"
           }
         ],
-        "updatedAt": "2025-12-14T00:31:28.483Z"
+        "updatedAt": "2025-12-14T00:34:04.759Z"
       },
       {
         "id": "19",
@@ -1129,9 +1129,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-14T00:31:28.483Z",
+      "lastModified": "2025-12-14T00:34:04.759Z",
       "taskCount": 16,
-      "completedCount": 10,
+      "completedCount": 11,
       "tags": [
         "tdd"
       ]
