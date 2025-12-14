@@ -17,6 +17,7 @@ describe('MobileNav', () => {
 
         expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
         expect(screen.getByText(/Jobs/i)).toBeInTheDocument();
+        expect(screen.getByText(/Map/i)).toBeInTheDocument();  // Task 18.8 - Map link
         expect(screen.getByText(/Pipeline/i)).toBeInTheDocument();
         expect(screen.getByText(/Settings/i)).toBeInTheDocument();
     });

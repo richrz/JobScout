@@ -712,10 +712,10 @@
               6
             ],
             "details": "Fetch job data using server actions or API hooks, transform database records to GeoJSON format required by Mapbox, handle loading states and empty data scenarios.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Validate that markers on the map correspond to actual records in the database.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-14T00:29:39.459Z"
+            "updatedAt": "2025-12-14T00:30:20.582Z"
           },
           {
             "id": 8,
@@ -725,9 +725,10 @@
               6
             ],
             "details": "Add 'Map' item to the main Navbar/Sidebar, ensure active state highlighting when on the /map route, and verify navigation links work.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Click Map link in navigation and verify correct routing and active state styling.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-14T00:30:27.358Z"
           },
           {
             "id": 9,
@@ -743,7 +744,7 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-12-14T00:29:39.459Z"
+        "updatedAt": "2025-12-14T00:30:27.358Z"
       },
       {
         "id": "19",
@@ -1127,7 +1128,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-14T00:29:39.459Z",
+      "lastModified": "2025-12-14T00:30:27.359Z",
       "taskCount": 16,
       "completedCount": 10,
       "tags": [

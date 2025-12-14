@@ -3,12 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Briefcase, List, Settings } from 'lucide-react';
+import { Home, Briefcase, List, Settings, MapPin } from 'lucide-react';
 import type { Route } from 'next';
 
 const navItems = [
     { href: '/', label: 'Dashboard', icon: Home },
     { href: '/jobs', label: 'Jobs', icon: Briefcase },
+    { href: '/map', label: 'Map', icon: MapPin },
     { href: '/pipeline', label: 'Pipeline', icon: List },
     { href: '/settings', label: 'Settings', icon: Settings },
 ];
