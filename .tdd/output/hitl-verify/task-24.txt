@@ -1,0 +1,251 @@
+================================================================================
+HITL VERIFICATION: Task 24 - Core Route Pages and Navigation
+================================================================================
+File: .tdd/output/hitl-verify/task-24.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Run this command and wait for the output shown:
+
+  $ npm run dev
+
+Wait for: "Ready on http://localhost:3000"
+
+Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
+
+================================================================================
+TEST 1: Route demo command verifies all routes
+================================================================================
+
+PURPOSE
+  What we're testing: All main routes return HTTP 200
+  Why this matters:   Core navigation must work for users to access features
+
+STEPS
+  1. Open terminal
+  2. Run: npm run demo:routes
+  3. Wait for output to complete
+
+EXPECTED RESULT
+  You should see:
+  - Each route checked with 200 OK status
+  - /dashboard, /jobs, /settings, /map, /pipeline all pass
+  - "All routes verified!" message at end
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 2: Dashboard page displays content
+================================================================================
+
+PURPOSE
+  What we're testing: Root dashboard shows summary widgets
+  Why this matters:   Users need quick overview of their job search
+
+STEPS
+  1. Go to: http://localhost:3000/
+  2. Look at the page content
+
+EXPECTED RESULT
+  You should see:
+  - Dashboard heading or welcome message
+  - Job count or pipeline summary
+  - Navigation menu (sidebar or top nav)
+  - No 404 or error messages
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 3: Jobs page shows job list
+================================================================================
+
+PURPOSE
+  What we're testing: /jobs route displays job listings
+  Why this matters:   Users need to browse available jobs
+
+STEPS
+  1. Go to: http://localhost:3000/jobs
+  2. Look at the page content
+
+EXPECTED RESULT
+  You should see:
+  - "Jobs" heading
+  - List of job cards (or empty state if no jobs)
+  - Each job shows: title, company, location
+  - Filter or search controls
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 4: Settings page has tabs
+================================================================================
+
+PURPOSE
+  What we're testing: /settings route shows tabbed interface
+  Why this matters:   Users need to configure their preferences
+
+STEPS
+  1. Go to: http://localhost:3000/settings
+  2. Look at the page content
+
+EXPECTED RESULT
+  You should see:
+  - "Settings" heading
+  - Tab buttons: "Search", "LLM", "Automation" (or similar)
+  - Clicking tabs changes content
+  - Save button visible
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 5: Navigation links all work
+================================================================================
+
+PURPOSE
+  What we're testing: All nav links navigate without error
+  Why this matters:   Broken links break user experience
+
+STEPS
+  1. Go to: http://localhost:3000/
+  2. Click each link in the navigation menu
+  3. Verify each page loads
+
+EXPECTED RESULT
+  You should see:
+  - Each link navigates to correct page
+  - No 404 errors
+  - No JavaScript console errors
+  - Back button works correctly
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 6: Invalid route shows 404
+================================================================================
+
+PURPOSE
+  What we're testing: Unknown routes show friendly error page
+  Why this matters:   Graceful error handling for mistyped URLs
+
+STEPS
+  1. Go to: http://localhost:3000/this-page-does-not-exist
+  2. Look at the page content
+
+EXPECTED RESULT
+  You should see:
+  - 404 or "Page Not Found" message
+  - Link to return to home/dashboard
+  - NOT a browser error or crash
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+SUMMARY
+================================================================================
+
+File: .tdd/output/hitl-verify/task-24.txt
+Total Tests: 6      Passed: ___    Failed: ___
+
+Overall Result:  [ ] PASS - All tests passed
+                 [ ] FAIL - One or more tests failed
+
+──────────────────────────────────────────────────────────────────────────────
+IF PASS - Copy this EXACTLY to your agent chat:
+──────────────────────────────────────────────────────────────────────────────
+
+✅ HITL VERIFICATION PASSED
+File: .tdd/output/hitl-verify/task-24.txt
+Task: 24 - Core Route Pages and Navigation
+Tests: 6/6 passed
+Result: APPROVED
+
+Please run: npx task-master set-status --id=24 --status=done
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Copy '.tdd/user/B-SETUP-SESSION.txt' to start next   │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+IF FAIL - Copy this EXACTLY to your agent chat (fill in the blanks):
+──────────────────────────────────────────────────────────────────────────────
+
+❌ HITL VERIFICATION FAILED
+File: .tdd/output/hitl-verify/task-24.txt
+Task: 24 - Core Route Pages and Navigation
+Tests: ___/6 passed
+
+FAILED TESTS:
+- TEST [X]: Expected "[expected]" but saw "[actual]"
+
+Please fix these issues and regenerate the HITL test.
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Wait for agent to fix, then re-run verification      │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+
+Verified by: ________________    Date: ________________    Signature: ________

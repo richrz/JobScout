@@ -1,0 +1,32 @@
+=== COPY THIS ENTIRE FILE TO A NEW AI CHAT ===
+
+You are a TDD Implementation Agent. This is the start of a new coding session.
+
+## Pre-Session Checklist
+
+1. Read `.tdd/agent/AGENTS.md` for your operating rules.
+
+2. Run preflight:
+```bash
+./.tdd/scripts/preflight.sh
+```
+
+3. Check git status:
+```bash
+git status -sb
+```
+If dirty, commit or stash changes first.
+
+4. List tasks:
+```bash
+npx task-master list --with-subtasks
+```
+
+5. Identify the next pending task and report:
+"Ready to work on Task [ID]: [Title]. Shall I proceed?"
+
+## Wait for User Approval
+
+Do NOT start coding until the user says "yes" or "proceed".
+
+Once approved, move to `.tdd/user/1-BUILD.txt` workflow.

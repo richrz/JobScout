@@ -1,0 +1,160 @@
+================================================================================
+HITL VERIFICATION: Task 20 - Custom Resume Generation
+================================================================================
+File: .tdd/output/hitl-verify/task-20.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Run this command and wait for the output shown:
+
+  $ npm run dev
+
+Wait for: "Ready on http://localhost:3000"
+
+Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
+
+================================================================================
+TEST 1: Resume page loads
+================================================================================
+
+PURPOSE
+  What we're testing: The /resume route exists and displays the resume editor
+  Why this matters:   Users need to access the resume generation feature
+
+STEPS
+  1. Open your browser
+  2. Go to: http://localhost:3000/resume
+
+EXPECTED RESULT
+  You should see:
+  - "Resume Generator" or similar heading
+  - A text editor area (ProseMirror)
+  - A "Generate" or "Create Resume" button
+  - A preview panel showing formatted resume
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 2: Resume demo command works
+================================================================================
+
+PURPOSE
+  What we're testing: The demo command generates a sample resume
+  Why this matters:   Verifies LLM integration and PDF generation work
+
+STEPS
+  1. Open terminal
+  2. Run: npm run demo:resume
+  3. Wait for output to complete
+
+EXPECTED RESULT
+  You should see:
+  - "Loading sample job" message
+  - "Generating tailored resume" progress
+  - "PDF download ready" with filename
+  - No errors in output
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 3: PDF download works
+================================================================================
+
+PURPOSE
+  What we're testing: User can download generated resume as PDF
+  Why this matters:   Core deliverable - users need the PDF file
+
+STEPS
+  1. Go to: http://localhost:3000/resume
+  2. Click "Generate Resume" (or similar button)
+  3. Wait for resume to generate
+  4. Click "Download PDF" button
+
+EXPECTED RESULT
+  You should see:
+  - Browser downloads a .pdf file
+  - Filename follows pattern: CompanyName-YYYY-MM-DD.pdf
+  - PDF opens and shows formatted resume content
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+SUMMARY
+================================================================================
+
+File: .tdd/output/hitl-verify/task-20.txt
+Total Tests: 3      Passed: ___    Failed: ___
+
+Overall Result:  [ ] PASS - All tests passed
+                 [ ] FAIL - One or more tests failed
+
+──────────────────────────────────────────────────────────────────────────────
+IF PASS - Copy this EXACTLY to your agent chat:
+──────────────────────────────────────────────────────────────────────────────
+
+✅ HITL VERIFICATION PASSED
+File: .tdd/output/hitl-verify/task-20.txt
+Task: 20 - Custom Resume Generation
+Tests: 3/3 passed
+Result: APPROVED
+
+Please run: npx task-master set-status --id=20 --status=done
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Copy '.tdd/user/B-SETUP-SESSION.txt' to start next   │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+IF FAIL - Copy this EXACTLY to your agent chat (fill in the blanks):
+──────────────────────────────────────────────────────────────────────────────
+
+❌ HITL VERIFICATION FAILED
+File: .tdd/output/hitl-verify/task-20.txt
+Task: 20 - Custom Resume Generation
+Tests: ___/3 passed
+
+FAILED TESTS:
+- TEST [X]: Expected "[expected]" but saw "[actual]"
+
+Please fix these issues and regenerate the HITL test.
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Wait for agent to fix, then re-run verification      │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+
+Verified by: ________________    Date: ________________    Signature: ________

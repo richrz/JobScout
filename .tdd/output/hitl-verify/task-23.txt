@@ -1,0 +1,112 @@
+================================================================================
+HITL VERIFICATION: Task 23 - Audit Process Reform
+================================================================================
+File: .tdd/output/hitl-verify/task-23.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Run this command and wait for the output shown:
+
+  $ npm run dev
+
+Wait for: "Ready on http://localhost:3000"
+
+Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
+
+================================================================================
+TEST 1: Audit demo command works
+================================================================================
+
+PURPOSE
+  What we're testing: The audit script runs and produces a report
+  Why this matters:   Automated audits ensure code quality
+
+STEPS
+  1. Open terminal
+  2. Run: npm run demo:audit
+  3. Wait for output to complete
+
+EXPECTED RESULT
+  You should see:
+  - Audit checks listed with ✅ or ❌
+  - "Tests pass" check
+  - "App starts" check (runtime verification)
+  - Score displayed (e.g., "Score: 85/100")
+  - Pass/Fail verdict
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 2: Runtime verification catches crashes
+================================================================================
+
+PURPOSE
+  What we're testing: Audit fails if app doesn't start
+  Why this matters:   Prevents "ghost features" from passing audit
+
+STEPS
+  1. Temporarily break the app (e.g., add syntax error to page.tsx)
+  2. Run: npm run demo:audit
+  3. Check output
+  4. Restore the broken file
+
+EXPECTED RESULT
+  You should see:
+  - "App starts" check shows ❌ FAIL
+  - Overall audit fails
+  - Clear error message about startup failure
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+SUMMARY
+================================================================================
+
+File: .tdd/output/hitl-verify/task-23.txt
+Total Tests: 2      Passed: ___    Failed: ___
+
+Overall Result:  [ ] PASS - All tests passed
+                 [ ] FAIL - One or more tests failed
+
+──────────────────────────────────────────────────────────────────────────────
+IF PASS - Copy this EXACTLY to your agent chat:
+──────────────────────────────────────────────────────────────────────────────
+
+✅ HITL VERIFICATION PASSED
+File: .tdd/output/hitl-verify/task-23.txt
+Task: 23 - Audit Process Reform
+Tests: 2/2 passed
+Result: APPROVED
+
+Please run: npx task-master set-status --id=23 --status=done
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Copy '.tdd/user/B-SETUP-SESSION.txt' to start next   │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+
+Verified by: ________________    Date: ________________    Signature: ________

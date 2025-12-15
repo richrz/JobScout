@@ -1,0 +1,172 @@
+================================================================================
+HITL VERIFICATION: Task 26 - End-to-End Testing with Playwright
+================================================================================
+File: .tdd/output/hitl-verify/task-26.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Ensure Playwright is installed:
+
+  $ npx playwright install
+
+Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
+
+================================================================================
+TEST 1: E2E demo command runs tests
+================================================================================
+
+PURPOSE
+  What we're testing: Playwright tests execute and pass
+  Why this matters:   Automated browser testing catches regressions
+
+STEPS
+  1. Open terminal
+  2. Run: npm run demo:e2e
+  3. Wait for tests to complete
+
+EXPECTED RESULT
+  You should see:
+  - "Running X tests..." message
+  - Individual test results with ✓ or ✗
+  - Test names like "navigation.spec.ts", "theme.spec.ts"
+  - Final summary: "X passed" (all green)
+  - No browsers left hanging open
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 2: Visual test runner works
+================================================================================
+
+PURPOSE
+  What we're testing: Interactive Playwright UI shows tests
+  Why this matters:   Developers can debug failing tests visually
+
+STEPS
+  1. Open terminal
+  2. Run: npx playwright test --ui
+  3. A browser window should open with Playwright UI
+
+EXPECTED RESULT
+  You should see:
+  - Playwright Test UI opens
+  - Test list visible in sidebar
+  - Can click to run individual tests
+  - Tests show browser actions as they run
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 3: Tests work without database (Mock Mode)
+================================================================================
+
+PURPOSE
+  What we're testing: E2E tests run using mock mode
+  Why this matters:   CI pipelines need to run without database
+
+STEPS
+  1. Stop any running database containers
+  2. Run: npm run demo:e2e
+  3. Tests should still pass
+
+EXPECTED RESULT
+  You should see:
+  - Tests pass without database
+  - No Prisma connection errors
+  - "MOCK_MODE=true" environment used
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 4: HTML report generated
+================================================================================
+
+PURPOSE
+  What we're testing: Playwright generates a viewable report
+  Why this matters:   CI needs artifact for failed test analysis
+
+STEPS
+  1. After running tests, run: npx playwright show-report
+  2. A browser should open with the HTML report
+
+EXPECTED RESULT
+  You should see:
+  - HTML report opens in browser
+  - Shows test results summary
+  - Can click into individual tests
+  - Shows screenshots for failures (if any)
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+SUMMARY
+================================================================================
+
+File: .tdd/output/hitl-verify/task-26.txt
+Total Tests: 4      Passed: ___    Failed: ___
+
+Overall Result:  [ ] PASS - All tests passed
+                 [ ] FAIL - One or more tests failed
+
+──────────────────────────────────────────────────────────────────────────────
+IF PASS - Copy this EXACTLY to your agent chat:
+──────────────────────────────────────────────────────────────────────────────
+
+✅ HITL VERIFICATION PASSED
+File: .tdd/output/hitl-verify/task-26.txt
+Task: 26 - End-to-End Testing with Playwright
+Tests: 4/4 passed
+Result: APPROVED
+
+Please run: npx task-master set-status --id=26 --status=done
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: All tasks complete! Review .tdd/output/audits/        │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+
+Verified by: ________________    Date: ________________    Signature: ________

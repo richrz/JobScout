@@ -102,25 +102,15 @@ function JobMarkers({ jobs }: { jobs: Job[] }) {
   const clusterer = useRef<MarkerClusterer | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
 
-
-  /* Clustering disabled for debugging
+  // Initialize InfoWindow
   useEffect(() => {
     if (!map) return;
-    if (!clusterer.current) {
-      clusterer.current = new MarkerClusterer({ map });
-    }
     if (!infoWindowRef.current) {
       infoWindowRef.current = new google.maps.InfoWindow({
         maxWidth: 300,
       });
     }
   }, [map]);
-
-  useEffect(() => {
-    clusterer.current?.clearMarkers();
-    clusterer.current?.addMarkers(Object.values(markers));
-  }, [markers]);
-  */
 
   // Simple InfoWindow logic
   const handleMarkerClick = useCallback((job: Job) => {
@@ -186,22 +176,16 @@ function JobHeatmap({ jobs }: { jobs: Job[] }) {
       heatmapRef.current = new google.maps.visualization.HeatmapLayer({
         data: points,
         map: map,
-        radius: 30,
-        opacity: 0.7,
+        radius: 50,
+        opacity: 0.8,
         gradient: [
-          'rgba(0, 255, 255, 0)',
-          'rgba(0, 255, 255, 1)',
-          'rgba(0, 191, 255, 1)',
-          'rgba(0, 127, 255, 1)',
-          'rgba(0, 63, 255, 1)',
-          'rgba(0, 0, 255, 1)',
-          'rgba(0, 0, 223, 1)',
-          'rgba(0, 0, 191, 1)',
-          'rgba(0, 0, 159, 1)',
-          'rgba(0, 0, 127, 1)',
-          'rgba(63, 0, 91, 1)',
-          'rgba(127, 0, 63, 1)',
-          'rgba(191, 0, 31, 1)',
+          'rgba(0, 255, 0, 0)',
+          'rgba(0, 255, 0, 0.5)',
+          'rgba(128, 255, 0, 0.7)',
+          'rgba(255, 255, 0, 0.8)',
+          'rgba(255, 192, 0, 0.9)',
+          'rgba(255, 128, 0, 0.9)',
+          'rgba(255, 64, 0, 1)',
           'rgba(255, 0, 0, 1)'
         ]
       });

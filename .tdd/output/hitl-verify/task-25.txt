@@ -1,0 +1,140 @@
+================================================================================
+HITL VERIFICATION: Task 25 - Database-Free Mock Mode
+================================================================================
+File: .tdd/output/hitl-verify/task-25.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Ensure NO database is running (stop Docker containers if any).
+
+Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
+
+================================================================================
+TEST 1: Mock mode demo command works
+================================================================================
+
+PURPOSE
+  What we're testing: App starts without database connection
+  Why this matters:   Enables demos and CI without database setup
+
+STEPS
+  1. Open terminal
+  2. Run: npm run demo:mock
+  3. Wait for output
+
+EXPECTED RESULT
+  You should see:
+  - "Starting in MOCK MODE..." message
+  - "Mock data loaded: 50 jobs" (or similar count)
+  - "No database connection required!"
+  - Server URL displayed
+  - No Prisma/database connection errors
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 2: App works in mock mode
+================================================================================
+
+PURPOSE
+  What we're testing: All routes functional without database
+  Why this matters:   Users can demo app without infrastructure
+
+STEPS
+  1. With mock mode running (from TEST 1)
+  2. Open browser to: http://localhost:3000/jobs
+  3. Look at the page
+
+EXPECTED RESULT
+  You should see:
+  - Jobs page loads (no errors)
+  - Job cards displayed (mock data)
+  - Clicking a job shows details
+  - No "database connection" errors
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 3: Pipeline works in mock mode
+================================================================================
+
+PURPOSE
+  What we're testing: Kanban board works with in-memory data
+  Why this matters:   Full feature set available without database
+
+STEPS
+  1. With mock mode running
+  2. Go to: http://localhost:3000/pipeline
+  3. Try dragging a job card between columns
+
+EXPECTED RESULT
+  You should see:
+  - Pipeline columns displayed
+  - Cards can be dragged between columns
+  - State updates immediately (in-memory)
+  - No persistence errors
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+SUMMARY
+================================================================================
+
+File: .tdd/output/hitl-verify/task-25.txt
+Total Tests: 3      Passed: ___    Failed: ___
+
+Overall Result:  [ ] PASS - All tests passed
+                 [ ] FAIL - One or more tests failed
+
+──────────────────────────────────────────────────────────────────────────────
+IF PASS - Copy this EXACTLY to your agent chat:
+──────────────────────────────────────────────────────────────────────────────
+
+✅ HITL VERIFICATION PASSED
+File: .tdd/output/hitl-verify/task-25.txt
+Task: 25 - Database-Free Mock Mode
+Tests: 3/3 passed
+Result: APPROVED
+
+Please run: npx task-master set-status --id=25 --status=done
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Copy '.tdd/user/B-SETUP-SESSION.txt' to start next   │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+
+Verified by: ________________    Date: ________________    Signature: ________

@@ -49,6 +49,12 @@ async function main() {
     // but in production/dev we might want to keep them. For seeding test data, clearing is usually safer.
     // However, let's just attempt to create new unique URLs.
 
+    // Add jitter to spread markers apart (±0.05 degrees = ~3 miles)
+    const addJitter = (coord: number | null): number | null => {
+        if (coord === null) return null;
+        return coord + (Math.random() - 0.5) * 0.1;
+    };
+
     const jobsData = Array.from({ length: 50 }).map((_, i) => {
         const role = getRandomElement(roles);
         const company = getRandomElement(companies);
@@ -58,8 +64,8 @@ async function main() {
             title: role,
             company: company,
             location: loc.city,
-            latitude: loc.lat,
-            longitude: loc.lng,
+            latitude: addJitter(loc.lat),
+            longitude: addJitter(loc.lng),
             description: getRandomElement(descriptions),
             salary: Math.random() > 0.3 ? `$${100 + Math.floor(Math.random() * 100)}k - $${200 + Math.floor(Math.random() * 100)}k` : null,
             postedAt: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)), // Last 7 days

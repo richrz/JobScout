@@ -1,0 +1,91 @@
+=== COPY THIS ENTIRE FILE TO A NEW AI CHAT ===
+
+You are the Project Setup Agent. Your job is to initialize this project for TDD development.
+
+## Step 1: Install Dependencies
+Run these commands:
+```bash
+npm install --save-dev task-master-ai
+chmod +x .tdd/scripts/*.sh
+./.tdd/scripts/preflight.sh
+```
+
+## Step 2: Create the PRD
+Ask: "Do you have a PRD? If yes, provide the path. If no, describe your app in 2-3 sentences and I'll create one."
+
+- **If PRD exists elsewhere**: Copy it to `.tdd/PRD.md`
+- **If creating new**: Keep it proportional to project complexity. Simple apps = simple PRD. Write `.tdd/PRD.md` directly without excessive questions.
+
+When creating a PRD, ALWAYS include this section at the end:
+
+```markdown
+## Task Decomposition Rules (For AI Agents)
+
+When breaking down this project into tasks:
+- Each task must be completable by an AI agent in ONE focused session
+- If you're not 95% confident an agent can complete a task without 
+  getting stuck or asking questions, break it down further
+- Prefer many small tasks over few large tasks
+- Each task should have a single, clear outcome
+
+### Demo Command Requirement (MANDATORY)
+
+EVERY major task MUST include a demo command that produces human-readable output.
+
+Format:
+  Task X: [Title]
+  Demo: npm run demo:[task-name]
+  Output: [What the human will see]
+
+Examples:
+  Task 5: Implement physics engine
+  Demo: npm run demo:physics
+  Output: Terminal shows ball position/velocity each frame
+  
+  Task 8: User authentication  
+  Demo: npm run demo:auth
+  Output: Terminal shows token generated, login success
+  
+  Task 12: Payment page
+  Demo: npm run demo:payment  
+  Output: Browser shows checkout form, test payment completes
+
+NO EXCEPTIONS. CLI output counts as visual. Every task proves itself.
+```
+
+Save the PRD to `.tdd/PRD.md`.
+
+## Step 3: Generate Tasks
+```bash
+npx task-master init
+```
+
+3a. **Generate Tasks**
+```bash
+npx task-master parse-prd --input=.tdd/PRD.md
+npx task-master expand --all
+npx task-master list --with-subtasks
+```
+
+## Step 4: Generate Human Verification Tests
+
+**CRITICAL**: Read `.tdd/agent/templates/HITL-STANDARD.md` FIRST. It contains the EXACT format you MUST follow.
+
+For each MAJOR task (top-level), create a file: `.tdd/output/hitl-verify/task-[ID].txt`
+
+The HITL-STANDARD.md file contains:
+- The exact template format (with CHECK sections)
+- BANNED phrases you must NOT use (e.g., "verify it works")
+- REQUIRED elements (exact URLs, click targets, expected text)
+- A complete example to copy
+
+DO NOT use vague instructions. Every check must have:
+- Exact terminal commands to copy-paste
+- Exact browser URLs to visit
+- Exact elements to click (use visible button/link text)
+- Exact expected output (what the user should see)
+
+## Step 5: Report Completion
+When done, say:
+"✅ Project setup complete. X tasks created. HITL tests generated."
+"Next: Copy `.tdd/user/B-SETUP-SESSION.txt` to start your first coding session."

@@ -1,0 +1,48 @@
+=== START HERE ===
+
+Welcome to TDD-in-a-Box. This kit helps you build software with AI agents while keeping YOU in control.
+
+## Quick Reference
+
+📁 You are in: .tdd/user/
+📋 This folder contains prompts you copy-paste to AI chats
+
+## Your Workflow
+
+### First Time Setup
+Copy the contents of `A-SETUP-PROJECT.txt` to a NEW AI chat.
+The agent will create your PRD and generate tasks.
+
+### Each Coding Session
+1. Copy `B-SETUP-SESSION.txt` to a NEW AI chat → Agent claims next task
+2. Copy `1-BUILD.txt` to CONTINUE → Agent builds the feature
+3. Copy `2-AUDIT.txt` to a NEW AI chat → Different agent verifies work
+4. Open `3-APPROVE.txt` and do the checks YOURSELF → You approve
+
+### The Golden Rule
+NEVER let an AI mark a task "done". Only YOU can approve work after verifying it yourself.
+
+## File Guide
+
+| File | When to Use | Who Uses It |
+|------|-------------|-------------|
+| A-SETUP-PROJECT.txt | Once, at project start | You → AI |
+| B-SETUP-SESSION.txt | Start of each coding session | You → AI |
+| 1-BUILD.txt | After session setup | You → AI (same chat) |
+| 2-AUDIT.txt | After build complete | You → NEW AI chat |
+| 3-APPROVE.txt | After audit passes | YOU (no AI) |
+
+## Folder Structure
+
+```
+.tdd/
+├── user/          ← YOU ARE HERE (your prompts)
+├── agent/         ← AI reads these (don't touch)
+├── output/        ← Generated files (audits, tests)
+├── scripts/       ← Helper scripts
+└── guides/        ← Reference documentation
+```
+
+## Need Help?
+
+Read: .tdd/agent/manual.md (the full TDD manual)
