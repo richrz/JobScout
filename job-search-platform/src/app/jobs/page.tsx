@@ -1,7 +1,11 @@
+
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import type { Route } from 'next';
+import { JobCard } from '@/components/jobs/JobCard';
+import { ShellCard } from '@/components/layout/ShellCard';
+import { Page } from '@/components/layout/Page';
+import { Section } from '@/components/layout/Section';
+import { Filter, RefreshCw, Plus } from 'lucide-react';
 
 // Server Component
 export default async function JobsPage() {
@@ -11,69 +15,54 @@ export default async function JobsPage() {
     });
 
     return (
-        <div className="container mx-auto py-6">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Job Listings</h1>
-                    <p className="text-muted-foreground">Found {jobs.length} jobs matching your criteria</p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                        🔄 Refresh
-                    </Button>
-                    <Button size="sm">
-                        + Add Job Source
-                    </Button>
-                </div>
-            </div>
-
-            {/* Filter Buttons (Static for now, but UI preserved) */}
-            <div className="flex gap-2 mb-6">
-                {['All', 'Linkedin', 'Indeed', 'Glassdoor'].map((source) => (
-                    <Button
-                        key={source}
-                        variant={source === 'All' ? 'default' : 'outline'}
-                        size="sm"
-                    >
-                        {source}
-                    </Button>
-                ))}
-            </div>
-
-            {/* Job Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {jobs.map((job) => (
-                    <div key={job.id} className="rounded-lg border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-start mb-3">
-                            <div>
-                                <h3 className="font-semibold text-lg line-clamp-1">{job.title}</h3>
-                                <p className="text-muted-foreground">{job.company}</p>
-                            </div>
-                            <span className="px-2 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
-                                {Math.round((job.compositeScore || 0) * 100)}%
-                            </span>
-                        </div>
-                        <div className="space-y-2 text-sm text-muted-foreground">
-                            <p>📍 {job.location || 'Remote'}</p>
-                            <p>💰 {job.salary || 'Salary not listed'}</p>
-                            <p className="text-xs">Source: {job.source}</p>
-                        </div>
-                        <div className="mt-4 flex gap-2">
-                            <Button size="sm" variant="outline" asChild>
-                                <Link href={`/jobs/${job.id}` as Route}>View Details</Link>
-                            </Button>
-                            <Button size="sm">Apply</Button>
-                        </div>
+        <Page>
+            {/* Header Area */}
+            <Section
+                title="Job Listings"
+                description={`Discovered ${jobs.length} opportunities tailored for you.`}
+                action={
+                    <div className="flex gap-3">
+                        <Button variant="outline" className="gap-2">
+                            <RefreshCw className="w-4 h-4" /> Refresh
+                        </Button>
+                        <Button className="gap-2 shadow-lg shadow-primary/20">
+                            <Plus className="w-4 h-4" /> Add Source
+                        </Button>
                     </div>
-                ))}
-            </div>
+                }
+            >
+                {/* Filters Bar */}
+                <ShellCard className="p-2 flex-row gap-2 overflow-x-auto items-center no-scrollbar min-h-0" variant="default">
+                    <Button variant="ghost" size="sm" className="text-muted-foreground shrink-0">
+                        <Filter className="w-4 h-4 mr-2" /> Filters:
+                    </Button>
+                    {['All', 'LinkedIn', 'Indeed', 'Glassdoor', 'Remote', 'High Pay'].map((filter) => (
+                        <Button
+                            key={filter}
+                            variant={filter === 'All' ? 'secondary' : 'ghost'}
+                            size="sm"
+                            className="rounded-lg shrink-0"
+                        >
+                            {filter}
+                        </Button>
+                    ))}
+                </ShellCard>
 
-            {/* Empty state */}
-            {jobs.length === 0 && (
-                <div className="text-center py-12">
-                    <p className="text-muted-foreground">No jobs found. Try adjusting your search criteria.</p>
+                {/* Job Grid */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {jobs.map((job) => (
+                        <JobCard key={job.id} job={job} />
+                    ))}
                 </div>
-            )}
-        </div>
+
+                {/* Empty state */}
+                {jobs.length === 0 && (
+                    <div className="text-center py-20">
+                        <p className="text-muted-foreground text-lg">No jobs found matching your criteria.</p>
+                        <Button variant="link" className="mt-2">Reset Filters</Button>
+                    </div>
+                )}
+            </Section>
+        </Page>
     );
 }

@@ -11,22 +11,28 @@ export async function parseResume(file: File): Promise<Profile> {
       phone: '555-0123',
       linkedin: 'linkedin.com/in/johndoe'
     },
-    workHistory: [
+    workHistory: [], // Deprecated
+    experiences: [
       {
         id: '1',
         company: 'Tech Corp',
-        role: 'Senior Developer',
+        position: 'Senior Developer',
         startDate: '2020-01',
         endDate: 'Present',
-        description: 'Led frontend team...'
+        current: true,
+        description: 'Led frontend team...',
+        technologies: ['React', 'TypeScript']
       }
     ],
-    education: [
+    education: [], // Deprecated
+    educations: [
       {
         id: '1',
         school: 'University of Tech',
         degree: 'BS Computer Science',
-        year: '2019'
+        field: 'Computer Science',
+        startDate: '2015-09',
+        endDate: '2019-05'
       }
     ],
     skills: ['React', 'TypeScript', 'Node.js', 'AWS', 'Docker'],

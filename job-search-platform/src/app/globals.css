@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    /* Light mode - keeping it clean but consistent with the hue */
-    --background: 222 47% 98%;
-    --foreground: 222 47% 11%;
+    /* Base Colors - Light Mode (Frost Glass) */
+    --background: 210 40% 98%; /* Soft Cool White */
+    --foreground: 222 47% 11%; /* Deep Slate Text */
 
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -14,8 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 221 83% 53%;
-    /* Bright Blue */
+    --primary: 250 100% 65%; /* Violet 500 */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -32,39 +31,39 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    --ring: 250 100% 65%;
 
-    --radius: 1rem;
-    /* 16px radius for that modern feel */
+    --radius: 0.75rem;
 
-    /* Chart/Accent Colors matching the dashboard */
-    --chart-1: 25 95% 53%;
-    /* Orange - Jobs */
-    --chart-2: 217 91% 60%;
-    /* Blue - Applications */
-    --chart-3: 142 71% 45%;
-    /* Green - Interviews */
-    --chart-4: 48 96% 53%;
-    /* Yellow/Gold - Match Score */
-    --chart-5: 262 83% 58%;
-    /* Purple */
+    /* Theme-Specific Gradients (CSS Vars) */
+    --gradient-1: hsla(250, 40%, 90%, 0.4); /* Soft Violet */
+    --gradient-2: hsla(190, 40%, 90%, 0.4); /* Soft Cyan */
+    --gradient-3: hsla(280, 40%, 90%, 0.4); /* Soft Purple */
+    
+    --glass-border: hsla(0, 0%, 100%, 0.5);
+    --glass-bg: hsla(0, 0%, 100%, 0.7);
+
+    /* Chart/Accent Colors */
+    --chart-1: 25 95% 53%; /* Orange */
+    --chart-2: 250 100% 65%; /* Violet */
+    --chart-3: 190 90% 50%; /* Cyan */
+    --chart-4: 150 70% 50%; /* Emerald */
+    --chart-5: 280 85% 60%; /* Purple */
   }
 
   .dark {
-    --background: 222 47% 6%;
-    /* Very dark blue/slate #050b14 */
+    /* Base Colors - Dark Mode (Deep Space) */
+    --background: 224 71% 4%; /* #030712 - Rich Black/Gray */
     --foreground: 210 40% 98%;
 
-    --card: 217 33% 12%;
-    /* #141b25 dark slate card */
+    --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 217 33% 12%;
+    --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
-    /* Blue accent */
-    --primary-foreground: 222 47% 11%;
+    --primary: 250 95% 64%; /* Violet */
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -80,19 +79,22 @@
 
     --border: 217 33% 20%;
     --input: 217 33% 20%;
-    --ring: 224 76% 48%;
-    /* Slightly darker blue ring */
+    --ring: 250 95% 64%;
 
+    /* Theme-Specific Gradients (CSS Vars) */
+    --gradient-1: hsla(250, 40%, 20%, 0.2); /* Deep Violet */
+    --gradient-2: hsla(190, 40%, 20%, 0.15); /* Deep Cyan */
+    --gradient-3: hsla(280, 40%, 20%, 0.15); /* Deep Purple */
+
+    --glass-border: hsla(0, 0%, 100%, 0.1);
+    --glass-bg: hsla(222, 47%, 11%, 0.6);
+
+    /* Vibrant Accents */
     --chart-1: 25 95% 53%;
-    /* Orange - Jobs */
-    --chart-2: 217 91% 60%;
-    /* Blue - Applications */
-    --chart-3: 142 71% 45%;
-    /* Green - Interviews */
+    --chart-2: 250 95% 64%;
+    --chart-3: 190 90% 50%;
     --chart-4: 48 96% 53%;
-    /* Yellow/Gold - Match Score */
-    --chart-5: 262 83% 58%;
-    /* Purple */
+    --chart-5: 280 85% 60%;
   }
 
   * {
@@ -101,15 +103,61 @@
 
   body {
     @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    /* Dynamic Mesh Gradient using CSS Vars */
+    background-image: 
+      radial-gradient(circle at 50% 0%, var(--gradient-1), transparent 50%),
+      radial-gradient(circle at 90% 10%, var(--gradient-2), transparent 40%),
+      radial-gradient(circle at 10% 20%, var(--gradient-3), transparent 40%);
+    background-attachment: fixed;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  /* Noise Texture Overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/noise.svg');
+    background-repeat: repeat;
+    opacity: 0.03; /* Subtler noise */
+    pointer-events: none;
+    z-index: 50;
+    mask-image: linear-gradient(to bottom, transparent, black);
+  }
+
+  .dark body::before {
+    opacity: 0.05; /* Slightly stronger in dark mode */
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-opacity-20 backdrop-blur-lg bg-white/5 border border-white/10;
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .glass-card {
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+  }
+  
+  .glass-card:hover {
+    background-color: hsla(var(--primary), 0.1);
+    border-color: hsla(var(--primary), 0.3);
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground;
+  }
+  
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-400;
   }
 }

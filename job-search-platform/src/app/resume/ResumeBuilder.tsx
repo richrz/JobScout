@@ -28,7 +28,7 @@ const PDFViewer = dynamic(
 );
 
 // Initial empty state
-const initialResume = {
+const initialResumeState = {
     contactInfo: { name: '', email: '', phone: '', location: '' },
     summary: '',
     experience: [],
@@ -42,12 +42,49 @@ interface Job {
     company: string;
 }
 
-export default function ResumeBuilder({ jobs }: { jobs: Job[] }) {
+export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], initialProfile?: any }) {
     const searchParams = useSearchParams();
     const [jobId, setJobId] = useState(searchParams.get('jobId') || '');
-    const [resumeData, setResumeData] = useState<any>(initialResume);
+
+    // Initialize with profile data if available
+    const [resumeData, setResumeData] = useState<any>(() => {
+        if (initialProfile) {
+            return {
+                contactInfo: initialProfile.contactInfo || {},
+                summary: initialProfile.contactInfo?.summary || '', // If summary exists?
+                experience: initialProfile.experiences?.map((e: any) => ({
+                    id: e.id,
+                    company: e.company,
+                    title: e.position,
+                    startDate: e.startDate ? new Date(e.startDate).toISOString().split('T')[0] : '',
+                    endDate: e.endDate ? new Date(e.endDate).toISOString().split('T')[0] : '',
+                    description: e.description
+                })) || [],
+                education: initialProfile.educations?.map((e: any) => ({
+                    id: e.id,
+                    school: e.school,
+                    degree: e.degree,
+                    year: e.startDate ? new Date(e.startDate).getFullYear().toString() : ''
+                })) || [],
+                skills: initialProfile.skills || []
+            };
+        }
+        return initialResumeState;
+    });
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [strategy, setStrategy] = useState('strategic');
+
+    const updateExperience = (index: number, field: string, value: string) => {
+        const newExp = [...(resumeData.experience || [])];
+        newExp[index] = { ...newExp[index], [field]: value };
+        updateResume('experience', newExp);
+    };
+
+    const addExperience = () => {
+        updateResume('experience', [...(resumeData.experience || []), { company: '', title: '', description: '' }]);
+    };
+
 
     const handleEnhance = async () => {
         if (!jobId) {
@@ -56,7 +93,7 @@ export default function ResumeBuilder({ jobs }: { jobs: Job[] }) {
         }
         setLoading(true);
         try {
-            const result = await generateAndPreviewResume(jobId, 'balanced');
+            const result = await generateAndPreviewResume(jobId, strategy as any);
             if (result.success && result.content) {
                 setResumeData(result.content);
             } else {
@@ -71,16 +108,19 @@ export default function ResumeBuilder({ jobs }: { jobs: Job[] }) {
     };
 
     const handleSave = async () => {
+        if (!jobId) {
+            alert('Please select a Job ID first');
+            return;
+        }
         setIsSaving(true);
         try {
-            // Mock Application ID for now if not provided, or we need to find one
-            // In real flow, we probably have an application ID. 
-            // We'll use jobId as a proxy for Application creation if it doesn't exist?
-            // For this task, let's assume valid applicationId is passed or we just pass jobId as dummy
-            const appId = searchParams.get('applicationId') || 'test-app-id';
-            const result = await saveResume(appId, resumeData);
+            // Only pass applicationId if it's a valid ID (from URL)
+            const appId = searchParams.get('applicationId') || undefined;
+
+            const result = await saveResume(jobId, resumeData, appId);
+
             if (result.success) {
-                alert('Resume saved to ' + result.path);
+                alert('Resume saved! You can view it at ' + result.path);
             } else {
                 alert('Failed to save: ' + result.error);
             }
@@ -105,7 +145,7 @@ export default function ResumeBuilder({ jobs }: { jobs: Job[] }) {
     };
 
     return (
-        <div className="flex h-screen flex-col">
+        <div className="flex h-full flex-col">
             <header className="flex items-center justify-between border-b p-4">
                 <h1 className="text-xl font-bold">Resume Builder</h1>
                 <div className="flex gap-2">
@@ -124,6 +164,22 @@ export default function ResumeBuilder({ jobs }: { jobs: Job[] }) {
                             </SelectContent>
                         </Select>
                     </div>
+
+
+                    <div className="flex items-center gap-2">
+                        <Label>AI Strategy:</Label>
+                        <Select value={strategy} onValueChange={setStrategy}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Strategy" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="strict">Strict (Literal)</SelectItem>
+                                <SelectItem value="strategic">Strategic (Smart)</SelectItem>
+                                <SelectItem value="visionary">Visionary (Bold)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <Button onClick={handleEnhance} disabled={loading || !jobId}>
                         {loading ? 'Generating...' : 'Enhance with AI'}
                     </Button>
@@ -137,8 +193,8 @@ export default function ResumeBuilder({ jobs }: { jobs: Job[] }) {
                     >
                         {({ loading }) => (loading ? 'Preparing PDF...' : 'Download PDF')}
                     </PDFDownloadLink>
-                </div>
-            </header>
+                </div >
+            </header >
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Editor Section */}
@@ -199,12 +255,59 @@ export default function ResumeBuilder({ jobs }: { jobs: Job[] }) {
                         </TabsContent>
 
                         <TabsContent value="experience" className="space-y-4">
-                            <Card className="p-4">
-                                <p>Experience editing is currently read-only in this demo version.</p>
-                                <pre className="text-xs bg-slate-100 p-2 mt-2 rounded overflow-auto max-h-64">
-                                    {JSON.stringify(resumeData.experience, null, 2)}
-                                </pre>
-                            </Card>
+                            {(resumeData.experience || []).map((exp: any, index: number) => (
+                                <Card key={index} className="p-4 space-y-4">
+                                    <div className="flex justify-end">
+                                        <Button variant="ghost" size="sm" onClick={() => {
+                                            const newExp = [...resumeData.experience];
+                                            newExp.splice(index, 1);
+                                            updateResume('experience', newExp);
+                                        }}>Remove</Button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label>Company</Label>
+                                            <Input
+                                                value={exp.company || ''}
+                                                onChange={(e) => updateExperience(index, 'company', e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Role</Label>
+                                            <Input
+                                                value={exp.title || ''}
+                                                onChange={(e) => updateExperience(index, 'title', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label>Start</Label>
+                                            <Input
+                                                value={exp.startDate || ''}
+                                                onChange={(e) => updateExperience(index, 'startDate', e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>End</Label>
+                                            <Input
+                                                value={exp.endDate || ''}
+                                                onChange={(e) => updateExperience(index, 'endDate', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Label>Description</Label>
+                                        <textarea
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            rows={4}
+                                            value={exp.description || ''}
+                                            onChange={(e) => updateExperience(index, 'description', e.target.value)}
+                                        />
+                                    </div>
+                                </Card>
+                            ))}
+                            <Button onClick={addExperience} variant="outline" className="w-full">Add Experience</Button>
                         </TabsContent>
 
                         <TabsContent value="skills">
@@ -229,6 +332,6 @@ export default function ResumeBuilder({ jobs }: { jobs: Job[] }) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

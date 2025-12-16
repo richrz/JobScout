@@ -900,6 +900,15 @@ Content Guidelines:
 
   private getExaggerationLevelPrompt(exaggerationLevel: keyof typeof EXAGGERATION_TEMPERATURE_MAP): string {
     switch (exaggerationLevel) {
+      case 'strict':
+        return `TONE GUIDELINES - Strict (Literal) Approach:
+- Adhere strictly to the provided facts
+- Do NOT infer or assume details not explicitly stated
+- Use neutral, objective language
+- Focus purely on verified history
+- Avoid marketing fluff or buzzwords
+- Prioritize absolute accuracy over persuasion`;
+
       case 'conservative':
         return `TONE GUIDELINES - Conservative Approach:
 - Maintain strictly factual, understated language
@@ -921,7 +930,7 @@ Content Guidelines:
 - Balance authenticity with effective self-promotion`;
 
       case 'strategic':
-        return `TONE GUIDELINES - Strategic Approach:
+        return `TONE GUIDELINES - Strategic (Smart) Approach:
 - Use confident, persuasive language that emphasizes impact
 - Employ powerful action verbs (e.g., "led," "drove," "transformed," "pioneered")
 - Highlight achievements with maximum appropriate emphasis
@@ -929,6 +938,16 @@ Content Guidelines:
 - Focus on quantifiable business impact and results
 - Use strategic language that demonstrates leadership and value
 - Emphasize growth, innovation, and business outcomes`;
+
+      case 'visionary':
+        return `TONE GUIDELINES - Visionary (Bold) Approach:
+- Use highly persuasive, forward-looking language
+- Frame experience in terms of potential and future impact
+- Use bold, authoritative action verbs
+- Connect past achievements to future business transformation
+- Emphasize leadership, philosophy, and strategic vision
+- Assume a high level of competence and potential
+- Create a narrative of a game-changing professional`;
 
       default:
         return `TONE GUIDELINES - Professional Approach:

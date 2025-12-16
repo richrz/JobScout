@@ -75,6 +75,11 @@ const styles = StyleSheet.create({
     },
 });
 
+const stripHtml = (html: string) => {
+    if (!html) return '';
+    return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+};
+
 interface ResumeContent {
     contactInfo: {
         name: string;
@@ -122,7 +127,7 @@ export function ResumePDF({ content }: ResumePDFProps) {
                 {/* Summary */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Professional Summary</Text>
-                    <Text>{content.summary}</Text>
+                    <Text>{stripHtml(content.summary)}</Text>
                 </View>
 
                 {/* Experience */}

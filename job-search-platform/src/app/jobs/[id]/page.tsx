@@ -1,10 +1,12 @@
-
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { Route } from 'next';
 import { JobDetailClient } from '@/components/jobs/JobDetailClient';
+import { GlassCard } from '@/components/ui/glass-card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Building2, MapPin, Banknote, CalendarDays, ExternalLink } from 'lucide-react';
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -23,51 +25,70 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         createdAt: job.createdAt.toISOString(),
     };
 
+    const score = Math.round((job.compositeScore || 0) * 100);
+    const scoreColor = score >= 80 ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" 
+        : score >= 60 ? "bg-amber-500/10 text-amber-500 border-amber-500/20" 
+        : "bg-rose-500/10 text-rose-500 border-rose-500/20";
+
     return (
-        <div className="container mx-auto py-8">
-            <div className="mb-6">
+        <div className="container mx-auto py-8 max-w-5xl space-y-6">
+            <div className="flex items-center gap-4 mb-4">
                 <Link href={"/jobs" as Route}>
-                    <Button variant="ghost" size="sm">← Back to Jobs</Button>
+                    <Button variant="ghost" size="sm" className="gap-2">
+                        <ArrowLeft className="w-4 h-4" /> Back to Jobs
+                    </Button>
                 </Link>
             </div>
 
-            <div className="bg-card rounded-lg border shadow-sm p-8">
-                <div className="flex justify-between items-start mb-6">
-                    <div>
-                        <h1 className="text-3xl font-bold mb-2">{job.title}</h1>
-                        <p className="text-xl text-muted-foreground">{job.company}</p>
-                    </div>
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary h-fit">
-                        {Math.round((job.compositeScore || 0) * 100)}% Match
-                    </span>
+            <div className="grid md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-6">
+                    <GlassCard className="p-8" variant="default">
+                        <div className="flex justify-between items-start gap-4">
+                            <div>
+                                <h1 className="text-3xl font-bold tracking-tight mb-2">{job.title}</h1>
+                                <div className="flex items-center gap-3 text-lg text-muted-foreground">
+                                    <Building2 className="w-5 h-5" />
+                                    <span className="font-medium">{job.company}</span>
+                                </div>
+                            </div>
+                            <div className={`flex flex-col items-center justify-center p-3 rounded-2xl border ${scoreColor}`}>
+                                <span className="text-2xl font-bold">{score}%</span>
+                                <span className="text-[10px] uppercase font-bold tracking-wider">Match</span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-3 mt-6">
+                            <Badge variant="secondary" className="px-3 py-1.5 text-sm font-normal gap-2">
+                                <MapPin className="w-4 h-4" /> {job.location || 'Remote'}
+                            </Badge>
+                            <Badge variant="secondary" className="px-3 py-1.5 text-sm font-normal gap-2">
+                                <Banknote className="w-4 h-4" /> {job.salary || 'Salary not listed'}
+                            </Badge>
+                            <Badge variant="secondary" className="px-3 py-1.5 text-sm font-normal gap-2">
+                                <CalendarDays className="w-4 h-4" /> Posted {new Date(job.postedAt).toLocaleDateString()}
+                            </Badge>
+                            <Badge variant="outline" className="px-3 py-1.5 text-sm font-normal gap-2 capitalize">
+                                <ExternalLink className="w-4 h-4" /> {job.source}
+                            </Badge>
+                        </div>
+                    </GlassCard>
+
+                    <GlassCard className="p-8">
+                        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                            Job Description
+                        </h2>
+                        <div className="prose max-w-none dark:prose-invert prose-slate prose-p:text-slate-600 dark:prose-p:text-slate-400">
+                            <p className="whitespace-pre-wrap leading-relaxed">{job.description}</p>
+                        </div>
+                    </GlassCard>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 border-y py-4">
-                    <div>
-                        <span className="text-sm text-muted-foreground block">Location</span>
-                        <span className="font-medium">{job.location || 'Remote'}</span>
-                    </div>
-                    <div>
-                        <span className="text-sm text-muted-foreground block">Salary</span>
-                        <span className="font-medium">{job.salary || 'Not listed'}</span>
-                    </div>
-                    <div>
-                        <span className="text-sm text-muted-foreground block">Posted</span>
-                        <span className="font-medium">{new Date(job.postedAt).toLocaleDateString()}</span>
-                    </div>
-                    <div>
-                        <span className="text-sm text-muted-foreground block">Source</span>
-                        <span className="font-medium capitalize">{job.source}</span>
-                    </div>
+                <div className="md:col-span-1 space-y-6">
+                    <GlassCard className="p-6 sticky top-24">
+                        <h3 className="font-semibold mb-4">Actions</h3>
+                        <JobDetailClient job={serializedJob} />
+                    </GlassCard>
                 </div>
-
-                <div className="prose max-w-none dark:prose-invert">
-                    <h3 className="text-lg font-semibold mb-2">Description</h3>
-                    <p className="whitespace-pre-wrap">{job.description}</p>
-                </div>
-
-                {/* Action Buttons */}
-                <JobDetailClient job={serializedJob} />
             </div>
         </div>
     );

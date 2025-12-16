@@ -29,28 +29,42 @@ function MockMap({ jobs }: { jobs: Job[] }) {
   };
 
   return (
-    <div className="relative w-full h-full bg-slate-100 rounded-lg overflow-hidden border">
-      <div className="absolute inset-0 flex items-center justify-center text-slate-300 font-bold text-4xl select-none">
-        MOCK MAP PREVIEW
+    <div className="relative w-full h-full bg-slate-950 rounded-xl overflow-hidden border border-white/10 shadow-inner">
+      {/* Grid overlay for sci-fi look */}
+      <div className="absolute inset-0" style={{ 
+          backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)', 
+          backgroundSize: '40px 40px' 
+      }}>
       </div>
+
+      <div className="absolute inset-0 flex items-center justify-center text-slate-800 font-bold text-4xl select-none pointer-events-none">
+        GEO-DATA PREVIEW
+      </div>
+      
       {jobs.map(job => {
         if (!job.latitude || !job.longitude) return null;
         const style = getPos(job.latitude, job.longitude);
         if (parseFloat(style.top) < 0 || parseFloat(style.top) > 100) return null; // Out of bounds
         if (parseFloat(style.left) < 0 || parseFloat(style.left) > 100) return null;
 
+        const score = job.compositeScore || 0;
+        const color = score > 0.7 ? 'bg-emerald-500' : score > 0.4 ? 'bg-amber-500' : 'bg-rose-500';
+        const shadow = score > 0.7 ? 'shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'shadow-none';
+
         return (
           <div
             key={job.id}
-            className="absolute w-3 h-3 bg-blue-600 rounded-full border-2 border-white shadow-sm hover:scale-150 transition-transform cursor-pointer"
+            className={`absolute w-2 h-2 ${color} rounded-full ${shadow} hover:scale-150 transition-all cursor-pointer z-10`}
             style={style}
             title={`${job.title} - ${job.company}`}
             onClick={() => alert(`Job: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location}`)}
-          />
+          >
+             <div className={`absolute inset-0 ${color} animate-ping opacity-50 rounded-full`}></div>
+          </div>
         );
       })}
-      <div className="absolute bottom-2 right-2 bg-white/80 p-2 text-xs rounded shadow">
-        Use legitimate API Key for interactive map.
+      <div className="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur border border-white/10 px-3 py-1 text-xs text-slate-400 rounded-full">
+        Interactive Map Disabled (Mock Mode)
       </div>
     </div>
   );
@@ -202,6 +216,88 @@ function JobHeatmap({ jobs }: { jobs: Job[] }) {
   return null;
 }
 
+// Dark Mode Map Styles
+const mapStyles = [
+  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [{ color: "#263c3f" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#6b9a76" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#38414e" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#212a37" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#9ca5b3" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#746855" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#1f2835" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#f3d19c" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "geometry",
+    stylers: [{ color: "#2f3948" }],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#17263c" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#515c6d" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#17263c" }],
+  },
+];
+
 export function JobMap({ jobs, cities, showHeatmap = false }: JobMapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const [isMounted, setIsMounted] = useState(false);
@@ -211,31 +307,32 @@ export function JobMap({ jobs, cities, showHeatmap = false }: JobMapProps) {
   }, []);
 
   if (!isMounted) {
-    return <div className="h-[400px] md:h-[600px] w-full bg-slate-100 rounded-lg animate-pulse" />;
+    return <div className="h-[400px] md:h-[600px] w-full bg-slate-900 rounded-xl animate-pulse border border-white/5" />;
   }
 
   // Use Mock Map if no key or mock key
   if (!apiKey || apiKey.startsWith('mock-')) {
     return (
-      <div className="h-[400px] md:h-[600px] w-full rounded-lg overflow-hidden shadow-lg border border-gray-200 relative">
+      <div className="h-[400px] md:h-[600px] w-full rounded-xl overflow-hidden shadow-2xl relative">
         <MockMap jobs={jobs} />
       </div>
     );
   }
 
   return (
-    <div className="h-[400px] md:h-[600px] w-full rounded-lg overflow-hidden shadow-lg border border-gray-200 relative">
+    <div className="h-[400px] md:h-[600px] w-full rounded-xl overflow-hidden shadow-2xl border border-white/10 relative">
       <APIProvider apiKey={apiKey} libraries={['visualization']}>
         <Map
           defaultCenter={{ lat: 39.8283, lng: -98.5795 }} // Center of USA
           defaultZoom={4}
           mapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "JOB_SEARCH_MAP"}
-          gestureHandling={'greedy'}
+          styles={mapStyles}
           disableDefaultUI={false}
           zoomControl={true}
           streetViewControl={false}
           mapTypeControl={false}
           fullscreenControl={true}
+          gestureHandling={'greedy'}
           className="w-full h-full"
         >
           {showHeatmap ? (

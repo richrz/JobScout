@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useConfig } from '@/contexts/ConfigContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sparkles, Save, Send, FileText } from 'lucide-react';
+import { ATSScore } from '@/components/resume/ATSScore';
+import { Textarea } from '@/components/ui/textarea';
 
 interface SerializedJob {
     id: string;
@@ -30,6 +34,10 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
     const [generatedResume, setGeneratedResume] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [exaggerationLevel, setExaggerationLevel] = useState<'conservative' | 'balanced' | 'strategic'>('balanced');
+    
+    // State for ATS Analysis
+    const [resumeText, setResumeText] = useState('');
+    const [showATS, setShowATS] = useState(false);
 
     const handleGenerateResume = async () => {
         setIsGenerating(true);
@@ -50,6 +58,9 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
 
             if (result.success) {
                 setGeneratedResume(result.content);
+                // Pre-fill ATS analyzer with generated resume
+                setResumeText(result.content);
+                setShowATS(true);
             } else {
                 setError(result.error || 'Failed to generate resume');
             }
@@ -61,64 +72,109 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
     };
 
     return (
-        <div className="mt-8 pt-6 border-t space-y-6">
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4">
-                <Button size="lg">Apply Now</Button>
-                <Button size="lg" variant="outline">Save Job</Button>
+        <div className="space-y-4">
+            <Button size="lg" className="w-full gap-2 shadow-lg shadow-primary/25">
+                <Send className="w-4 h-4" /> Apply Now
+            </Button>
+            <Button size="lg" variant="outline" className="w-full gap-2">
+                <Save className="w-4 h-4" /> Save Job
+            </Button>
 
-                {/* Resume Generation Section */}
-                <div className="flex items-center gap-2">
-                    <select
-                        value={exaggerationLevel}
-                        onChange={(e) => setExaggerationLevel(e.target.value as typeof exaggerationLevel)}
-                        className="border rounded px-3 py-2 text-sm"
-                    >
-                        <option value="conservative">Conservative</option>
-                        <option value="balanced">Balanced</option>
-                        <option value="strategic">Strategic</option>
-                    </select>
+            <div className="border-t border-white/10 my-4 pt-4">
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400" /> AI Resume Tailor
+                </h4>
+                
+                <div className="space-y-3">
+                    <Select value={exaggerationLevel} onValueChange={(val: any) => setExaggerationLevel(val)}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Strategy" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="conservative">Conservative</SelectItem>
+                            <SelectItem value="balanced">Balanced</SelectItem>
+                            <SelectItem value="strategic">Strategic</SelectItem>
+                        </SelectContent>
+                    </Select>
+
                     <Button
                         size="lg"
                         variant="secondary"
+                        className="w-full bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20"
                         onClick={handleGenerateResume}
                         disabled={isGenerating}
                     >
-                        {isGenerating ? '⏳ Generating...' : '✨ Generate Resume'}
+                        {isGenerating ? 'Tailoring...' : 'Generate Tailored CV'}
                     </Button>
                 </div>
             </div>
 
             {/* Error Display */}
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                    <strong>Error:</strong> {error}
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded text-sm">
+                    {error}
                 </div>
             )}
 
             {/* Generated Resume Display */}
             {generatedResume && (
-                <div className="bg-muted rounded-lg p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold">Generated Resume</h3>
+                <div className="mt-4 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="text-xs font-medium text-muted-foreground">Preview</span>
                         <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
+                            className="h-6 text-xs"
                             onClick={() => navigator.clipboard.writeText(generatedResume)}
                         >
-                            📋 Copy
+                            Copy
                         </Button>
                     </div>
-                    <div className="prose dark:prose-invert max-w-none whitespace-pre-wrap font-mono text-sm bg-background p-4 rounded border">
+                    <div className="bg-slate-950 rounded-lg border border-white/10 p-3 max-h-[200px] overflow-y-auto text-xs font-mono text-slate-300 scrollbar-thin scrollbar-thumb-white/10">
                         {generatedResume}
                     </div>
                 </div>
             )}
 
+            {/* ATS Analysis Toggle/Section */}
+            <div className="border-t border-white/10 my-4 pt-4">
+                <Button 
+                    variant="ghost" 
+                    className="w-full justify-between"
+                    onClick={() => setShowATS(!showATS)}
+                >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                        <FileText className="w-4 h-4 text-emerald-400" /> ATS Analyzer
+                    </span>
+                    <span className="text-xs text-muted-foreground">{showATS ? 'Hide' : 'Show'}</span>
+                </Button>
+
+                {showATS && (
+                    <div className="mt-4 space-y-4 animate-in fade-in slide-in-from-top-2">
+                        {!resumeText && (
+                            <Textarea 
+                                placeholder="Paste your resume content here to analyze..."
+                                value={resumeText}
+                                onChange={(e) => setResumeText(e.target.value)}
+                                className="text-xs font-mono min-h-[100px] bg-slate-950/50"
+                            />
+                        )}
+                        
+                        {resumeText && (
+                            <ATSScore 
+                                resumeText={resumeText} 
+                                jobDescription={job.description} 
+                                jobId={job.id} 
+                            />
+                        )}
+                    </div>
+                )}
+            </div>
+
             {/* LLM Configuration Notice */}
             {!config?.llm?.apiKey && (
-                <p className="text-sm text-muted-foreground">
-                    💡 Tip: Configure your LLM API key in <a href="/settings" className="text-primary underline">Settings</a> for resume generation.
+                <p className="text-xs text-muted-foreground text-center">
+                    Requires API Key. <a href="/settings" className="underline hover:text-primary">Configure</a>
                 </p>
             )}
         </div>

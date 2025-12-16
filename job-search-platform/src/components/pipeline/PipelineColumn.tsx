@@ -4,6 +4,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Application, Job } from '@prisma/client';
 import { ApplicationCard } from './ApplicationCard';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 type ApplicationWithJob = Application & {
     job: Job;
@@ -18,50 +19,60 @@ interface PipelineColumnProps {
     onToggleSelection: (id: string) => void;
 }
 
+const colorMap: Record<string, string> = {
+    discovered: 'bg-slate-500/10 border-slate-500/20 text-slate-500',
+    interested: 'bg-blue-500/10 border-blue-500/20 text-blue-500',
+    applied: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-500',
+    interview: 'bg-purple-500/10 border-purple-500/20 text-purple-500',
+    offer: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500',
+    rejected: 'bg-rose-500/10 border-rose-500/20 text-rose-500',
+    archived: 'bg-gray-500/10 border-gray-500/20 text-gray-500'
+};
+
 export function PipelineColumn({ id, title, applications, color = 'gray', selectedIds, onToggleSelection }: PipelineColumnProps) {
     const { setNodeRef } = useDroppable({
         id: id,
     });
 
+    // Use ID for mapping to ensure consistency with STAGES array in parent
+    const columnStyle = colorMap[id] || colorMap.discovered;
+
     return (
-        <div className="flex flex-col min-w-[300px] h-full">
-            <div className={cn("flex items-center justify-between p-3 mb-2 rounded-t-md border-b-2",
-                color === 'blue' ? 'border-blue-500 bg-blue-50' :
-                    color === 'green' ? 'border-green-500 bg-green-50' :
-                        color === 'yellow' ? 'border-yellow-500 bg-yellow-50' :
-                            color === 'purple' ? 'border-purple-500 bg-purple-50' :
-                                color === 'red' ? 'border-red-500 bg-red-50' :
-                                    'border-gray-500 bg-gray-50'
-            )}>
-                <h3 className="font-semibold text-sm uppercase tracking-wider text-gray-700">{title}</h3>
-                <span className="bg-white px-2 py-0.5 rounded-full text-xs font-bold text-gray-500 shadow-sm">
+        <div className="flex flex-col min-w-[320px] h-full rounded-2xl bg-white/5 border border-white/5 backdrop-blur-sm shadow-xl">
+            {/* Header */}
+            <div className={cn("flex items-center justify-between p-4 border-b border-white/5 rounded-t-2xl", columnStyle)}>
+                <h3 className="font-bold text-sm uppercase tracking-wider">{title}</h3>
+                <Badge variant="secondary" className="bg-background/50 backdrop-blur-md shadow-sm border-0">
                     {applications.length}
-                </span>
+                </Badge>
             </div>
 
+            {/* Drop Zone */}
             <div
                 ref={setNodeRef}
-                className="flex-1 bg-gray-100/50 rounded-b-md p-2 overflow-y-auto min-h-[150px]"
+                className="flex-1 p-3 overflow-y-auto min-h-[150px] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
             >
                 <SortableContext
                     id={id}
                     items={applications.map(app => app.id)}
                     strategy={verticalListSortingStrategy}
                 >
-                    {applications.map((app) => (
-                        <ApplicationCard
-                            key={app.id}
-                            application={app}
-                            isSelected={selectedIds.includes(app.id)}
-                            onToggleSelection={onToggleSelection}
-                            selectionMode={selectedIds.length > 0}
-                        />
-                    ))}
+                    <div className="space-y-3">
+                        {applications.map((app) => (
+                            <ApplicationCard
+                                key={app.id}
+                                application={app}
+                                isSelected={selectedIds.includes(app.id)}
+                                onToggleSelection={onToggleSelection}
+                                selectionMode={selectedIds.length > 0}
+                            />
+                        ))}
+                    </div>
                 </SortableContext>
 
                 {applications.length === 0 && (
-                    <div className="h-24 flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-md">
-                        Drop here
+                    <div className="h-32 flex flex-col items-center justify-center text-muted-foreground/40 text-sm border-2 border-dashed border-white/5 rounded-xl mt-2 bg-white/5">
+                        <span className="text-xs">Empty Stage</span>
                     </div>
                 )}
             </div>
