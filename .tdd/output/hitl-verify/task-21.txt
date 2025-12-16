@@ -1,7 +1,7 @@
 ================================================================================
-HITL VERIFICATION: Task 20 - Custom Resume Generation
+HITL VERIFICATION: Task 21 - Develop Settings Management UI
 ================================================================================
-File: .tdd/output/hitl-verify/task-20.txt
+File: .tdd/output/hitl-verify/task-21.txt
 ================================================================================
 
 Tester: ________________    Date: ________________
@@ -10,99 +10,95 @@ PREREQUISITES
 ──────────────────────────────────────────────────────────────────────────────
 Run this command and wait for the output shown:
 
-  $ cd job-search-platform && npm run demo:resume
+  $ cd job-search-platform && npm run dev
 
 Wait for: "Ready on http://localhost:3000"
 
 Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
 
 ================================================================================
-TEST 1: Resume UI Layout & Job Loading
+TEST 1: Settings Navigation & Tabbed Interface
 ================================================================================
 
 PURPOSE
-  What we're testing: The /resume page loads with the correct split-pane layout and populates the job selector.
-  Why this matters:   Users must select a target job to generate a tailored resume.
+  What we're testing: Structure of the settings page and responsiveness.
+  Why this matters:   Complexity of settings requires organized navigation.
 
 STEPS
-  1. Open your browser
-  2. Go to: http://localhost:3000/resume
-  3. Click the "Select a job" dropdown menu
+  1. Open http://localhost:3000/settings
+  2. Click through the tabs: Search Parameters, LLM Configuration, Automation, Advanced
 
 EXPECTED RESULT
   You should see:
-  - Page title "Resume Generator"
-  - Split layout: "Editor" pane on left, "PDF Preview" pane on right
-  - Job dropdown opens and lists available jobs (e.g., "Software Engineer at Tech Corp")
-  - "Generate Resume" and "Save to Application" buttons visible
+  - The content area updates instantly when clicking distinct tabs
+  - "Search Parameters" shows inputs for Keywords/Location
+  - "LLM Configuration" shows inputs for API Keys/Provider
+  - Active tab is visually highlighted
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [x ] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
-  ________________________job selector has no jobs/grayed_____________________________________________________
+  _____________________________________________________________________________
 
   Screenshots/Notes:
   _____________________________________________________________________________
 
 ================================================================================
-TEST 2: Resume Generation & Live Preview
+TEST 2: Input Validation & Hot Reload
 ================================================================================
 
 PURPOSE
-  What we're testing: LLM generation flow and real-time preview updates
-  Why this matters:   Core value - using AI to tailor content and visualizing it
+  What we're testing: Live validation of settings input.
+  Why this matters:   Prevents invalid configurations from breaking the app.
 
 STEPS
-  1. Select a job from the dropdown (if not already selected)
-  2. Select "Balanced (Professional)" Exaggeration Level
-  3. Click "Generate Resume" button
-  4. Wait for generation to complete (button shows "Generating...")
+  1. Go to "Search Parameters" or similar tab
+  2. Enter an invalid value (e.g., extremely high radius, or negative number if possible)
+  3. Observe UI feedback
+  4. Correct the value
 
 EXPECTED RESULT
   You should see:
-  - Editor pane fills with generated text (Name, Summary, Experience)
-  - PDF Preview pane updates to show the formatted PDF document
-  - "Save to Application" button becomes enabled (if previously disabled)
+  - Immediate visual feedback (red border, error text) for invalid input
+  - Error clears when input is corrected
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [x ] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
-  _____________________________no jobs available________________________________________________
+  _____________________________________________________________________________
 
   Screenshots/Notes:
   _____________________________________________________________________________
 
 ================================================================================
-TEST 3: Save to Application & Download
+TEST 3: Config Persistence
 ================================================================================
 
 PURPOSE
-  What we're testing: Persistence to database and file download
-  Why this matters:   Users need to save their work and get the final PDF file
+  What we're testing: Settings are saved and restored.
+  Why this matters:   User preferences must persist across sessions.
 
 STEPS
-  1. Click "Save to Application" button
-  2. Wait for alert/notification
-  3. Click "Download PDF" button
+  1. Change a setting (e.g., toggle "Dark Mode" if in settings, or add a keyword like "TEST_KEYWORD")
+  2. Save changes (if manual save is required, otherwise wait for auto-save)
+  3. Refresh the page
 
 EXPECTED RESULT
   You should see:
-  - Alert: "Resume saved successfully to application!"
-  - Browser downloads a PDF file named like "Resume-[JobId]-[Date].pdf"
-  - The downloaded PDF opens correctly and matches the preview
+  - The changed setting (e.g., "TEST_KEYWORD") is still present after reload
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [ x] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
@@ -115,7 +111,7 @@ VERIFICATION
 SUMMARY
 ================================================================================
 
-File: .tdd/output/hitl-verify/task-20.txt
+File: .tdd/output/hitl-verify/task-21.txt
 Total Tests: 3      Passed: ___    Failed: ___
 
 Overall Result:  [ ] PASS - All tests passed
@@ -126,16 +122,16 @@ IF PASS - Copy this EXACTLY to your agent chat:
 ──────────────────────────────────────────────────────────────────────────────
 
 ✅ HITL VERIFICATION PASSED
-File: .tdd/output/hitl-verify/task-20.txt
-Task: 20 - Custom Resume Generation
+File: .tdd/output/hitl-verify/task-21.txt
+Task: 21 - Develop Settings Management UI
 Tests: 3/3 passed
 Result: APPROVED
 
-Please run: npx task-master set-status --id=20 --status=done
+Please run: npx task-master set-status --id=21 --status=done
 
 ┌─────────────────────────────────────────────────────────────┐
 │ NEXT: Copy '.tdd/user/2-AUDIT.txt' to a NEW chat to verify │
-│ Task 20                                                     │
+│ Task 21                                                     │
 └─────────────────────────────────────────────────────────────┘
 
 ──────────────────────────────────────────────────────────────────────────────
@@ -143,8 +139,8 @@ IF FAIL - Copy this EXACTLY to your agent chat (fill in the blanks):
 ──────────────────────────────────────────────────────────────────────────────
 
 ❌ HITL VERIFICATION FAILED
-File: .tdd/output/hitl-verify/task-20.txt
-Task: 20 - Custom Resume Generation
+File: .tdd/output/hitl-verify/task-21.txt
+Task: 21 - Develop Settings Management UI
 Tests: ___/3 passed
 
 FAILED TESTS:

@@ -2,7 +2,7 @@
   "tdd": {
     "tasks": [
       {
-        "id": "11",
+        "id": 11,
         "title": "Initialize Next.js 14 Project with Core Dependencies and Docker Configuration",
         "description": "Set up the foundational Next.js 14 project structure with TypeScript, configure Docker Compose stack (app, PostgreSQL 15, n8n, nginx, Redis), and establish the development environment with all required dependencies.",
         "status": "done",
@@ -92,7 +92,7 @@
         ]
       },
       {
-        "id": "12",
+        "id": 12,
         "title": "Design and Implement Prisma Database Schema with Migrations",
         "description": "Create the complete Prisma schema matching the PRD specifications (User, Profile, Job, Application, Config models) and set up initial database migrations with proper indexes and relationships.",
         "status": "done",
@@ -153,7 +153,7 @@
         ]
       },
       {
-        "id": "13",
+        "id": 13,
         "title": "Implement Authentication System with NextAuth and Single-User Mode",
         "description": "Set up NextAuth with Google OAuth provider, email/password fallback using bcrypt, JWT session management, and implement single-user mode bypass option as specified in the PRD.",
         "status": "done",
@@ -232,7 +232,7 @@
         "updatedAt": "2025-11-19T21:26:36.748Z"
       },
       {
-        "id": "14",
+        "id": 14,
         "title": "Build Multi-Step Configuration Wizard with Form Validation",
         "description": "Create the 6-step onboarding wizard UI with React Hook Form and Zod validation, implementing all configuration steps (cities, job titles, keywords, salary, recency) with progress tracking, data persistence, and a dedicated /onboarding route verified by E2E tests.",
         "status": "done",
@@ -323,7 +323,7 @@
         "updatedAt": "2025-12-05T20:14:42.681Z"
       },
       {
-        "id": "15",
+        "id": 15,
         "title": "Create Master Profile Builder with Rich Text Editor and Auto-Save",
         "description": "Implement the comprehensive profile management system with Tiptap rich text editor, multi-section form (contact, work history, education, skills, projects, certifications), progress tracking, and GPT-5.1 Vision OCR import from existing resumes. Includes integration of the /profile route, database persistence, and E2E testing.",
         "status": "done",
@@ -397,7 +397,7 @@
         "updatedAt": "2025-12-05T20:21:55.607Z"
       },
       {
-        "id": "16",
+        "id": 16,
         "title": "Develop LLM Integration Layer with Multi-Provider Support",
         "description": "Build the provider-agnostic LLM client using LangChain that supports OpenAI, Anthropic, Ollama, OpenRouter, Azure OpenAI, and custom endpoints with configurable temperature/token settings and resume generation prompts.",
         "status": "done",
@@ -492,7 +492,7 @@
         "updatedAt": "2025-12-10T00:02:29.252Z"
       },
       {
-        "id": "17",
+        "id": 17,
         "title": "Build Job Aggregation System with n8n Workflows and Geocoding",
         "description": "Implement automated job scraping from Indeed, LinkedIn, and company career pages using n8n workflows, integrate Mapbox Geocoding API for location processing, persist scraped data to the PostgreSQL database, and integrate the real data feed into the /jobs UI.",
         "status": "done",
@@ -615,7 +615,7 @@
         "updatedAt": "2025-12-13T18:15:13.170Z"
       },
       {
-        "id": "18",
+        "id": 18,
         "title": "Create Interactive Map Visualization with Mapbox GL JS",
         "description": "Build the geographic job visualization using Mapbox GL JS with color-coded markers, radius circles, density heatmap, clustering, popups, and mobile-optimized touch controls. Integrate into the application via the /map route, displaying real job data from the database and accessible via main navigation.",
         "status": "done",
@@ -748,7 +748,7 @@
         "updatedAt": "2025-12-14T00:34:04.759Z"
       },
       {
-        "id": "19",
+        "id": 19,
         "title": "Implement Kanban Application Pipeline Tracker with Drag-and-Drop",
         "description": "Build the application tracking system using dnd-kit with customizable pipeline stages, drag-and-drop functionality, status timeline, file attachments, notes, bulk operations, and CSV export as specified in the PRD.",
         "status": "done",
@@ -815,10 +815,10 @@
         "updatedAt": "2025-12-03T23:57:14.737Z"
       },
       {
-        "id": "20",
+        "id": 20,
         "title": "Build Resume Generation and PDF Export System",
         "description": "Create the resume tailoring interface at /resume with live preview using ProseMirror editor, integrate with LLM service for generation, implement ATS-friendly PDF export with react-pdf, and add configurable file naming templates.",
-        "status": "pending",
+        "status": "review",
         "dependencies": [
           "16",
           "19"
@@ -925,10 +925,10 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-12-09T02:11:09.239Z"
+        "updatedAt": "2025-12-15T20:04:58.818Z"
       },
       {
-        "id": "21",
+        "id": 21,
         "title": "Develop Settings Management UI and Configuration Hot Reload",
         "description": "Create the comprehensive settings interface with tabbed layout (Search, LLM, Automation, Advanced), implement live validation, LLM connection testing, JSON Schema validation, version control for configs, and hot reload functionality without server restart.",
         "status": "done",
@@ -1003,7 +1003,7 @@
         "updatedAt": "2025-12-04T16:03:26.156Z"
       },
       {
-        "id": "22",
+        "id": 22,
         "title": "Implement Responsive UI with Tailwind CSS and shadcn/ui Components",
         "description": "Build the complete mobile-first responsive design system using Tailwind CSS and shadcn/ui, implement dark/light theme toggle, create mobile optimizations (touch targets, swipe gestures, bottom navigation), and ensure performance targets (FCP < 1.5s, TTI < 3s).",
         "status": "done",
@@ -1070,7 +1070,7 @@
         "updatedAt": "2025-12-04T19:07:23.673Z"
       },
       {
-        "id": "23",
+        "id": 23,
         "title": "Audit Process Reform and Runtime Verification Protocols",
         "description": "Update project documentation to mandate runtime verification for all future task audits, ensuring the application builds, starts, and serves valid responses before approval.",
         "details": "1. Modify `AUDITOR.md` to explicitly state: 'No task shall be marked as completed based solely on static code analysis.'\n2. Define the 'Runtime Verification Standard' in the documentation:\n   - Clean dependency install (`npm ci`).\n   - Successful production build (`npm run build`).\n   - Dev server startup (`npm run dev`) without immediate crash.\n   - Manual or automated check that core routes (/, /pipeline, /settings, /map) return HTTP 200.\n3. Create a convenience script `scripts/pre-audit-check.sh` that runs linting, type checking, and a build test.\n4. Update `CONTRIBUTING.md` to reflect that broken builds or runtime errors will result in immediate task rejection.",
@@ -1083,7 +1083,7 @@
         "subtasks": []
       },
       {
-        "id": "24",
+        "id": 24,
         "title": "Implement Core Route Pages and Navigation Structure",
         "description": "Assemble the primary application pages (/jobs, /settings, /dashboard) by integrating existing feature components, establishing the routing architecture, and ensuring all navigation links return valid HTTP 200 responses.",
         "details": "1. **Route Configuration**: Set up the routing architecture (e.g., Next.js App Router) to define endpoints for `/jobs`, `/settings`, and `/dashboard`.\n2. **Settings Page Integration**: Create `src/app/settings/page.tsx` and import the `SettingsPage` component (from Task 21). Wrap it in the main application layout to ensure consistent navigation.\n3. **Jobs Page Implementation**: Develop the `/jobs` route to display a paginated list or grid of job opportunities fetched via Prisma. Reuse the `JobCard` or similar UI components defined in Task 22.\n4. **Dashboard Aggregation**: Update the root dashboard to display summary widgets:\n   - Pipeline status summary (counts of jobs in 'Applied', 'Interviewing' from Task 19).\n   - Recent activity feed.\n   - Quick actions menu.\n5. **Navigation Wiring**: Update the global `Sidebar` or `Navbar` component (from Task 22) to ensure all `Link` components point to the correct routes.\n6. **Error Handling**: Implement a global `not-found.tsx` and `error.tsx` to handle invalid routes gracefully.",
@@ -1098,7 +1098,7 @@
         "subtasks": []
       },
       {
-        "id": "25",
+        "id": 25,
         "title": "Implement Database-Free Mock Mode and Data Fallbacks",
         "description": "Develop a mock data layer that intercepts database calls when the application is in 'Mock Mode', enabling full UI navigation, testing, and building without active PostgreSQL or Redis connections.",
         "details": "1. **Environment Configuration**: Add `NEXT_PUBLIC_MOCK_MODE` to `.env` and create a utility to check this status.\n2. **Mock Data Generators**: Install `@faker-js/faker` and create factory functions for all Prisma models defined in Task 12 (User, Profile, Job, Application, Config). Ensure data adheres to the schema types.\n3. **Repository Pattern / Abstraction**: Refactor direct `prisma` calls in API routes and Server Actions into a data access layer or service wrapper. \n   ```typescript\n   // src/lib/db-access.ts\n   import { prisma } from '@/lib/prisma';\n   import { mockDb } from '@/lib/mock-db';\n   \n   export const getJobs = async () => {\n     if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') return mockDb.job.findMany();\n     return prisma.job.findMany();\n   };\n   ```\n4. **Mock Implementation**: Implement an in-memory store (singleton) for the mock DB to persist state during the session (e.g., creating a job in mock mode should show up in the list until refresh).\n5. **Script Update**: Add `npm run dev:mock` to `package.json` that sets the environment variable before starting Next.js.",
@@ -1112,7 +1112,7 @@
         "subtasks": []
       },
       {
-        "id": "26",
+        "id": 26,
         "title": "Implement End-to-End Testing Suite with Playwright",
         "description": "Set up and configure Playwright to run browser-based E2E tests verifying application startup, core route navigation, authentication flows, and UI interactivity like theme toggling.",
         "details": "1. **Installation & Configuration**: Initialize Playwright (`npm init playwright@latest`). Configure `playwright.config.ts` to support multiple browsers (Chromium, Firefox, Webkit) and set the `webServer` command to run the Next.js app in Mock Mode (leveraging Task 25).\n2. **Test Environment Setup**: Ensure tests run against `NEXT_PUBLIC_MOCK_MODE=true` to avoid database dependencies during CI execution. Create a `global-setup.ts` if necessary to seed mock state.\n3. **Core Specs Implementation**:\n   - `specs/navigation.spec.ts`: Verify navigation to `/dashboard`, `/jobs`, and `/settings` (Task 24) results in HTTP 200 and correct page headers.\n   - `specs/theme.spec.ts`: Locate the theme toggle button (Task 22), click it, and assert that the `<html>` class attribute switches between 'light' and 'dark'.\n   - `specs/auth.spec.ts`: Specific test for the login form submission and redirection logic.\n4. **CI Integration**: Add scripts to `package.json` (`test:e2e`, `test:e2e:ui`) and ensure HTML reports are generated.",
@@ -1125,16 +1125,148 @@
         ],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 27,
+        "title": "Implement ATS Resume Scoring Module",
+        "description": "Integrate a vector-based ATS compatibility scoring system that analyzes resumes against job descriptions to provide a match score (0-100%) and identify missing keywords using Qdrant for vector similarity.",
+        "details": "1. **Dependency Installation**: Install the Qdrant client and necessary math utilities.\n   ```bash\n   npm install @qdrant/js-client-rest cosine-similarity\n   ```\n\n2. **Scoring Logic Implementation**: Create `src/lib/ats-analyzer.ts` to handle the analysis logic.\n   - Implement text preprocessing (stopword removal, stemming).\n   - Implement vector embedding generation (using the project's existing LLM/Embedding service or a lightweight local library).\n   - Implement `calculateSimilarity(resumeVector, jobVector)` using cosine similarity.\n   - Implement `extractKeywordGaps(resumeText, jobDescription)` to find critical missing terms.\n\n3. **API Endpoint**: Create `src/app/api/resume/analyze/route.ts`.\n   - Accept `resumeId` and `jobDescription` (or `jobId`) in the request body.\n   - Fetch the resume content (from Task 20/Database).\n   - Run the analysis logic.\n   - Return JSON: `{ score: number, missingKeywords: string[], matchedKeywords: string[] }`.\n\n4. **UI Component**: Create `src/components/resume/ATSScore.tsx`.\n   - Display a circular progress bar for the score (Green > 75%, Yellow > 50%, Red < 50%).\n   - List 'Missing Keywords' in a collapsible section.\n   - Add a 'Fix with AI' action button (placeholder for future task).\n\n5. **Integration**: Update the Resume Builder page (from Task 20) to include the 'Analyze ATS Compatibility' button which triggers the API call and renders the `ATSScore` component in a modal or sidebar.",
+        "testStrategy": "1. **Unit Testing**: Verify `ats-analyzer.ts` correctly calculates cosine similarity between two known vectors (e.g., identical vectors = 1.0).\n2. **Keyword Extraction**: Test that specific unique keywords present in the job description but missing in the resume are correctly identified in the `missingKeywords` array.\n3. **API Integration**: Mock the database and embedding service to verify the API route returns the expected JSON structure with a 200 OK status.\n4. **UI Interaction**: Verify clicking 'Analyze ATS Compatibility' triggers the loading state, fetches data, and renders the score gauge correctly.\n5. **Edge Cases**: Test with empty resume content or empty job descriptions to ensure graceful error handling (0% score).",
+        "status": "pending",
+        "dependencies": [
+          20
+        ],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 28,
+        "title": "Integrate Qdrant Vector Database for Semantic Matching",
+        "description": "Establish the vector search infrastructure using Qdrant to enable semantic matching between resumes and job descriptions, including local Docker setup, embedding pipelines, and integration with the ATS scoring logic.",
+        "details": "1. **Infrastructure Setup**: \n   - Update `docker-compose.yml` to include the Qdrant service using image `qdrant/qdrant:latest`, exposing ports 6333 (HTTP) and 6334 (GRPC).\n   - Configure volume persistence for vector data.\n\n2. **Configuration Management**: \n   - Update the Settings schema (from Task 21) to include Qdrant configuration fields: `QDRANT_URL` (defaulting to local) and `QDRANT_API_KEY` (for Cloud).\n   - Ensure these settings are hot-reloadable.\n\n3. **Embedding Pipeline**: \n   - Create `src/lib/embeddings.ts` to handle text-to-vector conversion.\n   - Implement support for OpenAI's `text-embedding-3-small` or a local ONNX runtime (e.g., Xenova/transformers.js) as a fallback.\n\n4. **Vector Store Implementation**: \n   - Create `src/lib/vector-store.ts` to encapsulate Qdrant client operations.\n   - Implement methods: `ensureCollection(name, vectorSize)`, `upsertRecord(collection, id, vector, payload)`, and `search(collection, vector, limit)`.\n\n5. **ATS Integration**: \n   - Refactor `src/lib/ats-analyzer.ts` (created in Task 27) to utilize the vector store.\n   - Implement a hybrid search approach: combine keyword frequency scores (BM25-style) with cosine similarity scores from Qdrant for the final match percentage.",
+        "testStrategy": "1. **Infrastructure**: Verify `docker-compose up` successfully starts Qdrant and the health check endpoint returns 200 OK.\n2. **Connection**: Test connection logic switches correctly between Local (Docker) and Cloud credentials based on Settings.\n3. **Embeddings**: Unit test `generateEmbedding` to ensure it returns a float array of the expected dimension (e.g., 1536).\n4. **Vector Operations**: Integration test verifying that a stored text chunk can be retrieved via a semantically similar query (not just exact keyword match).\n5. **Scoring Accuracy**: Compare ATS scores for a resume against a job description before and after vector integration to validate that semantic matches (e.g., 'React' vs 'React.js') contribute to the score.",
+        "status": "pending",
+        "dependencies": [
+          21,
+          27
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Setup Qdrant Infrastructure via Docker",
+            "description": "Configure the local Qdrant vector database instance using Docker Compose to establish the search infrastructure.",
+            "dependencies": [],
+            "details": "Update `docker-compose.yml` to include a `qdrant` service using the `qdrant/qdrant:latest` image. Expose port 6333 for the HTTP API and 6334 for GRPC. Configure a named volume (e.g., `qdrant_data`) to ensure vector data persistence across container restarts.",
+            "status": "pending",
+            "testStrategy": "Run `docker-compose up -d qdrant` and verify the service is healthy by sending a GET request to `http://localhost:6333/health` or `http://localhost:6333/collections`."
+          },
+          {
+            "id": 2,
+            "title": "Update Configuration Schema for Vector Search",
+            "description": "Extend the application settings management to support Qdrant connection details and API keys.",
+            "dependencies": [
+              1
+            ],
+            "details": "Modify the Settings schema (established in Task 21) to include `QDRANT_URL` (defaulting to `http://localhost:6333`) and `QDRANT_API_KEY` (optional, for cloud instances). Ensure these settings are validated and accessible via the application's configuration service.",
+            "status": "pending",
+            "testStrategy": "Unit test the configuration loader to verify that `QDRANT_URL` defaults correctly when missing and that valid URLs are accepted."
+          },
+          {
+            "id": 3,
+            "title": "Implement Embedding Generation Pipeline",
+            "description": "Create a service to handle text-to-vector conversion using OpenAI or a fallback mechanism.",
+            "dependencies": [
+              2
+            ],
+            "details": "Create `src/lib/embeddings.ts`. Implement a function `generateEmbedding(text: string): Promise<number[]>` that calls OpenAI's `text-embedding-3-small` API. Include error handling to manage API failures gracefully.",
+            "status": "pending",
+            "testStrategy": "Create a unit test that mocks the OpenAI API response to verify that `generateEmbedding` returns a vector array of the expected dimension (e.g., 1536)."
+          },
+          {
+            "id": 4,
+            "title": "Develop Vector Store Client Wrapper",
+            "description": "Encapsulate Qdrant client operations in a dedicated library to handle collection management and search.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/lib/vector-store.ts`. Instantiate the Qdrant client using the config. Implement methods: `ensureCollection(name, vectorSize)` to check/create collections, `upsertRecord(collection, id, vector, payload)` for storing data, and `search(collection, vector, limit)` for retrieval.",
+            "status": "pending",
+            "testStrategy": "Integration test: Call `ensureCollection`, then `upsertRecord` with a dummy vector, and finally `search` to verify the record is retrieved from the local Qdrant instance."
+          },
+          {
+            "id": 5,
+            "title": "Integrate Vector Search into ATS Analyzer",
+            "description": "Refactor the ATS analyzer to utilize the vector store for semantic matching between resumes and job descriptions.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Update `src/lib/ats-analyzer.ts`. Replace placeholder logic with calls to `generateEmbedding` for input text and `vectorStore.search` for matching. Implement a hybrid scoring algorithm that combines the cosine similarity score from Qdrant with existing keyword frequency scores.",
+            "status": "pending",
+            "testStrategy": "Run the ATS analyzer against a known resume/job pair. Verify that the output score reflects semantic relevance even if exact keywords are missing (e.g., 'React' vs 'React.js')."
+          }
+        ]
+      },
+      {
+        "id": 29,
+        "title": "Plan & Architect UI/UX Overhaul",
+        "description": "Research frameworks, decide on look & feel, update design system docs, and finalize the visual direction.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Conduct visual research, select a component library or framework extension (e.g., shadcn/ui + Framer Motion), and define the new Design System (JobScout Premium). Update `docs/design/design-system.md` with final decisions on color palette, typography, and interaction patterns.",
+        "testStrategy": "Review updated design docs."
+      },
+      {
+        "id": 30,
+        "title": "Implement Design System & Tokens",
+        "description": "Set up global CSS variables, typography, colors, and base components.",
+        "status": "pending",
+        "dependencies": [
+          "29"
+        ],
+        "priority": "high",
+        "details": "Define CSS variables for colors, radius, spacing in `globals.css` or `tailwind.config.ts`. Create/update core UI components (Button, Card, Input, Badge) to reflect the new premium aesthetic. Create a `design-system` showcase page to verify all components.",
+        "testStrategy": "Verify showcase page renders all components correctly in light/dark modes."
+      },
+      {
+        "id": 31,
+        "title": "Execute Visual Reskin (Pages & Components)",
+        "description": "Apply new design to Dashboard, Jobs, Map, Pipeline, and Settings pages.",
+        "status": "pending",
+        "dependencies": [
+          "30"
+        ],
+        "priority": "high",
+        "details": "Refactor page layouts to use the new design system. \n1. Dashboard: Add visualizations, improve hierarchy.\n2. Job Cards: Add hover effects, better typography.\n3. Kanban: Smooth drag-and-drop visuals.\n4. Map: Custom styles.\n5. Settings: Clean up form layouts.",
+        "testStrategy": "Visual regression testing (or manual comparison) of each page."
+      },
+      {
+        "id": 32,
+        "title": "Visual QA & Micro-interactions",
+        "description": "Polish phase for animations, transitions, and responsive behavior.",
+        "status": "pending",
+        "dependencies": [
+          "31"
+        ],
+        "priority": "medium",
+        "details": "Add Framer Motion animations for page transitions and element appearances. refine hover states. Ensure mobile responsiveness is perfect. Conduct a full aesthetic review.",
+        "testStrategy": "HITL Aesthetic Review."
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-14T00:34:04.759Z",
+      "lastModified": "2025-12-15T20:04:58.819Z",
       "taskCount": 16,
       "completedCount": 11,
       "tags": [
         "tdd"
-      ]
+      ],
+      "created": "2025-12-15T20:17:20.915Z",
+      "description": "Tasks for tdd context",
+      "updated": "2025-12-15T20:18:35.957Z"
     }
   }
 }

@@ -1,3 +1,14 @@
+=== COPY THIS TO A NEW AI CHAT (Fresh Session) ===
+
+# 🛑 HUMAN CHEAT SHEET 🛑
+Quick verification before you approve:
+
+- [ ] **Ran Demo?** Did you run `npm run demo:[task]`?
+- [ ] **Saw Proof?** Did you see the feature working (on screen or CLI)?
+- [ ] **Signed Off?** Did you update the HITL file with your signature?
+
+---
+
 YOUR TURN: Human Verification
 ==============================
 

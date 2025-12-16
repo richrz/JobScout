@@ -154,6 +154,7 @@ Running 5 tests...
 ---
 
 ## Task Decomposition Rules (For AI Agents)
+## 95% RULE! YOU MUST FOLLOW THIS!
 
 When breaking down this project into tasks:
 - Each task must be completable by an AI agent in ONE focused session

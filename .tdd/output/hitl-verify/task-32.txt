@@ -1,0 +1,44 @@
+================================================================================
+HITL VERIFICATION: Task 32 - Visual QA & Micro-interactions
+================================================================================
+File: .tdd/output/hitl-verify/task-32.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Run: `npm run dev`
+
+================================================================================
+TEST 1: Animations & Transitions
+================================================================================
+
+PURPOSE
+  What we're testing: The "feel" of the application.
+  Why this matters:   Premium apps feel alive.
+
+STEPS
+  1. Navigate between Dashboard -> Jobs -> Settings
+  2. Observe page transitions (if any) or content mounting
+
+EXPECTED RESULT
+  You should see:
+  - Smooth fade-in or slide-up of content (Framer Motion)
+  - No jarring layout shifts
+
+──────────────────────────────────────────────────────────────────────────────
+TEST 2: Pipeline Drag & Drop
+──────────────────────────────────────────────────────────────────────────────
+STEPS
+  1. Go to http://localhost:3000/pipeline
+  2. Drag a card
+
+EXPECTED RESULT
+  You should see:
+  - Smooth movement
+  - Visual cues for drop zones
+  - "Satisfying" snap into place
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION Total Tests: 2

@@ -1,0 +1,45 @@
+================================================================================
+HITL VERIFICATION: Task 31 - Execute Visual Reskin
+================================================================================
+File: .tdd/output/hitl-verify/task-31.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Run: `npm run dev`
+
+================================================================================
+TEST 1: Dashboard Overhaul
+================================================================================
+
+PURPOSE
+  What we're testing: The personalized dashboard visual upgrade.
+  Why this matters:   First impression for the user.
+
+STEPS
+  1. Open http://localhost:3000/dashboard
+  2. Compare against the "Vision" from Task 29
+
+EXPECTED RESULT
+  You should see:
+  - High-impact stats cards (Applications, Interviews, etc.)
+  - No "default HTML" look
+  - Polished spacing and alignment
+
+──────────────────────────────────────────────────────────────────────────────
+TEST 2: Job Card Redesign
+──────────────────────────────────────────────────────────────────────────────
+STEPS
+  1. Open http://localhost:3000/jobs
+  2. Hover over a job card
+
+EXPECTED RESULT
+  You should see:
+  - Hover effect (lift, glow, or border change)
+  - Clear hierarchy (Title > Company > Details)
+  - Tags/Badges for keywords
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION Total Tests: 2

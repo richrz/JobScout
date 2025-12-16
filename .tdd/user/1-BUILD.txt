@@ -1,5 +1,19 @@
 === COPY THIS TO CONTINUE AFTER SESSION SETUP ===
 
+# 🛑 STOP! AGENT MUST READ THIS FIRST 🛑
+
+## BUILDER CHEAT SHEET (MANDATORY)
+Before marking this task as "Review", you MUST verify:
+
+- [ ] **Demo Created?** I have created `npm run demo:[task]` proving the feature works.
+- [ ] **HITL Created?** I have created `.tdd/output/hitl-verify/task-[ID].txt`.
+- [ ] **Observable?** The HITL test references my demo command and describes visible output.
+- [ ] **Self-Corrected?** I ran a pre-audit, found issues, and fixed them myself.
+
+If you skip these, the Audit will FAIL.
+
+---
+
 You are building the task that was just claimed.
 
 ## TDD Cycle

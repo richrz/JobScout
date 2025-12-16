@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import type { Route } from 'next';
 
 const stats = [
-  { label: 'Jobs Found', value: '127', change: '+12 today' },
-  { label: 'Applications', value: '23', change: '5 pending' },
-  { label: 'Interviews', value: '4', change: '2 this week' },
-  { label: 'Match Score', value: '87%', change: 'Above average' },
+  { label: 'Jobs Found', value: '127', change: '+12 today', color: 'text-[hsl(var(--chart-1))]', border: 'border-[hsl(var(--chart-1))]', icon: '💼' },
+  { label: 'Applications', value: '23', change: '5 pending', color: 'text-[hsl(var(--chart-2))]', border: 'border-[hsl(var(--chart-2))]', icon: '📝' },
+  { label: 'Interviews', value: '4', change: '2 this week', color: 'text-[hsl(var(--chart-3))]', border: 'border-[hsl(var(--chart-3))]', icon: '🎯' },
+  { label: 'Match Score', value: '87%', change: 'Above average', color: 'text-[hsl(var(--chart-4))]', border: 'border-[hsl(var(--chart-4))]', icon: '⭐' },
 ];
 
 const recentActivity = [
@@ -34,9 +34,12 @@ export default function Home() {
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-lg border bg-card p-6 shadow-sm">
-            <p className="text-sm text-muted-foreground">{stat.label}</p>
-            <p className="text-3xl font-bold mt-2">{stat.value}</p>
+          <div key={stat.label} className={`rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md ${stat.border} border-l-4`}>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+              <span className="text-2xl">{stat.icon}</span>
+            </div>
+            <p className={`text-3xl font-bold mt-2 ${stat.color}`}>{stat.value}</p>
             <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
           </div>
         ))}

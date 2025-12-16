@@ -17,15 +17,18 @@ git status -sb
 ```
 If dirty, commit or stash changes first.
 
-4. List tasks:
+4. Identify your task:
 ```bash
-npx task-master list --with-subtasks
+./.tdd/scripts/work-start.sh
 ```
+**CRITICAL**: Do NOT run the `npx task-master autopilot start` command it prints yet!
 
-5. Identify the next pending task and report:
-"Ready to work on Task [ID]: [Title]. Shall I proceed?"
+5. Report to the user:
+"The system has assigned me **Task [ID]: [Title]**. Shall I proceed?"
 
 ## Wait for User Approval
+
+Do NOT start coding until the user says "yes" or "proceed".
 
 Do NOT start coding until the user says "yes" or "proceed".
 

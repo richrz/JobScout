@@ -1,0 +1,36 @@
+================================================================================
+HITL VERIFICATION: Task 30 - Implement Design System & Tokens
+================================================================================
+File: .tdd/output/hitl-verify/task-30.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Run: `npm run dev` and wait for localhost:3000.
+
+================================================================================
+TEST 1: Design System Showcase
+================================================================================
+
+PURPOSE
+  What we're testing: The implementation of core design components.
+  Why this matters:   Ensures reusability and visual consistency.
+
+STEPS
+  1. Open http://localhost:3000/design-system (or the route created for this task)
+  2. Observe the components: Buttons, Inputs, Cards, Badges, Typography
+
+EXPECTED RESULT
+  You should see:
+  - A catalogue of UI components
+  - "Premium" aesthetic (glassmorphism off-black visuals if that's the plan)
+  - Hover states on buttons
+  - Correct fonts loaded
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+  ...

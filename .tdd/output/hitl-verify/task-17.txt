@@ -1,7 +1,7 @@
 ================================================================================
-HITL VERIFICATION: Task 20 - Custom Resume Generation
+HITL VERIFICATION: Task 17 - Build Job Aggregation System
 ================================================================================
-File: .tdd/output/hitl-verify/task-20.txt
+File: .tdd/output/hitl-verify/task-17.txt
 ================================================================================
 
 Tester: ________________    Date: ________________
@@ -10,99 +10,65 @@ PREREQUISITES
 ──────────────────────────────────────────────────────────────────────────────
 Run this command and wait for the output shown:
 
-  $ cd job-search-platform && npm run demo:resume
+  $ cd job-search-platform && npm run dev
 
 Wait for: "Ready on http://localhost:3000"
 
 Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
 
 ================================================================================
-TEST 1: Resume UI Layout & Job Loading
+TEST 1: Job List Display
 ================================================================================
 
 PURPOSE
-  What we're testing: The /resume page loads with the correct split-pane layout and populates the job selector.
-  Why this matters:   Users must select a target job to generate a tailored resume.
+  What we're testing: The /jobs page correctly displays aggregated jobs from the database.
+  Why this matters:   This confirms the end-to-end flow of scraping -> storage -> UI display.
 
 STEPS
-  1. Open your browser
-  2. Go to: http://localhost:3000/resume
-  3. Click the "Select a job" dropdown menu
+  1. Open http://localhost:3000/jobs in your browser
+  2. Observe the list of job cards
 
 EXPECTED RESULT
   You should see:
-  - Page title "Resume Generator"
-  - Split layout: "Editor" pane on left, "PDF Preview" pane on right
-  - Job dropdown opens and lists available jobs (e.g., "Software Engineer at Tech Corp")
-  - "Generate Resume" and "Save to Application" buttons visible
+  - A grid or list of job cards
+  - Each card typically shows: Title, Company, Location, Date
+  - At least 50 jobs (from the seed data mentioned in the task) should be visible or paginated
+  - No "skeleton" loading states failing to resolve (infinite loading)
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [x ] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
-  ________________________job selector has no jobs/grayed_____________________________________________________
+  _____________________________________________________________________________
 
   Screenshots/Notes:
   _____________________________________________________________________________
 
 ================================================================================
-TEST 2: Resume Generation & Live Preview
+TEST 2: Job Details & Metadata
 ================================================================================
 
 PURPOSE
-  What we're testing: LLM generation flow and real-time preview updates
-  Why this matters:   Core value - using AI to tailor content and visualizing it
+  What we's testing: Data integrity of the aggregated jobs (Role, Company, Description).
+  Why this matters:   Users need accurate details to make application decisions.
 
 STEPS
-  1. Select a job from the dropdown (if not already selected)
-  2. Select "Balanced (Professional)" Exaggeration Level
-  3. Click "Generate Resume" button
-  4. Wait for generation to complete (button shows "Generating...")
+  1. Click on any job card to view details (or expand it)
+  2. Verify the presence of a job description and metadata
 
 EXPECTED RESULT
   You should see:
-  - Editor pane fills with generated text (Name, Summary, Experience)
-  - PDF Preview pane updates to show the formatted PDF document
-  - "Save to Application" button becomes enabled (if previously disabled)
+  - Detailed view of the job
+  - "Source" information (e.g., "From Indeed" or "From LinkedIn" or "Seeded")
+  - Accurate metadata (Salary if available, Posted Date)
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [x ] NO
-
-  If NO, what happened instead?
-  _____________________________________________________________________________
-  _____________________________no jobs available________________________________________________
-
-  Screenshots/Notes:
-  _____________________________________________________________________________
-
-================================================================================
-TEST 3: Save to Application & Download
-================================================================================
-
-PURPOSE
-  What we're testing: Persistence to database and file download
-  Why this matters:   Users need to save their work and get the final PDF file
-
-STEPS
-  1. Click "Save to Application" button
-  2. Wait for alert/notification
-  3. Click "Download PDF" button
-
-EXPECTED RESULT
-  You should see:
-  - Alert: "Resume saved successfully to application!"
-  - Browser downloads a PDF file named like "Resume-[JobId]-[Date].pdf"
-  - The downloaded PDF opens correctly and matches the preview
-
-──────────────────────────────────────────────────────────────────────────────
-VERIFICATION
-
-  Did the expected result occur?     [ ] YES  [ x] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
@@ -115,8 +81,8 @@ VERIFICATION
 SUMMARY
 ================================================================================
 
-File: .tdd/output/hitl-verify/task-20.txt
-Total Tests: 3      Passed: ___    Failed: ___
+File: .tdd/output/hitl-verify/task-17.txt
+Total Tests: 2      Passed: ___    Failed: ___
 
 Overall Result:  [ ] PASS - All tests passed
                  [ ] FAIL - One or more tests failed
@@ -126,16 +92,16 @@ IF PASS - Copy this EXACTLY to your agent chat:
 ──────────────────────────────────────────────────────────────────────────────
 
 ✅ HITL VERIFICATION PASSED
-File: .tdd/output/hitl-verify/task-20.txt
-Task: 20 - Custom Resume Generation
-Tests: 3/3 passed
+File: .tdd/output/hitl-verify/task-17.txt
+Task: 17 - Build Job Aggregation System
+Tests: 2/2 passed
 Result: APPROVED
 
-Please run: npx task-master set-status --id=20 --status=done
+Please run: npx task-master set-status --id=17 --status=done
 
 ┌─────────────────────────────────────────────────────────────┐
 │ NEXT: Copy '.tdd/user/2-AUDIT.txt' to a NEW chat to verify │
-│ Task 20                                                     │
+│ Task 17                                                     │
 └─────────────────────────────────────────────────────────────┘
 
 ──────────────────────────────────────────────────────────────────────────────
@@ -143,9 +109,9 @@ IF FAIL - Copy this EXACTLY to your agent chat (fill in the blanks):
 ──────────────────────────────────────────────────────────────────────────────
 
 ❌ HITL VERIFICATION FAILED
-File: .tdd/output/hitl-verify/task-20.txt
-Task: 20 - Custom Resume Generation
-Tests: ___/3 passed
+File: .tdd/output/hitl-verify/task-17.txt
+Task: 17 - Build Job Aggregation System
+Tests: ___/2 passed
 
 FAILED TESTS:
 - TEST [X]: Expected "[expected]" but saw "[actual]"

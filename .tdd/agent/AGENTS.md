@@ -22,6 +22,15 @@ Follow every step below before touching code. These rules keep Autopilot + Task-
 2. Copy the exact `npx task-master autopilot start …` command it prints
 3. If script refuses (dirty tree, stale session), fix the issue first
 
+## Status Management Rules (CRITICAL)
+
+- **NEVER** manually set a MAJOR task status to `pending` or `in-progress`.
+  - usage of `npx task-master autopilot start` automatically handles this.
+  - usage of `npx task-master set-status` is ONLY for:
+    - Subtasks (`--id=14.1`)
+    - Marking major tasks as `review` or `done`
+- **NEVER** regress a task status (e.g. `review` → `in-progress`). If changes are needed, keep it in `review` or `in-progress` but do not go back to `pending`.
+
 ## During Each Subtask
 
 - Log plan first: `task-master update-subtask --id=<id> --prompt="Plan: …"`
@@ -60,11 +69,21 @@ Context-aware directives:
 |-----------|----------------|
 | Build complete | Copy `.tdd/user/2-AUDIT.txt` to NEW chat |
 | Audit PASS | Open `.tdd/user/3-APPROVE.txt` and run HITL test yourself |
-| Audit FAIL | Tell builder agent: "Fix these issues: [list]" |
+| Audit FAIL | Tell Builder: "Audit failed. Read `.tdd/output/audits/audit-task-[ID].md` and fix issues." |
 | HITL PASS | Run `npx task-master set-status --id=X --status=done` |
 | HITL FAIL | Report: "Task X failed. TEST Y failed because..." |
 | Crash | Run `./.tdd/scripts/recovery.sh` |
 | No tasks left | "All tasks complete! Review `.tdd/output/audits/` for reports." |
+
+## Builder Self-Reflection (MANDATORY)
+
+Before marking a task as `review` or asking for an audit:
+1. **Run Tests**: `npm test` (Must pass)
+2. **Run Demo**: `npm run demo:[task]` (Must work)
+3. **Pre-Audit Yourself**:
+   - create `.tdd/output/audits/audit-task-[ID].md`
+   - Honestly list any known issues
+   - If issues exist, fix them BEFORE asking the user to audit.
 
 ## Audit Protocol (Mandatory)
 

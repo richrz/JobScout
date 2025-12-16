@@ -22,9 +22,9 @@ When creating a PRD, ALWAYS include this section at the end:
 ## Task Decomposition Rules (For AI Agents)
 
 When breaking down this project into tasks:
+ *****If you're not 95% confident an agent can complete a task without*****
 - Each task must be completable by an AI agent in ONE focused session
-- If you're not 95% confident an agent can complete a task without 
-  getting stuck or asking questions, break it down further
+- getting stuck or asking questions, break it down further
 - Prefer many small tasks over few large tasks
 - Each task should have a single, clear outcome
 

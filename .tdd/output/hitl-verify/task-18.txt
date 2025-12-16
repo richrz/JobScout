@@ -1,7 +1,7 @@
 ================================================================================
-HITL VERIFICATION: Task 20 - Custom Resume Generation
+HITL VERIFICATION: Task 18 - Create Interactive Map Visualization
 ================================================================================
-File: .tdd/output/hitl-verify/task-20.txt
+File: .tdd/output/hitl-verify/task-18.txt
 ================================================================================
 
 Tester: ________________    Date: ________________
@@ -10,99 +10,97 @@ PREREQUISITES
 ──────────────────────────────────────────────────────────────────────────────
 Run this command and wait for the output shown:
 
-  $ cd job-search-platform && npm run demo:resume
+  $ cd job-search-platform && npm run dev
 
 Wait for: "Ready on http://localhost:3000"
 
 Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
 
 ================================================================================
-TEST 1: Resume UI Layout & Job Loading
+TEST 1: Map Rendering & Clustering
 ================================================================================
 
 PURPOSE
-  What we're testing: The /resume page loads with the correct split-pane layout and populates the job selector.
-  Why this matters:   Users must select a target job to generate a tailored resume.
+  What we're testing: The Mapbox integration renders correctly and handles job clusters.
+  Why this matters:   Visualizing job density is a key feature for geographic job search.
 
 STEPS
-  1. Open your browser
-  2. Go to: http://localhost:3000/resume
-  3. Click the "Select a job" dropdown menu
+  1. Open http://localhost:3000/map in your browser
+  2. Observe the map interface
+  3. Zoom out if necessary to see multiple job markers
 
 EXPECTED RESULT
   You should see:
-  - Page title "Resume Generator"
-  - Split layout: "Editor" pane on left, "PDF Preview" pane on right
-  - Job dropdown opens and lists available jobs (e.g., "Software Engineer at Tech Corp")
-  - "Generate Resume" and "Save to Application" buttons visible
+  - An interactive map (Mapbox style)
+  - "Clusters" (circles with numbers) representing groups of jobs
+  - Individual pins for specific job locations when zoomed in
+  - Navigation controls (zoom in/out)
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [x ] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
-  ________________________job selector has no jobs/grayed_____________________________________________________
+  _____________________________________________________________________________
 
   Screenshots/Notes:
   _____________________________________________________________________________
 
 ================================================================================
-TEST 2: Resume Generation & Live Preview
+TEST 2: Radius & Popups
 ================================================================================
 
 PURPOSE
-  What we're testing: LLM generation flow and real-time preview updates
-  Why this matters:   Core value - using AI to tailor content and visualizing it
+  What we're testing: City search radius visualization and job details interactvity.
+  Why this matters:   Users need to see their search boundaries and get quick info on map pins.
 
 STEPS
-  1. Select a job from the dropdown (if not already selected)
-  2. Select "Balanced (Professional)" Exaggeration Level
-  3. Click "Generate Resume" button
-  4. Wait for generation to complete (button shows "Generating...")
+  1. Click on an individual job marker (not a cluster)
+  2. Observe the popup interactions
+  3. Look for any visible search radius circles around major cities (if configured in settings)
 
 EXPECTED RESULT
   You should see:
-  - Editor pane fills with generated text (Name, Summary, Experience)
-  - PDF Preview pane updates to show the formatted PDF document
-  - "Save to Application" button becomes enabled (if previously disabled)
+  - A popup opens showing Job Title, Company, and a link to View Details
+  - (If configured) Blue/Accent colored circles indicating search radius around target cities
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [x ] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
-  _____________________________no jobs available________________________________________________
+  _____________________________________________________________________________
 
   Screenshots/Notes:
   _____________________________________________________________________________
 
 ================================================================================
-TEST 3: Save to Application & Download
+TEST 3: Mobile Touch Controls (Simulation)
 ================================================================================
 
 PURPOSE
-  What we're testing: Persistence to database and file download
-  Why this matters:   Users need to save their work and get the final PDF file
+  What we're testing: Responsiveness and touch interaction logic.
+  Why this matters:   Map applications must be usable on mobile devices.
 
 STEPS
-  1. Click "Save to Application" button
-  2. Wait for alert/notification
-  3. Click "Download PDF" button
+  1. Open browser Developer Tools (F12)
+  2. Toggle Device Toolbar (Ctrl+Shift+M) to simulate a mobile device (e.g., iPhone 12)
+  3. Try to drag (pan) the map and click a marker
 
 EXPECTED RESULT
   You should see:
-  - Alert: "Resume saved successfully to application!"
-  - Browser downloads a PDF file named like "Resume-[JobId]-[Date].pdf"
-  - The downloaded PDF opens correctly and matches the preview
+  - The map resizes correctly to the mobile viewport
+  - You can pan the map by dragging
+  - Markers are still clickable/wrappable
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [ x] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
@@ -115,7 +113,7 @@ VERIFICATION
 SUMMARY
 ================================================================================
 
-File: .tdd/output/hitl-verify/task-20.txt
+File: .tdd/output/hitl-verify/task-18.txt
 Total Tests: 3      Passed: ___    Failed: ___
 
 Overall Result:  [ ] PASS - All tests passed
@@ -126,16 +124,16 @@ IF PASS - Copy this EXACTLY to your agent chat:
 ──────────────────────────────────────────────────────────────────────────────
 
 ✅ HITL VERIFICATION PASSED
-File: .tdd/output/hitl-verify/task-20.txt
-Task: 20 - Custom Resume Generation
+File: .tdd/output/hitl-verify/task-18.txt
+Task: 18 - Create Interactive Map Visualization
 Tests: 3/3 passed
 Result: APPROVED
 
-Please run: npx task-master set-status --id=20 --status=done
+Please run: npx task-master set-status --id=18 --status=done
 
 ┌─────────────────────────────────────────────────────────────┐
 │ NEXT: Copy '.tdd/user/2-AUDIT.txt' to a NEW chat to verify │
-│ Task 20                                                     │
+│ Task 18                                                     │
 └─────────────────────────────────────────────────────────────┘
 
 ──────────────────────────────────────────────────────────────────────────────
@@ -143,8 +141,8 @@ IF FAIL - Copy this EXACTLY to your agent chat (fill in the blanks):
 ──────────────────────────────────────────────────────────────────────────────
 
 ❌ HITL VERIFICATION FAILED
-File: .tdd/output/hitl-verify/task-20.txt
-Task: 20 - Custom Resume Generation
+File: .tdd/output/hitl-verify/task-18.txt
+Task: 18 - Create Interactive Map Visualization
 Tests: ___/3 passed
 
 FAILED TESTS:
