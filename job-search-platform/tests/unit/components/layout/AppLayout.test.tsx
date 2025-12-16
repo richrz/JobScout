@@ -38,7 +38,7 @@ describe('AppLayout', () => {
             </AppLayout>
         );
 
-        expect(screen.getByText('Job Search Platform')).toBeInTheDocument();
+        expect(screen.getByText('JobScout')).toBeInTheDocument();
         expect(screen.getByText('Dashboard')).toBeInTheDocument();
         expect(screen.getByText('Jobs')).toBeInTheDocument();
         expect(screen.getByText('Pipeline')).toBeInTheDocument();

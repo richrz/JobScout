@@ -17,7 +17,7 @@ Demo Command: npm run demo:task-20
 [ ] Verify "Passionate AI Engineer" appears in the PDF Preview Summary section
 
 # Test 3: Resume Generation (Enhance)
-[ ] Enter a valid Job ID (e.g. from /jobs URL or DB)
+[ ] Select a job from the "Job" dropdown (populated from DB)
 [ ] Click "Enhance with AI"
 [ ] Verify "Generating..." state appears
 [ ] Wait for completion (or error if no API key is set)
