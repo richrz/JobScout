@@ -1,0 +1,35 @@
+Task: 20 Costom Resume Generation
+Demo Command: npm run demo:task-20
+
+# Test 1: Route Loading
+[ ] Open Browser to http://localhost:3000/resume
+[ ] Verify "Resume Builder" header is visible
+[ ] Verify Tabs (Contact, Summary, Experience) are visible
+[ ] Verify "Job ID" input and "Enhance with AI" button are visible
+[ ] Verify "Save" and "Download PDF" buttons are visible
+
+# Test 2: Editor Interaction
+[ ] Select "Contact" tab
+[ ] Type "John Doe" in "Full Name" field
+[ ] Verify change is reflected in the PDF Preview pane (Contact header updates)
+[ ] Select "Summary" tab
+[ ] Type "Passionate AI Engineer" in the editor
+[ ] Verify "Passionate AI Engineer" appears in the PDF Preview Summary section
+
+# Test 3: Resume Generation (Enhance)
+[ ] Enter a valid Job ID (e.g. from /jobs URL or DB)
+[ ] Click "Enhance with AI"
+[ ] Verify "Generating..." state appears
+[ ] Wait for completion (or error if no API key is set)
+[ ] If success: Verify Summary and Experience fields are populated automatically
+[ ] If success: Verify PDF Preview updates with new content
+
+# Test 4: PDF Download
+[ ] Click "Download PDF"
+[ ] Verify "resume.pdf" is downloaded
+[ ] Open the PDF and verify content matches the preview
+
+# Test 5: Persistence
+[ ] Click "Save"
+[ ] Verify alert "Resume saved to /resumes/..." appears
+[ ] Verify "Saving..." state during the process

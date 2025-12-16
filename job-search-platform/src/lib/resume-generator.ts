@@ -35,8 +35,36 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
             exaggerationLevel: request.exaggerationLevel,
         });
 
+        let content = response.content;
+
+        // Strip markdown code blocks if present
+        if (content.includes('```json')) {
+            content = content.replace(/```json\n?|\n?```/g, '');
+        } else if (content.includes('```')) {
+            content = content.replace(/```\n?|\n?```/g, '');
+        }
+
+        let parsedContent;
+        try {
+            parsedContent = JSON.parse(content);
+        } catch (e) {
+            console.error('Failed to parse LLM response as JSON:', content);
+            // Fallback to minimal valid structure if parsing fails
+            const contactInfo = request.profile.contactInfo as any || {};
+            parsedContent = {
+                contactInfo: {
+                    name: contactInfo.name || 'Candidate',
+                    email: contactInfo.email || ''
+                },
+                summary: content, // Put raw content in summary if parsing fails
+                experience: [],
+                education: [],
+                skills: []
+            };
+        }
+
         return {
-            content: response.content,
+            content: parsedContent,
             usage: response.usage,
         };
     } catch (error) {

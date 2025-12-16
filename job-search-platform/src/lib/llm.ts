@@ -220,7 +220,7 @@ export class AnthropicClient extends BaseLLMClient {
         content: msg.content,
       }));
 
-      const response = await this.client.invoke(langchainMessages);
+      const response = await (this.client as any).invoke(langchainMessages);
       const endTime = Date.now();
 
       return {
@@ -245,7 +245,7 @@ export class AnthropicClient extends BaseLLMClient {
         content: msg.content,
       }));
 
-      const stream = await this.client.stream(langchainMessages);
+      const stream = await (this.client as any).stream(langchainMessages);
 
       return (async function* () {
         for await (const chunk of stream) {
@@ -264,7 +264,7 @@ export class AnthropicClient extends BaseLLMClient {
   async testConnection(): Promise<LLMConnectionTest> {
     try {
       const startTime = Date.now();
-      await this.client.invoke([{ role: 'user' as const, content: 'test' }]);
+      await (this.client as any).invoke([{ role: 'user' as const, content: 'test' }]);
       const responseTime = Date.now() - startTime;
 
       return {
@@ -695,7 +695,7 @@ export class GeminiClient extends BaseLLMClient {
         content: msg.content,
       }));
 
-      const response = await this.client.invoke(langchainMessages);
+      const response = await (this.client as any).invoke(langchainMessages);
       const endTime = Date.now();
 
       return {
@@ -720,7 +720,7 @@ export class GeminiClient extends BaseLLMClient {
       content: msg.content,
     }));
 
-    const stream = await this.client.stream(langchainMessages);
+    const stream = await (this.client as any).stream(langchainMessages);
 
     return (async function* () {
       for await (const chunk of stream) {
@@ -992,20 +992,44 @@ ${this.formatCertifications(certifications)}
 - Focus on: ${jobAnalysis.focusAreas.join(', ')}
 
 **Formatting Instructions:**
-1. Create a professional, ATS-friendly resume in markdown format
-2. Start with contact information at the top
-3. Include a compelling professional summary
-4. List skills prominently
-5. Present work experience in reverse chronological order
-6. Include relevant projects and certifications
-7. Ensure consistent formatting and professional presentation
-
-**Content Strategy:**
-- Emphasize experience and skills most relevant to this job
-- Use industry-standard terminology and keywords
-- Quantify achievements where possible (metrics, results, impact)
-- Ensure all information is truthful and verifiable
-- Adapt tone to match the specified exaggeration level`;
+1. You must output a valid JSON object matching the following structure:
+\`\`\`json
+{
+  "contactInfo": {
+    "name": "string",
+    "email": "string",
+    "phone": "string",
+    "location": "string"
+  },
+  "summary": "string",
+  "experience": [
+    {
+      "id": "string",
+      "title": "string",
+      "company": "string",
+      "location": "string",
+      "startDate": "string",
+      "endDate": "string",
+      "description": "string"
+    }
+  ],
+  "education": [
+    {
+      "id": "string",
+      "degree": "string",
+      "school": "string",
+      "location": "string",
+      "startDate": "string",
+      "endDate": "string"
+    }
+  ],
+  "skills": ["string"]
+}
+\`\`\`
+2. Ensure dates are consistently formatted
+3. Descriptions should be concise and impact-focused
+4. Do NOT include markdown formatting outside the JSON
+5. The output must be parseable by JSON.parse()`;
 
     if (customInstructions) {
       prompt += `\n\n## Custom Instructions\n\n${customInstructions}`;

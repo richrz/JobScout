@@ -1,254 +1,214 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ResumeEditor } from '@/components/resume/ResumeEditor';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { ResumePDF } from '@/components/resume/ResumePDF';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+import { ResumeEditor } from '@/components/resume/ResumeEditor';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { generateAndPreviewResume } from '@/lib/resume-generator';
+import { saveResume } from './actions';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
+// Dynamically import PDFViewer to avoid SSR issues
+const PDFViewer = dynamic(
+    () => import('@react-pdf/renderer').then((mod) => mod.PDFViewer),
+    { ssr: false, loading: () => <div>Loading Preview...</div> }
+);
+
+// Initial empty state
+const initialResume = {
+    contactInfo: { name: '', email: '', phone: '', location: '' },
+    summary: '',
+    experience: [],
+    education: [],
+    skills: []
+};
 
 export default function ResumePage() {
-    const [resumeContent, setResumeContent] = useState<string>('');
-    const [pdfContent, setPdfContent] = useState<any>({
-        contactInfo: {
-            name: 'Your Name',
-            email: 'your.email@example.com',
-            phone: '(555) 000-0000',
-            location: 'City, State',
-        },
-        summary: 'Click "Generate Resume" to create a tailored resume for a job.',
-        experience: [],
-        education: [],
-        skills: [],
-    });
-    const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-    const [exaggerationLevel, setExaggerationLevel] = useState<'conservative' | 'balanced' | 'strategic'>('balanced');
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [jobs, setJobs] = useState<any[]>([]);
-    const [isLoadingJobs, setIsLoadingJobs] = useState(true);
+    const searchParams = useSearchParams();
+    const [jobId, setJobId] = useState(searchParams.get('jobId') || '');
+    const [resumeData, setResumeData] = useState<any>(initialResume);
+    const [loading, setLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
-    // Load available jobs on mount
-    React.useEffect(() => {
-        async function loadJobs() {
-            try {
-                const response = await fetch('/api/jobs');
-                const data = await response.json();
-                if (data.jobs) {
-                    setJobs(data.jobs.slice(0, 10)); // Show first 10 jobs
-                    if (data.jobs.length > 0) {
-                        setSelectedJobId(data.jobs[0].id);
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to load jobs:', error);
-            } finally {
-                setIsLoadingJobs(false);
-            }
-        }
-        loadJobs();
-    }, []);
-
-    const handleEditorChange = (content: string) => {
-        setResumeContent(content);
-        // Parse HTML to update PDF preview in real-time
-        try {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(content, 'text/html');
-
-            // Extract summary (first paragraph)
-            const firstP = doc.querySelector('p');
-            if (firstP && firstP.textContent) {
-                setPdfContent((prev: any) => ({
-                    ...prev,
-                    summary: firstP.textContent || prev.summary,
-                }));
-            }
-        } catch (error) {
-            console.error('Failed to parse HTML:', error);
-        }
-    };
-
-    const handleGenerate = async () => {
-        if (!selectedJobId) {
-            alert('Please select a job first');
+    const handleEnhance = async () => {
+        if (!jobId) {
+            alert('Please enter a Job ID');
             return;
         }
-
-        setIsGenerating(true);
+        setLoading(true);
         try {
-            const response = await fetch('/api/resume/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    jobId: selectedJobId,
-                    exaggerationLevel,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                alert(`Failed to generate resume: ${data.error}`);
-                return;
-            }
-
-            // Update both PDF content and editor HTML
-            if (data.content) {
-                setPdfContent(data.content);
-            }
-            if (data.content && typeof data.content === 'string') {
-                setResumeContent(data.content);
+            const result = await generateAndPreviewResume(jobId, 'balanced');
+            if (result.success && result.content) {
+                setResumeData(result.content);
+            } else {
+                alert('Failed to generate resume: ' + (result.error || 'Unknown error'));
             }
         } catch (error) {
-            console.error('Failed to generate resume:', error);
-            alert('Failed to generate resume. Please try again.');
+            console.error(error);
+            alert('Error generating resume');
         } finally {
-            setIsGenerating(false);
+            setLoading(false);
         }
     };
 
-    const handleSaveResume = async () => {
-        if (!selectedJobId) {
-            alert('Please select a job first');
-            return;
-        }
-
-        if (!resumeContent && !pdfContent) {
-            alert('Please generate a resume first');
-            return;
-        }
-
+    const handleSave = async () => {
+        setIsSaving(true);
         try {
-            // Save the generated resume to the Application record
-            const resumePath = `/generated-resumes/${selectedJobId}-${Date.now()}.pdf`;
-
-            const response = await fetch('/api/resume/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    jobId: selectedJobId,
-                    resumePath,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                alert(`Failed to save resume: ${data.error}`);
-                return;
+            // Mock Application ID for now if not provided, or we need to find one
+            // In real flow, we probably have an application ID. 
+            // We'll use jobId as a proxy for Application creation if it doesn't exist?
+            // For this task, let's assume valid applicationId is passed or we just pass jobId as dummy
+            const appId = searchParams.get('applicationId') || 'test-app-id';
+            const result = await saveResume(appId, resumeData);
+            if (result.success) {
+                alert('Resume saved to ' + result.path);
+            } else {
+                alert('Failed to save: ' + result.error);
             }
-
-            alert('Resume saved successfully to application!');
         } catch (error) {
-            console.error('Failed to save resume:', error);
-            alert('Failed to save resume. Please try again.');
+            console.error(error);
+            alert('Error saving resume');
+        } finally {
+            setIsSaving(false);
         }
+    };
+
+    // Helper to update nested state
+    const updateResume = (section: string, value: any) => {
+        setResumeData((prev: any) => ({ ...prev, [section]: value }));
+    };
+
+    const updateContact = (field: string, value: string) => {
+        setResumeData((prev: any) => ({
+            ...prev,
+            contactInfo: { ...prev.contactInfo, [field]: value }
+        }));
     };
 
     return (
-        <div className="container mx-auto p-6 h-screen flex flex-col">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold mb-2">Resume Generator</h1>
-                <p className="text-muted-foreground">
-                    Create tailored resumes for your job applications
-                </p>
-            </div>
-
-            {/* Controls */}
-            <Card className="mb-4">
-                <CardHeader>
-                    <CardTitle>Generation Controls</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Job Selector */}
-                        <div>
-                            <label className="text-sm font-medium mb-2 block">Select Job</label>
-                            <Select
-                                value={selectedJobId || ''}
-                                onValueChange={setSelectedJobId}
-                                disabled={isLoadingJobs || jobs.length === 0}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder={isLoadingJobs ? 'Loading jobs...' : 'Select a job'} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {jobs.map((job) => (
-                                        <SelectItem key={job.id} value={job.id}>
-                                            {job.title} at {job.company}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Exaggeration Level Selector */}
-                        <div>
-                            <label className="text-sm font-medium mb-2 block">Exaggeration Level</label>
-                            <Select value={exaggerationLevel} onValueChange={(value: any) => setExaggerationLevel(value)}>
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="conservative">Conservative (Factual)</SelectItem>
-                                    <SelectItem value="balanced">Balanced (Professional)</SelectItem>
-                                    <SelectItem value="strategic">Strategic (Confident)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2 justify-end">
-                        <Button onClick={handleGenerate} disabled={isGenerating || !selectedJobId}>
-                            {isGenerating ? 'Generating...' : 'Generate Resume'}
-                        </Button>
-                        <Button onClick={handleSaveResume} variant="secondary" disabled={!resumeContent && !pdfContent}>
-                            Save to Application
-                        </Button>
-                        <PDFDownloadLink
-                            document={<ResumePDF content={pdfContent} />}
-                            fileName={`Resume-${selectedJobId || 'draft'}-${new Date().toISOString().split('T')[0]}.pdf`}
-                        >
-                            {({ loading }) => (
-                                <Button variant="outline" disabled={loading}>
-                                    {loading ? 'Preparing PDF...' : 'Download PDF'}
-                                </Button>
-                            )}
-                        </PDFDownloadLink>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Split Pane Layout */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
-                {/* Editor Pane */}
-                <Card className="flex flex-col overflow-hidden">
-                    <CardHeader>
-                        <CardTitle>Editor</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 overflow-y-auto">
-                        <ResumeEditor
-                            initialContent={resumeContent}
-                            onChange={handleEditorChange}
+        <div className="flex h-screen flex-col">
+            <header className="flex items-center justify-between border-b p-4">
+                <h1 className="text-xl font-bold">Resume Builder</h1>
+                <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
+                        <Label>Job ID:</Label>
+                        <Input
+                            value={jobId}
+                            onChange={(e) => setJobId(e.target.value)}
+                            placeholder="Enter Job ID"
+                            className="w-32"
                         />
-                    </CardContent>
-                </Card>
+                    </div>
+                    <Button onClick={handleEnhance} disabled={loading}>
+                        {loading ? 'Generating...' : 'Enhance with AI'}
+                    </Button>
+                    <Button variant="outline" onClick={handleSave} disabled={isSaving}>
+                        {isSaving ? 'Saving...' : 'Save'}
+                    </Button>
+                    <PDFDownloadLink
+                        document={<ResumePDF content={resumeData} />}
+                        fileName="resume.pdf"
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
+                        {({ loading }) => (loading ? 'Preparing PDF...' : 'Download PDF')}
+                    </PDFDownloadLink>
+                </div>
+            </header>
 
-                {/* Preview Pane */}
-                <Card className="flex flex-col overflow-hidden">
-                    <CardHeader>
-                        <CardTitle>PDF Preview</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 overflow-hidden">
-                        <div className="h-full border rounded">
-                            <PDFViewer width="100%" height="100%" className="border-0">
-                                <ResumePDF content={pdfContent} />
-                            </PDFViewer>
-                        </div>
-                    </CardContent>
-                </Card>
+            <div className="flex flex-1 overflow-hidden">
+                {/* Editor Section */}
+                <div className="w-1/2 overflow-y-auto p-6 border-r bg-slate-50">
+                    <Tabs defaultValue="contact">
+                        <TabsList className="mb-4">
+                            <TabsTrigger value="contact">Contact</TabsTrigger>
+                            <TabsTrigger value="summary">Summary</TabsTrigger>
+                            <TabsTrigger value="experience">Experience</TabsTrigger>
+                            <TabsTrigger value="skills">Skills</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="contact" className="space-y-4">
+                            <Card className="p-4 space-y-4">
+                                <div className="grid gap-2">
+                                    <Label>Full Name</Label>
+                                    <Input
+                                        value={resumeData.contactInfo?.name || ''}
+                                        onChange={(e) => updateContact('name', e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label>Email</Label>
+                                    <Input
+                                        value={resumeData.contactInfo?.email || ''}
+                                        onChange={(e) => updateContact('email', e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label>Phone</Label>
+                                    <Input
+                                        value={resumeData.contactInfo?.phone || ''}
+                                        onChange={(e) => updateContact('phone', e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label>Location</Label>
+                                    <Input
+                                        value={resumeData.contactInfo?.location || ''}
+                                        onChange={(e) => updateContact('location', e.target.value)}
+                                    />
+                                </div>
+                            </Card>
+                        </TabsContent>
+
+                        <TabsContent value="summary">
+                            <Card className="p-4">
+                                <Label className="mb-2 block">Professional Summary</Label>
+                                {/* Using ResumeEditor (ProseMirror) for Summary */}
+                                <ResumeEditor
+                                    initialContent={resumeData.summary}
+                                    onChange={(val) => updateResume('summary', val)}
+                                />
+                                <p className="text-xs text-muted-foreground mt-2">
+                                    Note: Live preview updates as you type (HTML stripped for PDF).
+                                </p>
+                            </Card>
+                        </TabsContent>
+
+                        <TabsContent value="experience" className="space-y-4">
+                            <Card className="p-4">
+                                <p>Experience editing is currently read-only in this demo version.</p>
+                                <pre className="text-xs bg-slate-100 p-2 mt-2 rounded overflow-auto max-h-64">
+                                    {JSON.stringify(resumeData.experience, null, 2)}
+                                </pre>
+                            </Card>
+                        </TabsContent>
+
+                        <TabsContent value="skills">
+                            <Card className="p-4">
+                                <Label>Skills (Comma separated)</Label>
+                                <textarea
+                                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    value={resumeData.skills?.join(', ') || ''}
+                                    onChange={(e) => updateResume('skills', e.target.value.split(',').map(s => s.trim()))}
+                                />
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+                {/* Preview Section */}
+                <div className="w-1/2 bg-slate-200 p-6 flex items-center justify-center">
+                    <div className="bg-white shadow-lg h-full w-full max-w-[210mm]">
+                        <PDFViewer width="100%" height="100%" className="border-none">
+                            <ResumePDF content={resumeData} />
+                        </PDFViewer>
+                    </div>
+                </div>
             </div>
         </div>
     );
