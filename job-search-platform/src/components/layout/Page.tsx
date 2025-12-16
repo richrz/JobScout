@@ -15,10 +15,10 @@ export function Page({
     return (
         <div
             className={cn(
-                "w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8",
-                width === "default" && "max-w-7xl",
-                width === "wide" && "max-w-[1600px]",
-                width === "full" && "max-w-none",
+                "w-full mx-auto py-page space-y-section",
+                width === "default" && "max-w-7xl px-4 md:px-8",
+                width === "wide" && "max-w-[1600px] px-4 md:px-8",
+                width === "full" && "max-w-none px-0",
                 className
             )}
             {...props}

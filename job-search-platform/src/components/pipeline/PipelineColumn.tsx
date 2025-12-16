@@ -5,6 +5,7 @@ import { Application, Job } from '@prisma/client';
 import { ApplicationCard } from './ApplicationCard';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/ui/empty-state';
 
 type ApplicationWithJob = Application & {
     job: Job;
@@ -71,9 +72,11 @@ export function PipelineColumn({ id, title, applications, color = 'gray', select
                 </SortableContext>
 
                 {applications.length === 0 && (
-                    <div className="h-32 flex flex-col items-center justify-center text-muted-foreground/40 text-sm border-2 border-dashed border-white/5 rounded-xl mt-2 bg-white/5">
-                        <span className="text-xs">Empty Stage</span>
-                    </div>
+                    <EmptyState
+                        title="Empty Stage"
+                        description=""
+                        className="py-12 border-dashed border-white/10 bg-white/5"
+                    />
                 )}
             </div>
         </div>

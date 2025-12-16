@@ -1,9 +1,24 @@
+
 import React, { useState, useEffect } from 'react';
-import { useForm, FormProvider, useFieldArray, useFormContext } from 'react-hook-form';
+import { useForm, useFieldArray, useFormContext } from 'react-hook-form';
 import { useAutoSave } from '@/hooks/useAutoSave';
-import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { calculateCompleteness, Profile } from '@/lib/profile-utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { EmptyState } from '@/components/ui/empty-state';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from '@/components/ui/form';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Trash2, Plus, RefreshCw, Sparkles, Briefcase, GraduationCap, FolderGit2 } from 'lucide-react';
 
 const sections = [
   { id: 'contact', title: 'Contact Information' },
@@ -14,89 +29,125 @@ const sections = [
   { id: 'certifications', title: 'Certifications' }
 ];
 
-
-
 function ContactSection() {
-  const { register } = useFormContext();
+  const { control } = useFormContext();
 
   return (
-    <div className="space-y-4 max-w-3xl">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Full Name</label>
-          <input
-            {...register('contactInfo.name')}
-            placeholder="John Doe"
-            className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Email</label>
-          <input
-            {...register('contactInfo.email')}
-            placeholder="john@example.com"
-            className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Phone</label>
-          <input
-            {...register('contactInfo.phone')}
-            placeholder="+1 (555) 000-0000"
-            className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Location</label>
-          <input
-            {...register('contactInfo.location')}
-            placeholder="San Francisco, CA"
-            className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">LinkedIn URL</label>
-          <input
-            {...register('contactInfo.linkedin')}
-            placeholder="https://linkedin.com/in/johndoe"
-            className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Portfolio URL</label>
-          <input
-            {...register('contactInfo.portfolio')}
-            placeholder="https://johndoe.com"
-            className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Professional Summary</label>
-        <textarea
-          {...register('contactInfo.summary')}
-          placeholder="Brief overview of your professional background..."
-          rows={6}
-          className="w-full border rounded-md px-3 py-2 text-sm bg-background resize-y"
+    <div className="space-y-6 max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormField
+          control={control}
+          name="contactInfo.name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="contactInfo.email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="john@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="contactInfo.phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone</FormLabel>
+              <FormControl>
+                <Input placeholder="+1 (555) 000-0000" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="contactInfo.location"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Location</FormLabel>
+              <FormControl>
+                <Input placeholder="San Francisco, CA" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="contactInfo.linkedin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>LinkedIn URL</FormLabel>
+              <FormControl>
+                <Input placeholder="https://linkedin.com/in/johndoe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="contactInfo.portfolio"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Portfolio URL</FormLabel>
+              <FormControl>
+                <Input placeholder="https://johndoe.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
       </div>
+
+      <FormField
+        control={control}
+        name="contactInfo.summary"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Professional Summary</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Brief overview of your professional background..."
+                className="min-h-[150px]"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 }
 
 function WorkHistorySection() {
-  const { register, control } = useFormContext();
+  const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'experiences'
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Work Experience</h3>
-        <button
+        <Button
           type="button"
           onClick={() => append({
             position: '',
@@ -106,103 +157,162 @@ function WorkHistorySection() {
             description: '',
             technologies: []
           })}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
+          className="gap-2"
         >
-          Add Position
-        </button>
+          <Plus className="w-4 h-4" /> Add Position
+        </Button>
       </div>
 
-      {fields.map((field, index) => (
-        <div key={field.id} className="border p-6 rounded-lg space-y-4 bg-card text-card-foreground shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Job Title</label>
-              <input
-                {...register(`experiences.${index}.position`)}
-                placeholder="e.g. Senior Frontend Engineer"
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+      <div className="space-y-6">
+        {fields.map((field, index) => (
+          <div key={field.id} className="group relative border border-border/50 bg-card/50 p-6 rounded-xl space-y-6 transition-all hover:border-primary/20 hover:shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={control}
+                name={`experiences.${index}.position`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Senior Frontend Engineer" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Company</label>
-              <input
-                {...register(`experiences.${index}.company`)}
-                placeholder="e.g. Acme Corp"
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+              <FormField
+                control={control}
+                name={`experiences.${index}.company`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Acme Corp" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Start Date</label>
-              <input
-                type="date"
-                {...register(`experiences.${index}.startDate`)}
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+              <FormField
+                control={control}
+                name={`experiences.${index}.startDate`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Date</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">End Date</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  {...register(`experiences.${index}.endDate`)}
-                  disabled={control._formValues.experiences?.[index]?.current}
-                  className="w-full border rounded-md px-3 py-2 text-sm bg-background disabled:opacity-50"
+              <div className="space-y-2">
+                <FormField
+                  control={control}
+                  name={`experiences.${index}.endDate`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date</FormLabel>
+                      <div className="flex gap-4 items-center">
+                        <FormControl>
+                          <Input
+                            type="date"
+                            disabled={control._formValues.experiences?.[index]?.current}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormField
+                          control={control}
+                          name={`experiences.${index}.current`}
+                          render={({ field: checkboxField }) => (
+                            <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={checkboxField.value}
+                                  onCheckedChange={checkboxField.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="font-normal cursor-pointer">
+                                  Current
+                                </FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <label className="flex items-center gap-2 text-sm whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    {...register(`experiences.${index}.current`)}
-                    className="rounded border-gray-300"
-                  />
-                  Current
-                </label>
               </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Description & Key Achievements</label>
-            <textarea
-              {...register(`experiences.${index}.description`)}
-              placeholder="Describe your responsibilities, achievements, and tech stack..."
-              rows={4}
-              className="w-full border rounded-md px-3 py-2 text-sm bg-background resize-y"
+            <FormField
+              control={control}
+              name={`experiences.${index}.description`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description & Key Achievements</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Describe your responsibilities, achievements, and tech stack..."
+                      className="min-h-[120px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex justify-end">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => remove(index)}
-              className="text-destructive hover:text-destructive/90 text-sm font-medium"
+              className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors"
             >
-              Remove Position
-            </button>
+              <Trash2 className="w-4 h-4" />
+            </Button>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {fields.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-          No work history added yet. Add your experience to generate better resumes.
-        </div>
+        <EmptyState
+          icon={Briefcase}
+          title="No work history added yet"
+          description="Add your professional experience to generate better resumes."
+          action={{
+            label: "Add Your First Position",
+            onClick: () => append({
+              position: '',
+              company: '',
+              startDate: '',
+              current: false,
+              description: '',
+              technologies: []
+            })
+          }}
+        />
       )}
     </div>
   );
 }
 
 function EducationSection() {
-  const { register, control } = useFormContext();
+  const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'educations'
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Education</h3>
-        <button
+        <Button
           type="button"
           onClick={() => append({
             school: '',
@@ -211,83 +321,132 @@ function EducationSection() {
             startDate: '',
             description: ''
           })}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
+          className="gap-2"
         >
-          Add Education
-        </button>
+          <Plus className="w-4 h-4" /> Add Education
+        </Button>
       </div>
 
-      {fields.map((field, index) => (
-        <div key={field.id} className="border p-6 rounded-lg space-y-4 bg-card text-card-foreground shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">School / University</label>
-              <input
-                {...register(`educations.${index}.school`)}
-                placeholder="e.g. Stanford University"
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+      <div className="space-y-6">
+        {fields.map((field, index) => (
+          <div key={field.id} className="group relative border border-border/50 bg-card/50 p-6 rounded-xl space-y-6 transition-all hover:border-primary/20 hover:shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={control}
+                name={`educations.${index}.school`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>School / University</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Stanford University" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Degree</label>
-              <input
-                {...register(`educations.${index}.degree`)}
-                placeholder="e.g. Bachelor of Science"
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+              <FormField
+                control={control}
+                name={`educations.${index}.degree`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Degree</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Bachelor of Science" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Field of Study</label>
-              <input
-                {...register(`educations.${index}.field`)}
-                placeholder="e.g. Computer Science"
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+              <FormField
+                control={control}
+                name={`educations.${index}.field`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Field of Study</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Computer Science" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={control}
+                  name={`educations.${index}.startDate`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name={`educations.${index}.endDate`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Start Date</label>
-              <input
-                type="date"
-                {...register(`educations.${index}.startDate`)}
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">End Date (or Expected)</label>
-              <input
-                type="date"
-                {...register(`educations.${index}.endDate`)}
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-              />
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Description</label>
-            <textarea
-              {...register(`educations.${index}.description`)}
-              placeholder="Activities, societies, etc..."
-              rows={3}
-              className="w-full border rounded-md px-3 py-2 text-sm bg-background resize-y"
+            <FormField
+              control={control}
+              name={`educations.${index}.description`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Activities, societies, achievements..."
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex justify-end">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => remove(index)}
-              className="text-destructive hover:text-destructive/90 text-sm font-medium"
+              className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors"
             >
-              Remove Education
-            </button>
+              <Trash2 className="w-4 h-4" />
+            </Button>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {fields.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-          Add your education history to verify credentials.
-        </div>
+        <EmptyState
+          icon={GraduationCap}
+          title="No education history added yet"
+          description="Add your educational background to verify your credentials."
+          action={{
+            label: "Add Education",
+            onClick: () => append({
+              school: '',
+              degree: '',
+              field: '',
+              startDate: '',
+              description: ''
+            })
+          }}
+        />
       )}
     </div>
   );
@@ -302,21 +461,14 @@ const STATIC_SUGGESTIONS = [
 ];
 
 function SkillsSectionReal() {
-  const { register, getValues, setValue, watch, control } = useFormContext();
+  const { setValue, watch, getValues } = useFormContext();
   const skills = watch('skills') || [];
-
-  // Watch fields to trigger updates (optional, for now explicit refresh is safer/cheaper)
-  const experiences = watch('experiences');
-  const educations = watch('educations');
-  const projects = watch('projects');
 
   const [input, setInput] = useState('');
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Initial load of static, or could fetch immediately
   useEffect(() => {
-    // Determine suggested skills based on simple static logic or just show static initially
     if (aiSuggestions.length === 0) {
       setAiSuggestions(STATIC_SUGGESTIONS);
     }
@@ -344,7 +496,6 @@ function SkillsSectionReal() {
       }
     } catch (err) {
       console.error("Failed to generate skills", err);
-      // Fallback or toast
     } finally {
       setIsGenerating(false);
     }
@@ -355,7 +506,7 @@ function SkillsSectionReal() {
     if (!skill) return;
     if (skills.includes(skill)) return;
 
-    const newSkills = [...skills];
+    const newSkills = [...skills, skill];
     setValue('skills', newSkills, { shouldDirty: true });
     setInput('');
   };
@@ -367,11 +518,11 @@ function SkillsSectionReal() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Add Skill</label>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="space-y-4">
+        <FormLabel>Add Skill</FormLabel>
         <div className="flex gap-2">
-          <input
+          <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -381,51 +532,55 @@ function SkillsSectionReal() {
               }
             }}
             placeholder="e.g. TypeScript"
-            className="flex-1 border rounded-md px-3 py-2 text-sm bg-background"
+            className="flex-1"
           />
-          <button
+          <Button
             type="button"
             onClick={() => addSkill(input)}
-            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
           >
             Add
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 p-4 bg-muted/20 border border-border/50 rounded-xl min-h-[100px] content-start">
         {skills.map((skill: string, index: number) => (
-          <div key={index} className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm flex items-center gap-2">
+          <div key={index} className="bg-background border border-border px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 shadow-sm animate-in zoom-in duration-300">
             <span>{skill}</span>
             <button
               type="button"
               onClick={() => removeSkill(index)}
-              className="hover:text-destructive"
+              className="text-muted-foreground hover:text-destructive transition-colors"
             >
               &times;
             </button>
           </div>
         ))}
+        {skills.length === 0 && (
+          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground text-sm italic py-8">
+            <p>No skills added yet</p>
+          </div>
+        )}
       </div>
 
-      {skills.length === 0 && (
-        <p className="text-sm text-muted-foreground">No skills added yet.</p>
-      )}
-
-      <div className="space-y-2 pt-4 border-t">
+      <div className="space-y-4 pt-4 border-t border-border/50">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            Ai Suggestions
-            {isGenerating && <span className="animate-pulse text-primary">✨ Generating...</span>}
-          </label>
-          <button
+          <FormLabel className="flex items-center gap-2 text-muted-foreground">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
+            AI Suggestions
+            {isGenerating && <span className="animate-pulse text-xs text-primary font-normal">Generating...</span>}
+          </FormLabel>
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={generateSuggestions}
             disabled={isGenerating}
-            className="text-xs text-primary hover:underline disabled:opacity-50"
+            className="text-primary hover:text-primary/80 h-auto p-0 hover:bg-transparent font-normal"
           >
-            Refresh Suggestions
-          </button>
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isGenerating ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -435,7 +590,7 @@ function SkillsSectionReal() {
               type="button"
               onClick={() => addSkill(skill)}
               disabled={isGenerating}
-              className="px-3 py-1 rounded-full text-xs border border-dashed border-muted-foreground/50 hover:bg-secondary hover:border-secondary transition-colors text-muted-foreground hover:text-secondary-foreground text-left"
+              className="px-3 py-1.5 rounded-full text-xs font-medium border border-dashed border-border hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all text-muted-foreground"
             >
               + {skill}
             </button>
@@ -447,17 +602,17 @@ function SkillsSectionReal() {
 }
 
 function ProjectsSection() {
-  const { register, control } = useFormContext();
+  const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'projects'
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Projects</h3>
-        <button
+        <Button
           type="button"
           onClick={() => append({
             name: '',
@@ -465,80 +620,127 @@ function ProjectsSection() {
             technologies: [],
             url: ''
           })}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
+          className="gap-2"
         >
-          Add Project
-        </button>
+          <Plus className="w-4 h-4" /> Add Project
+        </Button>
       </div>
 
-      {fields.map((field, index) => (
-        <div key={field.id} className="border p-6 rounded-lg space-y-4 bg-card text-card-foreground shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Project Name</label>
-              <input
-                {...register(`projects.${index}.name`)}
-                placeholder="e.g. Job Search Platform"
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+      <div className="space-y-6">
+        {fields.map((field, index) => (
+          <div key={field.id} className="group relative border border-border/50 bg-card/50 p-6 rounded-xl space-y-6 transition-all hover:border-primary/20 hover:shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={control}
+                name={`projects.${index}.name`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Project Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Job Search Platform" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name={`projects.${index}.url`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://github.com/..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">URL</label>
-              <input
-                {...register(`projects.${index}.url`)}
-                placeholder="https://github.com/..."
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-              />
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Technologies (Comma separated)</label>
-            <input
-              {...register(`projects.${index}.technologies`)}
-              placeholder="React, Node.js, Prisma"
-              className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+            <FormField
+              control={control}
+              name={`projects.${index}.technologies`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Technologies</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="React, Node.js, Prisma"
+                      {...field}
+                    // Handle array to string conversion if needed, but react-hook-form usually handles string inputs fine, 
+                    // we just split it on submit as done in the main component.
+                    />
+                  </FormControl>
+                  <FormDescription>Comma-separated (e.g. React, Node.js)</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <p className="text-xs text-muted-foreground">Enter as comma-separated values</p>
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Description</label>
-            <textarea
-              {...register(`projects.${index}.description`)}
-              placeholder="What did you build? What problem did it solve?"
-              rows={3}
-              className="w-full border rounded-md px-3 py-2 text-sm bg-background resize-y"
+            <FormField
+              control={control}
+              name={`projects.${index}.description`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="What did you build? What problem did it solve?"
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex justify-end">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => remove(index)}
-              className="text-destructive hover:text-destructive/90 text-sm font-medium"
+              className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors"
             >
-              Remove Project
-            </button>
+              <Trash2 className="w-4 h-4" />
+            </Button>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {fields.length === 0 && (
+        <EmptyState
+          icon={FolderGit2}
+          title="No projects added yet"
+          description="Showcase your best work to stand out to recruiters."
+          action={{
+            label: "Add Project",
+            onClick: () => append({
+              name: '',
+              description: '',
+              technologies: [],
+              url: ''
+            })
+          }}
+        />
+      )}
     </div>
   );
 }
 
 function CertificationsSection() {
-  const { register, control } = useFormContext();
+  const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'certifications'
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Certifications</h3>
-        <button
+        <Button
           type="button"
           onClick={() => append({
             name: '',
@@ -546,60 +748,96 @@ function CertificationsSection() {
             date: '',
             url: ''
           })}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
+          className="gap-2"
         >
-          Add Certification
-        </button>
+          <Plus className="w-4 h-4" /> Add Certification
+        </Button>
       </div>
 
-      {fields.map((field, index) => (
-        <div key={field.id} className="border p-6 rounded-lg space-y-4 bg-card text-card-foreground shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Name</label>
-              <input
-                {...register(`certifications.${index}.name`)}
-                placeholder="e.g. AWS Solutions Architect"
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+      <div className="space-y-6">
+        {fields.map((field, index) => (
+          <div key={field.id} className="group relative border border-border/50 bg-card/50 p-6 rounded-xl space-y-6 transition-all hover:border-primary/20 hover:shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={control}
+                name={`certifications.${index}.name`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. AWS Solutions Architect" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name={`certifications.${index}.issuer`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Issuer</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Amazon Web Services" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name={`certifications.${index}.date`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name={`certifications.${index}.url`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Issuer</label>
-              <input
-                {...register(`certifications.${index}.issuer`)}
-                placeholder="e.g. Amazon Web Services"
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Date</label>
-              <input
-                type="date"
-                {...register(`certifications.${index}.date`)}
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">URL</label>
-              <input
-                {...register(`certifications.${index}.url`)}
-                placeholder="https://..."
-                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-              />
-            </div>
-          </div>
 
-          <div className="flex justify-end">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => remove(index)}
-              className="text-destructive hover:text-destructive/90 text-sm font-medium"
+              className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors"
             >
-              Remove Certification
-            </button>
+              <Trash2 className="w-4 h-4" />
+            </Button>
           </div>
+        ))}
+      </div>
+
+      {fields.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground border-2 border-dashed border-border/50 rounded-xl bg-muted/5">
+          <p className="text-body-sm mb-4">No certifications added yet</p>
+          <Button variant="outline" onClick={() => append({
+            name: '',
+            issuer: '',
+            date: '',
+            url: ''
+          })}>
+            Add Certification
+          </Button>
         </div>
-      ))}
+      )}
     </div>
   );
 }
@@ -612,9 +850,9 @@ export function ProfileBuilder() {
   const methods = useForm<Profile>({
     defaultValues: {
       contactInfo: {},
-      workHistory: [], // legacy
+      workHistory: [],
       experiences: [],
-      education: [], // legacy
+      education: [],
       educations: [],
       skills: [],
       projects: [],
@@ -622,16 +860,13 @@ export function ProfileBuilder() {
     }
   });
 
-  // Load initial data
   React.useEffect(() => {
-    // Add timestamp to prevent caching
     fetch('/api/profile?t=' + Date.now(), {
       headers: { 'Cache-Control': 'no-cache' }
     })
       .then(res => res.json())
       .then(data => {
         if (data && !data.error) {
-          // Pre-process dates for inputs (YYYY-MM-DD)
           const processed = {
             ...data,
             experiences: data.experiences?.map((e: any) => ({
@@ -649,8 +884,6 @@ export function ProfileBuilder() {
               technologies: Array.isArray(p.technologies) ? p.technologies.join(', ') : p.technologies
             })) || []
           };
-
-          // Force reset with new data
           methods.reset(processed);
         }
         setIsLoading(false);
@@ -659,25 +892,20 @@ export function ProfileBuilder() {
         console.error('Failed to load profile', err);
         setIsLoading(false);
       });
-  }, [methods]); // methods is stable, so this runs on mount. Add manual refresh trigger if needed.
-
-
+  }, [methods]);
 
   const handleSave = async (data: Profile) => {
     setSaveStatus('Saving...');
     try {
-      // Extract CSRF token from cookies
       const csrfToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('csrf-token='))
         ?.split('=')[1];
 
-      // Transform projects data to split technologies string to array if needed
       const processedData = {
         ...data,
         projects: (data.projects || []).map((project: any) => ({
           ...project,
-          // technologies might be a string from the input, split it
           technologies: typeof project.technologies === 'string'
             ? project.technologies.split(',').map((t: string) => t.trim()).filter(Boolean)
             : project.technologies
@@ -696,12 +924,7 @@ export function ProfileBuilder() {
         setSaveStatus('Saved');
       } else {
         console.error('Server returned:', res.status, res.statusText);
-        try {
-          const err = await res.json();
-          setSaveStatus(`Error: ${err.error || res.statusText}`);
-        } catch {
-          setSaveStatus(`Error: ${res.status} ${res.statusText}`);
-        }
+        setSaveStatus('Error saving');
       }
     } catch (err) {
       console.error(err);
@@ -713,35 +936,36 @@ export function ProfileBuilder() {
   const values = methods.watch();
   const progress = calculateCompleteness(values);
 
-  // Only auto-save if the form has been modified by the user AND is not loading
   useAutoSave(!isLoading && isDirty ? values : null, (v) => {
     if (v) handleSave(v);
   }, 2000);
 
   if (isLoading) {
-    return <div className="p-8">Loading profile...</div>;
+    return <div className="p-8 flex items-center justify-center text-muted-foreground">Loading profile...</div>;
   }
 
   return (
-    <FormProvider {...methods}>
+    <Form {...methods}>
       <div className="flex h-full flex-col">
-        <div className="bg-background border-b p-4 space-y-4">
+        <div className="bg-background/80 backdrop-blur border-b p-4 space-y-4 z-10 sticky top-0">
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-bold">Profile Builder</h1>
-            <span className="text-sm text-muted-foreground">{saveStatus}</span>
+            <span className={`text-sm font-medium ${saveStatus === 'Saved' ? 'text-green-500' :
+              saveStatus === 'Saving...' ? 'text-amber-500' : 'text-red-500'
+              }`}>{saveStatus}</span>
           </div>
           <ProgressBar progress={progress} />
         </div>
-        <div className="flex flex-1">
-          <div className="w-64 bg-muted/30 p-4 border-r">
-            <nav className="space-y-2">
+        <div className="flex flex-1 overflow-hidden">
+          <div className="w-64 bg-slate-50/50 dark:bg-slate-900/20 p-4 border-r overflow-y-auto hidden md:block">
+            <nav className="space-y-1">
               {sections.map((section) => (
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`w-full text-left px-4 py-2 rounded transition-colors ${activeSection === section.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'hover:bg-muted text-foreground'
+                  className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all font-medium ${activeSection === section.id
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                 >
                   {section.title}
@@ -749,19 +973,23 @@ export function ProfileBuilder() {
               ))}
             </nav>
           </div>
-          <div className="flex-1 p-8 overflow-y-auto bg-background">
-            <h2 className="text-2xl font-bold mb-6">
-              {sections.find(s => s.id === activeSection)?.title}
-            </h2>
-            {activeSection === 'contact' && <ContactSection />}
-            {activeSection === 'work' && <WorkHistorySection />}
-            {activeSection === 'education' && <EducationSection />}
-            {activeSection === 'skills' && <SkillsSectionReal />}
-            {activeSection === 'projects' && <ProjectsSection />}
-            {activeSection === 'certifications' && <CertificationsSection />}
+          <div className="flex-1 p-6 md:p-8 overflow-y-auto bg-background/50">
+            <div className="max-w-4xl mx-auto pb-20">
+              <div className="mb-8 border-b pb-4">
+                <h2 className="text-2xl font-bold tracking-tight">
+                  {sections.find(s => s.id === activeSection)?.title}
+                </h2>
+              </div>
+              {activeSection === 'contact' && <ContactSection />}
+              {activeSection === 'work' && <WorkHistorySection />}
+              {activeSection === 'education' && <EducationSection />}
+              {activeSection === 'skills' && <SkillsSectionReal />}
+              {activeSection === 'projects' && <ProjectsSection />}
+              {activeSection === 'certifications' && <CertificationsSection />}
+            </div>
           </div>
         </div>
       </div>
-    </FormProvider>
+    </Form>
   );
 }

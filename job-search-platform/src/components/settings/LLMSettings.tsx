@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -5,7 +6,17 @@ import { useForm } from 'react-hook-form';
 import { useConfig, LLMConfig } from '@/contexts/ConfigContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 
 // Default model options per provider - Verified December 2025
 const DEFAULT_MODELS: Record<string, { value: string; label: string }[]> = {
@@ -78,10 +89,18 @@ export function LLMSettings() {
     const [modelFetchError, setModelFetchError] = useState<string | null>(null);
     const [useManualModel, setUseManualModel] = useState(false);
 
-    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<LLMConfig>({
-        defaultValues: config?.llm,
+    const form = useForm<LLMConfig>({
+        defaultValues: config?.llm || {
+            provider: 'openai',
+            model: 'gpt-5.2',
+            apiKey: '',
+            apiEndpoint: '',
+            temperature: 0.7,
+            maxTokens: 2000,
+        },
     });
 
+    const { watch, setValue } = form;
     const provider = watch('provider') || 'openai';
     const currentModel = watch('model');
     const apiEndpoint = watch('apiEndpoint');
@@ -179,7 +198,7 @@ export function LLMSettings() {
         ? dynamicModels
         : (DEFAULT_MODELS[provider] || []);
 
-    // Update model when provider changes (only if not using dynamic models)
+    // Update model when provider changes
     useEffect(() => {
         if (dynamicModels.length === 0) {
             const models = DEFAULT_MODELS[provider] || [];
@@ -189,6 +208,13 @@ export function LLMSettings() {
             }
         }
     }, [provider, currentModel, setValue, dynamicModels.length]);
+
+    // Reset when config loads
+    useEffect(() => {
+        if (config?.llm) {
+            form.reset(config.llm);
+        }
+    }, [config, form]);
 
     const testConnection = async () => {
         setTestResult('Testing...');
@@ -231,177 +257,231 @@ export function LLMSettings() {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
-                <div>
-                    <Label htmlFor="provider">Provider</Label>
-                    <select
-                        id="provider"
-                        {...register('provider')}
-                        className="w-full border rounded px-3 py-2"
-                    >
-                        <option value="openai">OpenAI</option>
-                        <option value="anthropic">Anthropic / Compatible</option>
-                        <option value="gemini">Google Gemini</option>
-                        <option value="ollama">Ollama</option>
-                        <option value="openrouter">OpenRouter</option>
-                        <option value="azure">Azure OpenAI</option>
-                        <option value="custom">Custom (OpenAI-Compatible)</option>
-                    </select>
-                </div>
-
-                {/* API Endpoint - shown for providers that support custom endpoints */}
-                {(provider === 'custom' || provider === 'azure' || provider === 'ollama' || provider === 'anthropic') && (
-                    <div>
-                        <Label htmlFor="apiEndpoint">API Endpoint</Label>
-                        <div className="flex gap-2">
-                            <Input
-                                id="apiEndpoint"
-                                {...register('apiEndpoint')}
-                                placeholder={
-                                    provider === 'anthropic' ? 'https://api.anthropic.com' :
-                                        provider === 'ollama' ? 'http://localhost:11434' :
-                                            'https://api.example.com/v1'
-                                }
-                                className="flex-1"
-                            />
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleFetchModels}
-                                disabled={!apiEndpoint || isLoadingModels}
-                            >
-                                {isLoadingModels ? '⏳' : '🔄'} Fetch Models
-                            </Button>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Enter endpoint URL and click "Fetch Models" to load available models
-                        </p>
-                    </div>
-                )}
-
-                {/* API Key */}
-                <div>
-                    <Label htmlFor="apiKey">API Key</Label>
-                    <Input
-                        id="apiKey"
-                        type="password"
-                        {...register('apiKey')}
-                        placeholder="sk-... or your API key"
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="provider"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Provider</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a provider" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="openai">OpenAI</SelectItem>
+                                        <SelectItem value="anthropic">Anthropic / Compatible</SelectItem>
+                                        <SelectItem value="gemini">Google Gemini</SelectItem>
+                                        <SelectItem value="ollama">Ollama</SelectItem>
+                                        <SelectItem value="openrouter">OpenRouter</SelectItem>
+                                        <SelectItem value="azure">Azure OpenAI</SelectItem>
+                                        <SelectItem value="custom">Custom (OpenAI-Compatible)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
-                </div>
 
-                {/* Model Selection */}
-                <div>
-                    <div className="flex justify-between items-center mb-1">
-                        <Label htmlFor="model">Model</Label>
-                        <label className="text-xs flex items-center gap-1">
-                            <input
-                                type="checkbox"
-                                checked={useManualModel}
-                                onChange={(e) => setUseManualModel(e.target.checked)}
-                            />
-                            Enter manually
-                        </label>
-                    </div>
-
-                    {useManualModel ? (
-                        <Input
-                            id="model"
-                            {...register('model', { required: 'Model is required' })}
-                            placeholder="Enter model name (e.g., gpt-4, glm-4)"
-                        />
-                    ) : (
-                        <>
-                            <select
-                                id="model"
-                                {...register('model', { required: 'Model is required' })}
-                                className="w-full border rounded px-3 py-2"
-                                disabled={isLoadingModels}
-                            >
-                                {isLoadingModels ? (
-                                    <option>Loading models...</option>
-                                ) : availableModels.length > 0 ? (
-                                    availableModels.map(model => (
-                                        <option key={model.value} value={model.value}>
-                                            {model.label}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option value="">No models available</option>
+                    {(provider === 'custom' || provider === 'azure' || provider === 'ollama' || provider === 'anthropic') && (
+                        <div className="space-y-2">
+                            <FormField
+                                control={form.control}
+                                name="apiEndpoint"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>API Endpoint</FormLabel>
+                                        <div className="flex gap-2">
+                                            <FormControl>
+                                                <Input
+                                                    {...field}
+                                                    placeholder={
+                                                        provider === 'anthropic' ? 'https://api.anthropic.com' :
+                                                            provider === 'ollama' ? 'http://localhost:11434' :
+                                                                'https://api.example.com/v1'
+                                                    }
+                                                    className="flex-1"
+                                                />
+                                            </FormControl>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={handleFetchModels}
+                                                disabled={!apiEndpoint || isLoadingModels}
+                                            >
+                                                {isLoadingModels ? '⏳' : '🔄'} Fetch Models
+                                            </Button>
+                                        </div>
+                                        <FormDescription>
+                                            Enter endpoint URL and click "Fetch Models" to load available models
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-                            </select>
-                            {dynamicModels.length > 0 && (
-                                <p className="text-xs text-green-600 mt-1">
-                                    ✓ {dynamicModels.length} models loaded from endpoint
-                                </p>
-                            )}
-                        </>
-                    )}
-
-                    {modelFetchError && (
-                        <p className="text-xs text-amber-600 mt-1">
-                            ⚠️ {modelFetchError} - Using default models or enter manually
-                        </p>
-                    )}
-                    {errors.model && (
-                        <p className="text-sm text-red-500 mt-1">{errors.model.message}</p>
-                    )}
-                </div>
-
-                {/* Advanced Settings */}
-                <details className="border rounded-lg p-4">
-                    <summary className="cursor-pointer font-medium text-sm">⚙️ Advanced Settings</summary>
-                    <div className="mt-4 grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="temperature">Creativity (Temperature)</Label>
-                            <Input
-                                id="temperature"
-                                type="number"
-                                step="0.1"
-                                {...register('temperature', { valueAsNumber: true, min: 0, max: 2 })}
-                                placeholder="0.7"
                             />
-                            <p className="text-xs text-muted-foreground mt-1">
-                                0 = focused, 1 = balanced, 2 = creative
-                            </p>
+                        </div>
+                    )}
+
+                    <FormField
+                        control={form.control}
+                        name="apiKey"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>API Key</FormLabel>
+                                <FormControl>
+                                    <Input {...field} type="password" placeholder="sk-... or your API key" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center mb-1">
+                            <FormLabel>Model</FormLabel>
+                            <label className="text-xs flex items-center gap-1">
+                                <Checkbox
+                                    checked={useManualModel}
+                                    onCheckedChange={(c) => setUseManualModel(!!c)}
+                                />
+                                <span className="text-body-sm">Enter manually</span>
+                            </label>
                         </div>
 
-                        <div>
-                            <Label htmlFor="maxTokens">Max Response Length</Label>
-                            <Input
-                                id="maxTokens"
-                                type="number"
-                                {...register('maxTokens', { valueAsNumber: true })}
-                                placeholder="2000"
+                        {useManualModel ? (
+                            <FormField
+                                control={form.control}
+                                name="model"
+                                rules={{ required: 'Model is required' }}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input {...field} placeholder="Enter model name (e.g., gpt-4, glm-4)" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            <p className="text-xs text-muted-foreground mt-1">
-                                Tokens in generated output (not context window)
+                        ) : (
+                            <FormField
+                                control={form.control}
+                                name="model"
+                                rules={{ required: 'Model is required' }}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            value={field.value}
+                                            disabled={isLoadingModels}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={isLoadingModels ? "Loading models..." : "Select a model"} />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {isLoadingModels ? (
+                                                    <SelectItem value="loading" disabled>Loading models...</SelectItem>
+                                                ) : availableModels.length > 0 ? (
+                                                    availableModels.map(model => (
+                                                        <SelectItem key={model.value} value={model.value}>
+                                                            {model.label}
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <SelectItem value="none" disabled>No models available</SelectItem>
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                        {dynamicModels.length > 0 && (
+                                            <FormDescription className="text-green-600">
+                                                ✓ {dynamicModels.length} models loaded from endpoint
+                                            </FormDescription>
+                                        )}
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
+
+                        {modelFetchError && (
+                            <p className="text-xs text-amber-600 mt-1">
+                                ⚠️ {modelFetchError} - Using default models or enter manually
                             </p>
+                        )}
+                    </div>
+
+                    <details className="border rounded-xl p-4 bg-background/50">
+                        <summary className="cursor-pointer font-medium text-sm">⚙️ Advanced Settings</summary>
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="temperature"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Creativity (Temperature)</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                type="number"
+                                                step="0.1"
+                                                onChange={e => field.onChange(parseFloat(e.target.value))}
+                                                placeholder="0.7"
+                                            />
+                                        </FormControl>
+                                        <FormDescription>
+                                            0 = focused, 1 = balanced, 2 = creative
+                                        </FormDescription>
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="maxTokens"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Max Response Length</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                type="number"
+                                                onChange={e => field.onChange(parseInt(e.target.value))}
+                                                placeholder="2000"
+                                            />
+                                        </FormControl>
+                                        <FormDescription>
+                                            Tokens in output
+                                        </FormDescription>
+                                    </FormItem>
+                                )}
+                            />
                         </div>
-                    </div>
-                </details>
+                    </details>
 
-                {/* Action Buttons */}
-                <div className="flex gap-2 flex-wrap">
-                    <Button type="button" variant="outline" onClick={testConnection}>
-                        🔌 Test Connection
-                    </Button>
-                    <Button type="submit" disabled={isSaving}>
-                        {isSaving ? '⏳ Saving...' : '💾 Save Settings'}
-                    </Button>
+                    <div className="flex gap-2 flex-wrap">
+                        <Button type="button" variant="outline" onClick={testConnection}>
+                            🔌 Test Connection
+                        </Button>
+                        <Button type="submit" disabled={isSaving}>
+                            {isSaving ? '⏳ Saving...' : '💾 Save Settings'}
+                        </Button>
+                    </div>
+
+                    {testResult && (
+                        <div className={`p-3 rounded-lg text-sm ${testResult.includes('✅') ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                            testResult.includes('❌') ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                            }`}>
+                            {testResult}
+                        </div>
+                    )}
                 </div>
-
-                {/* Status Messages */}
-                {testResult && (
-                    <div className={`p-3 rounded text-sm ${testResult.includes('✅') ? 'bg-green-50 text-green-700 border border-green-200' :
-                        testResult.includes('❌') ? 'bg-red-50 text-red-700 border border-red-200' :
-                            'bg-blue-50 text-blue-700 border border-blue-200'
-                        }`}>
-                        {testResult}
-                    </div>
-                )}
-            </div>
-        </form>
+            </form>
+        </Form>
     );
 }

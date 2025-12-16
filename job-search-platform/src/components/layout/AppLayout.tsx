@@ -55,9 +55,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                 priority
                             />
                         </div>
-                        <span className="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
-                            JobScout
-                        </span>
+                        <div className="relative w-32 h-8">
+                            <Image 
+                                src="/images/brand-light.svg" 
+                                alt="JobScout" 
+                                fill
+                                className="object-contain dark:hidden"
+                                priority
+                            />
+                            <Image 
+                                src="/images/brand-dark.svg" 
+                                alt="JobScout" 
+                                fill
+                                className="object-contain hidden dark:block"
+                                priority
+                            />
+                        </div>
                     </Link>
                     
                     {/* Navigation */}

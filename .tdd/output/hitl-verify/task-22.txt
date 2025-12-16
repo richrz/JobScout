@@ -10,7 +10,7 @@ PREREQUISITES
 ──────────────────────────────────────────────────────────────────────────────
 Run this command and wait for the output shown:
 
-  $ cd job-search-platform && npm run dev
+  $ cd job-search-platform && npm run demo:task-22
 
 Wait for: "Ready on http://localhost:3000"
 

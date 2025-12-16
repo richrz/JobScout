@@ -1,0 +1,128 @@
+================================================================================
+HITL VERIFICATION: Task 27 - Implement ATS Resume Scoring Module
+================================================================================
+File: .tdd/output/hitl-verify/task-27.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Run this command and wait for the output shown:
+
+  $ cd job-search-platform && npm run demo:task-27
+
+Wait for: "Ready on http://localhost:3000"
+
+Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
+
+================================================================================
+TEST 1: ATS Analysis Trigger
+================================================================================
+
+PURPOSE
+  What we're testing: User can initiate an ATS analysis for a resume.
+  Why this matters:   Core value proposition - helping users improve resumes.
+
+STEPS
+  1. Open http://localhost:3000/resume
+  2. Select a job (if required)
+  3. Locate "ATS Scan" or "Analyze" button
+  4. Click the button
+
+EXPECTED RESULT
+  You should see:
+  - Loading state (spinner or "Analyzing...")
+  - A score (0-100%) appears after analysis
+  - "Missing Keywords" section populates
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 2: Score Visualization
+================================================================================
+
+PURPOSE
+  What we're testing: The score is presented visually (e.g., gauge/progress bar).
+  Why this matters:   Visual feedback is critical for quick understanding.
+
+STEPS
+  1. Look at the ATS Score component
+  2. Verify the color corresponds to the score (Green > 75, Yellow > 50, Red < 50)
+
+EXPECTED RESULT
+  You should see:
+  - A circular or linear progress bar
+  - The percentage is clearly readable
+  - Color coding matches the score logic
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+SUMMARY
+================================================================================
+
+File: .tdd/output/hitl-verify/task-27.txt
+Total Tests: 2      Passed: ___    Failed: ___
+
+Overall Result:  [ ] PASS - All tests passed
+                 [ ] FAIL - One or more tests failed
+
+──────────────────────────────────────────────────────────────────────────────
+IF PASS - Copy this EXACTLY to your agent chat:
+──────────────────────────────────────────────────────────────────────────────
+
+✅ HITL VERIFICATION PASSED
+File: .tdd/output/hitl-verify/task-27.txt
+Task: 27 - Implement ATS Resume Scoring Module
+Tests: 2/2 passed
+Result: APPROVED
+
+Please run: npx task-master set-status --id=27 --status=done
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Copy '.tdd/user/2-AUDIT.txt' to a NEW chat to verify │
+│ Task 27                                                     │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+IF FAIL - Copy this EXACTLY to your agent chat (fill in the blanks):
+──────────────────────────────────────────────────────────────────────────────
+
+❌ HITL VERIFICATION FAILED
+File: .tdd/output/hitl-verify/task-27.txt
+Task: 27 - Implement ATS Resume Scoring Module
+Tests: ___/2 passed
+
+FAILED TESTS:
+- TEST [X]: Expected "[expected]" but saw "[actual]"
+
+Please fix these issues and regenerate the HITL test.
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Wait for agent to fix, then re-run verification      │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+
+Verified by: ________________    Date: ________________    Signature: ________

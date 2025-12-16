@@ -1,0 +1,127 @@
+================================================================================
+HITL VERIFICATION: Task 28 - Integrate Qdrant Vector Database
+================================================================================
+File: .tdd/output/hitl-verify/task-28.txt
+================================================================================
+
+Tester: ________________    Date: ________________
+
+PREREQUISITES
+──────────────────────────────────────────────────────────────────────────────
+Run this command and wait for the output shown:
+
+  $ cd job-search-platform && npm run demo:task-28
+
+Wait for: "Ready on http://localhost:3000"
+
+Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
+
+================================================================================
+TEST 1: Qdrant Health Check
+================================================================================
+
+PURPOSE
+  What we're testing: Application can connect to the Qdrant vector database.
+  Why this matters:   Semantic search features depend on this connection.
+
+STEPS
+  1. Open http://localhost:3000/settings
+  2. Go to "Database" or "Advanced" tab (where Qdrant config is)
+  3. Look for "Vector Database Status" or click "Test Connection"
+
+EXPECTED RESULT
+  You should see:
+  - Status indicator: "Connected" (Green)
+  - Version info (optional but good)
+  - No "Connection Refused" errors
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+TEST 2: Semantic Match Verification
+================================================================================
+
+PURPOSE
+  What we're testing: Search returns results based on meaning, not just keywords.
+  Why this matters:   "React" should match "Frontend Developer" even if exact words differ.
+
+STEPS
+  1. Go to the "ATS Debug" or "Search" page (as defined in demo instructions)
+  2. Search for a concept (e.g., "Frontend")
+  3. Verify results include relevant items that might not have exact keyword overlap
+
+EXPECTED RESULT
+  You should see:
+  - Relevant results appear
+  - Search feels "smarter" than simple text match
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+
+  Did the expected result occur?     [ ] YES  [ ] NO
+
+  If NO, what happened instead?
+  _____________________________________________________________________________
+  _____________________________________________________________________________
+
+  Screenshots/Notes:
+  _____________________________________________________________________________
+
+================================================================================
+SUMMARY
+================================================================================
+
+File: .tdd/output/hitl-verify/task-28.txt
+Total Tests: 2      Passed: ___    Failed: ___
+
+Overall Result:  [ ] PASS - All tests passed
+                 [ ] FAIL - One or more tests failed
+
+──────────────────────────────────────────────────────────────────────────────
+IF PASS - Copy this EXACTLY to your agent chat:
+──────────────────────────────────────────────────────────────────────────────
+
+✅ HITL VERIFICATION PASSED
+File: .tdd/output/hitl-verify/task-28.txt
+Task: 28 - Integrate Qdrant Vector Database
+Tests: 2/2 passed
+Result: APPROVED
+
+Please run: npx task-master set-status --id=28 --status=done
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Copy '.tdd/user/2-AUDIT.txt' to a NEW chat to verify │
+│ Task 28                                                     │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+IF FAIL - Copy this EXACTLY to your agent chat (fill in the blanks):
+──────────────────────────────────────────────────────────────────────────────
+
+❌ HITL VERIFICATION FAILED
+File: .tdd/output/hitl-verify/task-28.txt
+Task: 28 - Integrate Qdrant Vector Database
+Tests: ___/2 passed
+
+FAILED TESTS:
+- TEST [X]: Expected "[expected]" but saw "[actual]"
+
+Please fix these issues and regenerate the HITL test.
+
+┌─────────────────────────────────────────────────────────────┐
+│ NEXT: Wait for agent to fix, then re-run verification      │
+└─────────────────────────────────────────────────────────────┘
+
+──────────────────────────────────────────────────────────────────────────────
+
+Verified by: ________________    Date: ________________    Signature: ________

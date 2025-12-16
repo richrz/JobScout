@@ -101,7 +101,6 @@ export async function POST(request: Request) {
 
         let suggestions: string[] = [];
 
-        let suggestions: string[] = [];
         try {
             // Clean up potentially messy LLM output (markdown fences)
             const cleanContent = response.content.replace(/```json/g, '').replace(/```/g, '').trim();

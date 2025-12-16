@@ -72,10 +72,10 @@ export default function Home() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2 leading-tight">
+                    <h1 className="text-title-page mb-2 leading-tight">
                         Hello, <span className="text-gradient-primary">Richard</span>
                     </h1>
-                    <p className="text-muted-foreground text-lg">Your command center is ready.</p>
+                    <p className="text-body text-muted-foreground">Your command center is ready.</p>
                 </motion.div>
                 <AuthStatus />
             </div>
@@ -102,7 +102,7 @@ export default function Home() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                                        <p className="text-body-sm font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</p>
                                         <div className={`text-5xl font-bold tracking-tighter ${stat.color} leading-normal pb-1`}>
                                             <AnimatedStat value={stat.value} prefix={stat.prefix} suffix={stat.suffix} delay={index * 0.1} />
                                         </div>
@@ -137,7 +137,7 @@ export default function Home() {
                             </div>
                         }
                         action={
-                            <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-primary">View All</Button>
+                            <Button variant="ghost" size="sm" className="text-tiny text-muted-foreground hover:text-primary">View All</Button>
                         }
                         className="min-h-[400px]"
                     >
@@ -154,8 +154,8 @@ export default function Home() {
                                         <activity.icon className="w-4 h-4" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium group-hover:text-primary transition-colors">{activity.title}</p>
-                                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                                        <p className="text-body-sm font-medium group-hover:text-primary transition-colors">{activity.title}</p>
+                                        <p className="text-tiny text-muted-foreground">{activity.time}</p>
                                     </div>
                                     <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                                 </motion.div>
@@ -177,13 +177,13 @@ export default function Home() {
                                 <Search className="w-8 h-8 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold">Find Your Next Role</h3>
-                                <p className="text-muted-foreground text-sm max-w-[220px] mx-auto mt-2 leading-relaxed">
+                                <h3 className="text-title-section text-2xl font-bold">Find Your Next Role</h3>
+                                <p className="text-body-sm text-muted-foreground max-w-[220px] mx-auto mt-2 leading-relaxed">
                                     AI-powered matching is active. 12 new roles match your profile.
                                 </p>
                             </div>
                             <Link href={"/jobs" as Route}>
-                                <Button className="rounded-full px-8 py-6 text-base shadow-lg shadow-primary/25 hover:shadow-primary/50 transition-all">
+                                <Button className="rounded-full px-8 py-6 text-body shadow-lg shadow-primary/25 hover:shadow-primary/50 transition-all">
                                     Browse Jobs
                                 </Button>
                             </Link>
@@ -194,13 +194,13 @@ export default function Home() {
                         <Link href={"/pipeline" as Route} className="contents">
                             <ShellCard variant="interactive" className="flex flex-col items-center justify-center gap-2 text-center h-[120px]">
                                 <List className="w-6 h-6 text-cyan-400" />
-                                <span className="text-sm font-medium">Pipeline</span>
+                                <span className="text-body-sm font-medium">Pipeline</span>
                             </ShellCard>
                         </Link>
                         <Link href={"/resume" as Route} className="contents">
                             <ShellCard variant="interactive" className="flex flex-col items-center justify-center gap-2 text-center h-[120px]">
                                 <FileText className="w-6 h-6 text-emerald-400" />
-                                <span className="text-sm font-medium">Resume</span>
+                                <span className="text-body-sm font-medium">Resume</span>
                             </ShellCard>
                         </Link>
                     </div>

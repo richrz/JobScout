@@ -10,7 +10,7 @@ PREREQUISITES
 ──────────────────────────────────────────────────────────────────────────────
 Run this command and wait for the output shown:
 
-  $ npm run dev
+  $ npm run demo:task-23
 
 Wait for: "Ready on http://localhost:3000"
 

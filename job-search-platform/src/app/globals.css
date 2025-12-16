@@ -5,8 +5,10 @@
 @layer base {
   :root {
     /* Base Colors - Light Mode (Frost Glass) */
-    --background: 210 40% 98%; /* Soft Cool White */
-    --foreground: 222 47% 11%; /* Deep Slate Text */
+    --background: 210 40% 98%;
+    /* Soft Cool White */
+    --foreground: 222 47% 11%;
+    /* Deep Slate Text */
 
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -14,7 +16,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 250 100% 65%; /* Violet 500 */
+    --primary: 250 100% 65%;
+    /* Violet 500 */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -36,24 +39,33 @@
     --radius: 0.75rem;
 
     /* Theme-Specific Gradients (CSS Vars) */
-    --gradient-1: hsla(250, 40%, 90%, 0.4); /* Soft Violet */
-    --gradient-2: hsla(190, 40%, 90%, 0.4); /* Soft Cyan */
-    --gradient-3: hsla(280, 40%, 90%, 0.4); /* Soft Purple */
-    
+    --gradient-1: hsla(250, 40%, 90%, 0.4);
+    /* Soft Violet */
+    --gradient-2: hsla(190, 40%, 90%, 0.4);
+    /* Soft Cyan */
+    --gradient-3: hsla(280, 40%, 90%, 0.4);
+    /* Soft Purple */
+
     --glass-border: hsla(0, 0%, 100%, 0.5);
     --glass-bg: hsla(0, 0%, 100%, 0.7);
 
     /* Chart/Accent Colors */
-    --chart-1: 25 95% 53%; /* Orange */
-    --chart-2: 250 100% 65%; /* Violet */
-    --chart-3: 190 90% 50%; /* Cyan */
-    --chart-4: 150 70% 50%; /* Emerald */
-    --chart-5: 280 85% 60%; /* Purple */
+    --chart-1: 25 95% 53%;
+    /* Orange */
+    --chart-2: 250 100% 65%;
+    /* Violet */
+    --chart-3: 190 90% 50%;
+    /* Cyan */
+    --chart-4: 150 70% 50%;
+    /* Emerald */
+    --chart-5: 280 85% 60%;
+    /* Purple */
   }
 
   .dark {
     /* Base Colors - Dark Mode (Deep Space) */
-    --background: 224 71% 4%; /* #030712 - Rich Black/Gray */
+    --background: 224 71% 4%;
+    /* #030712 - Rich Black/Gray */
     --foreground: 210 40% 98%;
 
     --card: 222 47% 11%;
@@ -62,7 +74,8 @@
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 250 95% 64%; /* Violet */
+    --primary: 250 95% 64%;
+    /* Violet */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 217 33% 17%;
@@ -82,9 +95,12 @@
     --ring: 250 95% 64%;
 
     /* Theme-Specific Gradients (CSS Vars) */
-    --gradient-1: hsla(250, 40%, 20%, 0.2); /* Deep Violet */
-    --gradient-2: hsla(190, 40%, 20%, 0.15); /* Deep Cyan */
-    --gradient-3: hsla(280, 40%, 20%, 0.15); /* Deep Purple */
+    --gradient-1: hsla(250, 40%, 20%, 0.2);
+    /* Deep Violet */
+    --gradient-2: hsla(190, 40%, 20%, 0.15);
+    /* Deep Cyan */
+    --gradient-3: hsla(280, 40%, 20%, 0.15);
+    /* Deep Purple */
 
     --glass-border: hsla(0, 0%, 100%, 0.1);
     --glass-bg: hsla(222, 47%, 11%, 0.6);
@@ -105,7 +121,7 @@
     @apply bg-background text-foreground;
     background-color: hsl(var(--background));
     /* Dynamic Mesh Gradient using CSS Vars */
-    background-image: 
+    background-image:
       radial-gradient(circle at 50% 0%, var(--gradient-1), transparent 50%),
       radial-gradient(circle at 90% 10%, var(--gradient-2), transparent 40%),
       radial-gradient(circle at 10% 20%, var(--gradient-3), transparent 40%);
@@ -122,14 +138,16 @@
     height: 100%;
     background-image: url('/noise.svg');
     background-repeat: repeat;
-    opacity: 0.03; /* Subtler noise */
+    opacity: 0.03;
+    /* Subtler noise */
     pointer-events: none;
     z-index: 50;
     mask-image: linear-gradient(to bottom, transparent, black);
   }
 
   .dark body::before {
-    opacity: 0.05; /* Slightly stronger in dark mode */
+    opacity: 0.05;
+    /* Slightly stronger in dark mode */
   }
 }
 
@@ -147,7 +165,7 @@
     border: 1px solid var(--glass-border);
     transition: all 0.3s ease;
   }
-  
+
   .glass-card:hover {
     background-color: hsla(var(--primary), 0.1);
     border-color: hsla(var(--primary), 0.3);
@@ -156,8 +174,37 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground;
   }
-  
+
   .text-gradient-primary {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-400;
+  }
+
+  /* Typography System */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .h1 {
+    @apply text-title-page text-foreground scroll-m-20;
+  }
+
+  .h2 {
+    @apply text-title-section text-foreground scroll-m-20 border-b border-border/50 pb-2 first:mt-0;
+  }
+
+  .h3 {
+    @apply text-title-subsection text-foreground scroll-m-20;
+  }
+
+  .p {
+    @apply text-body leading-7 [&:not(:first-child)]:mt-6;
+  }
+
+  .small {
+    @apply text-body-sm font-medium leading-none;
+  }
+
+  .muted {
+    @apply text-body-sm text-muted-foreground;
   }
 }

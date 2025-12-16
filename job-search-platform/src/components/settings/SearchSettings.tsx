@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -5,12 +6,27 @@ import { useForm } from 'react-hook-form';
 import { useConfig, SearchConfig } from '@/contexts/ConfigContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 
 export function SearchSettings() {
     const { config, updateConfig, isLoading } = useConfig();
-    const { register, handleSubmit, formState: { errors } } = useForm<SearchConfig>({
-        defaultValues: config?.search,
+
+    const form = useForm<SearchConfig>({
+        defaultValues: config?.search || {
+            cities: [],
+            keywords: [],
+            minSalary: 0,
+            maxSalary: 0,
+            recencyDays: 30
+        },
     });
 
     const onSubmit = async (data: SearchConfig) => {
@@ -26,74 +42,124 @@ export function SearchSettings() {
         return <div>Loading...</div>;
     }
 
+    // Reset form when config loads
+    React.useEffect(() => {
+        if (config?.search) {
+            form.reset(config.search);
+        }
+    }, [config, form]);
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
-                <div>
-                    <Label htmlFor="cities">Cities (comma-separated)</Label>
-                    <Input
-                        id="cities"
-                        {...register('cities', {
-                            setValueAs: (v) => v ? v.split(',').map((s: string) => s.trim()) : []
-                        })}
-                        placeholder="New York, San Francisco, Remote"
-                        defaultValue={config?.search.cities.join(', ')}
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="cities"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Cities</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        {...field}
+                                        value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
+                                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                                        placeholder="New York, San Francisco, Remote"
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Comma-separated list of cities to search in.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
-                </div>
 
-                <div>
-                    <Label htmlFor="keywords">Keywords (comma-separated)</Label>
-                    <Input
-                        id="keywords"
-                        {...register('keywords', {
-                            setValueAs: (v) => v ? v.split(',').map((s: string) => s.trim()) : []
-                        })}
-                        placeholder="React, TypeScript, Node.js"
-                        defaultValue={config?.search.keywords.join(', ')}
+                    <FormField
+                        control={form.control}
+                        name="keywords"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Keywords</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        {...field}
+                                        value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
+                                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                                        placeholder="React, TypeScript, Node.js"
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Key technologies or roles to filter by.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <Label htmlFor="minSalary">Min Salary</Label>
-                        <Input
-                            id="minSalary"
-                            type="number"
-                            {...register('minSalary', { valueAsNumber: true })}
-                            placeholder="80000"
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="minSalary"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Min Salary</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            type="number"
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                            placeholder="80000"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="maxSalary"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Max Salary</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            type="number"
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                            placeholder="150000"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
                     </div>
 
-                    <div>
-                        <Label htmlFor="maxSalary">Max Salary</Label>
-                        <Input
-                            id="maxSalary"
-                            type="number"
-                            {...register('maxSalary', { valueAsNumber: true })}
-                            placeholder="150000"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <Label htmlFor="recencyDays">Job Recency (days)</Label>
-                    <Input
-                        id="recencyDays"
-                        type="number"
-                        {...register('recencyDays', {
-                            required: 'Recency is required',
-                            valueAsNumber: true,
-                            min: { value: 1, message: 'Must be at least 1 day' }
-                        })}
-                        placeholder="30"
+                    <FormField
+                        control={form.control}
+                        name="recencyDays"
+                        rules={{ required: 'Recency is required', min: { value: 1, message: 'Must be at least 1 day' } }}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Job Recency (days)</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        {...field}
+                                        type="number"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        placeholder="30"
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
-                    {errors.recencyDays && (
-                        <p className="text-sm text-red-500 mt-1">{errors.recencyDays.message}</p>
-                    )}
                 </div>
-            </div>
 
-            <Button type="submit">Save Settings</Button>
-        </form>
+                <Button type="submit">Save Settings</Button>
+            </form>
+        </Form>
     );
 }

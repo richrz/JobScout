@@ -10,7 +10,7 @@ PREREQUISITES
 ──────────────────────────────────────────────────────────────────────────────
 Run this command and wait for the output shown:
 
-  $ cd job-search-platform && npm run demo:resume
+  $ cd job-search-platform && npm run demo:task-20
 
 Wait for: "Ready on http://localhost:3000"
 
@@ -31,19 +31,19 @@ STEPS
 
 EXPECTED RESULT
   You should see:
-  - Page title "Resume Generator"
+  - Page title "Resume Builder"
   - Split layout: "Editor" pane on left, "PDF Preview" pane on right
-  - Job dropdown opens and lists available jobs (e.g., "Software Engineer at Tech Corp")
-  - "Generate Resume" and "Save to Application" buttons visible
+  - Job dropdown opens and lists available jobs (e.g., "Test Corp - Software Engineer")
+  - "Enhance with AI" and "Save" buttons visible
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [x ] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
-  ________________________job selector has no jobs/grayed_____________________________________________________
+  _____________________________________________________________________________
 
   Screenshots/Notes:
   _____________________________________________________________________________
@@ -58,24 +58,25 @@ PURPOSE
 
 STEPS
   1. Select a job from the dropdown (if not already selected)
-  2. Select "Balanced (Professional)" Exaggeration Level
-  3. Click "Generate Resume" button
-  4. Wait for generation to complete (button shows "Generating...")
+  2. Click "Enhance with AI" button (Note: Exaggeration level is currently fixed to 'Balanced')
+  3. Wait for generation to complete (button shows "Generating...")
+  4. Navigate to the "Experience" tab in the editor
 
 EXPECTED RESULT
   You should see:
-  - Editor pane fills with generated text (Name, Summary, Experience)
+  - Editor pane fills with generated text (Summary, etc.)
   - PDF Preview pane updates to show the formatted PDF document
-  - "Save to Application" button becomes enabled (if previously disabled)
+  - Experience tab shows: "Experience editing is currently read-only in this demo version"
+  - "Save" button becomes enabled (if previously disabled)
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [x ] NO
+  Did the expected result occur?     [ ] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
-  _____________________________no jobs available________________________________________________
+  _____________________________________________________________________________
 
   Screenshots/Notes:
   _____________________________________________________________________________

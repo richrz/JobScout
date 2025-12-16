@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 interface SectionProps extends React.HTMLAttributes<HTMLDivElement> {
     title?: string;
     description?: string;
-    children: React.ReactNode;
+    children?: React.ReactNode;
     action?: React.ReactNode;
 }
 
@@ -22,12 +22,12 @@ export function Section({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-1">
                         {title && (
-                            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                            <h2 className="text-title-section tracking-tight text-foreground">
                                 {title}
                             </h2>
                         )}
                         {description && (
-                            <p className="text-muted-foreground">
+                            <p className="text-body-sm text-muted-foreground">
                                 {description}
                             </p>
                         )}
@@ -35,9 +35,11 @@ export function Section({
                     {action && <div>{action}</div>}
                 </div>
             )}
-            <div className="space-y-4">
-                {children}
-            </div>
+            {children && (
+                <div className="space-y-4">
+                    {children}
+                </div>
+            )}
         </section>
     );
 }

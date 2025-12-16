@@ -209,9 +209,21 @@ export function KanbanBoard({ initialApplications }: KanbanBoardProps) {
     }
 
     const [mounted, setMounted] = useState(false);
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
         setMounted(true);
+        const container = containerRef.current;
+        if (container) {
+            const handleWheel = (e: WheelEvent) => {
+                if (e.deltaY !== 0) {
+                    container.scrollLeft += e.deltaY;
+                    e.preventDefault();
+                }
+            };
+            container.addEventListener('wheel', handleWheel);
+            return () => container.removeEventListener('wheel', handleWheel);
+        }
     }, []);
 
     const dropAnimation: DropAnimation = {
@@ -261,7 +273,10 @@ export function KanbanBoard({ initialApplications }: KanbanBoardProps) {
                     </div>
                 )}
 
-                <div className="flex h-[calc(100vh-250px)] gap-4 overflow-x-auto pb-4">
+                <div 
+                    ref={containerRef}
+                    className="flex h-[calc(100vh-250px)] gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+                >
                     {STAGES.map((stage) => (
                         <PipelineColumn
                             key={stage.id}

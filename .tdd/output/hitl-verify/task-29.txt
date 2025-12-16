@@ -1,5 +1,5 @@
 ================================================================================
-HITL VERIFICATION: Task 29 - Plan & Architect UI/UX Overhaul
+HITL VERIFICATION: Task 29 - Resume Builder 2.0 & Experience Overhaul
 ================================================================================
 File: .tdd/output/hitl-verify/task-29.txt
 ================================================================================
@@ -8,44 +8,80 @@ Tester: ________________    Date: ________________
 
 PREREQUISITES
 ──────────────────────────────────────────────────────────────────────────────
-Open the codebase in your editor.
+Run this command and wait for the output shown:
+
+  $ cd job-search-platform && npm run demo:task-29
+
+Wait for: "Ready on http://localhost:3000"
+
+Ready to proceed?  [ ] Yes  [ ] No - Issue: ___________________________________
 
 ================================================================================
-TEST 1: Design Documentation
+TEST 1: Master Profile Editor (The Source of Truth)
 ================================================================================
 
 PURPOSE
-  What we're testing: The design direction is documented and agreed upon.
-  Why this matters:   Ensures consistency before writing code.
+  Testing the new "Master Profile" strategy where users enter data once.
 
 STEPS
-  1. Open `docs/design/design-system.md`
-  2. Verify it contains specific sections for:
-     - Color Palette (with hex/hsl codes)
-     - Typography (Font family, sizes)
-     - Component Styles (Card radius, shadows)
-     - Tech Stack Decisions (e.g., "Tailwind v3 + Framer Motion")
+  1. Open http://localhost:3000/profile
+  2. Click "Work History" in the sidebar
+  3. Click "Add Position"
+  4. Fill in:
+     - Job Title: "Senior Widget Engineer"
+     - Company: "Widget Corp"
+     - Start Date: [Select any date]
+     - Description: "Built the widget."
+  5. Click outside or wait for auto-save (look for "Saved" status at top right)
+  6. Refresh the page
+  7. Verify the data persists in the form
 
 EXPECTED RESULT
-  You should see:
-  - A comprehensive design document, not just placeholders.
-  - "JobScout Premium" or similar branding mentioned.
+  - Form should retain "Senior Widget Engineer" / "Widget Corp".
+  - "Saved" indicator works.
 
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
-
-  Did the expected result occur?     [ ] YES  [ ] NO
-
-  If NO, what happened instead?
-  _____________________________________________________________________________
-  _____________________________________________________________________________
-
-  Screenshots/Notes:
-  _____________________________________________________________________________
+  Did the data persist?            [ ] YES  [ ] NO
 
 ================================================================================
-SUMMARY
+TEST 2: Seamless Integration (Profile -> Resume)
 ================================================================================
 
-File: .tdd/output/hitl-verify/task-29.txt
-Total Tests: 1      Passed: ___    Failed: ___
+PURPOSE
+  Verifying the "Left-to-Right" flow. Data from Profile should appear in Resume.
+
+STEPS
+  1. Open http://localhost:3000/resume
+  2. Select any job from the dropdown
+  3. Go to the "Experience" tab in the Resume Editor
+
+EXPECTED RESULT
+  - You should see "Senior Widget Engineer" at "Widget Corp" automatically listed.
+  - You should NOT see "Experience editing is currently read-only".
+  - You SHOULD see editable fields (Company, Role, Start, End, Description).
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+  Is the profile data visible?     [ ] YES  [ ] NO
+  Are the fields editable?         [ ] YES  [ ] NO
+
+================================================================================
+TEST 3: AI Intelligence Levels
+================================================================================
+
+PURPOSE
+  Testing the new "Intelligence Level" configuration.
+
+STEPS
+  1. Locate the "AI Strategy" dropdown in the header (next to "Enhance").
+  2. Select "Visionary (Bold)".
+  3. Click "Enhance with AI".
+
+EXPECTED RESULT
+  - Generation completes successfully.
+  - The content changes (hard to verify exact text, but verify no crash).
+
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION
+  Did generation work with Visionary?[ ] YES  [ ] NO

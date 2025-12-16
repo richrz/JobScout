@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { GlassCard } from '@/components/ui/glass-card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, AlertTriangle, CheckCircle, RefreshCcw } from 'lucide-react';
@@ -48,20 +49,18 @@ export function ATSScore({ resumeText, jobDescription, jobId }: ATSScoreProps) {
 
     if (!result && !loading) {
         return (
-            <GlassCard className="p-6 flex flex-col items-center justify-center gap-4 text-center">
-                <div className="p-3 bg-purple-500/10 rounded-full">
-                    <Sparkles className="w-6 h-6 text-purple-500" />
-                </div>
-                <div>
-                    <h3 className="font-semibold text-lg">ATS Compatibility Check</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                        See how well your resume matches this job description before applying.
-                    </p>
-                </div>
-                <Button onClick={handleAnalyze} className="gap-2">
-                    <RefreshCcw className="w-4 h-4" /> Run Analysis
-                </Button>
-                {error && <p className="text-xs text-red-500">{error}</p>}
+            <GlassCard className="p-0 overflow-hidden">
+                <EmptyState
+                    icon={Sparkles}
+                    title="ATS Compatibility Check"
+                    description="See how well your resume matches this job description before applying."
+                    action={{
+                        label: "Run Analysis",
+                        onClick: handleAnalyze
+                    }}
+                    className="border-0 bg-transparent py-10"
+                />
+                {error && <p className="text-xs text-red-500 text-center pb-4">{error}</p>}
             </GlassCard>
         );
     }
@@ -97,13 +96,13 @@ export function ATSScore({ resumeText, jobDescription, jobId }: ATSScoreProps) {
                 <div className="relative w-24 h-24 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90">
                         <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-200 dark:text-slate-800" />
-                        <motion.circle 
+                        <motion.circle
                             initial={{ strokeDasharray: "251 251", strokeDashoffset: 251 }}
                             animate={{ strokeDashoffset: 251 - (251 * result.score) / 100 }}
                             transition={{ duration: 1, ease: "easeOut" }}
-                            cx="48" cy="48" r="40" 
-                            stroke="currentColor" strokeWidth="8" fill="transparent" 
-                            className={`${ringColor} drop-shadow-lg`} 
+                            cx="48" cy="48" r="40"
+                            stroke="currentColor" strokeWidth="8" fill="transparent"
+                            className={`${ringColor} drop-shadow-lg`}
                             strokeLinecap="round"
                         />
                     </svg>
@@ -117,8 +116,8 @@ export function ATSScore({ resumeText, jobDescription, jobId }: ATSScoreProps) {
                         {result.score >= 75 ? 'Excellent Match!' : result.score >= 50 ? 'Good Potential' : 'Needs Optimization'}
                     </p>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                        {result.score >= 75 
-                            ? "Your resume contains most key terms and concepts." 
+                        {result.score >= 75
+                            ? "Your resume contains most key terms and concepts."
                             : "Consider adding the missing keywords below to improve visibility."}
                     </p>
                 </div>

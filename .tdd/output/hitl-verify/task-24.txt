@@ -10,7 +10,7 @@ PREREQUISITES
 ──────────────────────────────────────────────────────────────────────────────
 Run this command and wait for the output shown:
 
-  $ npm run dev
+  $ npm run demo:task-24
 
 Wait for: "Ready on http://localhost:3000"
 
@@ -26,7 +26,7 @@ PURPOSE
 
 STEPS
   1. Open terminal
-  2. Run: npm run demo:routes
+  2. Run: npm run demo:task-24
   3. Wait for output to complete
 
 EXPECTED RESULT
