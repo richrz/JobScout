@@ -11,6 +11,7 @@ interface ShellCardProps {
     className?: string;
     variant?: "default" | "highlight" | "interactive";
     glowColor?: string;
+    style?: React.CSSProperties;
 }
 
 export function ShellCard({
@@ -22,12 +23,14 @@ export function ShellCard({
     className,
     variant,
     glowColor,
+    style,
 }: ShellCardProps) {
     return (
         <GlassCard
             className={cn("flex flex-col", className)}
             variant={variant}
             glowColor={glowColor}
+            style={style}
             hoverEffect={!!variant && variant === 'interactive'}
         >
             {/* Header */}

@@ -29,13 +29,12 @@ type ApplicationWithJob = Application & {
 };
 
 const STAGES = [
-    { id: 'discovered', title: 'Discovered', color: 'gray' },
     { id: 'interested', title: 'Interested', color: 'blue' },
-    { id: 'applied', title: 'Applied', color: 'yellow' },
+    { id: 'applied', title: 'Applied', color: 'indigo' },
+    { id: 'screening', title: 'Screening', color: 'cyan' },
     { id: 'interview', title: 'Interview', color: 'purple' },
     { id: 'offer', title: 'Offer', color: 'green' },
     { id: 'rejected', title: 'Rejected', color: 'red' },
-    { id: 'archived', title: 'Archived', color: 'gray' }
 ];
 
 interface KanbanBoardProps {
@@ -217,12 +216,26 @@ export function KanbanBoard({ initialApplications }: KanbanBoardProps) {
         if (container) {
             const handleWheel = (e: WheelEvent) => {
                 if (e.deltaY !== 0) {
+                    // Manually scroll horizontally
                     container.scrollLeft += e.deltaY;
-                    e.preventDefault();
+
+                    // Prevent vertical scroll only if we can actually scroll horizontally
+                    // This prevents 'locking' the page if we are at the end of the scroll
+                    if (
+                        (e.deltaY > 0 && container.scrollLeft + container.clientWidth < container.scrollWidth) ||
+                        (e.deltaY < 0 && container.scrollLeft > 0)
+                    ) {
+                        e.preventDefault();
+                    }
                 }
             };
-            container.addEventListener('wheel', handleWheel);
-            return () => container.removeEventListener('wheel', handleWheel);
+
+            // Add listener with { passive: false } to allow preventDefault
+            container.addEventListener('wheel', handleWheel, { passive: false });
+
+            return () => {
+                container.removeEventListener('wheel', handleWheel);
+            };
         }
     }, []);
 
@@ -273,7 +286,7 @@ export function KanbanBoard({ initialApplications }: KanbanBoardProps) {
                     </div>
                 )}
 
-                <div 
+                <div
                     ref={containerRef}
                     className="flex h-[calc(100vh-250px)] gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
                 >

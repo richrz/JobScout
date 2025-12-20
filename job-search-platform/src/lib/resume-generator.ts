@@ -90,7 +90,7 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
  */
 export async function generateAndPreviewResume(
     jobId: string,
-    exaggerationLevel: ExaggerationLevel = 'strategic'
+    exaggerationLevel: ExaggerationLevel = 'professional'
 ) {
     let profile: any = null;
     try {

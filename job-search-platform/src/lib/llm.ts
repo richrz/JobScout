@@ -15,6 +15,10 @@ import { ChatOpenAI } from '@langchain/openai';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 
+const DEFAULT_APP_URL =
+  process.env.APP_URL ||
+  (process.env.PORT ? `http://localhost:${process.env.PORT}` : 'http://localhost:3001');
+
 // Provider-agnostic interface for LLM implementations
 export interface LLMClient {
   generateResponse(messages: LLMMessage[]): Promise<LLMResponse>;
@@ -389,7 +393,7 @@ export class OpenRouterClient extends BaseLLMClient {
         baseURL: this.config.apiEndpoint || 'https://openrouter.ai/api/v1',
         defaultHeaders: {
           'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': process.env.APP_URL || 'http://localhost:3000',
+          'HTTP-Referer': DEFAULT_APP_URL,
           'X-Title': 'Job Search Platform',
           ...this.config.headers,
         },
@@ -900,60 +904,40 @@ Content Guidelines:
 
   private getExaggerationLevelPrompt(exaggerationLevel: keyof typeof EXAGGERATION_TEMPERATURE_MAP): string {
     switch (exaggerationLevel) {
-      case 'strict':
-        return `TONE GUIDELINES - Strict (Literal) Approach:
-- Adhere strictly to the provided facts
-- Do NOT infer or assume details not explicitly stated
-- Use neutral, objective language
-- Focus purely on verified history
-- Avoid marketing fluff or buzzwords
-- Prioritize absolute accuracy over persuasion`;
+      case 'authentic': // Formerly Strict
+        return `STRATEGY: THE REALIST (Literal & Fact-Based)
+Psychological Goal: Authenticity & Trust
+- STRICTLY adhere to the provided facts. Do not embellish.
+- Focus on clarity, grammar, and professional formatting only.
+- Use neutral, objective language (e.g., "Responsible for...", "Assisted with...").
+- Do NOT infer skills or experiences not explicitly stated.
+- Ideal for: Highly regulated industries or candidates who want 100% control.`;
 
-      case 'conservative':
-        return `TONE GUIDELINES - Conservative Approach:
-- Maintain strictly factual, understated language
-- Use modest descriptors (e.g., "contributed to," "assisted with")
-- Focus on verifiable achievements without embellishment
-- Present skills and experience honestly and directly
-- Avoid superlatives or exaggerated claims
-- Use professional, measured language throughout
-- Prioritize accuracy and credibility over aggressive positioning`;
+      case 'professional': // Formerly Balanced/Strategic (Default)
+        return `STRATEGY: THE PROFESSIONAL (Enhanced & Expanded)
+Psychological Goal: Competence & Reliability
+- Expand concise bullet points into full, professional sentences.
+- Use strong but realistic action verbs (e.g., "Led", "Developed", "Managed").
+- Add standard industry context to flesh out brief descriptions.
+- Optimize for ATS keywords while maintaining a natural tone.
+- Balance modesty with confidence.
+- Ideal for: Most candidates who want a polished, standard resume.`;
 
-      case 'balanced':
-        return `TONE GUIDELINES - Balanced Approach:
-- Use confident but realistic language
-- Employ strong action verbs (e.g., "managed," "developed," "implemented")
-- Highlight achievements with appropriate emphasis
-- Present skills competently without overstating
-- Include quantifiable results where available
-- Use professional language with moderate confidence
-- Balance authenticity with effective self-promotion`;
-
-      case 'strategic':
-        return `TONE GUIDELINES - Strategic (Smart) Approach:
-- Use confident, persuasive language that emphasizes impact
-- Employ powerful action verbs (e.g., "led," "drove," "transformed," "pioneered")
-- Highlight achievements with maximum appropriate emphasis
-- Position skills and experience optimally for the target role
-- Focus on quantifiable business impact and results
-- Use strategic language that demonstrates leadership and value
-- Emphasize growth, innovation, and business outcomes`;
-
-      case 'visionary':
-        return `TONE GUIDELINES - Visionary (Bold) Approach:
-- Use highly persuasive, forward-looking language
-- Frame experience in terms of potential and future impact
-- Use bold, authoritative action verbs
-- Connect past achievements to future business transformation
-- Emphasize leadership, philosophy, and strategic vision
-- Assume a high level of competence and potential
-- Create a narrative of a game-changing professional`;
+      case 'persuasive': // Formerly Visionary/Creative
+        return `STRATEGY: THE STRATEGIST (Creative & Bold)
+Psychological Goal: Impression Management & Impact
+- AGGRESSIVELY reframe experience to match the target job description.
+- Use "creativity" to bridge gaps: Infer likely skills/duties based on roles.
+- Use high-impact, persuasive language (e.g., "Spearheaded", "Transformed", "Pioneered").
+- Emphasize results and potential over just duties.
+- "Cover all bases": If the job asks for X and the candidate did something similar to X, frame it as X.
+- Note: This mode takes liberties. The user reviews this to dial it back.`;
 
       default:
-        return `TONE GUIDELINES - Professional Approach:
+        // Fallback to professional
+        return `STRATEGY: PROFESSIONAL
 - Use professional, clear language
-- Focus on achievements and results
-- Maintain authenticity while positioning effectively`;
+- Focus on achievements and results`;
     }
   }
 

@@ -7,6 +7,9 @@ import { Schema, DOMParser, Node } from 'prosemirror-model';
 import { schema as basicSchema } from 'prosemirror-schema-basic';
 import { addListNodes } from 'prosemirror-schema-list';
 import { exampleSetup } from 'prosemirror-example-setup';
+import 'prosemirror-view/style/prosemirror.css';
+import 'prosemirror-menu/style/menu.css';
+import 'prosemirror-example-setup/style/style.css';
 
 // Create a schema with list support
 const resumeSchema = new Schema({

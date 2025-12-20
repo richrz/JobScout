@@ -1,6 +1,6 @@
 # Gemini CLI-Specific Instructions
 
-> **Note:** This file works alongside `AGENTS.md` (generic AI agent instructions). AGENTS.md contains the core Task Master commands and workflows for all AI agents. This file contains only Gemini CLI-specific features and integrations.
+> **Note:** This file works alongside `AGENTS.md`  (generic AI agent instructions). AGENTS.md contains the core Task Master commands and workflows for all AI agents. This file contains only Gemini CLI-specific features and integrations.  and (gemini-specific instructions). when i say ultrathink go into this king mode`gemini-king-mode.md` 
 
 ## MCP Configuration for Gemini CLI
 
@@ -18,7 +18,6 @@ Configure Task Master MCP server in `~/.gemini/settings.json`:
 ```
 
 **Note:** API keys are configured via `task-master models --setup`, not in MCP configuration.
-
 ## Gemini CLI-Specific Features
 
 ### Session Management

@@ -124,7 +124,7 @@ export function AutomationSettings() {
                     {form.watch('autoApply') && (
                         <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
                             <p className="text-sm text-amber-600 dark:text-amber-400">
-                                ⚠️ Automatic applications will use your configured LLM to generate tailored resumes and
+                                Warning: Automatic applications will use your configured LLM to generate tailored resumes and
                                 cover letters. Ensure your LLM settings are correct and you have sufficient API credits.
                             </p>
                         </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Application, Job } from '@prisma/client';
-import { GlassCard } from '@/components/ui/glass-card';
+import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, StickyNote, Loader2, Archive, Trash2, Clock, MapPin, CalendarDays } from 'lucide-react';
@@ -32,14 +32,23 @@ type ApplicationWithJob = Application & {
     job: Job;
 };
 
+interface StageConfig {
+    bg: string;
+    border: string;
+    text: string;
+    cardBorder: string;
+    glowClass?: string;
+}
+
 interface ApplicationCardProps {
     application: ApplicationWithJob;
     isSelected?: boolean;
     onToggleSelection?: (id: string) => void;
     selectionMode?: boolean;
+    stageConfig?: StageConfig;
 }
 
-export function ApplicationCard({ application, isSelected, onToggleSelection, selectionMode }: ApplicationCardProps) {
+export function ApplicationCard({ application, isSelected, onToggleSelection, selectionMode, stageConfig }: ApplicationCardProps) {
     const {
         attributes,
         listeners,
@@ -85,6 +94,16 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
 
     const history = (application.statusHistory as any[]) || [];
 
+    // Determine card styling based on stage
+    const cardClasses = cn(
+        "p-4 cursor-grab active:cursor-grabbing rounded-xl border-l-4 transition-all duration-200",
+        "bg-slate-800/80 hover:bg-slate-800 border border-white/10",
+        stageConfig?.cardBorder || 'border-l-blue-500',
+        stageConfig?.glowClass && `shadow-lg ${stageConfig.glowClass}`,
+        isSelected && 'ring-2 ring-primary bg-primary/10',
+        isDragging && 'opacity-50 rotate-2 scale-105'
+    );
+
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="relative group touch-none">
             {/* Selection Checkbox */}
@@ -100,11 +119,7 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                 />
             </div>
 
-            <GlassCard 
-                className={`p-4 cursor-grab active:cursor-grabbing ${isSelected ? 'ring-2 ring-primary bg-primary/10' : ''}`} 
-                hoverEffect={!isDragging}
-                variant="default"
-            >
+            <div className={cardClasses}>
                 <div className="flex flex-col gap-2">
                     <div>
                         <h4 className="font-semibold text-sm leading-tight text-foreground line-clamp-2">{application.job.title}</h4>
@@ -112,24 +127,24 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                     </div>
 
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-1">
-                         <div className="flex items-center gap-1">
-                             <MapPin className="w-3 h-3" />
-                             <span className="truncate max-w-[80px]">{application.job.location || 'Remote'}</span>
-                         </div>
-                         <div className="flex items-center gap-1">
-                             <CalendarDays className="w-3 h-3" />
-                             <span>{new Date(application.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                         </div>
+                        <div className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            <span className="truncate max-w-[80px]">{application.job.location || 'Remote'}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <CalendarDays className="w-3 h-3" />
+                            <span>{new Date(application.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                        </div>
                     </div>
 
                     <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/5">
-                         <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                             {application.notes && (
                                 <Badge variant="secondary" className="h-5 px-1.5 text-[10px] gap-1">
                                     <StickyNote className="w-3 h-3" /> Notes
                                 </Badge>
                             )}
-                         </div>
+                        </div>
 
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onPointerDown={(e) => e.stopPropagation()}>
                             <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
@@ -221,7 +236,7 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                         </div>
                     </div>
                 </div>
-            </GlassCard>
+            </div>
         </div>
     );
 }

@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthSessionProvider from "@/components/providers/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppShell } from "@/components/layout/AppShell";
+import { ConfigProvider } from "@/contexts/ConfigContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,8 +22,8 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Job Search Platform",
-  description: "AI-powered job search and application tracking",
+  title: "JobScout | AI-Powered Job Search",
+  description: "Your intelligent job search assistant - find, track, and land your dream job with AI-powered matching",
 };
 
 export default function RootLayout({
@@ -42,7 +43,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthSessionProvider>
-            <AppShell>{children}</AppShell>
+            <ConfigProvider>
+              <AppShell>{children}</AppShell>
+            </ConfigProvider>
           </AuthSessionProvider>
         </ThemeProvider>
       </body>

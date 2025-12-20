@@ -1,6 +1,6 @@
 export type LLMProvider = 'openai' | 'anthropic' | 'gemini' | 'ollama' | 'openrouter' | 'azure' | 'custom';
 
-export type ExaggerationLevel = 'strict' | 'strategic' | 'visionary' | 'conservative' | 'balanced';
+export type ExaggerationLevel = 'authentic' | 'professional' | 'persuasive';
 
 export interface LLMConfig {
   provider: LLMProvider;
@@ -17,11 +17,6 @@ export interface LLMConfig {
   // Retry configuration
   maxRetries?: number;
 }
-// [Intervening lines omitted for brevity - wait, I must match existing content carefully or use multi_replace if lines are far part]
-// Actually, I'll just change the ExaggerationLevel definition and the map at the bottom.
-
-// Let's do it in two chunks using multi_replace_file_content to be safe.
-
 
 export interface LLMResponse {
   content: string;
@@ -114,11 +109,9 @@ export interface BatchConnectionTest {
 
 // Temperature mapping for exaggeration levels
 export const EXAGGERATION_TEMPERATURE_MAP: Record<ExaggerationLevel, number> = {
-  strict: 0.1,
-  strategic: 0.7,
-  visionary: 0.9,
-  conservative: 0.3,
-  balanced: 0.5,
+  authentic: 0.3,    // Low creativity for literal facts
+  professional: 0.7, // Balanced for standard polish
+  persuasive: 0.9,   // High creativity for aggressive reframing
 };
 
 // Default models for each provider

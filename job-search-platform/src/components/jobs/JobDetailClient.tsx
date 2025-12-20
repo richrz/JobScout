@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Save, Send, FileText } from 'lucide-react';
+import { Sparkles, Save, Send, FileText, Loader2, Check } from 'lucide-react';
 import { ATSScore } from '@/components/resume/ATSScore';
 import { Textarea } from '@/components/ui/textarea';
+import { applyToJob } from '@/app/actions/application';
 
 interface SerializedJob {
     id: string;
@@ -34,10 +35,28 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
     const [generatedResume, setGeneratedResume] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [exaggerationLevel, setExaggerationLevel] = useState<'conservative' | 'balanced' | 'strategic'>('balanced');
+    const [isApplying, setIsApplying] = useState(false);
+    const [hasApplied, setHasApplied] = useState(false);
     
     // State for ATS Analysis
     const [resumeText, setResumeText] = useState('');
     const [showATS, setShowATS] = useState(false);
+
+    const handleApply = async () => {
+        setIsApplying(true);
+        try {
+            const result = await applyToJob(job.id);
+            if (result.success) {
+                setHasApplied(true);
+            } else {
+                setError(result.error || 'Failed to apply');
+            }
+        } catch (_) {
+            setError('Failed to apply');
+        } finally {
+            setIsApplying(false);
+        }
+    };
 
     const handleGenerateResume = async () => {
         setIsGenerating(true);
@@ -73,8 +92,19 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
 
     return (
         <div className="space-y-4">
-            <Button size="lg" className="w-full gap-2 shadow-lg shadow-primary/25">
-                <Send className="w-4 h-4" /> Apply Now
+            <Button 
+                size="lg" 
+                className="w-full gap-2 shadow-lg shadow-primary/25"
+                onClick={handleApply}
+                disabled={isApplying || hasApplied}
+            >
+                {isApplying ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Applying...</>
+                ) : hasApplied ? (
+                    <><Check className="w-4 h-4" /> Applied</>
+                ) : (
+                    <><Send className="w-4 h-4" /> Apply Now</>
+                )}
             </Button>
             <Button size="lg" variant="outline" className="w-full gap-2">
                 <Save className="w-4 h-4" /> Save Job

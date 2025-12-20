@@ -23,7 +23,7 @@ async function main() {
     console.log('Profile experiences:', profile.experiences.length);
 
     try {
-        const result = await generateAndPreviewResume(job.id, 'strategic');
+        const result = await generateAndPreviewResume(job.id, 'persuasive');
         console.log('Generation Result:', result.success ? 'Success' : 'Failed');
         if (result.success) {
             console.log('Content keys:', Object.keys(result.content));

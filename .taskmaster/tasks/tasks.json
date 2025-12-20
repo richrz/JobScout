@@ -1220,14 +1220,54 @@
       {
         "id": "29",
         "title": "Plan & Architect UI/UX Overhaul",
-        "description": "Research frameworks, decide on look & feel, update design system docs, and finalize the visual direction.",
-        "status": "done",
+        "description": "Master Task for 'JobScout V2 Overhaul' (Candidate CRM re-architecture). Implement 'Deep Space' design system, purge old mock data, fix data pipelines, and implement the 'Workspace' workflow.",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
-        "details": "Conduct visual research, select a component library or framework extension (e.g., shadcn/ui + Framer Motion), and define the new Design System (JobScout Premium). Update `docs/design/design-system.md` with final decisions on color palette, typography, and interaction patterns.",
-        "testStrategy": "Review updated design docs.",
-        "subtasks": [],
-        "updatedAt": "2025-12-16T16:52:56.955Z"
+        "details": null,
+        "testStrategy": "Verify the application builds and runs according to Runtime Verification Protocols (Task 23). Ensure 'Deep Space' theming is consistent. Validate that the 'Workspace' functions with real data and no mock artifacts remain.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Deep Space Design System",
+            "description": "Fully implement the 'Deep Space' design system using shadcn/ui and Framer Motion.",
+            "dependencies": [],
+            "details": "Establish the global theme, typography, and color palette according to the new design system. Replace legacy styles with the new component library.",
+            "status": "pending",
+            "testStrategy": "Visual regression testing against design mocks.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Purge Legacy Mock Data",
+            "description": "Remove all hardcoded mock data and legacy JSON files from the codebase.",
+            "dependencies": [],
+            "details": "Audit the codebase for static data files and hardcoded arrays. Remove them to prepare for real data integration.",
+            "status": "pending",
+            "testStrategy": "Grep codebase for known mock data patterns. Verify build succeeds without them.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Remediate Data Pipeline (Pipe)",
+            "description": "Fix the data pipeline to ensure end-to-end flow from the Prisma backend to the UI.",
+            "dependencies": [],
+            "details": "Connect frontend components to the API routes backed by the Prisma schema (Task 12). Ensure types are shared and validated.",
+            "status": "pending",
+            "testStrategy": "Verify data persistence and retrieval via the UI.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Implement Workspace Workflow",
+            "description": "Develop the new 'Workspace' workflow for the Candidate CRM.",
+            "dependencies": [],
+            "details": "Build the primary interface for managing candidates, including list views, filters, and status transitions.",
+            "status": "pending",
+            "testStrategy": "User acceptance testing of the candidate management flows.",
+            "parentId": "undefined"
+          }
+        ]
       },
       {
         "id": "30",
@@ -1270,13 +1310,85 @@
         "testStrategy": "HITL Aesthetic Review.",
         "subtasks": [],
         "updatedAt": "2025-12-16T17:04:19.899Z"
+      },
+      {
+        "id": "33",
+        "title": "Backend Purge & Connection Hardening",
+        "description": "Eradicate mock logic from production code paths by enforcing strict environment gating and implement resilient, container-aware Prisma database connection logic.",
+        "details": "1. **Mock Eradication**: \n   - Refactor `job-scrapers.ts` and `resume-generator.ts` to remove default fallbacks to mock data.\n   - Implement a strict gate: `const isMockMode = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';`.\n   - If `!isMockMode`, the system must attempt real external connections or throw specific errors (e.g., 'Service Unavailable') rather than silently returning fake data.\n\n2. **Prisma Connection Hardening**:\n   - Refactor the Prisma Client singleton instantiation to handle Next.js hot-reloading correctly without exhausting connection pools.\n   - Implement a connection retry mechanism with exponential backoff to handle Docker race conditions (where the App container starts before the Postgres container is ready to accept connections).\n   - Add startup validation to ensure `DATABASE_URL` is present and well-formed.\n\n3. **Code Cleanup**:\n   - Audit the codebase for any `// TODO: Remove mock` comments and address them.\n   - Ensure sensitive mock data (if any) is moved to `__mocks__` or separate utility files not included in the production bundle.",
+        "testStrategy": "1. **Mock Gate Verification**: Set `NEXT_PUBLIC_MOCK_MODE=false` and trigger a job scrape. Verify it attempts a real network request or fails explicitly, rather than returning static data. Repeat with `true` to verify mock functionality.\n2. **Resilience Testing**: Stop the PostgreSQL container (`docker stop`) while the app is running, then restart it. Verify the app recovers connectivity without a manual restart.\n3. **Cold Start Test**: Run `docker-compose up --build --force-recreate` to simulate a fresh environment. Verify the application container waits/retries until the database is ready instead of crashing immediately.",
+        "status": "in-progress",
+        "dependencies": [
+          "12",
+          "29"
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Prisma Singleton and Environment Validation",
+            "description": "Establish a robust Prisma Client singleton pattern compatible with Next.js hot-reloading and validate connection strings on startup.",
+            "dependencies": [],
+            "details": "Refactor the Prisma client initialization in `src/lib/prisma.ts` to use the global object pattern, preventing connection pool exhaustion during Next.js hot-reloading. Add an immediate runtime check to validate that `DATABASE_URL` is defined and well-formed, throwing a critical error if invalid to prevent silent failures.",
+            "status": "in-progress",
+            "testStrategy": "Start the dev server and verify only one Prisma instance is logged. Unset DATABASE_URL and verify the app crashes immediately with a descriptive error.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-20T18:15:16.777Z"
+          },
+          {
+            "id": 2,
+            "title": "Implement Prisma Connection Retry with Exponential Backoff",
+            "description": "Add logic to handle database connection failures gracefully during container startup, specifically addressing Docker race conditions.",
+            "dependencies": [
+              1
+            ],
+            "details": "Wrap the initial database connection logic in a utility function that attempts to connect with exponential backoff (e.g., 1s, 2s, 4s) up to a maximum of 5 retries. This ensures the application waits for the Postgres container to be ready before crashing.",
+            "status": "pending",
+            "testStrategy": "Simulate a database outage by stopping the Postgres container, start the app, and verify it retries the specified number of times before failing.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Enforce Strict Environment Gating in Job Scrapers",
+            "description": "Refactor job scraping services to strictly separate mock logic from production logic using environment variables.",
+            "dependencies": [],
+            "details": "In `src/services/job-scrapers.ts`, implement the `const isMockMode = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'` check. If false, the system must attempt a real network request. If that request fails, throw a structured 'Service Unavailable' error instead of falling back to mock data.",
+            "status": "pending",
+            "testStrategy": "Set MOCK_MODE=false and disconnect internet/block network. Trigger a scrape and verify it throws an error rather than returning fake data.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Enforce Strict Environment Gating in Resume Generator",
+            "description": "Remove silent mock fallbacks in the resume generation service to ensure production integrity.",
+            "dependencies": [],
+            "details": "Refactor `src/services/resume-generator.ts` to use the strict mock gate. Ensure that when `isMockMode` is false, any failure in the LLM generation process propagates as an error to the UI, rather than silently returning a pre-written generic resume.",
+            "status": "pending",
+            "testStrategy": "Set MOCK_MODE=false and provide invalid LLM credentials. Verify the generation task fails explicitly.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Audit Codebase for Mock Artifacts and Sensitive Data",
+            "description": "Scan the codebase for temporary mock TODOs and ensure mock data files are excluded from production builds.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Perform a global search for `// TODO: Remove mock` and resolve pending items. Move static mock data files into a `__mocks__` directory or utility folder that is excluded from the production build bundle to reduce bundle size and prevent data leaks.",
+            "status": "pending",
+            "testStrategy": "Run a production build analysis to ensure mock JSON files are not included in the final client-side bundle.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2025-12-20T18:15:16.777Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-16T19:43:41.253Z",
-      "taskCount": 22,
-      "completedCount": 19,
+      "lastModified": "2025-12-20T18:15:16.778Z",
+      "taskCount": 23,
+      "completedCount": 18,
       "tags": [
         "tdd"
       ]

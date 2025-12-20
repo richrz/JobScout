@@ -1,16 +1,14 @@
 #!/bin/bash
-# Kill any process on port 3000 and clean up Next.js lock files before starting
+set -euo pipefail
 
-echo "🧹 Cleaning up port 3000 and stale locks..."
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-# Kill anything on port 3000
-fuser -k 3000/tcp 2>/dev/null || true
+# Pick a random available 3xxx port (never 3000) unless PORT is pre-set.
+PORT="${PORT:-$(node "$ROOT_DIR/scripts/find-open-port.js")}"
+export PORT
 
-# Remove Next.js lock file if it exists
+# Clean stale Next.js locks
 rm -rf .next/dev/lock 2>/dev/null || true
 
-# Small delay to ensure port is released
-sleep 0.5
-
-echo "✅ Starting Next.js dev server..."
-exec next dev --turbopack "$@"
+echo "Starting Next.js dev server on http://localhost:${PORT}"
+exec npx next dev --turbopack --port "$PORT" "$@"

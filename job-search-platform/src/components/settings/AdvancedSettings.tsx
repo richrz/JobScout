@@ -71,7 +71,7 @@ export function AdvancedSettings() {
 
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded">
                     <p className="text-sm text-blue-800">
-                        💡 <strong>Tip:</strong> Export your configuration regularly to back up your settings.
+                        <strong>Tip:</strong> Export your configuration regularly to back up your settings.
                         You can also use this to transfer settings between different installations.
                     </p>
                 </div>

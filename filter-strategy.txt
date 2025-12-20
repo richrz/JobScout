@@ -1,0 +1,883 @@
+********************************************
+filter strategy 1
+********************************************
+Research Plan (fast scanning, no code)
+
+Resume tone & ATS: search “resume tone formal vs conversational”, “ATS friendly resume language”, “resume buzzwords credibility research”; skim Muse, Ladders, Indeed, SHRM.
+Industry voice patterns: search “legal resume writing style”, “consultant resume impact statements”, “teacher resume tone”, “hospitality resume customer focus”.
+Psychology of impression management: search “self-enhancement vs honesty resumes”, “power verbs credibility study”, “concreteness vs vagueness hiring research”.
+Keyword strategy: search “resume keyword stuffing risk”, “job description alignment resume”.
+Templates vs narrative: search “functional vs chronological resume when to use”, “STAR bullet examples resume”.
+Control Model (3–4 simple dropdowns + presets)
+
+Tone/Directness: Literal | Balanced | Assertive | Conversational. (Controls how hard claims are pushed.)
+Brevity/Detail: Concise | Standard | Rich Detail. (Controls bullet length/context.)
+Creativity/Spin: Strict Facts | Mild Framing | Creative Framing (no fabrication, but connects dots boldly).
+Industry Jargon: None | Light | Heavy. (Controls jargon density and role-specific vocabulary.)
+Optional fifth if needed: Formality: Formal | Neutral | Casual (can fold into Tone if keeping to 4).
+Safety/Trust Guardrails
+
+Always-on honesty: prohibit unverifiable claims; require evidence nouns (metrics, tools, clients).
+Keyword discipline: “Natural keywords” vs “ATS-heavy” toggle to avoid stuffing.
+Impact vs Duty: slider to favor achievements over responsibilities.
+Quantification: Auto/Prompt user/Never—controls insertion of numbers when provided.
+Presets (pre-fill dropdowns, user can tweak)
+
+Attorney: Tone Formal, Brevity Standard, Creativity Strict, Jargon Heavy, Impact high on outcomes/precedent.
+IT Consultant: Tone Balanced, Brevity Concise, Creativity Mild, Jargon Light/Heavy toggle, Keywords ATS-heavy.
+Teacher: Tone Warm Balanced, Brevity Standard, Creativity Mild, Jargon Light (education terms), Impact on outcomes & community.
+Hospitality/Retail: Tone Conversational Balanced, Brevity Concise, Creativity Mild, Jargon Light, Impact on customer metrics.
+Real Estate: Tone Assertive, Brevity Standard, Creativity Creative, Jargon Medium, Impact on sales/negotiation wins.
+How to present to users (non-technical)
+
+Show 3–4 dropdowns with short helper text and example bullet preview that updates live.
+Include a “Safe Mode” toggle (strict facts + concise + light jargon) and “Standout Mode” (assertive + richer detail + creative framing) to reduce decision fatigue.
+Let users pick a preset, tweak sliders, and see 2–3 sample bullets before generating the full resume.
+
+********************************************
+filter strategy 2
+********************************************
+Persona Configuration.
+
+1. Revert to Clean Slate
+I will first undo the previous "Authentic/Professional/Persuasive" changes to restore the codebase to a neutral state, as requested.
+
+2. The "Resume Persona" System (Proposed Solution)
+Instead of a single "Strategy" dropdown, I will implement three distinct controls that allow users to "dial in" the AI's personality. This matches the user's request for "3-4 category drop down boxes" to handle different industries (Attorney vs. Burger Flipper).
+
+Control A: Tone & Style (The "Who am I?" Control)
+Standard (Corporate): [Default] Balanced, professional, safe. Good for Admin, Management, General.
+Formal (Legal/Academic): Factual, dense, prestigious words, no fluff. Good for Law, Academia, Government.
+Modern (Tech/Startup): Action-oriented, skills-heavy, scannable. Good for IT, Engineering, Startups.
+Creative (Design/Marketing): Expressive, narrative-driven, showcases personality. Good for Arts, Marketing, Media.
+Control B: Creativity Level (The "Lying" Control)
+Literal: Stick strictly to the provided text. Fix grammar only.
+Enhanced: Optimize phrasing and keywords, but keep the core meaning.
+Strategic: Infer skills and aggressively reframe experience (the "taking liberties" option).
+Control C: Verbosity (The "Length" Control)
+Concise: Short, punchy bullet points.
+Balanced: Standard 1-2 sentence descriptions.
+Detailed: Comprehensive storytelling and context.
+Implementation Plan
+Modify 
+ResumeBuilder.tsx
+: Replace the single "AI Strategy" dropdown with a Pop-over / Settings Menu (or a row of 3 smaller selects) labeled "AI Settings".
+Update 
+llm.ts
+: Rewrite the prompt generation logic to combine these three parameters into a complex system prompt.
+Example: "You are writing a [Tone] resume. Use a [Creativity] approach to the facts. Output [Verbosity] bullet points."
+Update 
+types/llm.ts
+: Define these new enums.
+This allows an Attorney to pick: Formal + Literal + 
+Detailed
+. A Tech Consultant might pick: Modern + Strategic + Concise.
+
+Shall I proceed with implementing this 3-Axis Resume Persona System?
+
+
+********************************************
+filter strategy 3
+********************************************
+Resume AI Personality 
+  Control Model: Deep 
+  Brainstorm
+
+  Research Summary
+
+  Based on my research across
+   psychology, industry
+  conventions, and UX best
+  practices:
+
+  Key Psychology Findings
+
+  - 10-second rule: Hiring
+  managers spend ~10 seconds
+  on initial scan
+  (https://hipcv.com/blog/psy
+  chology-of-resume-writing)
+  - 40% boost: Quantifiable
+  results increase interview
+  chances by 40%
+  (https://resumeworded.com/r
+  esume-bullet-points)
+  - CAR structure:
+  Challenge-Action-Result
+  activates brain's story
+  preference
+  (https://huru.ai/the-psycho
+  logy-of-resumes-how-to-infl
+  uence-hiring-managers/)
+  - Nudge theory: Authority
+  signals, social proof, loss
+   aversion drive decisions
+  (https://www.robertwaltersa
+  frica.com/insights/career-a
+  dvice/blog/how-to-create-a-
+  persuasive-CV.html)
+
+  Optimal Verbosity Data
+
+  - 14-20 words per bullet
+  for maximum impact (https:/
+  /www.resufit.com/blog/the-u
+  ltimate-guide-to-writing-po
+  werful-resume-bullet-points
+  -that-get-you-hired/)
+  - 300-500 words total for
+  successful resumes (1:10
+  interview ratio)
+  (https://optimcareers.com/e
+  xpert-articles/ideal-resume
+  -word-count)
+  - 3-6 bullets per job is
+  optimal (https://enhancv.co
+  m/blog/how-many-bullet-poin
+  ts-should-i-have-per-job-ti
+  tle-on-resume/)
+
+  Industry Variations
+
+  | Industry    | Tone
+            | Length        |
+   Jargon
+      | Style
+       |
+  |-------------|------------
+  ----------|---------------|
+  ---------------------------
+  ----|----------------------
+  -----|
+  | Legal       | Formal,
+  conservative | 1 page
+  strict | Bar admissions,
+  jurisdictions | No
+  embellishment          |
+  | Tech        | Direct,
+  energetic    | 1-2 pages OK
+    | Tech stack critical
+         | GitHub links
+  expected     |
+  | Finance     | Formal
+            | 1 page        |
+   Domain-specific
+      | Conservative design
+       |
+  | Creative    |
+  Conversational       |
+  Flexible      | Minimal
+                     |
+  Design-forward OK         |
+  | Hospitality |
+  Service-focused      | 1
+  page        | Soft skills
+  emphasis          |
+  Customer experience focus |
+
+  ---
+  Proposed Model: 
+  4-Dimensional Control 
+  System
+
+  Your current 3-tier system
+  (Authentic/Professional/Per
+  suasive) conflates multiple
+   dimensions. Here's an
+  orthogonal 4-axis model:
+
+  Axis 1: VOICE (Formality 
+  Spectrum)
+
+  Question: "How should I 
+  sound?"
+
+  | Level | Label        |
+  Description
+               | Temperature
+  Effect |
+  |-------|--------------|---
+  ---------------------------
+  -----------|---------------
+  -----|
+  | 1     | Casual       |
+  Startup/creative energy,
+  conversational | +0.1
+           |
+  | 2     | Professional |
+  Standard business tone
+  (default)        | 0
+             |
+  | 3     | Buttoned-Up  |
+  Conservative, formal
+  language           | -0.1
+               |
+
+  Examples:
+  - Casual: "Built a killer
+  analytics dashboard that
+  saved the team 20
+  hours/week"
+  - Professional: "Developed
+  analytics dashboard
+  reducing team workload by
+  20 hours weekly"
+  - Buttoned-Up: "Architected
+   enterprise analytics
+  solution, achieving 20-hour
+   weekly efficiency gain
+  across department"
+
+  Best for:
+  - Casual → Startups,
+  creative agencies, tech
+  companies with casual
+  culture
+  - Professional → Most
+  corporate roles, mid-market
+   companies
+  - Buttoned-Up → Law firms,
+  finance, government,
+  healthcare, executive roles
+
+  ---
+  Axis 2: DENSITY (Content 
+  Volume)
+
+  Question: "How much 
+  detail?"
+
+  | Level | Label         |
+  Words/Bullet | Bullets/Job
+  | Total Resume |
+  |-------|---------------|--
+  ------------|-------------|
+  --------------|
+  | 1     | Punchy        |
+  10-14        | 2-4
+  | ~300 words   |
+  | 2     | Balanced      |
+  15-20        | 4-6
+  | ~450 words   |
+  | 3     | Comprehensive |
+  20-30        | 5-8
+  | ~600+ words  |
+
+  Examples:
+  - Punchy: "Led team of 5.
+  Delivered $2M project on
+  time."
+  - Balanced: "Led
+  cross-functional team of 5
+  engineers delivering $2M
+  infrastructure project on
+  schedule and under budget."
+  - Comprehensive: "Directed
+  cross-functional team of 5
+  senior engineers through
+  complete infrastructure
+  modernization initiative
+  valued at $2M, delivering
+  ahead of schedule while
+  maintaining 15% budget
+  surplus through strategic
+  vendor negotiations."
+
+  Best for:
+  - Punchy → Entry-level,
+  service industry, career
+  changers, busy hiring
+  markets
+  - Balanced → Most
+  mid-career professionals
+  - Comprehensive → Executive
+   roles, technical depth
+  requirements, specialized
+  positions
+
+  ---
+  Axis 3: LICENSE (Creative 
+  Latitude)
+
+  Question: "How much can I 
+  enhance?"
+
+  | Level | Label      |
+  Behavior
+            | Risk Level |
+  |-------|------------|-----
+  ---------------------------
+  ------|------------|
+  | 1     | Just Facts | Only
+   explicitly stated
+  information   | None
+  |
+  | 2     | Polish Up  |
+  Standard professional
+  enhancement    | Low
+   |
+  | 3     | Sell Hard  |
+  Aggressive reframing, skill
+   bridging | Medium     |
+
+  Examples (same raw input: 
+  "helped with customer 
+  emails"):
+  - Just Facts: "Responded to
+   customer email inquiries"
+  - Polish Up: "Managed
+  customer communications,
+  resolving inquiries and
+  maintaining satisfaction"
+  - Sell Hard: "Spearheaded
+  customer success
+  initiatives, transforming
+  routine communications into
+   relationship-building
+  opportunities that drove
+  retention"
+
+  Best for:
+  - Just Facts → Government,
+  compliance roles,
+  background-check-heavy
+  positions, risk-averse
+  users
+  - Polish Up → Standard
+  applications, honest
+  enhancement (default)
+  - Sell Hard → Competitive
+  markets, career pivots,
+  underqualified
+  applications, "cover all
+  bases" scenarios
+
+  ---
+  Axis 4: INSIDER (Domain 
+  Expertise Signaling)
+
+  Question: "How technical 
+  should I sound?"
+
+  | Level | Label          |
+  Jargon Use
+     | Acronym Handling
+    |
+  |-------|----------------|-
+  ---------------------------
+  ---|-----------------------
+  --|
+  | 1     | Plain English  |
+  Minimal, explained terms
+     | Spell out everything
+    |
+  | 2     | Industry-Aware |
+  Key terminology, ATS
+  keywords | Standard
+  acronyms OK    |
+  | 3     | Deep Insider   |
+  Full technical vocabulary
+     | Assume reader
+  knowledge |
+
+  Examples:
+  - Plain English: "Used
+  software tools to analyze
+  business data and create
+  reports"
+  - Industry-Aware:
+  "Leveraged SQL and Python
+  for business intelligence,
+  creating Tableau
+  dashboards"
+  - Deep Insider:
+  "Architected ETL pipelines
+  in Airflow, performed
+  complex joins across
+  normalized schemas,
+  deployed BI layer via
+  Looker with dbt
+  transformations"
+
+  Best for:
+  - Plain English → Career
+  changers, HR-screened
+  roles, non-technical
+  companies
+  - Industry-Aware → Standard
+   applications, ATS
+  optimization priority
+  - Deep Insider → Technical
+  roles at tech companies,
+  same-industry moves,
+  specialist positions
+
+  ---
+  Industry Preset 
+  Recommendations
+
+  | Industry          | Voice
+          | Density       |
+  License    | Insider
+   |
+  |-------------------|------
+  --------|---------------|--
+  ----------|----------------
+  |
+  | Attorney          |
+  Buttoned-Up  | Balanced
+    | Just Facts |
+  Industry-Aware |
+  | IT Consultant     |
+  Professional |
+  Comprehensive | Polish Up
+  | Deep Insider   |
+  | School Teacher    |
+  Professional | Balanced
+    | Polish Up  | Plain
+  English  |
+  | Fast Food/Service |
+  Casual       | Punchy
+    | Polish Up  | Plain
+  English  |
+  | Real Estate Agent |
+  Professional | Balanced
+    | Sell Hard  |
+  Industry-Aware |
+  | Healthcare Admin  |
+  Buttoned-Up  | Balanced
+    | Just Facts |
+  Industry-Aware |
+  | Startup Founder   |
+  Casual       | Punchy
+    | Sell Hard  | Deep
+  Insider   |
+  | Marketing Manager |
+  Professional | Balanced
+    | Sell Hard  |
+  Industry-Aware |
+  | Government        |
+  Buttoned-Up  |
+  Comprehensive | Just Facts
+  | Plain English  |
+  | Executive         |
+  Buttoned-Up  |
+  Comprehensive | Polish Up
+  | Industry-Aware |
+
+  ---
+  UI Implementation 
+  Recommendations
+
+  Option A: 4 Dropdown Boxes 
+  (Your Request)
+
+  ┌──────────────────────────
+  ───────────────────────────
+  ────────┐
+  │  Customize Your Resume
+  Voice
+            │
+  ├──────────────────────────
+  ───────────────────────────
+  ────────┤
+  │
+
+          │
+  │  🎭 Tone
+  [Professional     ▼]
+                  │
+  │     Casual · Professional
+   · Buttoned-Up
+          │
+  │
+
+          │
+  │  📏 Detail
+  [Balanced         ▼]
+                  │
+  │     Punchy · Balanced ·
+  Comprehensive
+           │
+  │
+
+          │
+  │  ✨ Enhancement  [Polish
+  Up        ▼]
+          │
+  │     Just Facts · Polish
+  Up · Sell Hard
+           │
+  │
+
+          │
+  │  🔧 Terminology
+  [Industry-Aware   ▼]
+                  │
+  │     Plain English ·
+  Industry-Aware · Deep
+  Insider           │
+  │
+
+          │
+  │  ────────────────────────
+  ───────────────────────────
+  ──────  │
+  │  💼 Quick Preset: [Select
+   Industry...        ▼]
+          │
+  │     Attorney | IT
+  Consultant | Teacher |
+  Service | ...      │
+  └──────────────────────────
+  ───────────────────────────
+  ────────┘
+
+  Option B: Slider-Based 
+  (More Granular)
+
+  Each axis becomes a 1-5
+  slider with descriptive
+  endpoints:
+  Tone:        Casual
+  ●───○───○───○───○ Formal
+  Detail:      Brief
+  ○───●───○───○───○ Detailed
+
+  Enhancement:
+  Literal○───○───●───○───○
+  Creative
+  Jargon:      Simple
+  ○───○───○───●───○ Technical
+
+  Option C: Hybrid 
+  (Recommended)
+
+  - Primary: Industry preset
+  dropdown (auto-sets all 4
+  values)
+  - Advanced: Expandable
+  section with 4 individual
+  controls
+  - Users can start with
+  preset, then fine-tune
+
+  ---
+  Mapping to LLM 
+  Implementation
+
+  System Prompt Modifiers
+
+  interface ResumePersonality
+   {
+    voice: 'casual' |
+  'professional' |
+  'buttoned-up';
+    density: 'punchy' |
+  'balanced' |
+  'comprehensive';
+    license: 'just-facts' |
+  'polish-up' | 'sell-hard';
+    insider: 'plain-english'
+  | 'industry-aware' |
+  'deep-insider';
+  }
+
+  // Temperature calculation 
+  (additive)
+  const temperatureModifiers
+  = {
+    voice: { casual: 0.1,
+  professional: 0,
+  'buttoned-up': -0.1 },
+    license: { 'just-facts':
+  -0.2, 'polish-up': 0,
+  'sell-hard': 0.2 }
+  };
+
+  // Base temperature 0.7, 
+  modified by settings
+
+  Prompt Injection by Axis
+
+  Voice modifiers:
+  - Casual: "Write in a
+  conversational, energetic
+  tone. Use contractions. Be
+  personable."
+  - Professional: "Maintain
+  standard business
+  communication tone."
+  - Buttoned-Up: "Use formal
+  language. Avoid
+  contractions. Employ
+  sophisticated vocabulary."
+
+  Density modifiers:
+  - Punchy: "Keep bullets to
+  10-14 words. One key
+  achievement per bullet.
+  Maximum impact, minimum
+  words."
+  - Balanced: "Aim for 15-20
+  words per bullet. Include
+  context and results."
+  - Comprehensive: "Provide
+  full context in 20-30
+  words. Include methodology,
+   scope, and impact."
+
+  License modifiers:
+  - Just Facts: "ONLY include
+   information explicitly
+  provided. NO inference. NO
+  embellishment. If
+  information is missing,
+  omit it."
+  - Polish Up:
+  "Professionally enhance
+  descriptions using standard
+   business language.
+  Reasonable inference
+  allowed."
+  - Sell Hard: "Aggressively
+  reframe experience to match
+   job requirements. Bridge
+  transferable skills
+  creatively. Maximize impact
+   language."
+
+  Insider modifiers:
+  - Plain English: "Avoid
+  jargon. Explain any
+  technical terms. Write for
+  a general audience."
+  - Industry-Aware: "Use
+  standard industry
+  terminology. Include ATS
+  keywords from job
+  description."
+  - Deep Insider: "Use full
+  technical vocabulary.
+  Assume reader has domain
+  expertise. Include specific
+   tools, frameworks,
+  methodologies."
+
+  ---
+  Alternative Model: 3 Axes 
+  (Simplified)
+
+  If 4 feels like too many,
+  you could merge Voice +
+  Density into one "Style"
+  axis:
+
+  3-Axis Model
+
+  1. Style: Punchy-Casual →
+  Balanced-Professional →
+  Comprehensive-Formal
+  2. Honesty: Literal →
+  Enhanced → Aggressive
+  3. Expertise: Accessible →
+  Technical
+
+  This trades granularity for
+   simplicity. A senior
+  attorney might want
+  Comprehensive (detailed)
+  but not Casual, which the
+  merged model doesn't handle
+   well.
+
+  ---
+  Additional Considerations
+
+  Action Verb Ladders by 
+  Level
+
+  Based on the research
+  (https://greatresumesfast.c
+  om/blog/how-do-i-use-action
+  -verbs-in-my-resume/, https
+  ://blog.theinterviewguys.co
+  m/resume-action-verbs/):
+
+  | Career Level | Verbs to
+  Use
+             | Verbs to Avoid
+                 |
+  |--------------|-----------
+  ---------------------------
+  ----------|----------------
+  --------------|
+  | Entry        |
+  Contributed, Supported,
+  Assisted, Learned      |
+  Spearheaded, Transformed
+    |
+  | Mid          |
+  Implemented, Managed,
+  Developed, Led           |
+  Responsible for, Worked
+  with |
+  | Senior       | Directed,
+  Established, Pioneered,
+  Orchestrated | Helped,
+  Participated         |
+
+  You could add a 5th axis 
+  for career level that
+  adjusts verb selection, or
+  infer it from the profile
+  data.
+
+  Metrics Focus
+
+  Some users might want to
+  control how aggressively
+  the AI quantifies results:
+  - Narrative: Story-focused
+  descriptions
+  - Balanced: Mix of
+  qualitative and
+  quantitative
+  - Metrics-Heavy: Numbers
+  everywhere possible
+
+  ---
+  My Recommendation
+
+  Go with the 4-axis model
+  with these specific names:
+
+  1. 🎭 Tone (Casual /
+  Professional / Formal)
+  2. 📏 Detail (Punchy /
+  Balanced / Comprehensive)
+  3. ✨ Enhancement (Factual
+  / Polished / Persuasive)
+  4. 🔧 Terminology
+  (Accessible / Standard /
+  Technical)
+
+  Plus an industry preset 
+  dropdown that sets
+  intelligent defaults.
+
+  This gives you:
+  - 81 unique combinations
+  (3×3×3×3) for fine-grained
+  control
+  - Clear mental models for
+  each axis
+  - Industry presets for
+  users who don't want to
+  think about it
+  - Orthogonal dimensions
+  that don't conflict with
+  each other
+
+  ---
+
+● ---
+  Summary
+
+  Your current system
+  (Authentic/Professional/Per
+  suasive) mixes
+  creativity/honesty with
+  tone and verbosity. The
+  4-axis model separates
+  these into independent
+  controls:
+
+  | Your Original | Becomes
+
+                    | Why
+
+
+            |
+  |---------------|----------
+  ---------------------------
+  ------------------|--------
+  ---------------------------
+  ---------------------------
+  ----------|
+  | Authentic     |
+  License=Factual +
+  Tone=Professional
+           | Separates
+  "truthfulness" from "style"
+
+         |
+  | Professional  |
+  License=Polished + default
+  everything
+  | The middle ground
+
+                     |
+  | Persuasive    |
+  License=Persuasive +
+  possible Tone/Detail
+  adjustments | Allows
+  aggressive + formal
+  (attorney) or aggressive +
+  casual (startup) |
+
+  The key insight: An
+  attorney needs formal tone
+  + factual content +
+  technical jargon. A startup
+   founder needs casual tone
+  + persuasive content +
+  technical jargon. Your
+  current system can't
+  distinguish these because
+  it conflates dimensions.
+
+  Want me to mock up the UI
+  component or write the
+  updated LLM prompt
+  modifiers for this model?
+********************************************
+I have completed the research and have a new, robust plan for the Resume Persona Configuration.
+
+1. Revert to Clean Slate
+I will first undo the previous "Authentic/Professional/Persuasive" changes to restore the codebase to a neutral state, as requested.
+
+2. The "Resume Persona" System (Proposed Solution)
+Instead of a single "Strategy" dropdown, I will implement three distinct controls that allow users to "dial in" the AI's personality. This matches the user's request for "3-4 category drop down boxes" to handle different industries (Attorney vs. Burger Flipper).
+
+Control A: Tone & Style (The "Who am I?" Control)
+Standard (Corporate): [Default] Balanced, professional, safe. Good for Admin, Management, General.
+Formal (Legal/Academic): Factual, dense, prestigious words, no fluff. Good for Law, Academia, Government.
+Modern (Tech/Startup): Action-oriented, skills-heavy, scannable. Good for IT, Engineering, Startups.
+Creative (Design/Marketing): Expressive, narrative-driven, showcases personality. Good for Arts, Marketing, Media.
+Control B: Creativity Level (The "Lying" Control)
+Literal: Stick strictly to the provided text. Fix grammar only.
+Enhanced: Optimize phrasing and keywords, but keep the core meaning.
+Strategic: Infer skills and aggressively reframe experience (the "taking liberties" option).
+Control C: Verbosity (The "Length" Control)
+Concise: Short, punchy bullet points.
+Balanced: Standard 1-2 sentence descriptions.
+Detailed: Comprehensive storytelling and context.
+Implementation Plan
+Modify 
+ResumeBuilder.tsx
+: Replace the single "AI Strategy" dropdown with a Pop-over / Settings Menu (or a row of 3 smaller selects) labeled "AI Settings".
+Update 
+llm.ts
+: Rewrite the prompt generation logic to combine these three parameters into a complex system prompt.
+Example: "You are writing a [Tone] resume. Use a [Creativity] approach to the facts. Output [Verbosity] bullet points."
+Update 
+types/llm.ts
+: Define these new enums.
+This allows an Attorney to pick: Formal + Literal + 
+Detailed
+. A Tech Consultant might pick: Modern + Strategic + Concise.
+
+Shall I proceed with implementing this 3-Axis Resume Persona System?
+********************************************
+

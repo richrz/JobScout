@@ -62,7 +62,7 @@ export default function AuthStatus() {
           disabled={isDevLoading}
           className="text-sm px-3 py-1.5 rounded-md bg-amber-500/20 text-amber-700 dark:text-amber-400 hover:bg-amber-500/30 border border-amber-500/30 transition-colors disabled:opacity-50"
         >
-          {isDevLoading ? '...' : '🔧 Dev Login'}
+          {isDevLoading ? '...' : 'Dev Login'}
         </button>
       )}
     </div>

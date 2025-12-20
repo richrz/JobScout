@@ -56,7 +56,7 @@ async function runDemo() {
         // Note: verify if we are in Mock Mode or if keys are set
         // For this demo, we assume environment is set up.
 
-        const result = await generateAndPreviewResume(job.id, 'balanced');
+        const result = await generateAndPreviewResume(job.id, 'professional');
 
         if (result.success) {
             console.log('✅ Resume Generated Successfully!');

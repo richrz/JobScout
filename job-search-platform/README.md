@@ -14,7 +14,7 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The dev server picks a random port in the 3001–3999 range; check the terminal output (e.g., `http://localhost:3xyz`) before opening the app.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

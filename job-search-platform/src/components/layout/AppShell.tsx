@@ -9,6 +9,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { BackgroundMesh } from '@/components/ui/background-mesh';
 import { Button } from '@/components/ui/button';
 import { MobileNav } from './MobileNav';
+import { UserMenu } from './UserMenu';
 import {
     LayoutDashboard,
     Briefcase,
@@ -68,13 +69,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {/* Sidebar Header */}
                 <div className="h-16 flex items-center px-6 border-b border-border/50">
                     <Link href="/" className="flex items-center gap-3 overflow-hidden group">
-                        <div className="relative w-8 h-8 shrink-0 transition-transform group-hover:scale-110 duration-300">
+                        <div className="relative w-8 h-8 shrink-0 animate-[spin_0.6s_ease-out] group-hover:animate-[spin_0.5s_ease-in-out]">
                             <Image src="/images/logo-light.svg" alt="Logo" fill className="dark:hidden object-contain" />
                             <Image src="/images/logo-dark.svg" alt="Logo" fill className="hidden dark:block object-contain" />
                         </div>
                         {isSidebarOpen && (
-                            <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 whitespace-nowrap animate-in fade-in duration-300">
-                                JobScout
+                            <span className="text-xl tracking-tight whitespace-nowrap animate-in fade-in duration-300">
+                                <span className="font-extrabold text-primary">Job</span><span className="font-semibold text-foreground">Scout</span>
                             </span>
                         )}
                     </Link>
@@ -85,7 +86,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     {NAV_GROUPS.map((group, groupIndex) => (
                         <div key={group.label} className={cn("space-y-2", !isSidebarOpen && "text-center")}>
                             {isSidebarOpen && (
-                                <h3 className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider px-2 mb-2">
+                                <h3 className="text-xs font-bold text-muted-foreground/50 uppercase tracking-widest px-3 mb-3">
                                     {group.label}
                                 </h3>
                             )}
@@ -99,20 +100,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                         key={item.href}
                                         href={item.href}
                                         className={cn(
-                                            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
+                                            "flex items-center gap-4 px-4 py-3 rounded-full transition-all duration-200 group relative",
                                             isActive
-                                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                                                : "text-muted-foreground hover:bg-muted hover:text-foreground hover:translate-x-1",
-                                            !isSidebarOpen && "justify-center px-0 hover:translate-x-0"
+                                                ? "bg-primary/10 text-primary border border-primary/20"
+                                                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                                            !isSidebarOpen && "justify-center px-3 hover:translate-x-0"
                                         )}
                                         title={!isSidebarOpen ? item.label : undefined}
                                     >
-                                        <Icon className={cn("w-5 h-5 shrink-0 transition-colors", isActive ? "text-primary-foreground" : "group-hover:text-foreground")} />
+                                        <Icon className={cn(
+                                            "w-5 h-5 shrink-0 transition-all",
+                                            isActive ? "text-primary" : "group-hover:text-foreground group-hover:scale-110"
+                                        )} />
                                         {isSidebarOpen && (
-                                            <span className="text-body-sm font-medium">{item.label}</span>
+                                            <span className={cn(
+                                                "text-sm",
+                                                isActive ? "font-bold" : "font-medium"
+                                            )}>{item.label}</span>
                                         )}
                                         {!isSidebarOpen && (
-                                            <div className="absolute left-full ml-3 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-md border border-border/50 transform translate-x-1 group-hover:translate-x-0 transition-all">
+                                            <div className="absolute left-full ml-3 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-lg border border-border transform translate-x-1 group-hover:translate-x-0 transition-all">
                                                 {item.label}
                                             </div>
                                         )}
@@ -157,7 +164,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             System Operational
                         </div>
                         <ThemeToggle />
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 shadow-lg shadow-primary/20 ml-2" />
+                        <UserMenu />
                     </div>
                 </header>
 

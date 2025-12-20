@@ -63,54 +63,64 @@
   }
 
   .dark {
-    /* Base Colors - Dark Mode (Deep Space) */
-    --background: 224 71% 4%;
-    /* #030712 - Rich Black/Gray */
-    --foreground: 210 40% 98%;
+    /* Base Colors - Dark Mode (Stitch Theme - Deep Forest) */
+    --background: 147 43% 7%;
+    /* #112117 - Deep Forest */
+    --foreground: 0 0% 100%;
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: 147 26% 14%;
+    /* #1c2e24 - Surface Dark */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 147 26% 14%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 250 95% 64%;
-    /* Violet */
-    --primary-foreground: 210 40% 98%;
+    --primary: 145 78% 56%;
+    /* #39E079 - Electric Green */
+    --primary-foreground: 147 43% 7%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 147 18% 18%;
+    /* #263c30 - Surface Hover */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 147 18% 18%;
+    --muted-foreground: 147 20% 65%;
+    /* #9db8a8 */
 
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 147 18% 18%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 250 95% 64%;
+    --border: 147 15% 18%;
+    /* rgba(255,255,255,0.05) equivalent */
+    --input: 147 20% 12%;
+    /* Darker input bg */
+    --ring: 145 78% 56%;
 
     /* Theme-Specific Gradients (CSS Vars) */
-    --gradient-1: hsla(250, 40%, 20%, 0.2);
-    /* Deep Violet */
-    --gradient-2: hsla(190, 40%, 20%, 0.15);
-    /* Deep Cyan */
-    --gradient-3: hsla(280, 40%, 20%, 0.15);
-    /* Deep Purple */
+    --gradient-1: hsla(145, 40%, 20%, 0.15);
+    /* Deep Green */
+    --gradient-2: hsla(145, 30%, 15%, 0.1);
+    /* Subtle Green */
+    --gradient-3: hsla(160, 30%, 15%, 0.1);
+    /* Teal hint */
 
-    --glass-border: hsla(0, 0%, 100%, 0.1);
-    --glass-bg: hsla(222, 47%, 11%, 0.6);
+    --glass-border: hsla(0, 0%, 100%, 0.05);
+    --glass-bg: hsla(147, 26%, 14%, 0.8);
 
-    /* Vibrant Accents */
-    --chart-1: 25 95% 53%;
-    --chart-2: 250 95% 64%;
-    --chart-3: 190 90% 50%;
+    /* Vibrant Accents - Stitch Palette */
+    --chart-1: 145 78% 56%;
+    /* Primary Green */
+    --chart-2: 217 91% 60%;
+    /* Blue */
+    --chart-3: 280 85% 60%;
+    /* Purple */
     --chart-4: 48 96% 53%;
-    --chart-5: 280 85% 60%;
+    /* Yellow */
+    --chart-5: 0 84% 60%;
+    /* Red */
   }
 
   * {

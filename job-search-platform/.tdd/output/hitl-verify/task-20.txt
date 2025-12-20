@@ -2,7 +2,7 @@ Task: 20 Costom Resume Generation
 Demo Command: npm run demo:task-20
 
 # Test 1: Route Loading
-[ ] Open Browser to http://localhost:3000/resume
+[ ] Open Browser to http://localhost:<dev-port>/resume (use the port printed by npm run dev)
 [ ] Verify "Resume Builder" header is visible
 [ ] Verify Tabs (Contact, Summary, Experience) are visible
 [ ] Verify "Job ID" input and "Enhance with AI" button are visible

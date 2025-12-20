@@ -33,46 +33,33 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen relative">
             <BackgroundMesh />
-            
+
             {/* Desktop Header - Full Width Sticky Glass */}
             <header className="hidden md:flex fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl transition-all duration-300">
                 <div className="container mx-auto max-w-7xl h-20 flex items-center justify-between px-6">
                     {/* Brand */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="relative w-10 h-10 shrink-0">
-                            <Image 
-                                src="/images/logo-light.svg" 
-                                alt="JobScout Logo" 
+                        <div className="relative w-10 h-10 shrink-0 animate-[spin_0.6s_ease-out] group-hover:animate-[spin_0.5s_ease-in-out]">
+                            <Image
+                                src="/images/logo-light.svg"
+                                alt="JobScout Logo"
                                 fill
                                 className="object-contain dark:hidden"
                                 priority
                             />
-                            <Image 
-                                src="/images/logo-dark.svg" 
-                                alt="JobScout Logo" 
+                            <Image
+                                src="/images/logo-dark.svg"
+                                alt="JobScout Logo"
                                 fill
                                 className="object-contain hidden dark:block"
                                 priority
                             />
                         </div>
-                        <div className="relative w-32 h-8">
-                            <Image 
-                                src="/images/brand-light.svg" 
-                                alt="JobScout" 
-                                fill
-                                className="object-contain dark:hidden"
-                                priority
-                            />
-                            <Image 
-                                src="/images/brand-dark.svg" 
-                                alt="JobScout" 
-                                fill
-                                className="object-contain hidden dark:block"
-                                priority
-                            />
-                        </div>
+                        <span className="text-2xl tracking-tight">
+                            <span className="font-extrabold text-primary">Job</span><span className="font-semibold text-foreground">Scout</span>
+                        </span>
                     </Link>
-                    
+
                     {/* Navigation */}
                     <nav className="flex items-center gap-1 bg-white/5 p-1.5 rounded-full border border-white/5">
                         {navItems.map((item) => {
@@ -83,8 +70,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                     href={item.href}
                                     className={cn(
                                         "relative px-5 py-2 text-sm font-medium rounded-full transition-all duration-300",
-                                        isActive 
-                                            ? "text-primary dark:text-white" 
+                                        isActive
+                                            ? "text-primary dark:text-white"
                                             : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                                     )}
                                 >

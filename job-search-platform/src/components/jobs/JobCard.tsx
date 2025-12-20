@@ -4,9 +4,13 @@ import { Job } from "@prisma/client";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ScoreRadial } from "@/components/ui/score-radial";
 import Link from "next/link";
-import { Building2, MapPin, Banknote, CalendarDays, ExternalLink } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ExternalLink, Check, Loader2 } from "lucide-react";
 import type { Route } from "next";
+import { useState } from "react";
+import { applyToJob } from "@/app/actions/application";
 
 interface JobCardProps {
   job: Job;
@@ -14,57 +18,69 @@ interface JobCardProps {
 
 export function JobCard({ job }: JobCardProps) {
   const score = Math.round((job.compositeScore || 0) * 100);
+  const [isApplying, setIsApplying] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-  // Determine score color
-  const scoreColor = score >= 80 ? "text-emerald-500 ring-emerald-500/30 bg-emerald-500/10"
-    : score >= 60 ? "text-amber-500 ring-amber-500/30 bg-amber-500/10"
-      : "text-rose-500 ring-rose-500/30 bg-rose-500/10";
+  const handleApply = async () => {
+    setIsApplying(true);
+    setError(null);
+    try {
+      const result = await applyToJob(job.id);
+      if (result.success) {
+        setHasApplied(true);
+      } else {
+        if (result.error === 'Unauthorized') {
+          // Redirect to login
+          router.push('/auth/signin');
+          return;
+        }
+        setError(result.error || 'Failed to apply');
+        console.error(result.error);
+      }
+    } catch (error) {
+      setError('Failed to apply');
+      console.error("Failed to apply", error);
+    } finally {
+      setIsApplying(false);
+    }
+  };
 
   return (
     <GlassCard className="flex flex-col h-full group p-card" hoverEffect={true}>
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shadow-inner">
-            <Building2 className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-          </div>
-          <div>
-            <h3 className="text-title-subsection leading-tight group-hover:text-primary transition-colors line-clamp-1" title={job.title}>
-              {job.title}
-            </h3>
-            <p className="text-body-sm text-muted-foreground">{job.company}</p>
-          </div>
+      {/* Header - job title and company */}
+      <div className="mb-3">
+        <h3 className="text-title-subsection leading-tight group-hover:text-primary transition-colors line-clamp-2" title={job.title}>
+          {job.title}
+        </h3>
+        <p className="text-body-sm text-muted-foreground">{job.company}</p>
+      </div>
+
+      {/* Metadata with score */}
+      <div className="flex gap-4 mb-4 flex-1">
+        <div className="space-y-1.5 flex-1 text-body-sm text-muted-foreground">
+          <div className="truncate">{job.location || 'Remote'}</div>
+          <div>{job.salary || 'Competitive'}</div>
+          <div>{new Date(job.postedAt).toLocaleDateString()}</div>
         </div>
 
-        <div className={`flex flex-col items-center justify-center w-12 h-12 rounded-full ring-2 ${scoreColor}`}>
-          <span className="text-sm font-bold">{score}</span>
-          <span className="text-[10px] font-medium opacity-80">%</span>
+        {/* Score indicator */}
+        <div className="flex items-center">
+          <ScoreRadial score={score} size={48} />
         </div>
       </div>
 
-      <div className="space-y-2.5 mb-6 flex-1">
-        <div className="flex items-center gap-2 text-body-sm text-muted-foreground">
-          <MapPin className="w-4 h-4 text-slate-400" />
-          <span className="truncate">{job.location || 'Remote'}</span>
-        </div>
-        <div className="flex items-center gap-2 text-body-sm text-muted-foreground">
-          <Banknote className="w-4 h-4 text-slate-400" />
-          <span>{job.salary || 'Competitive'}</span>
-        </div>
-        <div className="flex items-center gap-2 text-body-sm text-muted-foreground">
-          <CalendarDays className="w-4 h-4 text-slate-400" />
-          <span>{new Date(job.postedAt).toLocaleDateString()}</span>
-        </div>
-
-        <div className="flex flex-wrap gap-2 pt-1">
-          <Badge variant="secondary" className="text-xs font-normal">
-            {job.source}
+      {/* Tags */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Badge variant="secondary" className="text-xs font-normal">
+          {job.source}
+        </Badge>
+        {job.cityMatch && (
+          <Badge variant="outline" className="text-xs font-normal">
+            Matches Location
           </Badge>
-          {job.cityMatch && (
-            <Badge variant="outline" className="text-xs font-normal">
-              Matches Location
-            </Badge>
-          )}
-        </div>
+        )}
       </div>
 
       <div className="flex gap-3 mt-auto pt-4 border-t border-white/5">
@@ -73,10 +89,27 @@ export function JobCard({ job }: JobCardProps) {
             Details
           </Link>
         </Button>
-        <Button size="sm" className="flex-1 gap-2">
-          Apply <ExternalLink className="w-3 h-3" />
+        <Button
+          size="sm"
+          className="flex-1 gap-2 text-black font-semibold bg-blue-400 hover:bg-blue-500"
+          onClick={handleApply}
+          disabled={isApplying || hasApplied}
+        >
+          {isApplying ? (
+            <>Saving <Loader2 className="w-3 h-3 animate-spin" /></>
+          ) : hasApplied ? (
+            <>In Pipeline <Check className="w-3 h-3" /></>
+          ) : (
+            <>Interested ⭐</>
+          )}
         </Button>
       </div>
+      {error && (
+        <p className="text-xs text-red-400 mt-2 text-center">{error}</p>
+      )}
+      {hasApplied && (
+        <p className="text-xs text-blue-400 mt-2 text-center">Added to your pipeline!</p>
+      )}
     </GlassCard>
   );
 }

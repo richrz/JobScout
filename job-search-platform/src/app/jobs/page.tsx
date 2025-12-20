@@ -1,11 +1,9 @@
-
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/button';
 import { JobCard } from '@/components/jobs/JobCard';
-import { ShellCard } from '@/components/layout/ShellCard';
-import { Page } from '@/components/layout/Page';
-import { Section } from '@/components/layout/Section';
-import { Filter, RefreshCw, Plus } from 'lucide-react';
+import { JobsFilterSidebar } from '@/components/jobs/JobsFilterSidebar';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 // Server Component
 export default async function JobsPage() {
@@ -15,54 +13,75 @@ export default async function JobsPage() {
     });
 
     return (
-        <Page>
-            {/* Header Area */}
-            <Section
-                title="Job Listings"
-                description={`Discovered ${jobs.length} opportunities tailored for you.`}
-                action={
-                    <div className="flex gap-3">
-                        <Button variant="outline" className="gap-2">
-                            <RefreshCw className="w-4 h-4" /> Refresh
-                        </Button>
-                        <Button className="gap-2 shadow-lg shadow-primary/20">
-                            <Plus className="w-4 h-4" /> Add Source
-                        </Button>
+        <div className="min-h-screen w-full">
+            {/* Page Header */}
+            <div className="px-6 lg:px-8 py-8">
+                <div className="max-w-7xl mx-auto">
+                    {/* Breadcrumbs */}
+                    <div className="flex flex-wrap gap-2 mb-6">
+                        <Link href="/" className="text-muted-foreground text-sm font-medium hover:text-primary transition-colors">Home</Link>
+                        <span className="text-muted-foreground/50 text-sm">/</span>
+                        <span className="text-foreground text-sm font-medium">Jobs</span>
                     </div>
-                }
-            >
-                {/* Filters Bar */}
-                <ShellCard className="p-2 flex-row gap-2 overflow-x-auto items-center no-scrollbar min-h-0" variant="default">
-                    <Button variant="ghost" size="sm" className="text-muted-foreground shrink-0">
-                        <Filter className="w-4 h-4 mr-2" /> Filters:
-                    </Button>
-                    {['All', 'LinkedIn', 'Indeed', 'Glassdoor', 'Remote', 'High Pay'].map((filter) => (
-                        <Button
-                            key={filter}
-                            variant={filter === 'All' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="rounded-lg shrink-0"
-                        >
-                            {filter}
-                        </Button>
-                    ))}
-                </ShellCard>
 
-                {/* Job Grid */}
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {jobs.map((job) => (
-                        <JobCard key={job.id} job={job} />
-                    ))}
+                    {/* Header & Sort */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight text-foreground">{jobs.length} Jobs Found</h1>
+                            <p className="text-muted-foreground mt-1 text-sm">Based on your preferences and saved searches</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-muted-foreground">Sort by:</span>
+                            <select className="appearance-none bg-card border border-border text-foreground text-sm font-medium rounded-xl py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer hover:border-primary transition-colors">
+                                <option>Most Relevant</option>
+                                <option>Newest First</option>
+                                <option>Highest Salary</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                        {/* Filters Sidebar - Now a Client Component */}
+                        <JobsFilterSidebar />
+
+                        {/* Job Cards Grid - Using existing JobCard component */}
+                        <div className="lg:col-span-3">
+                            {jobs.length === 0 ? (
+                                <div className="text-center py-20 bg-card rounded-2xl border border-border">
+                                    <p className="text-muted-foreground text-lg">No jobs found matching your criteria.</p>
+                                    <Button variant="link" className="mt-2 text-primary">Reset Filters</Button>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Job Cards Grid */}
+                                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                        {jobs.map((job) => (
+                                            <JobCard key={job.id} job={job} />
+                                        ))}
+                                    </div>
+
+                                    {/* Pagination */}
+                                    <div className="mt-10 flex items-center justify-center">
+                                        <nav className="flex items-center gap-2">
+                                            <button className="size-10 flex items-center justify-center rounded-xl border border-border text-muted-foreground hover:bg-secondary">
+                                                <ChevronLeft className="w-5 h-5" />
+                                            </button>
+                                            <button className="size-10 flex items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">1</button>
+                                            <button className="size-10 flex items-center justify-center rounded-xl border border-border text-muted-foreground hover:bg-secondary">2</button>
+                                            <button className="size-10 flex items-center justify-center rounded-xl border border-border text-muted-foreground hover:bg-secondary">3</button>
+                                            <span className="px-2 text-muted-foreground">...</span>
+                                            <button className="size-10 flex items-center justify-center rounded-xl border border-border text-muted-foreground hover:bg-secondary">12</button>
+                                            <button className="size-10 flex items-center justify-center rounded-xl border border-border text-muted-foreground hover:bg-secondary">
+                                                <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </nav>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </div>
-
-                {/* Empty state */}
-                {jobs.length === 0 && (
-                    <div className="text-center py-20">
-                        <p className="text-muted-foreground text-lg">No jobs found matching your criteria.</p>
-                        <Button variant="link" className="mt-2">Reset Filters</Button>
-                    </div>
-                )}
-            </Section>
-        </Page>
+            </div>
+        </div>
     );
 }

@@ -39,7 +39,7 @@ EXPECTED RESULT
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [ ] NO
+  Did the expected result occur?     [ x] YES  [ ] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
@@ -72,11 +72,11 @@ EXPECTED RESULT
 ──────────────────────────────────────────────────────────────────────────────
 VERIFICATION
 
-  Did the expected result occur?     [ ] YES  [ ] NO
+  Did the expected result occur?     [ ] YES  [ x] NO
 
   If NO, what happened instead?
   _____________________________________________________________________________
-  _____________________________________________________________________________
+  ______________________enhance with ai did something but i c an't tell. didn't s;ay generating. looks like it doesn't really use ai yet._______________________________________________________
 
   Screenshots/Notes:
   _____________________________________________________________________________
@@ -106,7 +106,7 @@ VERIFICATION
   Did the expected result occur?     [ ] YES  [ x] NO
 
   If NO, what happened instead?
-  _____________________________________________________________________________
+  _____________________________save to pdf worked. i don't know ________________________________________________
   _____________________________________________________________________________
 
   Screenshots/Notes:

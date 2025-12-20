@@ -20,10 +20,10 @@ const buttonVariants = cva(
                 glow: "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.3)] hover:shadow-[0_0_25px_rgba(var(--primary),0.5)] hover:bg-primary/20 hover:border-primary/40",
             },
             size: {
-                default: "h-11 px-5",
-                sm: "h-9 rounded-lg px-3 text-tiny",
+                default: "h-10 px-4",
+                sm: "h-8 rounded-lg px-3 text-tiny",
                 lg: "h-12 rounded-xl px-8 text-body",
-                icon: "h-10 w-10",
+                icon: "h-9 w-9",
             },
         },
         defaultVariants: {

@@ -226,9 +226,9 @@ export function LLMSettings() {
             });
 
             const result = await response.json();
-            setTestResult(result.success ? '✅ Connection successful!' : `❌ ${result.error}`);
+            setTestResult(result.success ? 'Connection successful!' : `Error: ${result.error}`);
         } catch (error) {
-            setTestResult('❌ Connection failed');
+            setTestResult('Connection failed');
         }
     };
 
@@ -237,10 +237,10 @@ export function LLMSettings() {
         setTestResult(null);
         try {
             await updateConfig({ llm: data });
-            setTestResult('✅ Settings saved successfully!');
+            setTestResult('Settings saved successfully!');
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            setTestResult(`❌ ${errorMessage}`);
+            setTestResult(`Error: ${errorMessage}`);
         } finally {
             setIsSaving(false);
         }
@@ -313,7 +313,7 @@ export function LLMSettings() {
                                                 onClick={handleFetchModels}
                                                 disabled={!apiEndpoint || isLoadingModels}
                                             >
-                                                {isLoadingModels ? '⏳' : '🔄'} Fetch Models
+                                                {isLoadingModels ? 'Loading...' : 'Fetch Models'}
                                             </Button>
                                         </div>
                                         <FormDescription>
@@ -399,7 +399,7 @@ export function LLMSettings() {
                                         </Select>
                                         {dynamicModels.length > 0 && (
                                             <FormDescription className="text-green-600">
-                                                ✓ {dynamicModels.length} models loaded from endpoint
+                                                {dynamicModels.length} models loaded from endpoint
                                             </FormDescription>
                                         )}
                                         <FormMessage />
@@ -410,13 +410,13 @@ export function LLMSettings() {
 
                         {modelFetchError && (
                             <p className="text-xs text-amber-600 mt-1">
-                                ⚠️ {modelFetchError} - Using default models or enter manually
+                                Warning: {modelFetchError} - Using default models or enter manually
                             </p>
                         )}
                     </div>
 
                     <details className="border rounded-xl p-4 bg-background/50">
-                        <summary className="cursor-pointer font-medium text-sm">⚙️ Advanced Settings</summary>
+                        <summary className="cursor-pointer font-medium text-sm">Advanced Settings</summary>
                         <div className="mt-4 grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
@@ -465,16 +465,16 @@ export function LLMSettings() {
 
                     <div className="flex gap-2 flex-wrap">
                         <Button type="button" variant="outline" onClick={testConnection}>
-                            🔌 Test Connection
+                            Test Connection
                         </Button>
                         <Button type="submit" disabled={isSaving}>
-                            {isSaving ? '⏳ Saving...' : '💾 Save Settings'}
+                            {isSaving ? 'Saving...' : 'Save Settings'}
                         </Button>
                     </div>
 
                     {testResult && (
-                        <div className={`p-3 rounded-lg text-sm ${testResult.includes('✅') ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                            testResult.includes('❌') ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                        <div className={`p-3 rounded-lg text-sm ${testResult.includes('successful') ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                            testResult.includes('Error') || testResult.includes('failed') ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
                                 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                             }`}>
                             {testResult}

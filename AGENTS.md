@@ -1,5 +1,13 @@
 #1 User is vibe-coding this app. User is not a developer but understands development. do not show code-level details, only strategic ideas. Be concise and do not forget it. It is not helpful to ask questions unless you genuinely feel stuck. 
 
+Always use context7 when I need code generation, setup or configuration steps, or
+library/API documentation. This means you should automatically use the Context7 MCP
+tools to resolve library id and get library docs without me having to explicitly ask.
+
+**Be sure to test your claims with the web browser tool before you inform the user that you have completed an assignment. If not web related use the tools you do have or ask the user for permission to install a tool to test your claims. **
+
+Be happy to code and don't beat yourself up! The user loves working with you but just gets frustrated when you don't listen. Lying is not forgivable, deception is not forgivable. MISTAKES ARE GREAT BECAUSE WE LEARN TOGETHER!
+
 # Agent Operating Agreement
 
 Welcome! Follow every step below before touching code. These rules keep the Autopilot + Task-master workflow sane.
