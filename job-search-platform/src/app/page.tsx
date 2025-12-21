@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import type { Route } from "next";
+import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
 import {
     Search,
     Briefcase,
@@ -17,6 +18,7 @@ import {
     Bell,
     CheckCircle,
     Quote,
+    Layers,
 } from "lucide-react";
 
 // Stitch Design Colors
@@ -54,67 +56,7 @@ export default function DashboardV2() {
                 </header>
 
                 {/* Metrics Row */}
-                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Metric 1: Jobs Found */}
-                    <div
-                        className="p-6 rounded-xl border hover:border-[#39E079]/30 transition-all group relative overflow-hidden"
-                        style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                    >
-                        <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Briefcase className="w-16 h-16 text-[#39E079]" />
-                        </div>
-                        <p className="text-white/60 text-sm font-medium mb-2">Jobs Found</p>
-                        <div className="flex items-end gap-3">
-                            <h3 className="text-4xl font-bold text-white">142</h3>
-                            <span className="text-[#39E079] text-xs font-bold bg-[#39E079]/10 px-2 py-1 rounded-full mb-1">+15%</span>
-                        </div>
-                    </div>
-
-                    {/* Metric 2: Applications Sent */}
-                    <div
-                        className="p-6 rounded-xl border hover:border-[#39E079]/30 transition-all group relative overflow-hidden"
-                        style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                    >
-                        <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Send className="w-16 h-16 text-[#39E079]" />
-                        </div>
-                        <p className="text-white/60 text-sm font-medium mb-2">Applications Sent</p>
-                        <div className="flex items-end gap-3">
-                            <h3 className="text-4xl font-bold text-white">12</h3>
-                            <span className="text-[#39E079] text-xs font-bold bg-[#39E079]/10 px-2 py-1 rounded-full mb-1">+2%</span>
-                        </div>
-                    </div>
-
-                    {/* Metric 3: Interviews */}
-                    <div
-                        className="p-6 rounded-xl border hover:border-[#39E079]/30 transition-all group relative overflow-hidden"
-                        style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                    >
-                        <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Calendar className="w-16 h-16 text-[#39E079]" />
-                        </div>
-                        <p className="text-white/60 text-sm font-medium mb-2">Interviews</p>
-                        <div className="flex items-end gap-3">
-                            <h3 className="text-4xl font-bold text-white">2</h3>
-                            <span className="text-[#39E079] text-xs font-bold bg-[#39E079]/10 px-2 py-1 rounded-full mb-1">+1 new</span>
-                        </div>
-                    </div>
-
-                    {/* Metric 4: Profile Match */}
-                    <div
-                        className="p-6 rounded-xl border flex flex-col justify-between"
-                        style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                    >
-                        <div className="flex justify-between items-center mb-3">
-                            <p className="text-white/60 text-sm font-medium">Profile Match</p>
-                            <span className="text-white font-bold text-sm">85%</span>
-                        </div>
-                        <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-[#39E079] rounded-full transition-all duration-1000" style={{ width: "85%" }} />
-                        </div>
-                        <p className="text-white/40 text-xs mt-3">Add 2 skills to reach 100%</p>
-                    </div>
-                </section>
+                <DashboardMetrics />
 
                 {/* Content Grid: Main + Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
@@ -125,8 +67,14 @@ export default function DashboardV2() {
                         {/* Recommended Jobs */}
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center justify-between px-1">
-                                <h3 className="text-white text-lg font-bold">Recommended For You</h3>
-                                <Link href={"/jobs" as Route} className="text-[#39E079] text-sm font-medium hover:underline">View All</Link>
+                                <h3 className="text-white text-lg font-bold">Your Job Inbox</h3>
+                                <div className="flex items-center gap-4">
+                                    <Link href={"/triage" as Route} className="flex items-center gap-2 text-[#39E079] text-sm font-bold hover:underline bg-[#39E079]/10 px-3 py-1.5 rounded-full transition-colors hover:bg-[#39E079]/20">
+                                        <Layers className="w-4 h-4" />
+                                        Start Swiping
+                                    </Link>
+                                    <Link href={"/jobs" as Route} className="text-white/40 text-sm font-medium hover:text-white transition-colors">View All</Link>
+                                </div>
                             </div>
                             <div className="rounded-xl border p-1" style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}>
 

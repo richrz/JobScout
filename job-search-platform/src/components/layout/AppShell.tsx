@@ -1,178 +1,53 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { BackgroundMesh } from '@/components/ui/background-mesh';
-import { Button } from '@/components/ui/button';
-import { MobileNav } from './MobileNav';
+import { Sidebar } from './Sidebar';
 import { UserMenu } from './UserMenu';
-import {
-    LayoutDashboard,
-    Briefcase,
-    Map as MapIcon,
-    List,
-    User,
-    FileText,
-    Settings,
-    Menu,
-    X,
-    Sparkles
-} from 'lucide-react';
-import Image from 'next/image';
-
-const NAV_GROUPS = [
-    {
-        label: 'Platform',
-        items: [
-            { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-            { href: '/jobs', label: 'Job Search', icon: Briefcase },
-            { href: '/map', label: 'Map View', icon: MapIcon },
-        ]
-    },
-    {
-        label: 'Management',
-        items: [
-            { href: '/pipeline', label: 'Pipeline', icon: List },
-            { href: '/resume', label: 'Resumes', icon: FileText },
-        ]
-    },
-    {
-        label: 'User',
-        items: [
-            { href: '/profile', label: 'Profile', icon: User },
-            { href: '/settings', label: 'Settings', icon: Settings },
-        ]
-    }
-];
+import { PillNav } from './PillNav';
+import { Sparkles } from 'lucide-react';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-    // Don't show layout on auth pages
     const isAuthPage = pathname?.startsWith('/auth') || pathname?.startsWith('/login');
     if (isAuthPage) return <>{children}</>;
 
     return (
         <div className="min-h-screen bg-background text-foreground flex relative overflow-hidden font-sans">
-            <BackgroundMesh />
+            {/* Desktop Sidebar (visible lg+) */}
+            <Sidebar />
 
-            {/* Desktop Sidebar */}
-            <aside className={cn(
-                "hidden md:flex flex-col border-r border-border bg-card/40 backdrop-blur-xl transition-all duration-300 z-40 h-screen sticky top-0",
-                isSidebarOpen ? "w-72" : "w-[88px]"
-            )}>
-                {/* Sidebar Header */}
-                <div className="h-16 flex items-center px-6 border-b border-border/50">
-                    <Link href="/" className="flex items-center gap-3 overflow-hidden group">
-                        <div className="relative w-8 h-8 shrink-0 animate-[spin_0.6s_ease-out] group-hover:animate-[spin_0.5s_ease-in-out]">
-                            <Image src="/images/logo-light.svg" alt="Logo" fill className="dark:hidden object-contain" />
-                            <Image src="/images/logo-dark.svg" alt="Logo" fill className="hidden dark:block object-contain" />
-                        </div>
-                        {isSidebarOpen && (
-                            <span className="text-xl tracking-tight whitespace-nowrap animate-in fade-in duration-300">
-                                <span className="font-extrabold text-primary">Job</span><span className="font-semibold text-foreground">Scout</span>
-                            </span>
-                        )}
-                    </Link>
-                </div>
-
-                {/* Sidebar Nav */}
-                <nav className="flex-1 py-6 px-4 space-y-8 overflow-y-auto no-scrollbar">
-                    {NAV_GROUPS.map((group, groupIndex) => (
-                        <div key={group.label} className={cn("space-y-2", !isSidebarOpen && "text-center")}>
-                            {isSidebarOpen && (
-                                <h3 className="text-xs font-bold text-muted-foreground/50 uppercase tracking-widest px-3 mb-3">
-                                    {group.label}
-                                </h3>
-                            )}
-                            {!isSidebarOpen && groupIndex > 0 && <div className="h-px w-8 mx-auto bg-border/50 my-4" />}
-
-                            {group.items.map((item) => {
-                                const Icon = item.icon;
-                                const isActive = pathname === item.href;
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        className={cn(
-                                            "flex items-center gap-4 px-4 py-3 rounded-full transition-all duration-200 group relative",
-                                            isActive
-                                                ? "bg-primary/10 text-primary border border-primary/20"
-                                                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-                                            !isSidebarOpen && "justify-center px-3 hover:translate-x-0"
-                                        )}
-                                        title={!isSidebarOpen ? item.label : undefined}
-                                    >
-                                        <Icon className={cn(
-                                            "w-5 h-5 shrink-0 transition-all",
-                                            isActive ? "text-primary" : "group-hover:text-foreground group-hover:scale-110"
-                                        )} />
-                                        {isSidebarOpen && (
-                                            <span className={cn(
-                                                "text-sm",
-                                                isActive ? "font-bold" : "font-medium"
-                                            )}>{item.label}</span>
-                                        )}
-                                        {!isSidebarOpen && (
-                                            <div className="absolute left-full ml-3 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-lg border border-border transform translate-x-1 group-hover:translate-x-0 transition-all">
-                                                {item.label}
-                                            </div>
-                                        )}
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    ))}
-                </nav>
-
-                {/* Sidebar Footer */}
-                <div className="p-4 border-t border-border/50 flex flex-col gap-2 bg-gradient-to-t from-background/50 to-transparent">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className={cn("text-muted-foreground hover:text-foreground transition-colors", isSidebarOpen ? "self-end" : "self-center")}
-                        title="Toggle Sidebar"
-                    >
-                        {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                    </Button>
-                </div>
-            </aside>
+            {/* Mobile/Tablet Pill Nav (hidden lg+) */}
+            <div className="lg:hidden">
+                <PillNav />
+            </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-h-screen transition-all duration-300 relative z-0">
-                {/* Topbar (Mobile Only / Actions) */}
-                <header className="h-16 border-b border-border/50 bg-background/50 backdrop-blur-md sticky top-0 z-30 px-6 flex items-center justify-between md:justify-end">
-
-                    {/* Mobile Menu Trigger & Logo */}
-                    <div className="flex items-center gap-4 md:hidden">
-                        <MobileNav />
-                        <Link href="/" className="font-bold text-lg flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-primary fill-current" />
-                            JobScout
-                        </Link>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="hidden sm:flex items-center px-3 py-1.5 rounded-full bg-muted/50 border border-border/50 text-xs font-medium text-muted-foreground gap-2">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            System Operational
+            <main className="flex-1 w-full min-h-screen relative z-0 lg:pl-64 transition-all duration-300">
+                {/* Mobile Header (Brand only visible on small screens to avoid double brand with sidebar) */}
+                <header className="lg:hidden h-16 w-full fixed top-0 z-40 px-6 flex items-center justify-between bg-background/80 backdrop-blur-md border-b border-white/5">
+                    <Link href="/" className="flex items-center gap-2">
+                        <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center shadow-[0_0_10px_rgba(57,224,121,0.2)]">
+                            <Sparkles className="w-4 h-4 text-black fill-current" />
                         </div>
+                        <span className="font-bold text-lg tracking-tight">Job<span className="text-primary">Scout</span></span>
+                    </Link>
+                    <div className="flex items-center gap-2">
                         <ThemeToggle />
                         <UserMenu />
                     </div>
                 </header>
 
-                <main className="flex-1 relative">
-                    <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none h-96 opacity-50" />
+                {/* Content Container */}
+                <div className="pt-20 lg:pt-8 px-4 sm:px-6 lg:px-8 w-full max-w-[1600px] mx-auto pb-24 lg:pb-8">
                     {children}
-                </main>
-            </div>
+                </div>
+            </main>
         </div>
     );
 }
