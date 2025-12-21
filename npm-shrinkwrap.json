@@ -9,7 +9,7 @@
       "version": "1.0.0",
       "license": "ISC",
       "devDependencies": {
-        "task-master-ai": "0.37.1"
+        "task-master-ai": "0.40.0"
       },
       "engines": {
         "node": ">=18.0.0"
@@ -54,15 +54,33 @@
       }
     },
     "node_modules/@ai-sdk/azure": {
-      "version": "2.0.79",
-      "resolved": "https://registry.npmjs.org/@ai-sdk/azure/-/azure-2.0.79.tgz",
-      "integrity": "sha512-+iR1q8hnzBfjVAYmflbTYzmKhZuiory/uayh3p/I6AgJEKBuBf8U9pKgzWA/V+hhJFXSWp2AEV2353GS1Mp01Q==",
+      "version": "2.0.90",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/azure/-/azure-2.0.90.tgz",
+      "integrity": "sha512-7Vy4h7Emtk/vzMYwpcliBfJChDQ7K8GMjbLnOLoN/vxZXq6h6QZAc9dFLoY7Pga534e2GOY6ornDfoA6GidftA==",
       "dev": true,
       "license": "Apache-2.0",
       "dependencies": {
-        "@ai-sdk/openai": "2.0.77",
+        "@ai-sdk/openai": "2.0.88",
         "@ai-sdk/provider": "2.0.0",
-        "@ai-sdk/provider-utils": "3.0.18"
+        "@ai-sdk/provider-utils": "3.0.19"
+      },
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "zod": "^3.25.76 || ^4.1.8"
+      }
+    },
+    "node_modules/@ai-sdk/azure/node_modules/@ai-sdk/provider-utils": {
+      "version": "3.0.19",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-3.0.19.tgz",
+      "integrity": "sha512-W41Wc9/jbUVXVwCN/7bWa4IKe8MtxO3EyA0Hfhx6grnmiYlCvpI8neSYWFE0zScXJkgA/YK3BRybzgyiXuu6JA==",
+      "dev": true,
+      "license": "Apache-2.0",
+      "dependencies": {
+        "@ai-sdk/provider": "2.0.0",
+        "@standard-schema/spec": "^1.0.0",
+        "eventsource-parser": "^3.0.6"
       },
       "engines": {
         "node": ">=18"
@@ -161,14 +179,14 @@
       }
     },
     "node_modules/@ai-sdk/openai": {
-      "version": "2.0.77",
-      "resolved": "https://registry.npmjs.org/@ai-sdk/openai/-/openai-2.0.77.tgz",
-      "integrity": "sha512-lEJ9vyWSU5VLo+6Msr6r32RnABf4SRxPSV3Hz1Yb5yt43bWYxbBzwaDNYGhJaDL6rCgfUVvcIf5TKiiEuVd4EQ==",
+      "version": "2.0.88",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/openai/-/openai-2.0.88.tgz",
+      "integrity": "sha512-LlOf83haeZIiRUH1Zw1oEmqUfw5y54227CvndFoBpIkMJwQDGAB3VARUeOJ6iwAWDJjXSz06GdnEnhRU67Yatw==",
       "dev": true,
       "license": "Apache-2.0",
       "dependencies": {
         "@ai-sdk/provider": "2.0.0",
-        "@ai-sdk/provider-utils": "3.0.18"
+        "@ai-sdk/provider-utils": "3.0.19"
       },
       "engines": {
         "node": ">=18"
@@ -186,6 +204,24 @@
       "dependencies": {
         "@ai-sdk/provider": "2.0.0",
         "@ai-sdk/provider-utils": "3.0.18"
+      },
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "zod": "^3.25.76 || ^4.1.8"
+      }
+    },
+    "node_modules/@ai-sdk/openai/node_modules/@ai-sdk/provider-utils": {
+      "version": "3.0.19",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-3.0.19.tgz",
+      "integrity": "sha512-W41Wc9/jbUVXVwCN/7bWa4IKe8MtxO3EyA0Hfhx6grnmiYlCvpI8neSYWFE0zScXJkgA/YK3BRybzgyiXuu6JA==",
+      "dev": true,
+      "license": "Apache-2.0",
+      "dependencies": {
+        "@ai-sdk/provider": "2.0.0",
+        "@standard-schema/spec": "^1.0.0",
+        "eventsource-parser": "^3.0.6"
       },
       "engines": {
         "node": ">=18"
@@ -261,9 +297,9 @@
       }
     },
     "node_modules/@anthropic-ai/claude-agent-sdk": {
-      "version": "0.1.58",
-      "resolved": "https://registry.npmjs.org/@anthropic-ai/claude-agent-sdk/-/claude-agent-sdk-0.1.58.tgz",
-      "integrity": "sha512-Gc8YjY734D7qUT4I7eTF/vvu7m2umCKm03OGEZs3fGnqwSzVi0SWfGIkTZn4qLtvEbfojm/qXTRd/9OM2vhi3Q==",
+      "version": "0.1.75",
+      "resolved": "https://registry.npmjs.org/@anthropic-ai/claude-agent-sdk/-/claude-agent-sdk-0.1.75.tgz",
+      "integrity": "sha512-8iYosqTq98pm6Z1IJ0OY50mpkSZ7fdSO8cJJjFHXiKHCwfmiPZ05vLYUed2p2an9GPLpXtJhcGDfrgseenrgPw==",
       "dev": true,
       "license": "SEE LICENSE IN README.md",
       "engines": {
@@ -280,13 +316,13 @@
         "@img/sharp-win32-x64": "^0.33.5"
       },
       "peerDependencies": {
-        "zod": "^3.24.1"
+        "zod": "^3.24.1 || ^4.0.0"
       }
     },
     "node_modules/@anthropic-ai/claude-code": {
-      "version": "1.0.128",
-      "resolved": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-1.0.128.tgz",
-      "integrity": "sha512-uUg5cFMJfeQetQzFw76Vpbro6DAXst2Lpu8aoZWRFSoQVYu5ZSAnbBoxaWmW/IgnHSqIIvtMwzCoqmcA9j9rNQ==",
+      "version": "2.0.75",
+      "resolved": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.0.75.tgz",
+      "integrity": "sha512-+v4ItlItCFUPklpOU5m/wqJOSqOBhCHrh7n2K0hyVI0vPI2CJLPTJJFbIoJ536lK+2NWiASVxRGxE/BBrBd4lg==",
       "dev": true,
       "license": "SEE LICENSE IN README.md",
       "optional": true,
@@ -302,6 +338,8 @@
         "@img/sharp-linux-arm": "^0.33.5",
         "@img/sharp-linux-arm64": "^0.33.5",
         "@img/sharp-linux-x64": "^0.33.5",
+        "@img/sharp-linuxmusl-arm64": "^0.33.5",
+        "@img/sharp-linuxmusl-x64": "^0.33.5",
         "@img/sharp-win32-x64": "^0.33.5"
       }
     },
@@ -2985,9 +3023,9 @@
       }
     },
     "node_modules/@openai/codex": {
-      "version": "0.44.0",
-      "resolved": "https://registry.npmjs.org/@openai/codex/-/codex-0.44.0.tgz",
-      "integrity": "sha512-5QNxwcuNn1aZMIzBs9E//vVLLRTZ8jkJRZas2XJgYdBNiSSlGzIuOfPBPXPNiQ2hRPKVqI4/APWIck4jxhw2KA==",
+      "version": "0.60.1",
+      "resolved": "https://registry.npmjs.org/@openai/codex/-/codex-0.60.1.tgz",
+      "integrity": "sha512-qKLPldoUdBviRBltPxYYqbpOmTpFcIgy3Hbehrcda7kMY7OcdruU3HaTfERXwOXXOl853v8s8hBBpOALLqUCgQ==",
       "dev": true,
       "license": "Apache-2.0",
       "optional": true,
@@ -6161,15 +6199,15 @@
       }
     },
     "node_modules/ai-sdk-provider-claude-code": {
-      "version": "2.2.3",
-      "resolved": "https://registry.npmjs.org/ai-sdk-provider-claude-code/-/ai-sdk-provider-claude-code-2.2.3.tgz",
-      "integrity": "sha512-gen0yh0/1mzNV783MIKdVV1DzKOeehqPrxGD4goQeMH/0mQfw1WL4s4Mufg4UZx36FmLic1dKIp2mRj15nMAow==",
+      "version": "2.2.4",
+      "resolved": "https://registry.npmjs.org/ai-sdk-provider-claude-code/-/ai-sdk-provider-claude-code-2.2.4.tgz",
+      "integrity": "sha512-RhURJ0kMlWQqqB+s/VDel6yNTQZzjL3Upqgp5Vimhnn3O4B3541WUvtkKI4eJrQCk5zT+OyByeXPZDKqalYgzQ==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
         "@ai-sdk/provider": "2.0.0",
         "@ai-sdk/provider-utils": "3.0.9",
-        "@anthropic-ai/claude-agent-sdk": "^0.1.51"
+        "@anthropic-ai/claude-agent-sdk": "^0.1.59"
       },
       "engines": {
         "node": ">=18"
@@ -6197,9 +6235,9 @@
       }
     },
     "node_modules/ai-sdk-provider-codex-cli": {
-      "version": "0.3.0",
-      "resolved": "https://registry.npmjs.org/ai-sdk-provider-codex-cli/-/ai-sdk-provider-codex-cli-0.3.0.tgz",
-      "integrity": "sha512-Qz3fQMC4XqTpvaTOk+Zu9I70lf1mq74komvkc8Vp4hwVOglrqZbGWWCniZ1/4v7m7SFEoG6xK6c8QgsSozLq6g==",
+      "version": "0.7.0",
+      "resolved": "https://registry.npmjs.org/ai-sdk-provider-codex-cli/-/ai-sdk-provider-codex-cli-0.7.0.tgz",
+      "integrity": "sha512-00ftsOWFsYjQBdiw+vyVeO+3D7R2e111KSAj0M7jVyFLnyuzTJuDpPwhnoOVmAGLLUorz62MOkSRZWroWOZ8Ew==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
@@ -6211,7 +6249,7 @@
         "node": ">=18"
       },
       "optionalDependencies": {
-        "@openai/codex": "^0.44.0"
+        "@openai/codex": "^0.60.1"
       },
       "peerDependencies": {
         "zod": "^3.0.0 || ^4.0.0"
@@ -11773,9 +11811,9 @@
       }
     },
     "node_modules/task-master-ai": {
-      "version": "0.37.1",
-      "resolved": "https://registry.npmjs.org/task-master-ai/-/task-master-ai-0.37.1.tgz",
-      "integrity": "sha512-RU/sLTOv1c9eIfKgYx++uQZtdm0gofG7y5RX0Jvtv0vxj4f1aKN8bvSN0MfmaYmutkDzk2P4hEblqqV/YhPGAA==",
+      "version": "0.40.0",
+      "resolved": "https://registry.npmjs.org/task-master-ai/-/task-master-ai-0.40.0.tgz",
+      "integrity": "sha512-5MAdssBsrskr34jCANFbVbgJCZbwhxsrYXLwhIJuR/x4k26MNpxYnKpzVcfUHY3fj2NYpUdZF7ebVcYwaUQhdA==",
       "dev": true,
       "license": "MIT WITH Commons-Clause",
       "workspaces": [
@@ -11786,9 +11824,9 @@
       "dependencies": {
         "@ai-sdk/amazon-bedrock": "^3.0.23",
         "@ai-sdk/anthropic": "^2.0.18",
-        "@ai-sdk/azure": "^2.0.34",
+        "@ai-sdk/azure": "^2.0.89",
         "@ai-sdk/google": "^2.0.16",
-        "@ai-sdk/google-vertex": "^3.0.29",
+        "@ai-sdk/google-vertex": "^3.0.86",
         "@ai-sdk/groq": "^2.0.21",
         "@ai-sdk/mistral": "^2.0.16",
         "@ai-sdk/openai": "^2.0.34",
@@ -11805,8 +11843,8 @@
         "@supabase/supabase-js": "^2.57.4",
         "@types/turndown": "^5.0.6",
         "ai": "^5.0.51",
-        "ai-sdk-provider-claude-code": "^2.2.0",
-        "ai-sdk-provider-codex-cli": "^0.3.0",
+        "ai-sdk-provider-claude-code": "^2.2.4",
+        "ai-sdk-provider-codex-cli": "^0.7.0",
         "ai-sdk-provider-gemini-cli": "^1.4.0",
         "ajv": "^8.17.1",
         "ajv-formats": "^3.0.1",
@@ -11854,7 +11892,7 @@
         "node": ">=20.0.0"
       },
       "optionalDependencies": {
-        "@anthropic-ai/claude-code": "^1.0.88",
+        "@anthropic-ai/claude-code": "^2.0.59",
         "@biomejs/cli-linux-x64": "^1.9.4"
       }
     },
