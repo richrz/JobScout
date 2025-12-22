@@ -82,7 +82,7 @@ interface RadioOptionProps {
 
 function RadioOption({ options, value, onChange }: RadioOptionProps) {
     return (
-        <div className="flex rounded-lg border border-border bg-muted/30 p-0.5">
+        <div className="flex rounded-lg border border-border bg-secondary/50 p-0.5">
             {options.map((opt) => (
                 <button
                     key={opt.value}
@@ -179,7 +179,7 @@ export function AISettingsRail({
     return (
         <div className={cn("flex flex-col h-full", className)}>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
                     <span className="font-semibold text-sm">AI Settings</span>
@@ -234,7 +234,7 @@ export function AISettingsRail({
                 {/* Fine-tune Collapsible */}
                 <Collapsible open={fineTuneOpen} onOpenChange={setFineTuneOpen}>
                     <CollapsibleTrigger asChild>
-                        <Button variant="ghost" className="w-full justify-between h-8 px-2 text-xs">
+                        <Button variant="ghost" className="w-full justify-between h-8 px-2 text-xs hover:bg-secondary/50">
                             <span>Fine-tune settings</span>
                             <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", fineTuneOpen && "rotate-180")} />
                         </Button>
@@ -308,7 +308,7 @@ export function AISettingsRail({
                 {/* Advanced Settings Collapsible */}
                 <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
                     <CollapsibleTrigger asChild>
-                        <Button variant="ghost" className="w-full justify-between h-8 px-2 text-xs">
+                        <Button variant="ghost" className="w-full justify-between h-8 px-2 text-xs hover:bg-secondary/50">
                             <span>Advanced</span>
                             <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", advancedOpen && "rotate-180")} />
                         </Button>
@@ -343,7 +343,7 @@ export function AISettingsRail({
             </div>
 
             {/* Current Config Summary */}
-            <div className="px-4 py-3 border-t bg-muted/30">
+            <div className="px-4 py-3 border-t bg-secondary/20">
                 <div className="flex flex-wrap gap-1">
                     <span className="px-1.5 py-0.5 text-[10px] rounded bg-primary/10 text-primary">
                         {settings.voice}

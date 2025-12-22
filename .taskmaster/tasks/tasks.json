@@ -1091,7 +1091,7 @@
         "description": "Modernize the Kanban board with the new 'Deep Space' / Neutral Dark aesthetic.",
         "details": "Remove legacy column borders and backgrounds. Use the improved JobCard component or a specialized KanbanCard. Ensure drag-and-drop visuals match the new theme (no blue tints).",
         "priority": "high",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           "35",
           "43"
@@ -1101,18 +1101,31 @@
             "id": 1,
             "title": "Refactor Pipeline Board Layout",
             "description": "Remove column backgrounds and borders.",
-            "status": "done",
+            "status": "pending",
             "dependencies": []
           },
           {
             "id": 2,
             "title": "Update Kanban Card Style",
             "description": "Ensure cards match the JobCard style.",
-            "status": "done",
+            "status": "pending",
             "dependencies": []
           }
         ],
         "updatedAt": "2025-12-21T18:00:00.000Z"
+      },
+      {
+        "id": "47",
+        "title": "Refactor Resume UI to Neutral Dark Theme",
+        "description": "Clean up Resume Builder interface.",
+        "details": "Update ResumeBuilder, AISettingsRail, and layout to use bg-card and remove heavy borders.",
+        "priority": "high",
+        "status": "done",
+        "dependencies": [
+          "46"
+        ],
+        "subtasks": [],
+        "updatedAt": "2025-12-21T18:30:00.000Z"
       }
     ],
     "metadata": {

@@ -46,7 +46,7 @@ const PDFViewer = dynamic(
     {
         ssr: false,
         loading: () => (
-            <div className="flex items-center justify-center h-full bg-muted/20">
+            <div className="flex items-center justify-center h-full bg-muted/10">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         )
@@ -225,7 +225,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
     return (
         <div className="flex h-full flex-col bg-background">
             {/* Header */}
-            <header className="flex items-center justify-between border-b px-4 py-3">
+            <header className="flex items-center justify-between border-b px-4 py-3 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="flex items-center gap-4">
                     <Select value={jobId} onValueChange={setJobId}>
                         <SelectTrigger className="w-[320px]">
@@ -292,7 +292,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
             {/* Main 3-Panel Layout */}
             <div className="flex flex-1 overflow-hidden">
                 {/* Left Rail - AI Settings */}
-                <aside className="w-60 border-r bg-muted/30 flex-shrink-0">
+                <aside className="w-60 border-r bg-background flex-shrink-0">
                     <AISettingsRail
                         settings={personalitySettings}
                         onSettingsChange={setPersonalitySettings}
@@ -302,9 +302,9 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                 </aside>
 
                 {/* Center - Editor */}
-                <main className="flex-1 overflow-y-auto p-6">
+                <main className="flex-1 overflow-y-auto p-6 bg-background">
                     <Tabs value={activeTab} onValueChange={setActiveTab}>
-                        <TabsList className="mb-6">
+                        <TabsList className="mb-6 bg-secondary/50">
                             <TabsTrigger value="contact" className="gap-2">
                                 <User className="h-4 w-4" />
                                 Contact
@@ -324,7 +324,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         </TabsList>
 
                         <TabsContent value="contact">
-                            <Card>
+                            <Card className="border-border/50 shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="text-base">Contact Information</CardTitle>
                                 </CardHeader>
@@ -369,7 +369,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         </TabsContent>
 
                         <TabsContent value="summary">
-                            <Card>
+                            <Card className="border-border/50 shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="text-base">Professional Summary</CardTitle>
                                 </CardHeader>
@@ -387,7 +387,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         <TabsContent value="experience">
                             <div className="space-y-4">
                                 {resumeData.experience.map((exp, index) => (
-                                    <Card key={index}>
+                                    <Card key={index} className="border-border/50 shadow-sm">
                                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
                                             <CardTitle className="text-base">Experience {index + 1}</CardTitle>
                                             <Button
@@ -448,7 +448,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                                         </CardContent>
                                     </Card>
                                 ))}
-                                <Button variant="outline" onClick={addExperience} className="w-full gap-2">
+                                <Button variant="outline" onClick={addExperience} className="w-full gap-2 border-dashed border-border hover:bg-secondary/50">
                                     <Plus className="h-4 w-4" />
                                     Add Experience
                                 </Button>
@@ -456,7 +456,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         </TabsContent>
 
                         <TabsContent value="skills">
-                            <Card>
+                            <Card className="border-border/50 shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="text-base">Skills</CardTitle>
                                 </CardHeader>
@@ -478,13 +478,13 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                 </main>
 
                 {/* Right - PDF Preview */}
-                <aside className="w-[45%] border-l bg-muted/20 flex flex-col flex-shrink-0">
-                    <div className="px-4 py-3 border-b flex items-center justify-between">
+                <aside className="w-[45%] border-l bg-muted/10 flex flex-col flex-shrink-0">
+                    <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-muted/5">
                         <span className="text-sm font-medium">Preview</span>
                         <span className="text-xs text-muted-foreground">A4 Format</span>
                     </div>
                     <div className="flex-1 p-4">
-                        <div className="h-full bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="h-full bg-white rounded-lg shadow-lg overflow-hidden border border-border/50">
                             <PDFViewer width="100%" height="100%" showToolbar={false}>
                                 <ResumePDF content={resumeData} />
                             </PDFViewer>
