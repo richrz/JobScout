@@ -97,11 +97,10 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
     // Determine card styling based on stage
     const cardClasses = cn(
         "p-4 cursor-grab active:cursor-grabbing rounded-xl border-l-4 transition-all duration-200",
-        "bg-slate-800/80 hover:bg-slate-800 border border-white/10",
-        stageConfig?.cardBorder || 'border-l-blue-500',
-        stageConfig?.glowClass && `shadow-lg ${stageConfig.glowClass}`,
-        isSelected && 'ring-2 ring-primary bg-primary/10',
-        isDragging && 'opacity-50 rotate-2 scale-105'
+        "bg-card hover:bg-card/90 hover:shadow-xl shadow-sm border-t border-r border-b border-border/50",
+        stageConfig?.cardBorder || 'border-l-primary',
+        isSelected && 'ring-2 ring-primary bg-primary/5',
+        isDragging && 'opacity-50 rotate-2 scale-105 shadow-2xl'
     );
 
     return (
@@ -115,7 +114,7 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => onToggleSelection?.(application.id)}
-                    className="h-4 w-4 rounded-md border-white/20 bg-black/20 text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded-md border-border bg-background/50 text-primary focus:ring-primary cursor-pointer shadow-sm"
                 />
             </div>
 
@@ -137,10 +136,10 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                         </div>
                     </div>
 
-                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/5">
+                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-border/50">
                         <div className="flex items-center gap-1">
                             {application.notes && (
-                                <Badge variant="secondary" className="h-5 px-1.5 text-[10px] gap-1">
+                                <Badge variant="secondary" className="h-5 px-1.5 text-[10px] gap-1 bg-secondary text-secondary-foreground hover:bg-secondary/80">
                                     <StickyNote className="w-3 h-3" /> Notes
                                 </Badge>
                             )}
@@ -149,11 +148,11 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onPointerDown={(e) => e.stopPropagation()}>
                             <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
                                 <DialogTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10" title="Details">
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-secondary" title="Details">
                                         <StickyNote className="h-3 w-3" />
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-2xl bg-slate-950/90 backdrop-blur-xl border-white/10">
+                                <DialogContent className="max-w-2xl bg-background border-border">
                                     <DialogHeader>
                                         <DialogTitle>Application Details</DialogTitle>
                                         <DialogDescription>
@@ -162,7 +161,7 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                                     </DialogHeader>
 
                                     <Tabs defaultValue="notes" className="w-full">
-                                        <TabsList className="grid w-full grid-cols-2 bg-slate-900/50">
+                                        <TabsList className="grid w-full grid-cols-2 bg-muted">
                                             <TabsTrigger value="notes">Notes</TabsTrigger>
                                             <TabsTrigger value="history">History</TabsTrigger>
                                         </TabsList>
@@ -175,7 +174,7 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                                                     value={notes}
                                                     onChange={(e) => setNotes(e.target.value)}
                                                     placeholder="Add your notes here..."
-                                                    className="min-h-[200px] bg-slate-900/50 border-white/10"
+                                                    className="min-h-[200px] bg-background border-border"
                                                 />
                                                 <div className="flex justify-end mt-2">
                                                     <Button onClick={handleSaveNotes} disabled={isSaving}>
@@ -187,13 +186,13 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                                         </TabsContent>
 
                                         <TabsContent value="history" className="py-4">
-                                            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">
+                                            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-muted/10">
                                                 {history.length === 0 ? (
                                                     <p className="text-sm text-muted-foreground text-center py-4">No history recorded.</p>
                                                 ) : (
                                                     history.map((entry: any, index: number) => (
-                                                        <div key={index} className="flex gap-3 text-sm border-b border-white/5 pb-3 last:border-0">
-                                                            <div className="mt-0.5 p-1 rounded-full bg-white/5">
+                                                        <div key={index} className="flex gap-3 text-sm border-b border-border/50 pb-3 last:border-0">
+                                                            <div className="mt-0.5 p-1 rounded-full bg-muted">
                                                                 <Clock className="h-3 w-3 text-muted-foreground" />
                                                             </div>
                                                             <div>
@@ -215,20 +214,20 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10">
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-secondary">
                                         <MoreHorizontal className="h-3 w-3" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="bg-slate-950 border-white/10 text-slate-200">
+                                <DropdownMenuContent align="end" className="bg-popover border-border text-popover-foreground">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => setDetailsOpen(true)} className="focus:bg-white/10">
+                                    <DropdownMenuItem onClick={() => setDetailsOpen(true)} className="focus:bg-muted">
                                         <StickyNote className="mr-2 h-4 w-4" /> View Details
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-white/10" />
-                                    <DropdownMenuItem onClick={handleArchive} className="focus:bg-white/10">
+                                    <DropdownMenuSeparator className="bg-border" />
+                                    <DropdownMenuItem onClick={handleArchive} className="focus:bg-muted">
                                         <Archive className="mr-2 h-4 w-4" /> Archive
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={handleDelete} className="text-red-400 focus:text-red-300 focus:bg-red-500/10">
+                                    <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                                         <Trash2 className="mr-2 h-4 w-4" /> Delete
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>

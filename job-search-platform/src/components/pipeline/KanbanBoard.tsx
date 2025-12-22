@@ -266,15 +266,15 @@ export function KanbanBoard({ initialApplications }: KanbanBoardProps) {
             <div className="flex flex-col h-full">
                 {/* Bulk Actions Toolbar */}
                 {selectedIds.length > 0 && (
-                    <div className="bg-blue-50 border-b border-blue-100 p-2 flex items-center justify-between mb-4 rounded-md">
+                    <div className="bg-secondary/50 border-b border-border p-2 flex items-center justify-between mb-4 rounded-md animate-in fade-in slide-in-from-top-2">
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-blue-700">{selectedIds.length} selected</span>
-                            <Button variant="ghost" size="sm" onClick={clearSelection} className="h-6 w-6 p-0 hover:bg-blue-100">
-                                <X className="h-4 w-4 text-blue-700" />
+                            <span className="text-sm font-medium text-foreground">{selectedIds.length} selected</span>
+                            <Button variant="ghost" size="sm" onClick={clearSelection} className="h-6 w-6 p-0 hover:bg-secondary text-muted-foreground hover:text-foreground">
+                                <X className="h-4 w-4" />
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button size="sm" variant="outline" onClick={handleBulkArchive} disabled={isBulkActionLoading} className="h-8 bg-white">
+                            <Button size="sm" variant="outline" onClick={handleBulkArchive} disabled={isBulkActionLoading} className="h-8 bg-background border-border hover:bg-muted">
                                 <Archive className="mr-2 h-3 w-3" />
                                 Archive
                             </Button>
@@ -288,7 +288,7 @@ export function KanbanBoard({ initialApplications }: KanbanBoardProps) {
 
                 <div
                     ref={containerRef}
-                    className="flex h-[calc(100vh-250px)] gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+                    className="flex h-[calc(100vh-250px)] gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-muted/20 scrollbar-track-transparent"
                 >
                     {STAGES.map((stage) => (
                         <PipelineColumn
@@ -305,7 +305,7 @@ export function KanbanBoard({ initialApplications }: KanbanBoardProps) {
             </div>
 
             <div className="fixed bottom-4 right-4">
-                <Button onClick={handleExportCSV} variant="outline" className="shadow-lg bg-white">
+                <Button onClick={handleExportCSV} variant="outline" className="shadow-lg bg-background border-border hover:bg-secondary">
                     Export CSV
                 </Button>
             </div>
