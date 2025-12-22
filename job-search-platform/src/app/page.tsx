@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import type { Route } from "next";
 import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
+import { PowerCharts } from "@/components/dashboard/PowerCharts";
 import {
     Search,
     Briefcase,
@@ -20,7 +21,6 @@ import {
     Quote,
     Layers,
 } from "lucide-react";
-
 
 export default function DashboardV2() {
     return (
@@ -48,6 +48,9 @@ export default function DashboardV2() {
 
                 {/* Metrics Row */}
                 <DashboardMetrics />
+
+                {/* Power Charts (Data Visualization) */}
+                <PowerCharts />
 
                 {/* Content Grid: Main + Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
