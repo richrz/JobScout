@@ -11,6 +11,16 @@ import { describe, it, expect, beforeEach } from '@jest/globals';
  */
 
 describe('Job Scraping', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+        process.env = { ...originalEnv, NEXT_PUBLIC_MOCK_MODE: 'true' };
+    });
+
+    afterAll(() => {
+        process.env = originalEnv;
+    });
+
     describe('Indeed RSS Feed', () => {
         it('should fetch jobs from Indeed RSS feed', async () => {
             const jobs = await fetchIndeedJobs();

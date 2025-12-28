@@ -8,6 +8,7 @@
 import { prisma } from '@/lib/prisma';
 import { JobListing } from './job-scrapers';
 import { geocodeLocation } from './geocoding';
+import { normalizeJobData } from './ingest/normalization';
 
 /**
  * Save jobs to the database with geocoding
@@ -16,43 +17,37 @@ import { geocodeLocation } from './geocoding';
  * @returns Promise that resolves when all jobs are saved
  */
 export async function saveJobs(jobs: JobListing[]): Promise<void> {
-    for (const job of jobs) {
-        // Attempt to geocode the location
-        let coords: { lat: number; lng: number } | null = null;
-        try {
-            coords = await geocodeLocation(job.location);
-        } catch (error) {
-            console.warn(`Failed to geocode location "${job.location}":`, error);
-            // Continue with null coordinates
-        }
 
-        // Upsert job (update if sourceUrl exists, insert if new)
-        await prisma.job.upsert({
-            where: { sourceUrl: job.sourceUrl },
-            update: {
-                title: job.title,
-                company: job.company,
-                location: job.location,
-                latitude: coords?.lat ?? null,
-                longitude: coords?.lng ?? null,
-                description: job.description,
-                salary: job.salary,
-                postedAt: job.postedAt || new Date(),
-            },
-            create: {
-                title: job.title,
-                company: job.company,
-                location: job.location,
-                latitude: coords?.lat ?? null,
-                longitude: coords?.lng ?? null,
-                description: job.description,
-                salary: job.salary,
-                postedAt: job.postedAt || new Date(),
-                source: job.source,
-                sourceUrl: job.sourceUrl,
-            },
-        });
+    // Normalize and geocode concurrently
+    const normalizedJobs = await Promise.all(
+        jobs.map(job => normalizeJobData(job))
+    );
+
+    // Persist to database
+    let savedCount = 0;
+    for (const jobData of normalizedJobs) {
+        try {
+            await prisma.job.upsert({
+                where: { sourceUrl: jobData.sourceUrl },
+                update: {
+                    title: jobData.title,
+                    company: jobData.company,
+                    location: jobData.location,
+                    latitude: jobData.latitude,
+                    longitude: jobData.longitude,
+                    description: jobData.description,
+                    salary: jobData.salary,
+                    postedAt: jobData.postedAt,
+                    // Don't update source/sourceUrl or createdAt
+                    // updatedAt is handled automatically by Prisma @updatedAt
+                },
+                create: jobData,
+            });
+            savedCount++;
+        } catch (error) {
+            console.error(`Failed to save job ${jobData.sourceUrl}:`, error);
+        }
     }
 
-    console.log(`Successfully saved ${jobs.length} jobs to database`);
+    console.log(`Successfully normalized and saved ${savedCount}/${jobs.length} jobs to database`);
 }

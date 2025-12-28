@@ -7,45 +7,66 @@ import { Badge } from "@/components/ui/badge";
 import { ScoreRadial } from "@/components/ui/score-radial";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ExternalLink, Check, Loader2 } from "lucide-react";
+import { ExternalLink, Check, Loader2, Star, X } from "lucide-react";
 import type { Route } from "next";
 import { useState } from "react";
-import { applyToJob } from "@/app/actions/application";
+import { toggleJobInterest, dismissJob } from "@/app/actions/application";
+import { cn } from "@/lib/utils";
 
 interface JobCardProps {
   job: Job;
+  initialStatus?: string | null;
 }
 
-export function JobCard({ job }: JobCardProps) {
+export function JobCard({ job, initialStatus = null }: JobCardProps) {
   const score = Math.round((job.compositeScore || 0) * 100);
-  const [isApplying, setIsApplying] = useState(false);
-  const [hasApplied, setHasApplied] = useState(false);
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<string | null>(initialStatus);
+  const [isDismissed, setIsDismissed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleApply = async () => {
-    setIsApplying(true);
+  const isInterested = currentStatus === 'interested' || currentStatus === 'applied';
+
+  const handleToggleInterest = async () => {
+    setIsActionLoading(true);
     setError(null);
     try {
-      const result = await applyToJob(job.id);
+      const result = await toggleJobInterest(job.id);
       if (result.success) {
-        setHasApplied(true);
+        setCurrentStatus(prev => prev ? null : 'interested');
       } else {
         if (result.error === 'Unauthorized') {
-          // Redirect to login
           router.push('/auth/signin');
           return;
         }
-        setError(result.error || 'Failed to apply');
-        console.error(result.error);
+        setError(result.error || 'Operation failed');
       }
     } catch (error) {
-      setError('Failed to apply');
-      console.error("Failed to apply", error);
+      setError('Operation failed');
     } finally {
-      setIsApplying(false);
+      setIsActionLoading(false);
     }
   };
+
+  const handleDismiss = async () => {
+    setIsActionLoading(true);
+    setError(null);
+    try {
+      const result = await dismissJob(job.id);
+      if (result.success) {
+        setIsDismissed(true);
+      } else {
+        setError(result.error || 'Failed to dismiss');
+      }
+    } catch (error) {
+      setError('Failed to dismiss');
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  if (isDismissed) return null;
 
   return (
     <div className="flex flex-col h-full group p-6 rounded-2xl bg-card transition-all duration-300 hover:shadow-2xl hover:bg-card/90 relative overflow-hidden">
@@ -95,7 +116,7 @@ export function JobCard({ job }: JobCardProps) {
         )}
       </div>
 
-      <div className="flex gap-3 mt-auto pt-4 border-t border-border">
+      <div className="flex gap-2 mt-auto pt-4 border-t border-border">
         <Button variant="ghost" size="sm" className="flex-1 hover:bg-secondary hover:text-foreground text-muted-foreground" asChild>
           <Link href={`/jobs/${job.id}` as Route}>
             Details
@@ -103,24 +124,41 @@ export function JobCard({ job }: JobCardProps) {
         </Button>
         <Button
           size="sm"
-          className="flex-1 gap-2 text-black font-bold bg-primary hover:bg-primary/90 shadow-[0_0_15px_rgba(57,224,121,0.3)] transition-all"
-          onClick={handleApply}
-          disabled={isApplying || hasApplied}
-        >
-          {isApplying ? (
-            <>Saving <Loader2 className="w-3 h-3 animate-spin" /></>
-          ) : hasApplied ? (
-            <>In Pipeline <Check className="w-3 h-3" /></>
-          ) : (
-            <>Interested ⭐</>
+          variant={isInterested ? "default" : "outline"}
+          className={cn(
+            "flex-[2] gap-2 font-bold transition-all duration-300",
+            isInterested
+              ? "bg-primary text-black hover:bg-primary/90 shadow-[0_0_15px_rgba(53,227,117,0.3)]"
+              : "border-primary/20 text-primary hover:bg-primary/10"
           )}
+          onClick={handleToggleInterest}
+          disabled={isActionLoading}
+        >
+          {isActionLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>
+              <Star className={cn("w-4 h-4 transition-all", isInterested && "fill-current")} />
+              <span>{isInterested ? "Interested" : "Save"}</span>
+            </>
+          )}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="size-9 p-0 rounded-xl text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors"
+          onClick={handleDismiss}
+          disabled={isActionLoading}
+          title="Dismiss job"
+        >
+          <X className="w-4 h-4" />
         </Button>
       </div>
       {error && (
         <p className="text-xs text-red-400 mt-2 text-center font-medium bg-red-400/10 py-1 rounded">{error}</p>
       )}
-      {hasApplied && (
-        <p className="text-xs text-primary mt-2 text-center font-bold">Added to your pipeline!</p>
+      {currentStatus === 'applied' && (
+        <p className="text-xs text-primary mt-2 text-center font-bold">In your application pipeline</p>
       )}
     </div>
   );

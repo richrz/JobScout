@@ -32,7 +32,7 @@ function MockMap({ jobs }: { jobs: Job[] }) {
     <div className="relative w-full h-full bg-[#112117] rounded-xl overflow-hidden border border-[#1c2e24] shadow-inner">
       {/* Grid overlay for cyber look */}
       <div className="absolute inset-0" style={{
-        backgroundImage: 'linear-gradient(rgba(57, 224, 121, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(57, 224, 121, 0.03) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(53, 227, 117, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(53, 227, 117, 0.03) 1px, transparent 1px)',
         backgroundSize: '40px 40px'
       }}>
       </div>
@@ -48,8 +48,8 @@ function MockMap({ jobs }: { jobs: Job[] }) {
         if (parseFloat(style.left) < 0 || parseFloat(style.left) > 100) return null;
 
         const score = job.compositeScore || 0;
-        const color = score > 0.7 ? 'bg-[#39E079]' : score > 0.4 ? 'bg-[#6aab7d]' : 'bg-[#2d5a3f]';
-        const shadow = score > 0.7 ? 'shadow-[0_0_12px_rgba(57,224,121,0.5)]' : 'shadow-none';
+        const color = score > 0.7 ? 'bg-[#35e375]' : score > 0.4 ? 'bg-[#6aab7d]' : 'bg-[#2d5a3f]';
+        const shadow = score > 0.7 ? 'shadow-[0_0_12px_rgba(53,227,117,0.5)]' : 'shadow-none';
 
         return (
           <div
@@ -63,7 +63,7 @@ function MockMap({ jobs }: { jobs: Job[] }) {
           </div>
         );
       })}
-      <div className="absolute bottom-4 right-4 bg-[#112117]/90 backdrop-blur border border-[#39E079]/20 px-3 py-1 text-xs text-[#39E079] rounded-full">
+      <div className="absolute bottom-4 right-4 bg-[#112117]/90 backdrop-blur border border-[#35e375]/20 px-3 py-1 text-xs text-[#35e375] rounded-full">
         Interactive Map Disabled (Mock Mode)
       </div>
     </div>
@@ -71,8 +71,8 @@ function MockMap({ jobs }: { jobs: Job[] }) {
 }
 
 function getMarkerColor(score: number | null | undefined): string {
-  if (score === null || score === undefined) return '#39E079'; // Electric green (default)
-  if (score >= 0.7) return '#39E079'; // Electric green (high)
+  if (score === null || score === undefined) return '#35e375'; // Electric green (default)
+  if (score >= 0.7) return '#35e375'; // Electric green (high)
   if (score >= 0.4) return '#6aab7d'; // Muted green (medium)
   return '#2d5a3f'; // Dark green (low)
 }
@@ -90,10 +90,10 @@ function CityCircles({ cities }: { cities: CityConfig[] }) {
 
     cities.forEach(city => {
       const circle = new google.maps.Circle({
-        strokeColor: '#39E079',
+        strokeColor: '#35e375',
         strokeOpacity: 0.7,
         strokeWeight: 2,
-        fillColor: '#39E079',
+        fillColor: '#35e375',
         fillOpacity: 0.15,
         map,
         center: { lat: city.latitude, lng: city.longitude },
@@ -135,12 +135,12 @@ function JobMarkers({ jobs }: { jobs: Job[] }) {
             <p style="font-size: 14px; font-weight: 600; color: #6aab7d; margin-bottom: 4px;">${job.company}</p>
             <p style="font-size: 13px; color: #5a7c65; margin-bottom: 8px;">${job.location}</p>
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <span style="font-size: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(57,224,121,0.15); color: #39E079; font-weight: 600;">
+                <span style="font-size: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(53,227,117,0.15); color: #35e375; font-weight: 600;">
                 Score: ${Math.round((job.compositeScore || 0) * 100)}%
                 </span>
-                ${job.salary ? `<span style="font-size: 12px; color: #39E079; font-weight: 500;">${job.salary}</span>` : ''}
+                ${job.salary ? `<span style="font-size: 12px; color: #35e375; font-weight: 500;">${job.salary}</span>` : ''}
             </div>
-            <a href="/jobs/${job.id}" style="font-size: 13px; color: #39E079; text-decoration: underline;">View Details →</a>
+            <a href="/jobs/${job.id}" style="font-size: 13px; color: #35e375; text-decoration: underline;">View Details →</a>
             </div>
         `;
       infoWindowRef.current.setContent(content);
@@ -198,8 +198,8 @@ function JobHeatmap({ jobs }: { jobs: Job[] }) {
           'rgba(45, 90, 63, 0.5)',     // Dark green
           'rgba(74, 140, 95, 0.6)',    // Muted green
           'rgba(106, 171, 125, 0.7)',  // Medium green
-          'rgba(57, 224, 121, 0.85)',  // Electric green
-          'rgba(57, 224, 121, 1)',     // Full electric green
+          'rgba(53, 227, 117, 0.85)',  // Electric green
+          'rgba(53, 227, 117, 1)',     // Full electric green
         ]
       });
     } else {
@@ -262,7 +262,7 @@ const mapStyles = [
   {
     featureType: "poi.park",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#39E079" }],
+    stylers: [{ color: "#35e375" }],
   },
 
   // Roads - slate tones
@@ -366,11 +366,25 @@ export function JobMap({ jobs, cities, showHeatmap = false }: JobMapProps) {
     return <div className="h-[400px] md:h-[600px] w-full bg-slate-900 rounded-xl animate-pulse border border-white/5" />;
   }
 
-  // Use Mock Map if no key or mock key
-  if (!apiKey || apiKey.startsWith('mock-')) {
+  const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
+
+  // Use Mock Map ONLY if Mock Mode is explicitly enabled and key is missing/mock
+  if (isMock && (!apiKey || apiKey.startsWith('mock-'))) {
     return (
       <div className="h-[400px] md:h-[600px] w-full rounded-xl overflow-hidden shadow-2xl relative">
         <MockMap jobs={jobs} />
+      </div>
+    );
+  }
+
+  // If key is missing/invalid and NOT in mock mode, show explicit error
+  if (!apiKey || apiKey.startsWith('mock-')) {
+    return (
+      <div className="h-[400px] md:h-[600px] w-full bg-slate-900 rounded-xl flex items-center justify-center p-8 border border-red-500/20 text-center">
+        <div className="max-w-md">
+          <p className="text-red-400 font-bold mb-2">Google Maps Connection Error</p>
+          <p className="text-muted-foreground text-sm">Valid API Key required for geo-visualization. Enable MOCK_MODE in settings to see the simulation.</p>
+        </div>
       </div>
     );
   }

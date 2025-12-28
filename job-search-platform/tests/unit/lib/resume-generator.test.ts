@@ -40,7 +40,7 @@ describe('ResumeGenerator', () => {
             skills: ['JavaScript', 'React'],
             certifications: []
         },
-        exaggerationLevel: 'balanced'
+        exaggerationLevel: 'professional'
     };
 
     it('should generate tailored resume with correct prompts', async () => {
@@ -63,7 +63,7 @@ describe('ResumeGenerator', () => {
         expect(callArgs[1].role).toBe('user');
 
         // Verify system prompt contains exaggeration level instructions
-        expect(callArgs[0].content).toContain('TONE GUIDELINES - Balanced Approach');
+        expect(callArgs[0].content).toContain('STRATEGY: THE PROFESSIONAL');
 
         // Verify user prompt contains job description and resume data
         expect(callArgs[1].content).toContain('Software Engineer role requiring React and Node.js');
@@ -75,11 +75,11 @@ describe('ResumeGenerator', () => {
 
         await resumeGenerator.generateTailoredResume({
             ...mockRequest,
-            exaggerationLevel: 'strategic'
+            exaggerationLevel: 'persuasive'
         });
 
         const callArgs = mockGenerateResponse.mock.calls[0][0];
-        expect(callArgs[0].content).toContain('TONE GUIDELINES - Strategic Approach');
+        expect(callArgs[0].content).toContain('STRATEGY: THE STRATEGIST');
     });
 
     it('should support streaming generation', async () => {

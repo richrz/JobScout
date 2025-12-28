@@ -1,0 +1,83 @@
+[
+    {
+        "category": "ELITE",
+        "title": "Principal AI Research Engineer",
+        "company": "Silicon Peaks",
+        "location": "Palo Alto, CA",
+        "description": "Lead our new Neural Architect team. Requires deep expertise in LLM fine-tuning, vector databases (Qdrant/Pinecone), and distributed training. We are building the next generation of job-seeking AI.",
+        "salary": "$250k - $350k + Equity",
+        "source": "chronos-sim"
+    },
+    {
+        "category": "ELITE",
+        "title": "Full Stack Glassmorphism Expert",
+        "company": "Frosty UI",
+        "location": "Remote",
+        "description": "We need someone who can push Tailwind and Framer Motion to their limits. Must have a portfolio of translucent, high-depth interfaces. React and Next.js 15+ experience is mandatory.",
+        "salary": "$180k - $220k",
+        "source": "chronos-sim"
+    },
+    {
+        "category": "MEDIOCRE",
+        "title": "Legacy System Maintainer (FORTRAN/COBOL)",
+        "company": "Bank of Yesteryear",
+        "location": "New York, NY",
+        "description": "Support our core banking systems from the 1970s. Must be comfortable reading documentation written on literal scrolls. 20+ years of experience with mainframes preferred.",
+        "salary": "$120k",
+        "source": "chronos-sim"
+    },
+    {
+        "category": "MEDIOCRE",
+        "title": "Manual Spreadsheet Specialist",
+        "company": "Analog Data Corp",
+        "location": "Dallas, TX",
+        "description": "Copy and paste data between 400 different Excel workbooks accurately. Formulas are forbidden; we prefer manual entry to minimize 'rounding errors'. Attention to every single cell is critical.",
+        "salary": "$65k",
+        "source": "chronos-sim"
+    },
+    {
+        "category": "GARBAGE",
+        "title": "Underwater Basket Weaver (Senior)",
+        "company": "Aquatic Crafts",
+        "location": "At Sea",
+        "description": "Must be able to hold breath for 5 minutes while crafting premium wicker products. SCUBA certification is a plus, but we prefer 'natural' divers for authenticity.",
+        "salary": "3 Pearls per Hour",
+        "source": "chronos-sim"
+    },
+    {
+        "category": "GARBAGE",
+        "title": "Professional Napper (R&D)",
+        "company": "Bedtime Industries",
+        "location": "Sleepy Hollow, NY",
+        "description": "Test our new line of futuristic pillows. Must be capable of falling asleep on command in front of a live audience. Snoring is considered a performance bonus.",
+        "salary": "$30k + Free Pillows",
+        "source": "chronos-sim"
+    },
+    {
+        "category": "GARBAGE",
+        "title": "LinkedIn Deep-Fried Meme Consultant",
+        "company": "Viral Loops",
+        "location": "Inside the Internet",
+        "description": "Optimize the JPEG artifacts on our Corporate Humour posts. Must understand the delicate balance of making a meme 'just crusty enough' to be relatable to middle management.",
+        "salary": "Exposure + 500 LinkedIn Connections",
+        "source": "chronos-sim"
+    },
+    {
+        "category": "NOISE",
+        "title": "Staff Engineer (Poison Pill)",
+        "company": "CloudNine",
+        "location": "Remote",
+        "description": "Amazing role building distributed systems. **NOTE: We do NOT use React, Node, or TypeScript. We write everything in our proprietary language called 'Grumble'. You must move to our mountain retreat for 6 months for training.**",
+        "salary": "$300k",
+        "source": "chronos-sim"
+    },
+    {
+        "category": "ELITE",
+        "title": "Director of Product Overhaul",
+        "company": "NextGen Labs",
+        "location": "Austin, TX",
+        "description": "We need a visionary to lead our comprehensive UI/UX overhaul. You will have full ownership over the design system and front-end stack. Experience with Next.js and Tailwind is a major advantage.",
+        "salary": "$210k - $240k",
+        "source": "chronos-sim"
+    }
+]

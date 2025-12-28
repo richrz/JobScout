@@ -205,6 +205,14 @@ export async function applyToJob(jobId: string, initialStatus: string = 'interes
             }
 
             const updateResult = await updateApplicationStatus(existingApplication.id, 'applied');
+
+            // Sync with Workspace
+            await prisma.workspace.upsert({
+                where: { userId_jobId: { userId, jobId } },
+                update: { status: 'APPLIED' },
+                create: { userId, jobId, status: 'APPLIED' }
+            });
+
             return {
                 success: updateResult.success,
                 error: updateResult.error,
@@ -252,11 +260,71 @@ export async function applyToJob(jobId: string, initialStatus: string = 'interes
             }
         });
 
+        // Sync with Workspace
+        await prisma.workspace.upsert({
+            where: { userId_jobId: { userId, jobId } },
+            update: { status: initialStatus === 'applied' ? 'APPLIED' : 'INTERESTED' },
+            create: { userId, jobId, status: initialStatus === 'applied' ? 'APPLIED' : 'INTERESTED' }
+        });
+
         revalidatePath('/pipeline');
+        revalidatePath('/jobs');
         return { success: true };
 
     } catch (error: any) {
         console.error('Failed to apply to job:', error?.message || error);
         return { success: false, error: error?.message || 'Failed to apply to job' };
+    }
+}
+
+export async function toggleJobInterest(jobId: string): Promise<ActionResponse> {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+        const userId = session.user.id;
+
+        const existing = await prisma.application.findFirst({
+            where: { userId, jobId }
+        });
+
+        if (existing) {
+            // Un-star: Remove both Application and Workspace
+            await prisma.$transaction([
+                prisma.application.delete({ where: { id: existing.id } }),
+                prisma.workspace.deleteMany({ where: { userId, jobId } })
+            ]);
+            revalidatePath('/pipeline');
+            revalidatePath('/jobs');
+            return { success: true, message: 'Removed from interested' };
+        } else {
+            // Star: Add both
+            return await applyToJob(jobId, 'interested');
+        }
+    } catch (error: any) {
+        console.error('Failed to toggle interest:', error);
+        return { success: false, error: 'Failed to update interest' };
+    }
+}
+
+export async function dismissJob(jobId: string): Promise<ActionResponse> {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+        const userId = session.user.id;
+
+        // Dismiss simply creates a Workspace record with status DISMISSED
+        // This ensures it falls out of the Triage feed.
+        await prisma.workspace.upsert({
+            where: { userId_jobId: { userId, jobId } },
+            update: { status: 'DISMISSED' },
+            create: { userId, jobId, status: 'DISMISSED' }
+        });
+
+        revalidatePath('/jobs');
+        revalidatePath('/triage');
+        return { success: true };
+    } catch (error: any) {
+        console.error('Failed to dismiss job:', error);
+        return { success: false, error: 'Failed to dismiss job' };
     }
 }

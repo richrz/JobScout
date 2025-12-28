@@ -110,63 +110,86 @@ interface ResumeContent {
 
 interface ResumePDFProps {
     content: ResumeContent;
+    mode?: 'light' | 'dark';
 }
 
-export function ResumePDF({ content }: ResumePDFProps) {
+export function ResumePDF({ content, mode = 'light' }: ResumePDFProps) {
+    const isDark = mode === 'dark';
+
+    const themeStyles = {
+        page: {
+            backgroundColor: isDark ? '#171717' : '#ffffff', // neutral-900 vs white
+            color: isDark ? '#fafafa' : '#000000', // neutral-50 vs black
+        },
+        headerBorder: {
+            borderBottomColor: isDark ? '#404040' : '#000000', // neutral-700 vs black
+        },
+        sectionBorder: {
+            borderBottomColor: isDark ? '#404040' : '#cccccc', // neutral-700 vs gray-300
+        },
+        text: {
+            color: isDark ? '#d4d4d4' : '#666666', // neutral-400 vs gray-600
+        },
+        skill: {
+            backgroundColor: isDark ? '#262626' : '#f0f0f0', // neutral-800 vs gray-100
+            color: isDark ? '#fafafa' : '#000000',
+        }
+    };
+
     return (
         <Document>
-            <Page size="A4" style={styles.page}>
+            <Page size="A4" style={[styles.page, themeStyles.page]}>
                 {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.name}>{content.contactInfo.name}</Text>
-                    <Text style={styles.contact}>
+                <View style={[styles.header, themeStyles.headerBorder]}>
+                    <Text style={[styles.name, { color: isDark ? '#fafafa' : '#000000' }]}>{content.contactInfo.name}</Text>
+                    <Text style={[styles.contact, themeStyles.text]}>
                         {content.contactInfo.email} | {content.contactInfo.phone} | {content.contactInfo.location}
                     </Text>
                 </View>
 
                 {/* Summary */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Professional Summary</Text>
-                    <Text>{stripHtml(content.summary)}</Text>
+                    <Text style={[styles.sectionTitle, themeStyles.sectionBorder, { color: isDark ? '#fafafa' : '#000000' }]}>Professional Summary</Text>
+                    <Text style={{ color: isDark ? '#fafafa' : '#000000' }}>{stripHtml(content.summary)}</Text>
                 </View>
 
                 {/* Experience */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Experience</Text>
+                    <Text style={[styles.sectionTitle, themeStyles.sectionBorder, { color: isDark ? '#fafafa' : '#000000' }]}>Experience</Text>
                     {content.experience.map((job) => (
                         <View key={job.id} style={{ marginBottom: 10 }}>
                             <View style={styles.jobHeader}>
-                                <Text style={styles.jobTitle}>{job.title}</Text>
-                                <Text style={styles.date}>{job.startDate} - {job.endDate}</Text>
+                                <Text style={[styles.jobTitle, { color: isDark ? '#fafafa' : '#000000' }]}>{job.title}</Text>
+                                <Text style={[styles.date, themeStyles.text]}>{job.startDate} - {job.endDate}</Text>
                             </View>
                             <View style={styles.jobHeader}>
-                                <Text style={styles.company}>{job.company}</Text>
-                                <Text style={styles.date}>{job.location}</Text>
+                                <Text style={[styles.company, { color: isDark ? '#d4d4d4' : '#000000' }]}>{job.company}</Text>
+                                <Text style={[styles.date, themeStyles.text]}>{job.location}</Text>
                             </View>
-                            <Text style={styles.description}>{job.description}</Text>
+                            <Text style={[styles.description, { color: isDark ? '#fafafa' : '#000000' }]}>{job.description}</Text>
                         </View>
                     ))}
                 </View>
 
                 {/* Education */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Education</Text>
+                    <Text style={[styles.sectionTitle, themeStyles.sectionBorder, { color: isDark ? '#fafafa' : '#000000' }]}>Education</Text>
                     {content.education.map((edu) => (
                         <View key={edu.id} style={{ marginBottom: 5 }}>
                             <View style={styles.jobHeader}>
-                                <Text style={styles.jobTitle}>{edu.school}</Text>
-                                <Text style={styles.date}>{edu.startDate} - {edu.endDate}</Text>
+                                <Text style={[styles.jobTitle, { color: isDark ? '#fafafa' : '#000000' }]}>{edu.school}</Text>
+                                <Text style={[styles.date, themeStyles.text]}>{edu.startDate} - {edu.endDate}</Text>
                             </View>
-                            <Text>{edu.degree}</Text>
+                            <Text style={{ color: isDark ? '#fafafa' : '#000000' }}>{edu.degree}</Text>
                         </View>
                     ))}
                 </View>
 
                 {/* Skills */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Skills</Text>
+                    <Text style={[styles.sectionTitle, themeStyles.sectionBorder, { color: isDark ? '#fafafa' : '#000000' }]}>Skills</Text>
                     <View style={styles.skillList}>
-                        <Text>{content.skills.join(' • ')}</Text>
+                        <Text style={{ color: isDark ? '#e5e5e5' : '#000000' }}>{content.skills.join(' • ')}</Text>
                     </View>
                 </View>
             </Page>

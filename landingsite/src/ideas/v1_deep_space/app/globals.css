@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  /* Deep Space Theme */
+  --background: #020617;
+  /* Deep Space */
+  --foreground: #f8fafc;
+  /* Slate 50 */
+
+  /* Brand Colors */
+  --electric-green: #35e375;
+  --electric-green-dim: #2d5a3f;
+
+  /* UI Colors */
+  --border: #1e293b;
+  /* Slate 800 */
+  --muted: #475569;
+  /* Slate 600 */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-deep-space: #020617;
+  --color-electric-green: var(--electric-green);
+  --color-electric-green-dim: var(--electric-green-dim);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --animate-cursor-pulse: cursor-pulse 1s infinite;
+
+  @keyframes cursor-pulse {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  /* Prevent horizontal scroll from reactive elements */
+}
+
+/* Utilities for the 'Terminal Magazine' vibe */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* The "Cyber Grid" texture */
+  .bg-cyber-grid {
+    background-image:
+      linear-gradient(rgba(53, 227, 117, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(53, 227, 117, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Magnetic/Terminal Cursor Effect */
+  .terminal-cursor::after {
+    content: '_';
+    color: var(--electric-green);
+    animation: cursor-pulse 1s step-end infinite;
+  }
+}

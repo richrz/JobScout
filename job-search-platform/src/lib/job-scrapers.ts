@@ -7,6 +7,7 @@
 
 import * as cheerio from 'cheerio';
 import { saveJobs } from './job-service';
+import { isMockMode } from './env';
 
 export interface JobListing {
     title: string;
@@ -44,8 +45,8 @@ export interface CompanyScraperConfig {
 export async function fetchIndeedJobs(options?: FetchOptions): Promise<JobListing[]> {
     const url = options?.url || process.env.INDEED_RSS_URL || 'https://www.indeed.com/rss';
 
-    // Return mock data in test environment
-    if (process.env.NODE_ENV === 'test' && !options?.url?.includes('invalid')) {
+    // Return mock data ONLY if Mock Mode is explicitly enabled
+    if (isMockMode() && !options?.url?.includes('invalid')) {
         return getMockIndeedJobs();
     }
 
@@ -96,8 +97,8 @@ export async function fetchIndeedJobs(options?: FetchOptions): Promise<JobListin
 export async function fetchLinkedInJobs(options?: FetchOptions): Promise<JobListing[]> {
     const maxPages = options?.maxPages || 1;
 
-    // Return mock data in test environment
-    if (process.env.NODE_ENV === 'test') {
+    // Return mock data ONLY if Mock Mode is explicitly enabled
+    if (isMockMode()) {
         return getMockLinkedInJobs(maxPages);
     }
 
@@ -148,8 +149,8 @@ export async function fetchLinkedInJobs(options?: FetchOptions): Promise<JobList
  * Fetch jobs from a company career page with custom selectors
  */
 export async function fetchCompanyJobs(config: CompanyScraperConfig): Promise<JobListing[]> {
-    // Return mock data in test environment
-    if (process.env.NODE_ENV === 'test') {
+    // Return mock data ONLY if Mock Mode is explicitly enabled
+    if (isMockMode()) {
         return getMockCompanyJobs(config);
     }
 

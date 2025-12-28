@@ -1,12 +1,14 @@
+
 import { Redis } from 'ioredis';
 import { Client } from "@googlemaps/google-maps-services-js";
+import { isMockMode } from './env';
 
 // Initialize Redis client lazily or allow injection
 let redisClient: Redis | null = null;
 
 export function getRedisClient(): Redis {
     if (!redisClient) {
-        redisClient ??= new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+        redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
     }
     return redisClient;
 }
@@ -20,6 +22,20 @@ const CACHE_TTL = 60 * 60 * 24 * 30; // 30 days
 const googleMapsClient = new Client({});
 
 export async function geocodeLocation(location: string): Promise<{ lat: number; lng: number } | null> {
+
+    // 1. Mock Mode Bypass
+    if (isMockMode()) {
+        console.warn(`[MockMode] Geocoding skipped for: "${location}"`);
+        // Return deterministic randomish coordinates based on string length to simulate variety
+        // Centered roughly around San Francisco (37.7749, -122.4194)
+        const offsetLat = (location.length % 10) * 0.01;
+        const offsetLng = (location.length % 8) * 0.01;
+        return {
+            lat: 37.7749 + offsetLat,
+            lng: -122.4194 - offsetLng
+        };
+    }
+
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
         throw new Error('Google Maps API key missing');
@@ -61,6 +77,7 @@ export async function geocodeLocation(location: string): Promise<{ lat: number; 
         }
         // Log other errors and re-throw or handle gracefully
         console.error('Geocoding error:', error.response ? error.response.data : error.message);
-        throw error;
+        // Fallback to null rather than crashing the whole scrape
+        return null;
     }
 }

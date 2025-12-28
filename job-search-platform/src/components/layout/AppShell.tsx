@@ -10,7 +10,8 @@ import { BackgroundMesh } from '@/components/ui/background-mesh';
 import { Sidebar } from './Sidebar';
 import { UserMenu } from './UserMenu';
 import { PillNav } from './PillNav';
-import { Sparkles } from 'lucide-react';
+
+import Image from 'next/image';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -32,10 +33,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {/* Mobile Header (Brand only visible on small screens to avoid double brand with sidebar) */}
                 <header className="lg:hidden h-16 w-full fixed top-0 z-40 px-6 flex items-center justify-between bg-background/80 backdrop-blur-md border-b border-white/5">
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center shadow-[0_0_10px_rgba(57,224,121,0.2)]">
-                            <Sparkles className="w-4 h-4 text-black fill-current" />
+                        <div className="relative w-28 h-10 shrink-0">
+                            <Image
+                                src="/images/logo-full-light.svg"
+                                alt="JobScout Logo"
+                                fill
+                                className="object-contain dark:hidden"
+                                priority
+                            />
+                            <Image
+                                src="/images/logo-full-dark.svg"
+                                alt="JobScout Logo"
+                                fill
+                                className="object-contain hidden dark:block"
+                                priority
+                            />
                         </div>
-                        <span className="font-bold text-lg tracking-tight">Job<span className="text-primary">Scout</span></span>
                     </Link>
                     <div className="flex items-center gap-2">
                         <ThemeToggle />

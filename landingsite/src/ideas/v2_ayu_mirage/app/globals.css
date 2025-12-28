@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+:root {
+    --ayu-bg: #0b0e14;
+    --ayu-fg: #bfbdb6;
+    --ayu-accent: #ffb454;
+    --ayu-tag: #59c2ff;
+    --ayu-func: #aad94c;
+    --ayu-error: #f26d5b;
+    --ayu-panel: #1f2430;
+    --ayu-selection: #3e4b59;
+}
+
+@theme {
+    --color-ayu-bg: var(--ayu-bg);
+    --color-ayu-fg: var(--ayu-fg);
+    --color-ayu-accent: var(--ayu-accent);
+    --color-ayu-tag: var(--ayu-tag);
+    --color-ayu-func: var(--ayu-func);
+    --color-ayu-error: var(--ayu-error);
+    --color-ayu-panel: var(--ayu-panel);
+    --color-ayu-selection: var(--ayu-selection);
+}
+
+body {
+    background-color: var(--ayu-bg);
+    color: var(--ayu-fg);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}

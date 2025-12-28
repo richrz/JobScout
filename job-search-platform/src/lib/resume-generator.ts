@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getLLMClient } from '@/lib/llm';
 import { ResumeGenerator } from '@/lib/llm';
 import { Profile } from '@prisma/client';
+import { isMockMode } from './env';
 import { ExaggerationLevel } from '@/types/llm';
 
 export interface ResumeGenerationRequest {
@@ -27,15 +28,15 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
             apiKey: process.env.OPENAI_API_KEY,
         };
 
-        // Check for Mock Mode or missing Key
-        if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true' || !process.env.OPENAI_API_KEY) {
-            console.warn('Mock Mode active or API Key missing in generateTailoredResume');
-            // We can throw here to trigger the fallback in the caller, 
-            // OR return a mock response directly if we want to simulate "success" from the generator's POV.
-            // Throwing is better so the caller knows it was a fallback situation if needed, 
-            // but let's just return mock content to keep the interface consistent.
-            // Actually, the caller (generateAndPreviewResume) handles fallback best because it has context.
+        // Check for Mock Mode explicitly
+        if (isMockMode()) {
+            console.warn('Mock Mode active in generateTailoredResume');
             throw new Error('LLM_MOCK_FALLBACK');
+        }
+
+        // Verify API Key existence when not in Mock Mode
+        if (!process.env.OPENAI_API_KEY) {
+            throw new Error('Configuration Error: OPENAI_API_KEY is not set. Ensure secrets are configured or enable NEXT_PUBLIC_MOCK_MODE.');
         }
 
         const llmClient = getLLMClient(llmConfig);
@@ -126,45 +127,6 @@ export async function generateAndPreviewResume(
         };
     } catch (error) {
         console.error('Failed to generate and preview resume:', error);
-
-        if (profile) {
-            // Fallback to Mock Data
-            console.warn('Falling back to mock resume data due to failure.');
-            const contactInfo = profile.contactInfo as any || {};
-            const mockContent = {
-                contactInfo: {
-                    name: contactInfo.name || 'Mock Candidate',
-                    email: contactInfo.email || 'mock@example.com',
-                    phone: contactInfo.phone || '555-0100',
-                    location: contactInfo.location || 'San Francisco, CA'
-                },
-                summary: "Experienced specialized software engineer with a proven track record in high-scale systems. (Generated via Mock Mode fallback due to LLM error).",
-                experience: profile.experiences?.map((e: any) => ({
-                    id: e.id,
-                    title: e.position,
-                    company: e.company,
-                    location: e.location || 'Remote',
-                    startDate: e.startDate ? new Date(e.startDate).toISOString().split('T')[0] : '',
-                    endDate: e.endDate ? new Date(e.endDate).toISOString().split('T')[0] : 'Present',
-                    description: e.description || 'Worked on key projects and delivered high-quality code.'
-                })) || [],
-                education: profile.educations?.map((e: any) => ({
-                    id: e.id,
-                    school: e.school,
-                    degree: e.degree,
-                    startDate: e.startDate ? new Date(e.startDate).getFullYear().toString() : '',
-                    endDate: e.endDate ? new Date(e.endDate).getFullYear().toString() : ''
-                })) || [],
-                skills: profile.skills || ['TypeScript', 'React', 'Node.js']
-            };
-
-            return {
-                success: true,
-                content: mockContent,
-                usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-                error: error instanceof Error ? error.message : 'Unknown error (Fallback used)'
-            };
-        }
 
         return {
             success: false,

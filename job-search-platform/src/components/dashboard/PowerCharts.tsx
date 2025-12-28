@@ -73,8 +73,8 @@ export function PowerCharts() {
                                     <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
                                 </linearGradient>
                                 <linearGradient id="colorApplied" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#39E079" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#39E079" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="#35e375" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#35e375" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
@@ -99,7 +99,7 @@ export function PowerCharts() {
                                 type="monotone"
                                 dataKey="applied"
                                 name="You Applied"
-                                stroke="#39E079"
+                                stroke="#35e375"
                                 strokeWidth={3}
                                 fillOpacity={1}
                                 fill="url(#colorApplied)"
@@ -136,7 +136,7 @@ export function PowerCharts() {
                                 {salaryData.map((entry, index) => (
                                     <Cell
                                         key={`cell-${index}`}
-                                        fill={entry.range === '$120k' ? '#39E079' : '#3f3f46'} // Highlight the sweet spot
+                                        fill={entry.range === '$120k' ? '#35e375' : '#3f3f46'} // Highlight the sweet spot
                                     />
                                 ))}
                             </Bar>

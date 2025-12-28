@@ -12,6 +12,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 
+import Image from 'next/image';
+
 const mobileNavItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/jobs', label: 'Jobs', icon: Briefcase },
@@ -37,9 +39,22 @@ export function MobileNav() {
             <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0 border-r border-border/50 bg-background/95 backdrop-blur-xl">
                 <div className="flex flex-col h-full">
                     <div className="h-16 flex items-center px-6 border-b border-border/50">
-                        <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                            JobScout
-                        </span>
+                        <div className="relative w-28 h-10 shrink-0">
+                            <Image
+                                src="/images/logo-full-light.svg"
+                                alt="JobScout Logo"
+                                fill
+                                className="object-contain dark:hidden"
+                                priority
+                            />
+                            <Image
+                                src="/images/logo-full-dark.svg"
+                                alt="JobScout Logo"
+                                fill
+                                className="object-contain hidden dark:block"
+                                priority
+                            />
+                        </div>
                     </div>
 
                     <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">

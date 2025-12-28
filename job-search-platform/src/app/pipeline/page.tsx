@@ -19,6 +19,10 @@ export default async function PipelinePage() {
         orderBy: { updatedAt: 'desc' }
     });
 
+    console.log(`[PipelinePage] User: ${session.user.id} (${session.user.email})`);
+    console.log(`[PipelinePage] Applications found: ${applications.length}`);
+    applications.forEach(a => console.log(` - App: ${a.job?.title} Status: ${a.status}`));
+
     // Count applications per stage
     const stageCounts = {
         interested: applications.filter(a => a.status === 'interested').length,
@@ -46,7 +50,7 @@ export default async function PipelinePage() {
                             )}
                         </p>
                     </div>
-                    <Button className="flex items-center justify-center gap-2 rounded-full h-12 px-6 bg-primary text-primary-foreground text-sm font-bold shadow-[0_0_15px_rgba(57,224,121,0.3)] hover:shadow-[0_0_20px_rgba(57,224,121,0.5)] transition-shadow">
+                    <Button className="flex items-center justify-center gap-2 rounded-full h-12 px-6 bg-primary text-primary-foreground text-sm font-bold shadow-[0_0_15px_rgba(53,227,117,0.3)] hover:shadow-[0_0_20px_rgba(53,227,117,0.5)] transition-shadow">
                         <Plus className="w-5 h-5" />
                         <span>Add Application</span>
                     </Button>

@@ -41,9 +41,23 @@ jest.mock('@/lib/prisma', () => ({
     },
 }));
 
+jest.mock('@/lib/env', () => ({
+    isMockMode: jest.fn(() => false)
+}));
+
 import { generateTailoredResume } from '@/lib/resume-generator';
 
 describe('generateTailoredResume', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+        process.env = { ...originalEnv, OPENAI_API_KEY: 'sk-dummy-key' };
+    });
+
+    afterAll(() => {
+        process.env = originalEnv;
+    });
+
     it('generates resume content from job description', async () => {
         const mockProfile = {
             contactInfo: {
@@ -82,7 +96,7 @@ describe('generateTailoredResume', () => {
         const result = await generateTailoredResume({
             jobDescription,
             profile: mockProfile,
-            exaggerationLevel: 'balanced',
+            exaggerationLevel: 'professional',
         });
 
         expect(result).toBeDefined();
@@ -127,14 +141,14 @@ describe('generateTailoredResume', () => {
 
         const jobDescription = 'Python developer needed';
 
-        // Test conservative
-        const conservative = await generateTailoredResume({
+        // Test authentic (formerly conservative)
+        const authentic = await generateTailoredResume({
             jobDescription,
             profile: mockProfile,
-            exaggerationLevel: 'conservative',
+            exaggerationLevel: 'authentic',
         });
 
-        expect(conservative.content).toBeDefined();
-        expect((conservative.content as any).contactInfo.name).toBe('John Doe'); // Based on mock response
+        expect(authentic.content).toBeDefined();
+        expect((authentic.content as any).contactInfo.name).toBe('John Doe'); // Based on mock response
     });
 });

@@ -4,6 +4,8 @@ import { JobCard } from '@/components/jobs/JobCard';
 import { JobsFilterSidebar } from '@/components/jobs/JobsFilterSidebar';
 import { ChevronLeft, ChevronRight, Briefcase } from 'lucide-react';
 import Link from 'next/link';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 // Server Component
 interface JobsPageProps {
@@ -24,6 +26,21 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         ];
     }
 
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+
+    // Filter out dismissed jobs in the query if user is logged in
+    if (userId) {
+        where.NOT = {
+            workspaces: {
+                some: {
+                    userId,
+                    status: 'DISMISSED'
+                }
+            }
+        };
+    }
+
     const [jobs, totalCount] = await Promise.all([
         prisma.job.findMany({
             where,
@@ -33,6 +50,23 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         }),
         prisma.job.count({ where }),
     ]);
+
+    const userInteractions: Record<string, string> = {};
+    if (userId && jobs.length > 0) {
+        const jobIds = jobs.map(j => j.id);
+        const [apps, ws] = await Promise.all([
+            prisma.application.findMany({
+                where: { userId, jobId: { in: jobIds } },
+                select: { jobId: true, status: true }
+            }),
+            prisma.workspace.findMany({
+                where: { userId, jobId: { in: jobIds } },
+                select: { jobId: true, status: true }
+            })
+        ]);
+        ws.forEach(w => userInteractions[w.jobId] = w.status.toLowerCase());
+        apps.forEach(a => userInteractions[a.jobId] = a.status.toLowerCase());
+    }
 
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -52,7 +86,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 border-b border-border pb-6">
                         <div>
                             <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Job Inbox</h1>
-                            <p className="text-muted-foreground mt-2 text-base">We found <span className="text-primary font-bold">{jobs.length}</span> jobs matching your profile.</p>
+                            <p className="text-muted-foreground mt-2 text-base">We found <span className="text-primary font-bold">{totalCount}</span> jobs matching your profile.</p>
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="text-sm font-medium text-muted-foreground">Sort by:</span>
@@ -84,7 +118,11 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                                     {/* Job Cards Grid */}
                                     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                                         {jobs.map((job) => (
-                                            <JobCard key={job.id} job={job} />
+                                            <JobCard
+                                                key={job.id}
+                                                job={job}
+                                                initialStatus={userInteractions[job.id]}
+                                            />
                                         ))}
                                     </div>
 
@@ -99,7 +137,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                                                     </Link>
                                                 )}
 
-                                                <span className="size-12 flex items-center justify-center rounded-2xl bg-primary text-black font-bold shadow-[0_0_15px_rgba(57,224,121,0.4)]">
+                                                <span className="size-12 flex items-center justify-center rounded-2xl bg-primary text-black font-bold shadow-[0_0_15px_rgba(53,227,117,0.4)]">
                                                     {page}
                                                 </span>
 

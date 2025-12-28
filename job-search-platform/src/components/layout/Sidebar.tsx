@@ -13,10 +13,11 @@ import {
     FileText,
     Settings,
     Map as MapIcon,
-    Sparkles,
     LogOut,
     User
 } from 'lucide-react';
+
+import Image from 'next/image';
 
 // Ayu Dark Palette (Neutralized)
 const colors = {
@@ -60,36 +61,39 @@ export function Sidebar() {
             {/* Brand */}
             <div className="h-16 flex items-center px-6 border-b" style={{ borderColor: colors.border }}>
                 <Link href="/" className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
-                        <Sparkles className="w-4 h-4 text-white fill-current" />
+                    <div className="relative w-36 h-12 shrink-0 transition-transform duration-300 hover:scale-105">
+                        <Image
+                            src="/images/logo-full-dark.svg"
+                            alt="JobScout Logo"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
                     </div>
-                    <span className="font-bold text-lg tracking-tight" style={{ color: colors.textPrimary }}>
-                        Job<span style={{ color: colors.accent }}>Scout</span>
-                    </span>
                 </Link>
             </div>
 
             {/* Navigation Groups */}
             <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8">
 
-                {/* Group: Overview */}
+                {/* Group: Workspace */}
                 <div className="space-y-1">
                     <h3 className="text-xs font-semibold uppercase tracking-wider mb-2 px-2" style={{ color: colors.textMuted }}>
-                        Overview
+                        Workspace
                     </h3>
-                    {MAIN_NAV.map((item) => (
-                        <NavItem key={item.href} item={item} isActive={pathname === item.href} />
-                    ))}
+                    <NavItem item={{ href: '/', label: 'Dashboard', icon: LayoutDashboard }} isActive={pathname === '/'} />
+                    <NavItem item={{ href: '/jobs', label: 'Inbox', icon: Briefcase }} isActive={pathname === '/jobs'} />
+                    <NavItem item={{ href: '/triage', label: 'JobSwipe', icon: Layers }} isActive={pathname === '/triage'} />
+                    <NavItem item={{ href: '/pipeline', label: 'Pipeline', icon: List }} isActive={pathname === '/pipeline'} />
                 </div>
 
-                {/* Group: Tools */}
+                {/* Group: Career */}
                 <div className="space-y-1">
                     <h3 className="text-xs font-semibold uppercase tracking-wider mb-2 px-2" style={{ color: colors.textMuted }}>
-                        Tools
+                        Career
                     </h3>
-                    {TOOLS_NAV.map((item) => (
-                        <NavItem key={item.href} item={item} isActive={pathname === item.href} />
-                    ))}
+                    <NavItem item={{ href: '/career', label: 'Career Data', icon: User }} isActive={pathname === '/career'} />
+                    <NavItem item={{ href: '/resume', label: 'Resumes', icon: FileText }} isActive={pathname === '/resume'} />
                 </div>
 
                 {/* Group: System */}
@@ -97,21 +101,19 @@ export function Sidebar() {
                     <h3 className="text-xs font-semibold uppercase tracking-wider mb-2 px-2" style={{ color: colors.textMuted }}>
                         System
                     </h3>
-                    {SYSTEM_NAV.map((item) => (
-                        <NavItem key={item.href} item={item} isActive={pathname === item.href} />
-                    ))}
+                    <NavItem item={{ href: '/settings', label: 'Settings', icon: Settings }} isActive={pathname === '/settings'} />
                 </div>
             </div>
 
-            {/* Footer / User Profile */}
+            {/* Footer / Account */}
             <div className="p-4 border-t" style={{ borderColor: colors.border }}>
-                <Link href="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-black border border-white/10">
+                <Link href="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-black border border-white/10 group-hover:border-white/20">
                         R
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate" style={{ color: colors.textPrimary }}>Richard</p>
-                        <p className="text-xs truncate" style={{ color: colors.textMuted }}>Pro Member</p>
+                        <p className="text-xs truncate" style={{ color: colors.textMuted }}>Manage Account</p>
                     </div>
                 </Link>
             </div>

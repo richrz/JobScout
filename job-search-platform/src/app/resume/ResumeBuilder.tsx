@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { ResumePDF } from '@/components/resume/ResumePDF';
+import { ResumePreview } from '@/components/resume/ResumePreview';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,21 +39,10 @@ import {
     XCircle,
     Plus,
     Trash2,
+    RefreshCcw,
+    ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-// Dynamic PDF imports for SSR
-const PDFViewer = dynamic(
-    () => import('@react-pdf/renderer').then((mod) => mod.PDFViewer),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="flex items-center justify-center h-full bg-muted/10">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        )
-    }
-);
 
 const PDFDownloadLink = dynamic(
     () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
@@ -67,6 +58,7 @@ interface ResumeData {
     skills: string[];
 }
 
+
 // Initial state
 const initialResumeState: ResumeData = {
     contactInfo: { name: '', email: '', phone: '', location: '' },
@@ -75,6 +67,17 @@ const initialResumeState: ResumeData = {
     education: [],
     skills: [],
 };
+
+const DownloadButton = React.memo(({ data }: { data: ResumeData }) => (
+    <PDFDownloadLink document={<ResumePDF content={data} />} fileName="resume.pdf">
+        {({ loading: pdfLoading }) => (
+            <Button variant="outline" disabled={pdfLoading} className="gap-2">
+                {pdfLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Download
+            </Button>
+        )}
+    </PDFDownloadLink>
+), (prev, next) => prev.data === next.data);
 
 interface Job {
     id: string;
@@ -114,6 +117,14 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
         }
         return initialResumeState;
     });
+
+    // Preview state (separate from edit state to prevent flickering)
+    const [previewData, setPreviewData] = useState<ResumeData>(resumeData);
+
+    // Update preview when component mounts/data loads
+    useEffect(() => {
+        setPreviewData(resumeData);
+    }, []); // Only on mount, explicit updates thereafter
 
     // UI state
     const [loading, setLoading] = useState(false);
@@ -220,7 +231,17 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
         }
     };
 
+    const updatePreview = () => {
+        setPreviewData(resumeData);
+        toast.success("Preview updated");
+    };
+
     const selectedJob = jobs.find(j => j.id === jobId);
+
+    // Memoize the preview section to prevent any possible re-renders/flickering
+    const memoizedPreview = React.useMemo(() => (
+        <ResumePreview data={previewData} mode="dark" />
+    ), [previewData]);
 
     return (
         <div className="flex h-full flex-col bg-background">
@@ -278,14 +299,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         {saveStatus === 'success' ? 'Saved' : saveStatus === 'error' ? 'Failed' : 'Save'}
                     </Button>
 
-                    <PDFDownloadLink document={<ResumePDF content={resumeData} />} fileName="resume.pdf">
-                        {({ loading: pdfLoading }) => (
-                            <Button variant="outline" disabled={pdfLoading} className="gap-2">
-                                {pdfLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                                Download
-                            </Button>
-                        )}
-                    </PDFDownloadLink>
+                    <DownloadButton data={previewData} />
                 </div>
             </header>
 
@@ -304,24 +318,39 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                 {/* Center - Editor */}
                 <main className="flex-1 overflow-y-auto p-6 bg-background">
                     <Tabs value={activeTab} onValueChange={setActiveTab}>
-                        <TabsList className="mb-6 bg-secondary/50">
-                            <TabsTrigger value="contact" className="gap-2">
-                                <User className="h-4 w-4" />
-                                Contact
-                            </TabsTrigger>
-                            <TabsTrigger value="summary" className="gap-2">
-                                <FileText className="h-4 w-4" />
-                                Summary
-                            </TabsTrigger>
-                            <TabsTrigger value="experience" className="gap-2">
-                                <Briefcase className="h-4 w-4" />
-                                Experience
-                            </TabsTrigger>
-                            <TabsTrigger value="skills" className="gap-2">
-                                <Wrench className="h-4 w-4" />
-                                Skills
-                            </TabsTrigger>
-                        </TabsList>
+                        <div className="flex items-center justify-between mb-6">
+                            <TabsList className="bg-secondary/50">
+                                <TabsTrigger value="contact" className="gap-2">
+                                    <User className="h-4 w-4" />
+                                    Contact
+                                </TabsTrigger>
+                                <TabsTrigger value="summary" className="gap-2">
+                                    <FileText className="h-4 w-4" />
+                                    Summary
+                                </TabsTrigger>
+                                <TabsTrigger value="experience" className="gap-2">
+                                    <Briefcase className="h-4 w-4" />
+                                    Experience
+                                </TabsTrigger>
+                                <TabsTrigger value="skills" className="gap-2">
+                                    <Wrench className="h-4 w-4" />
+                                    Skills
+                                </TabsTrigger>
+                            </TabsList>
+
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={updatePreview}
+                                className="h-auto flex-col gap-1 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/50 group"
+                                aria-label="Update Preview"
+                            >
+                                <div className="p-1 rounded-full bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
+                                    <ArrowRight className="h-4 w-4" />
+                                </div>
+                                <span className="font-medium text-xs text-primary/80">Update</span>
+                            </Button>
+                        </div>
 
                         <TabsContent value="contact">
                             <Card className="border-border/50 shadow-sm">
@@ -484,10 +513,8 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         <span className="text-xs text-muted-foreground">A4 Format</span>
                     </div>
                     <div className="flex-1 p-4">
-                        <div className="h-full bg-white rounded-lg shadow-lg overflow-hidden border border-border/50">
-                            <PDFViewer width="100%" height="100%" showToolbar={false}>
-                                <ResumePDF content={resumeData} />
-                            </PDFViewer>
+                        <div className="h-full bg-card rounded-lg shadow-lg overflow-hidden border border-border relative group">
+                            {memoizedPreview}
                         </div>
                     </div>
                 </aside>

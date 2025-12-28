@@ -1,0 +1,186 @@
+ 
+Here’s the root cause and the quick fix recipe you can paste next time:
+
+Why the loop happens
+
+TM prints the “Update Available … Auto-updating …” banner when the binary thinks it’s outdated.
+It then tries to update the global install in ~/.npm-global/lib/node_modules/task-master-ai.
+The update fails (ENOTEMPTY rename) because a stale temp dir (e.g. .task-master-ai-t99we6ou) or the existing folder blocks the rename.
+Every invocation repeats the failed auto-update and reprints the banner.
+How to break the loop fast
+
+Remove the broken global copy and temp dirs:
+rm -rf /home/richard/.npm-global/lib/node_modules/task-master-ai
+rm -rf /home/richard/.npm-global/lib/node_modules/.task-master-ai-*
+rm -f /home/richard/.npm-global/bin/task-master /home/richard/.npm-global/bin/task-master-ai /home/richard/.npm-global/bin/task-master-mcp
+Use a local, pinned install in the repo (no auto-update):
+cd /home/richard/code/bc
+npm install task-master-ai@0.37.0 --save-dev
+npx task-master --version
+Make shell aliases/functions prefer the local binary:
+Ensure your tm() function points to $(git rev-parse --show-toplevel)/node_modules/.bin/task-master and does not fall back to global.
+Add unalias tm tml taskmaster hamster ham 2>/dev/null before the function so nothing overrides it.
+Reload: source ~/.bashrc, then tm --version should show the local version without the banner.
+If you must keep a global install (less safe), after step 1 you can reinstall globally:
+
+npm install -g task-master-ai@0.37.0
+But stick to the local binary to avoid future loops.
+
+Detection tip
+
+The repeating “Update Available … Auto-updating … ENOTEMPTY rename …” banner means the global updater is firing and failing. Running npx task-master --version (local) shouldn’t show that banner if the local install is used.
+
+# 1) Nuke any global Task Master installs and temp dirs
+rm -rf ~/.npm-global/lib/node_modules/task-master-ai \
+       ~/.npm-global/lib/node_modules/.task-master-ai-* \
+       ~/.npm-global/bin/task-master \
+       ~/.npm-global/bin/task-master-ai \
+       ~/.npm-global/bin/task-master-mcp
+
+# 2) Use the repo-local install (pinned)
+cd /home/richard/code/bc
+npm install task-master-ai@0.37.0 --save-dev
+
+# 3) Force tm to use only the local binary
+cat > tm <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENTRY="$ROOT/node_modules/.bin/task-master"
+if [[ ! -x "$ENTRY" ]]; then ENTRY="$ROOT/task-master-mcp/dist/mcp-server.js"; fi
+if [[ ! -e "$ENTRY" ]]; then echo "Task Master binary not found locally" >&2; exit 1; fi
+cd "$ROOT"
+exec "$ENTRY" "$@"
+EOF
+chmod +x tm
+ln -sf tm task-master taskmaster
+
+# 4) Sanity check (should show 0.37.0, no update banner)
+./tm --version
+
+# Universal local-only wrapper (works in any repo with a local install)
+# 1) Ensure PATH picks up ~/bin first
+export PATH="$HOME/bin:$PATH"
+
+# 2) Create ~/bin/tm and symlinks (only uses repo-local binary; errors if missing)
+mkdir -p ~/bin
+cat > ~/bin/tm <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(git -C "${PWD}" rev-parse --show-toplevel 2>/dev/null || exit 1)"
+BIN="$ROOT/node_modules/.bin/task-master"
+if [[ ! -x "$BIN" ]]; then
+  ALT="$ROOT/task-master-mcp/dist/mcp-server.js"
+  [[ -x "$ALT" ]] || { echo "Task Master not installed in $ROOT" >&2; exit 1; }
+  BIN="$ALT"
+fi
+cd "$ROOT"
+exec "$BIN" "$@"
+EOF
+chmod +x ~/bin/tm
+ln -sf tm ~/bin/tml
+ln -sf tm ~/bin/task-master
+ln -sf tm ~/bin/taskmaster
+
+# 3) Per-repo pin (run inside each repo you actually use)
+cd /path/to/your/repo
+npm install task-master-ai@0.37.0 --save-dev
+
+# 4) Verify in that repo (no update banner expected)
+tm --version
+
+# ============================================================================
+# PERMANENT FIX (December 2024) - Disable Auto-Update Entirely
+# ============================================================================
+# 
+# ROOT CAUSE: The task-master-ai binary has auto-update code that runs on 
+# EVERY invocation. It checks npm, downloads updates, and tries to install 
+# them. If the install fails (ENOTEMPTY, permissions, etc.), it loops forever.
+#
+# THE FIX: Set TASKMASTER_SKIP_AUTO_UPDATE=1 environment variable
+# This is explicitly checked in the source code and disables the updater.
+#
+# ============================================================================
+
+# Step 1: Remove bad aliases from .bashrc AND .aliases
+# IMPORTANT: Check ~/.aliases as it often overrides .bashrc
+sed -i '/^alias tm=/d' ~/.bashrc
+sed -i '/^alias tm=/s/^/# /' ~/.aliases 2>/dev/null || true
+sed -i '/^alias tml=/s/^/# /' ~/.aliases 2>/dev/null || true
+
+# Step 2: Create universal wrapper in ~/bin/tm
+mkdir -p ~/bin
+cat > ~/bin/tm <<'WRAPPER_EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+# DISABLE AUTO-UPDATE - This is the critical fix
+export TASKMASTER_SKIP_AUTO_UPDATE=1
+
+# Find the repo root
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# Look for local binary
+BIN="$ROOT/node_modules/.bin/task-master"
+
+if [[ -x "$BIN" ]]; then
+  exec "$BIN" "$@"
+else
+  echo "❌ No local task-master found in $ROOT"
+  echo "   Run: npm install task-master-ai --save-dev"
+  exit 1
+fi
+WRAPPER_EOF
+chmod +x ~/bin/tm
+
+# Step 3: Create quick-list wrapper (tml)
+cat > ~/bin/tml <<'WRAPPER_EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+# DISABLE AUTO-UPDATE
+export TASKMASTER_SKIP_AUTO_UPDATE=1
+
+# Find the repo root
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# Look for local binary
+BIN="$ROOT/node_modules/.bin/task-master"
+
+if [[ -x "$BIN" ]]; then
+  exec "$BIN" list --with-subtasks "$@"
+else
+  echo "❌ No local task-master found in $ROOT"
+  echo "   Run: npm install task-master-ai --save-dev"
+  exit 1
+fi
+WRAPPER_EOF
+chmod +x ~/bin/tml
+
+# Step 4: Ensure ~/bin is in PATH (add to ~/.bashrc if not already there)
+grep -q 'export PATH="$HOME/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+
+# Step 5: Install local version in each repo
+cd /home/richard/code/jobs  # or whatever repo you're in
+npm install task-master-ai@0.37.1 --save-dev
+
+# Step 6: Reload shell and test
+source ~/.bashrc
+tm --version  # Should show version with "Skipping auto-update" message
+tml           # Should show task list instantly
+
+# ============================================================================
+# WHY THIS WORKS ACROSS ALL REPOS:
+# ============================================================================
+# 
+# 1. The wrapper is in ~/bin (not repo-specific)
+# 2. It uses 'git rev-parse --show-toplevel' to find the current repo root
+# 3. It looks for node_modules/.bin/task-master in THAT repo
+# 4. TASKMASTER_SKIP_AUTO_UPDATE=1 prevents the binary from auto-updating
+# 5. Once you 'source ~/.bashrc', the wrapper is available everywhere
+#
+# You only need to:
+# - Run 'npm install task-master-ai --save-dev' once per repo
+# - The wrapper handles the rest automatically
+#
+# ============================================================================

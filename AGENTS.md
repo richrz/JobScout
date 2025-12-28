@@ -1,8 +1,9 @@
 #1 User is vibe-coding this app. User is not a developer but understands development. do not show code-level details, only strategic ideas. Be concise and do not forget it. It is not helpful to ask questions unless you genuinely feel stuck. 
 
 Always use context7 when I need code generation, setup or configuration steps, or
-library/API documentation. This means you should automatically use the Context7 MCP
-tools to resolve library id and get library docs without me having to explicitly ask.
+library/API documentation. 
+
+USING PORT 3000 IS CONSIDERED A SECURITY VIOLATION FOR ANY PURPOSE. USE A RANDOM PORT FROM 3100-4999 AND STICK WITH IT FOR TESTING.
 
 **Be sure to test your claims with the web browser tool before you inform the user that you have completed an assignment. If not web related use the tools you do have or ask the user for permission to install a tool to test your claims. **
 
@@ -88,6 +89,16 @@ After Autopilot commits a subtask:
 ## Honesty clause
 
 Be brutally honest about blockers or mistakes. Report anomalies immediately (stale pointers, failing tests, dirty tree you can’t resolve). Never guess.
+
+## Mock Data Policy (The "Anti-Pollution" Rule)
+
+To keep the database clean and usable during the site redesign, all agents must follow these rules when dealing with mock or stub data:
+
+1.  **Strict Metadata Tagging**: All non-real data MUST be tagged with `source: 'mock'` or `source: 'demo'` in the database.
+2.  **Ghost Mode Preference**: When possible, use `NEXT_PUBLIC_MOCK_MODE=true` to load data from local JSON files instead of polluting the PostgreSQL database.
+3.  **Ephemeral Demos**: Any script created to populate data for a HITL demo MUST follow the `cleanup-demos.ts` pattern and include logic to purge its data after verification.
+4.  **Automatic Cleanup**: Before starting a new task, agents should run `npx tsx scripts/cleanup-demos.ts` to ensure a clean starting state.
+5.  **No Stub Pollution**: Never commit hardcoded stub data into page components. Use API fallback logic or the unified mock service.
 
 ## Audit Protocol (Mandatory for "Audit" Requests)
 

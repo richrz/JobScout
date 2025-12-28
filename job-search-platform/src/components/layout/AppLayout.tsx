@@ -39,25 +39,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <div className="container mx-auto max-w-7xl h-20 flex items-center justify-between px-6">
                     {/* Brand */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="relative w-10 h-10 shrink-0 animate-[spin_0.6s_ease-out] group-hover:animate-[spin_0.5s_ease-in-out]">
+                        <div className="relative w-36 h-12 shrink-0 transition-transform duration-300 group-hover:scale-105">
                             <Image
-                                src="/images/logo-light.svg"
+                                src="/images/logo-full-light.svg"
                                 alt="JobScout Logo"
                                 fill
                                 className="object-contain dark:hidden"
                                 priority
                             />
                             <Image
-                                src="/images/logo-dark.svg"
+                                src="/images/logo-full-dark.svg"
                                 alt="JobScout Logo"
                                 fill
                                 className="object-contain hidden dark:block"
                                 priority
                             />
                         </div>
-                        <span className="text-2xl tracking-tight">
-                            <span className="font-extrabold text-primary">Job</span><span className="font-semibold text-foreground">Scout</span>
-                        </span>
                     </Link>
 
                     {/* Navigation */}

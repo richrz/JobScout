@@ -1,0 +1,48 @@
+Task: 45 - Chronos Ingress Simulator
+Status: VERIFYING
+URL: http://localhost:4141/settings
+
+# Description
+Verify that the Chronos Ingress Simulator is correctly implemented, allowing for the generation of synthetic job data with configurable parameters (jobs per hour, junk ratio) and providing a settings UI.
+
+# Prerequisites
+1.  The dev server should be running on port 4141 (`npm run dev -- --port 4141`).
+2.  Database should be clean or have minimal data (`npx tsx scripts/cleanup-demos.ts`).
+
+# Verification Steps
+
+## 1. CLI Engine Test (Backend Logic)
+- [ ] Run the CLI demo script:
+      `npm run demo:chronos`
+- [ ] **Expectation**: Output should show:
+      - Cleaning up old data.
+      - Injecting 10 jobs.
+      - A list of 10 jobs mixed between "Elite" (💎) and "Junk" (🗑️).
+      - Success message "CHRONOS IS LIVE!".
+
+## 2. Settings UI Verification
+- [ ] Open Browser to `http://localhost:4141/settings`.
+- [ ] Click on the **"Simulation"** tab (you might need to scroll the tabs on smaller screens, or it's the last one).
+- [ ] **Expectation**: You see the "Chronos Simulator" card.
+- [ ] Check that the "Jobs Ingress / Hour" slider works.
+- [ ] Check that the "Market Noise" slider works.
+- [ ] Toggle the "Status" switch to **Active**.
+- [ ] **Expectation**: The "Active" badge appears (green), and an "Activity" pulse indicator shows at the bottom.
+
+## 3. End-to-End Flow (Triage Feed)
+- [ ] Ensure Chronos is **Active** in Settings.
+- [ ] Wait for 1 minute (or check immediately if the cron ran). *Note: The cron runs every minute.*
+- [ ] Go to `http://localhost:4141/triage`.
+- [ ] **Expectation**: New cards should appear. Some should be "Elite" (e.g., "Senior AI Engineer") and some "Junk" (e.g., "Underwater Basket Weaver") depending on your junk ratio setting.
+- [ ] Verify that the Cards have the "Glassmorphism" look (Task 41 check).
+
+## 4. API Verification (Optional)
+- [ ] Run `curl http://localhost:4141/api/simulation`
+- [ ] **Expectation**: Returns JSON `{"isRunning":true,"config":{"jobsPerHour":...,"junkRatio":...}}`.
+
+# Cleanup
+- [ ] Run `npx tsx scripts/cleanup-demos.ts` to purge the simulated data.
+- [ ] **Expectation**: "Deleted X mock/demo jobs."
+
+# Status
+PASS / FAIL

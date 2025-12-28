@@ -7,8 +7,18 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PORT="${PORT:-$(node "$ROOT_DIR/scripts/find-open-port.js")}"
 export PORT
 
+
 # Clean stale Next.js locks
 rm -rf .next/dev/lock 2>/dev/null || true
+
+# Check database connection unless in Mock Mode
+if [ "${NEXT_PUBLIC_MOCK_MODE:-false}" != "true" ]; then
+    echo "Verifying database connection..."
+    npx tsx scripts/db-check.ts || {
+        echo "ERROR: Database connection failed. Start with NEXT_PUBLIC_MOCK_MODE=true if you want to skip this."
+        exit 1
+    }
+fi
 
 echo "Starting Next.js dev server on http://localhost:${PORT}"
 exec npx next dev --turbopack --port "$PORT" "$@"

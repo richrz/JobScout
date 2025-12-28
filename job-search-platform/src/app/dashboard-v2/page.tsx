@@ -21,7 +21,7 @@ import {
 
 // Stitch Design Colors
 const colors = {
-    primary: "#39E079",
+    primary: "#35e375",
     bgDark: "#122017",
     surfaceDark: "#1c2e24",
     surfaceHover: "#263c30",
@@ -43,10 +43,10 @@ export default function DashboardV2() {
                     <div className="flex-1 max-w-md">
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Search className="w-5 h-5 text-white/40 group-focus-within:text-[#39E079] transition-colors" />
+                                <Search className="w-5 h-5 text-white/40 group-focus-within:text-[#35e375] transition-colors" />
                             </div>
                             <Input
-                                className="w-full bg-[#1c2e24] border-none rounded-full py-6 pl-12 pr-4 text-white placeholder-white/30 focus:ring-2 focus:ring-[#39E079]/50 transition-all shadow-lg shadow-black/20"
+                                className="w-full bg-[#1c2e24] border-none rounded-full py-6 pl-12 pr-4 text-white placeholder-white/30 focus:ring-2 focus:ring-[#35e375]/50 transition-all shadow-lg shadow-black/20"
                                 placeholder="Search jobs, companies, or keywords..."
                             />
                         </div>
@@ -57,46 +57,46 @@ export default function DashboardV2() {
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Metric 1: Jobs Found */}
                     <div
-                        className="p-6 rounded-xl border hover:border-[#39E079]/30 transition-all group relative overflow-hidden"
+                        className="p-6 rounded-xl border hover:border-[#35e375]/30 transition-all group relative overflow-hidden"
                         style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
                     >
                         <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Briefcase className="w-16 h-16 text-[#39E079]" />
+                            <Briefcase className="w-16 h-16 text-[#35e375]" />
                         </div>
                         <p className="text-white/60 text-sm font-medium mb-2">Jobs Found</p>
                         <div className="flex items-end gap-3">
                             <h3 className="text-4xl font-bold text-white">142</h3>
-                            <span className="text-[#39E079] text-xs font-bold bg-[#39E079]/10 px-2 py-1 rounded-full mb-1">+15%</span>
+                            <span className="text-[#35e375] text-xs font-bold bg-[#35e375]/10 px-2 py-1 rounded-full mb-1">+15%</span>
                         </div>
                     </div>
 
                     {/* Metric 2: Applications Sent */}
                     <div
-                        className="p-6 rounded-xl border hover:border-[#39E079]/30 transition-all group relative overflow-hidden"
+                        className="p-6 rounded-xl border hover:border-[#35e375]/30 transition-all group relative overflow-hidden"
                         style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
                     >
                         <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Send className="w-16 h-16 text-[#39E079]" />
+                            <Send className="w-16 h-16 text-[#35e375]" />
                         </div>
                         <p className="text-white/60 text-sm font-medium mb-2">Applications Sent</p>
                         <div className="flex items-end gap-3">
                             <h3 className="text-4xl font-bold text-white">12</h3>
-                            <span className="text-[#39E079] text-xs font-bold bg-[#39E079]/10 px-2 py-1 rounded-full mb-1">+2%</span>
+                            <span className="text-[#35e375] text-xs font-bold bg-[#35e375]/10 px-2 py-1 rounded-full mb-1">+2%</span>
                         </div>
                     </div>
 
                     {/* Metric 3: Interviews */}
                     <div
-                        className="p-6 rounded-xl border hover:border-[#39E079]/30 transition-all group relative overflow-hidden"
+                        className="p-6 rounded-xl border hover:border-[#35e375]/30 transition-all group relative overflow-hidden"
                         style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
                     >
                         <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Calendar className="w-16 h-16 text-[#39E079]" />
+                            <Calendar className="w-16 h-16 text-[#35e375]" />
                         </div>
                         <p className="text-white/60 text-sm font-medium mb-2">Interviews</p>
                         <div className="flex items-end gap-3">
                             <h3 className="text-4xl font-bold text-white">2</h3>
-                            <span className="text-[#39E079] text-xs font-bold bg-[#39E079]/10 px-2 py-1 rounded-full mb-1">+1 new</span>
+                            <span className="text-[#35e375] text-xs font-bold bg-[#35e375]/10 px-2 py-1 rounded-full mb-1">+1 new</span>
                         </div>
                     </div>
 
@@ -110,7 +110,7 @@ export default function DashboardV2() {
                             <span className="text-white font-bold text-sm">85%</span>
                         </div>
                         <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-[#39E079] rounded-full transition-all duration-1000" style={{ width: "85%" }} />
+                            <div className="h-full bg-[#35e375] rounded-full transition-all duration-1000" style={{ width: "85%" }} />
                         </div>
                         <p className="text-white/40 text-xs mt-3">Add 2 skills to reach 100%</p>
                     </div>
@@ -126,7 +126,7 @@ export default function DashboardV2() {
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center justify-between px-1">
                                 <h3 className="text-white text-lg font-bold">Recommended For You</h3>
-                                <Link href={"/jobs" as Route} className="text-[#39E079] text-sm font-medium hover:underline">View All</Link>
+                                <Link href={"/jobs" as Route} className="text-[#35e375] text-sm font-medium hover:underline">View All</Link>
                             </div>
                             <div className="rounded-xl border p-1" style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}>
 
@@ -134,7 +134,7 @@ export default function DashboardV2() {
                                 <div className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 hover:bg-white/5 rounded-lg transition-colors cursor-pointer border-b border-white/5">
                                     <div className="h-12 w-12 rounded-full bg-[#1DB954] flex items-center justify-center shrink-0 text-white font-bold text-lg">S</div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="text-white font-semibold truncate group-hover:text-[#39E079] transition-colors">Senior Product Designer</h4>
+                                        <h4 className="text-white font-semibold truncate group-hover:text-[#35e375] transition-colors">Senior Product Designer</h4>
                                         <div className="flex items-center gap-2 text-white/50 text-sm mt-0.5">
                                             <span>Spotify</span>
                                             <span className="w-1 h-1 bg-white/30 rounded-full" />
@@ -145,7 +145,7 @@ export default function DashboardV2() {
                                     </div>
                                     <div className="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
                                         <span className="hidden sm:block text-xs text-white/40 bg-white/5 px-2 py-1 rounded">2h ago</span>
-                                        <Button className="bg-[#39E079] hover:bg-[#2bcf6d] text-[#122017] font-bold px-5 py-2 rounded-full text-sm w-full sm:w-auto">Apply</Button>
+                                        <Button className="bg-[#35e375] hover:bg-[#2bcf6d] text-[#122017] font-bold px-5 py-2 rounded-full text-sm w-full sm:w-auto">Apply</Button>
                                     </div>
                                 </div>
 
@@ -153,7 +153,7 @@ export default function DashboardV2() {
                                 <div className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 hover:bg-white/5 rounded-lg transition-colors cursor-pointer border-b border-white/5">
                                     <div className="h-12 w-12 rounded-full bg-[#FF5A5F] flex items-center justify-center shrink-0 text-white font-bold text-lg">A</div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="text-white font-semibold truncate group-hover:text-[#39E079] transition-colors">UX Researcher</h4>
+                                        <h4 className="text-white font-semibold truncate group-hover:text-[#35e375] transition-colors">UX Researcher</h4>
                                         <div className="flex items-center gap-2 text-white/50 text-sm mt-0.5">
                                             <span>Airbnb</span>
                                             <span className="w-1 h-1 bg-white/30 rounded-full" />
@@ -172,7 +172,7 @@ export default function DashboardV2() {
                                 <div className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 hover:bg-white/5 rounded-lg transition-colors cursor-pointer">
                                     <div className="h-12 w-12 rounded-full bg-black flex items-center justify-center shrink-0 text-white font-bold text-lg border border-white/20">N</div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="text-white font-semibold truncate group-hover:text-[#39E079] transition-colors">Frontend Engineer</h4>
+                                        <h4 className="text-white font-semibold truncate group-hover:text-[#35e375] transition-colors">Frontend Engineer</h4>
                                         <div className="flex items-center gap-2 text-white/50 text-sm mt-0.5">
                                             <span>Notion</span>
                                             <span className="w-1 h-1 bg-white/30 rounded-full" />
@@ -211,7 +211,7 @@ export default function DashboardV2() {
                                     {/* Timeline Item 2 */}
                                     <div className="relative">
                                         <div className="absolute -left-[31px] bg-[#1c2e24] p-1">
-                                            <div className="bg-[#39E079]/20 text-[#39E079] rounded-full p-1 h-8 w-8 flex items-center justify-center border border-[#39E079]/30">
+                                            <div className="bg-[#35e375]/20 text-[#35e375] rounded-full p-1 h-8 w-8 flex items-center justify-center border border-[#35e375]/30">
                                                 <Bell className="w-4 h-4" />
                                             </div>
                                         </div>
@@ -245,20 +245,20 @@ export default function DashboardV2() {
                         <div className="rounded-xl border p-6" style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}>
                             <h3 className="text-white text-base font-bold mb-4">Quick Actions</h3>
                             <div className="grid grid-cols-2 gap-3">
-                                <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#39E079]/20">
-                                    <Upload className="w-5 h-5 text-[#39E079] group-hover:scale-110 transition-transform" />
+                                <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#35e375]/20">
+                                    <Upload className="w-5 h-5 text-[#35e375] group-hover:scale-110 transition-transform" />
                                     <span className="text-white text-xs font-medium text-center">Update Resume</span>
                                 </button>
-                                <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#39E079]/20">
-                                    <DollarSign className="w-5 h-5 text-[#39E079] group-hover:scale-110 transition-transform" />
+                                <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#35e375]/20">
+                                    <DollarSign className="w-5 h-5 text-[#35e375] group-hover:scale-110 transition-transform" />
                                     <span className="text-white text-xs font-medium text-center">Find Salaries</span>
                                 </button>
-                                <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#39E079]/20">
-                                    <Video className="w-5 h-5 text-[#39E079] group-hover:scale-110 transition-transform" />
+                                <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#35e375]/20">
+                                    <Video className="w-5 h-5 text-[#35e375] group-hover:scale-110 transition-transform" />
                                     <span className="text-white text-xs font-medium text-center">Practice Interview</span>
                                 </button>
-                                <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#39E079]/20">
-                                    <Target className="w-5 h-5 text-[#39E079] group-hover:scale-110 transition-transform" />
+                                <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#35e375]/20">
+                                    <Target className="w-5 h-5 text-[#35e375] group-hover:scale-110 transition-transform" />
                                     <span className="text-white text-xs font-medium text-center">Track App</span>
                                 </button>
                             </div>
@@ -282,7 +282,7 @@ export default function DashboardV2() {
                             <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 relative z-10">
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="bg-[#6772E5] rounded-md p-1 h-8 w-8 flex items-center justify-center text-white font-bold text-sm">S</div>
-                                    <span className="text-xs bg-[#39E079]/20 px-2 py-0.5 rounded text-[#39E079] font-bold">Tomorrow</span>
+                                    <span className="text-xs bg-[#35e375]/20 px-2 py-0.5 rounded text-[#35e375] font-bold">Tomorrow</span>
                                 </div>
                                 <h4 className="text-white font-bold text-sm">Product Designer Role</h4>
                                 <p className="text-white/60 text-xs mt-1">with Sarah Connors (Head of Design)</p>
@@ -305,7 +305,7 @@ export default function DashboardV2() {
                             className="rounded-xl border p-6 flex flex-col items-center text-center"
                             style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
                         >
-                            <Quote className="w-6 h-6 text-[#39E079] mb-2" />
+                            <Quote className="w-6 h-6 text-[#35e375] mb-2" />
                             <p className="text-white text-sm italic mb-2">&quot;Opportunities don&apos;t happen, you create them.&quot;</p>
                             <p className="text-white/30 text-xs uppercase tracking-widest">- Chris Grosser</p>
                         </div>

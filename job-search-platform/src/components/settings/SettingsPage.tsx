@@ -8,8 +8,10 @@ import { LLMSettings } from './LLMSettings';
 import { AutomationSettings } from './AutomationSettings';
 import { AdvancedSettings } from './AdvancedSettings';
 import { Button } from '@/components/ui/button';
-import { Brain, Search, Zap, Wrench } from 'lucide-react';
+import { Brain, Search, Zap, Wrench, Terminal } from 'lucide-react';
 import Link from 'next/link';
+import { SimulationSettings } from './SimulationSettings';
+
 
 export function SettingsPage() {
     return (
@@ -28,7 +30,7 @@ export function SettingsPage() {
                     <Button variant="outline" className="rounded-full border-border text-foreground hover:bg-secondary">
                         Discard
                     </Button>
-                    <Button className="rounded-full bg-primary text-primary-foreground font-bold shadow-[0_0_15px_rgba(57,224,121,0.3)] hover:shadow-[0_0_25px_rgba(57,224,121,0.5)]">
+                    <Button className="rounded-full bg-primary text-primary-foreground font-bold shadow-[0_0_15px_rgba(53,227,117,0.3)] hover:shadow-[0_0_25px_rgba(53,227,117,0.5)]">
                         Save Changes
                     </Button>
                 </div>
@@ -40,7 +42,7 @@ export function SettingsPage() {
                     Manage your Large Language Model (LLM) API keys, adjust search parameters, and configure automation settings.
                 </p>
 
-                <Tabs defaultValue="llm" className="w-full space-y-8">
+                <Tabs defaultValue="search" className="w-full space-y-8">
                     <TabsList className="inline-flex h-auto p-1 bg-card border border-border rounded-full gap-1">
                         <TabsTrigger
                             value="search"
@@ -70,7 +72,16 @@ export function SettingsPage() {
                             <Wrench className="w-4 h-4 mr-2" />
                             Advanced
                         </TabsTrigger>
+                        <TabsTrigger
+                            value="simulation"
+                            className="rounded-full px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border data-[state=active]:border-primary/20"
+                        >
+                            <Terminal className="w-4 h-4 mr-2" />
+                            Simulation
+                        </TabsTrigger>
                     </TabsList>
+
+
 
                     <TabsContent value="search" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                         <div className="bg-card rounded-xl border border-border p-6 md:p-8">
@@ -121,6 +132,19 @@ export function SettingsPage() {
                                 <p className="text-sm text-muted-foreground mt-1">System level configurations and debugging.</p>
                             </div>
                             <AdvancedSettings />
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="simulation" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        <div className="bg-card rounded-xl border border-border p-6 md:p-8">
+                            <div className="mb-6">
+                                <h2 className="flex items-center gap-2 text-xl font-bold text-foreground">
+                                    <Terminal className="w-5 h-5 text-primary" />
+                                    Chronos Simulation
+                                </h2>
+                                <p className="text-sm text-muted-foreground mt-1">Inject synthetic market data to test your filters.</p>
+                            </div>
+                            <SimulationSettings />
                         </div>
                     </TabsContent>
                 </Tabs>

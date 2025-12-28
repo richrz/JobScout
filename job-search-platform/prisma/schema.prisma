@@ -20,6 +20,7 @@ model User {
   sessions     Session[]
   accounts     Account[]
   resumes      Resume[]
+  workspaces   Workspace[]
 
   @@index([email])
 }
@@ -59,6 +60,7 @@ model Job {
   compositeScore Float?
   createdAt      DateTime      @default(now())
   applications   Application[]
+  workspaces     Workspace[]
   resumes        Resume[]
 
   @@index([postedAt, source])
@@ -82,6 +84,59 @@ model Application {
 
   @@index([userId, status])
   @@index([jobId])
+}
+
+// --- V2 CRM Models ---
+
+enum ApplicationStatus {
+  INTERESTED
+  APPLIED
+  FOLLOW_UP
+  DORMANT
+  ARCHIVED
+  DISMISSED
+}
+
+model Workspace {
+  id        String            @id @default(cuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status    ApplicationStatus @default(APPLIED)
+  priority  String            @default("medium") // high, medium, low
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  
+  artifacts Artifact[]
+  notes     WarRoomNote[]
+
+  @@unique([userId, jobId]) // One workspace per job per user
+  @@index([status])
+}
+
+model Artifact {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  type        String    // RESUME, COVER_LETTER, OTHER
+  name        String
+  storagePath String
+  content     String?   @db.Text // Text content if applicable
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId])
+}
+
+model WarRoomNote {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  content     String    @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([workspaceId])
 }
 
 model Config {
