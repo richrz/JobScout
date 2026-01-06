@@ -64,5 +64,8 @@
         "OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
       }
     }
+  },
+  "general": {
+    "previewFeatures": false
   }
 }
