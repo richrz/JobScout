@@ -28,6 +28,8 @@ body {
     background-color: var(--ayu-bg);
     color: var(--ayu-fg);
     font-family: 'Inter', sans-serif;
-    overflow: hidden;
-    /* Lock scroll for the immersive hero */
+}
+
+html {
+    scroll-behavior: smooth;
 }
