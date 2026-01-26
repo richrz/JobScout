@@ -32,7 +32,8 @@
     "demo:task-42": "npx tsx scripts/demo-task-42.ts",
     "demo:task-40": "npx tsx scripts/demo-task-40.ts",
     "demo:task-41": "npx tsx scripts/demo-task-41.ts",
-    "demo:chronos": "npx tsx scripts/demo-chronos.ts"
+    "demo:chronos": "npx tsx scripts/demo-chronos.ts",
+    "demo:task-43": "echo '\\nDemo Task 43: Dashboard Analytics\\nAfter dev starts, scroll down on the dashboard (/) to see:\\n  - Market Velocity chart (area chart)\\n  - Salary Landscape chart (bar chart)\\n  - Pipeline Health chart (donut chart with Active/Follow-up/Dormant/Archived)\\n' && npm run dev"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -769,7 +769,7 @@
           "36",
           "37"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -816,9 +816,10 @@
               1
             ],
             "details": "Implement a DonutChart or PieChart that accepts counts for 'Active', 'Dormant', and 'Archived' statuses. Ensure the colors are semantically appropriate (e.g., Green for Active, Grey for Archived). Add a legend and handle the empty state.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify the chart renders correctly with 100% in one category, split across categories, and with an empty dataset.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2026-01-26T22:10:00.000Z"
           },
           {
             "id": 5,
@@ -833,69 +834,9 @@
             "testStrategy": "Check the layout responsiveness on mobile, tablet, and desktop viewports to ensure charts resize without breaking the UI.",
             "parentId": "undefined",
             "updatedAt": "2025-12-21T16:44:38.034Z"
-          },
-          {
-            "id": 6,
-            "title": "Install Charting Library and Setup",
-            "description": "Install the chosen visualization library and configure base component structures.",
-            "dependencies": [],
-            "details": "Install `recharts` (or `@tremor/react` based on preference) via npm/yarn. Create a `components/analytics` directory. Establish a base theme configuration to ensure charts inherit the application's 'Deep Space' color palette and typography settings.",
-            "status": "pending",
-            "testStrategy": "Verify that the library is installed correctly and a 'Hello World' chart renders without console errors.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 7,
-            "title": "Implement Analytics Data Aggregation Logic",
-            "description": "Create utility functions to transform raw application data into chart-friendly formats.",
-            "dependencies": [],
-            "details": "Develop a `useAnalyticsData` hook or utility function. This must fetch all job applications and perform two aggregations: 1) Group by creation date (weekly buckets) for velocity, and 2) Group by current status (Active, Dormant, Archived) for health metrics.",
-            "status": "pending",
-            "testStrategy": "Unit test the aggregation logic with mock data sets to ensure correct counting and date grouping.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 8,
-            "title": "Develop Velocity Graph Component",
-            "description": "Build the visual component to display application frequency over time.",
-            "dependencies": [
-              6,
-              7
-            ],
-            "details": "Create `VelocityChart.tsx`. Implement a Bar or Area chart showing 'Applications Sent' on the Y-axis and 'Week' on the X-axis. Ensure tooltips display exact counts and dates. Handle cases where specific weeks have zero activity.",
-            "status": "pending",
-            "testStrategy": "Render the component with data spanning multiple weeks and verify the axis scaling and tooltip interactions.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 9,
-            "title": "Develop Pipeline Health Chart Component",
-            "description": "Build the visual component to display the distribution of application statuses.",
-            "dependencies": [
-              6,
-              7
-            ],
-            "details": "Create `PipelineHealthChart.tsx`. Implement a Donut or Pie chart visualizing the ratio of Active vs. Dormant vs. Archived applications. Use distinct colors for each status (e.g., Green for Active, Grey for Archived). Include a legend.",
-            "status": "pending",
-            "testStrategy": "Render the component with various status distributions, including 100% in one category, to check visual integrity.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 10,
-            "title": "Integrate Charts into Dashboard View",
-            "description": "Embed the analytics components into the main dashboard layout.",
-            "dependencies": [
-              8,
-              9
-            ],
-            "details": "Import `VelocityChart` and `PipelineHealthChart` into the main Dashboard page. Create a responsive grid layout to display them. Implement 'Empty State' placeholders if the user has no application data yet. Ensure the layout adjusts for mobile screens.",
-            "status": "done",
-            "testStrategy": "Check the dashboard on different screen sizes. Verify that charts resize correctly and empty states appear when the database is clear.",
-            "parentId": "undefined",
-            "updatedAt": "2025-12-22T00:49:44.967Z"
           }
         ],
-        "updatedAt": "2025-12-22T00:49:44.967Z"
+        "updatedAt": "2026-01-26T22:10:00.000Z"
       },
       {
         "id": "44",
@@ -1054,37 +995,7 @@
         ],
         "updatedAt": "2025-12-21T16:34:35.081Z"
       },
-      {
-        "id": "46",
-        "title": "Refactor Pipeline UI to Neutral Dark Theme",
-        "description": "Modernize the Kanban board with the new 'Deep Space' / Neutral Dark aesthetic.",
-        "details": "Remove legacy column borders and backgrounds. Use the improved JobCard component or a specialized KanbanCard. Ensure drag-and-drop visuals match the new theme (no blue tints).",
-        "priority": "high",
-        "status": "in-progress",
-        "dependencies": [
-          "35",
-          "43"
-        ],
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Refactor Pipeline Board Layout",
-            "description": "Remove column backgrounds and borders.",
-            "status": "pending",
-            "dependencies": [],
-            "parentId": "46"
-          },
-          {
-            "id": 2,
-            "title": "Update Kanban Card Style",
-            "description": "Ensure cards match the JobCard style.",
-            "status": "pending",
-            "dependencies": [],
-            "parentId": "46"
-          }
-        ],
-        "updatedAt": "2025-12-21T17:50:00.000Z"
-      },
+
       {
         "id": "46",
         "title": "Refactor Pipeline UI to Neutral Dark Theme",
