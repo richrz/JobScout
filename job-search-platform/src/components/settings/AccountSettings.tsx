@@ -1,12 +1,16 @@
+'use client';
 
 import React from 'react';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, CreditCard, Bell } from 'lucide-react';
+import { Shield, CreditCard, Bell, User } from 'lucide-react';
 
 export function AccountSettings() {
+    const { data: session } = useSession();
+    
     return (
         <div className="space-y-6">
             <Card className="bg-card border-border">
@@ -21,14 +25,46 @@ export function AccountSettings() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
+                    {/* Public Profile Info */}
+                    <div className="flex items-center gap-4 pb-4 border-b border-border/50">
+                        {session?.user?.image ? (
+                            <img 
+                                src={session.user.image} 
+                                alt="Profile Avatar" 
+                                referrerPolicy="no-referrer"
+                                className="w-16 h-16 rounded-full border-2 border-primary/20 object-cover"
+                            />
+                        ) : (
+                            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center border-2 border-border">
+                                <User className="w-8 h-8 text-muted-foreground" />
+                            </div>
+                        )}
+                        <div>
+                            <h3 className="font-medium text-foreground text-lg">
+                                {session?.user?.name || 'Loading...'}
+                            </h3>
+                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
+                                Google Account Connected
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Email Field */}
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" defaultValue="richard@example.com" disabled />
-                        <p className="text-xs text-muted-foreground">Managed via Google OAuth</p>
+                        <Input 
+                            id="email" 
+                            value={session?.user?.email || 'Loading...'} 
+                            disabled 
+                            className="bg-muted/50"
+                        />
+                        <p className="text-xs text-muted-foreground">Managed via Google OAuth. To change this, reconnect a different Google account.</p>
                     </div>
+                    
                     <div className="pt-2">
-                        <Button variant="outline" className="w-full sm:w-auto">Change Password</Button>
+                        <Button variant="outline" className="w-full sm:w-auto">Manage Google Account</Button>
                     </div>
                 </CardContent>
             </Card>

@@ -38,16 +38,16 @@ export function SearchSettings() {
         }
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    // Reset form when config loads
+    // Reset form when config loads - MUST be before any early returns
     React.useEffect(() => {
         if (config?.search) {
             form.reset(config.search);
         }
     }, [config, form]);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <Form {...form}>

@@ -37,9 +37,18 @@ export function UserMenu() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 shadow-lg shadow-primary/20 flex items-center justify-center text-xs font-bold text-black">
-                        {session.user?.name?.charAt(0) || session.user?.email?.charAt(0) || 'U'}
-                    </div>
+                    {session.user?.image ? (
+                        <img 
+                            src={session.user.image} 
+                            alt={session.user.name || 'User'} 
+                            referrerPolicy="no-referrer"
+                            className="w-8 h-8 rounded-full object-cover shadow-lg shadow-primary/20"
+                        />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 shadow-lg shadow-primary/20 flex items-center justify-center text-xs font-bold text-black">
+                            {session.user?.name?.charAt(0) || session.user?.email?.charAt(0) || 'U'}
+                        </div>
+                    )}
                     <div className="hidden md:block text-left">
                         <p className="text-sm font-medium text-foreground">{session.user?.name || 'User'}</p>
                         <p className="text-xs text-muted-foreground truncate max-w-[150px]">{session.user?.email}</p>

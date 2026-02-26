@@ -47,7 +47,37 @@ export default function AuthForm({ mode }: AuthFormProps) {
     }
   }
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
+    // START: MOCK MODE HANDLER
+    if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+      try {
+        setLoading(true);
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Use the dev bypass credentials to simulate a successful login
+        // But visually acts like "Google"
+        const result = await signIn('credentials', {
+           email: 'dev@localhost',
+           password: 'devpass123',
+           redirect: false
+        });
+
+        if (result?.error) {
+           setError('Mock Google Login failed');
+        } else {
+           router.push('/');
+           router.refresh();
+        }
+      } catch (err) {
+        setError('Mock Google Login error');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+    // END: MOCK MODE HANDLER
+
     signIn('google', { callbackUrl: '/' })
   }
 

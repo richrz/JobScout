@@ -8,6 +8,9 @@
     "start": "./scripts/start.sh",
     "lint": "next lint",
     "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test --project=smoke",
+    "test:e2e:ui": "playwright test --ui",
     "demo:resume": "echo '\\nTask 20 Demo: Custom Resume Generation\\nAfter dev starts, open /resume on the port shown in the terminal.\\nEnter a Job ID (check DB or let it drift) and click Enhance.\\n' && npm run dev",
     "demo:task-20": "npm run demo:resume",
     "demo:task-20-backend": "npx ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' scripts/demo-task-20-backend.ts",
@@ -20,7 +23,7 @@
     "demo:task-23": "echo '\\nDemo Task 23: Audit Process\\nRunning audit simulation...\\n' && echo 'Audit passed (Simulation)'",
     "demo:task-24": "echo '\\nDemo Task 24: Core Routes\\nAfter dev starts, navigate to /jobs, /settings, /dashboard on the printed port.\\n' && npm run dev",
     "demo:task-25": "echo '\\nDemo Task 25: Mock Mode\\nStarting in MOCK MODE...\\n' && NEXT_PUBLIC_MOCK_MODE=true npm run dev",
-    "demo:task-26": "echo '\\nDemo Task 26: E2E Tests\\nRunning Playwright tests...\\n' && echo '(Playwright not yet configured)'",
+    "demo:task-26": "echo '\\nDemo Task 26: E2E Tests\\nRunning Playwright tests...\\n' && npm run test:e2e:smoke",
     "demo:task-27": "echo '\\nDemo Task 27: ATS Scoring\\nAfter dev starts, open /resume on the printed port and click Analyze ATS Compatibility.\\n' && npm run dev",
     "demo:task-28": "echo '\\nDemo Task 28: Qdrant Integration\\nAfter dev starts, open /settings on the printed port and check Database Status.\\n' && npm run dev",
     "demo:task-29": "echo '\\nDemo Task 29: Resume Builder 2.0\\nAfter dev starts, edit Master Profile at /profile, then generate at /resume on the printed port.\\n' && npm run dev",
@@ -33,7 +36,10 @@
     "demo:task-40": "npx tsx scripts/demo-task-40.ts",
     "demo:task-41": "npx tsx scripts/demo-task-41.ts",
     "demo:chronos": "npx tsx scripts/demo-chronos.ts",
-    "demo:task-43": "echo '\\nDemo Task 43: Dashboard Analytics\\nAfter dev starts, scroll down on the dashboard (/) to see:\\n  - Market Velocity chart (area chart)\\n  - Salary Landscape chart (bar chart)\\n  - Pipeline Health chart (donut chart with Active/Follow-up/Dormant/Archived)\\n' && npm run dev"
+    "demo:task-43": "echo '\\nDemo Task 43: Dashboard Analytics\\nAfter dev starts, scroll down on the dashboard (/) to see:\\n  - Market Velocity chart (area chart)\\n  - Salary Landscape chart (bar chart)\\n  - Pipeline Health chart (donut chart with Active/Follow-up/Dormant/Archived)\\n' && npm run dev",
+    "demo:manual:navigation": "echo '\\nMANUAL VERIFICATION: Navigation\\n1. Open http://localhost:3173\\n2. Click \"Inbox\" in sidebar -> Verify URL /jobs\\n3. Click \"Pipeline\" in sidebar -> Verify URL /pipeline\\n4. Click \"Settings\" in sidebar -> Verify URL /settings\\n' && PORT=3173 npm run dev",
+    "demo:manual:triage": "echo '\\nMANUAL VERIFICATION: Triage\\n1. Open http://localhost:3173/triage\\n2. Verify job cards are visible\\n3. Click X (Pass) on a job -> Verify it disappears\\n4. Click Check (Save) on a job -> Verify it disappears\\n' && PORT=3173 npm run dev",
+    "demo:manual:auth": "echo '\\nMANUAL VERIFICATION: Auth\\n1. Open http://localhost:3173/auth/signin\\n2. Test Creds: dev@localhost / devpass123\\n3. Test Google: Click \"Sign in with Google\" (Mock Mode)\\n4. Verify redirect to Dashboard\\n' && PORT=3173 NEXT_PUBLIC_MOCK_MODE=true npm run dev"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -109,6 +115,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.0",
     "@tailwindcss/typography": "0.5.19",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

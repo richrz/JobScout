@@ -8,19 +8,21 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  name         String?
-  password     String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  profile      Profile?
-  applications Application[]
-  config       Config?
-  sessions     Session[]
-  accounts     Account[]
-  resumes      Resume[]
-  workspaces   Workspace[]
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  profile       Profile?
+  applications  Application[]
+  config        Config?
+  sessions      Session[]
+  accounts      Account[]
+  resumes       Resume[]
+  workspaces    Workspace[]
 
   @@index([email])
 }
@@ -65,6 +67,9 @@ model Job {
 
   @@index([postedAt, source])
   @@index([cityMatch, compositeScore])
+  @@index([title, company])
+  @@index([location])
+  @@index([createdAt])
 }
 
 model Application {
@@ -107,7 +112,7 @@ model Workspace {
   priority  String            @default("medium") // high, medium, low
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
-  
+
   artifacts Artifact[]
   notes     WarRoomNote[]
 

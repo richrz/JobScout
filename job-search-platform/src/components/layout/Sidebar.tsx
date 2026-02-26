@@ -1,8 +1,9 @@
-'use client';
+  'use client';
 
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import {
@@ -49,6 +50,7 @@ const SYSTEM_NAV = [
 
 export function Sidebar() {
     const pathname = usePathname();
+    const { data: session } = useSession();
 
     return (
         <aside
@@ -106,16 +108,37 @@ export function Sidebar() {
             </div>
 
             {/* Footer / Account */}
-            <div className="p-4 border-t" style={{ borderColor: colors.border }}>
-                <Link href="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-black border border-white/10 group-hover:border-white/20">
-                        R
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate" style={{ color: colors.textPrimary }}>Richard</p>
-                        <p className="text-xs truncate" style={{ color: colors.textMuted }}>Manage Account</p>
+            {/* Footer / Account */}
+            <div className="p-4 border-t flex items-center gap-2" style={{ borderColor: colors.border }}>
+                <Link href="/profile" className="flex-1 flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group overflow-hidden">
+                    {session?.user?.image ? (
+                        <img 
+                            src={session.user.image} 
+                            alt={session.user.name || 'User'} 
+                            referrerPolicy="no-referrer"
+                            className="w-8 h-8 shrink-0 rounded-full object-cover border border-white/10 group-hover:border-white/20"
+                        />
+                    ) : (
+                        <div className="w-8 h-8 shrink-0 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-black border border-white/10 group-hover:border-white/20">
+                            {session?.user?.name?.[0] || 'U'}
+                        </div>
+                    )}
+                    <div className="min-w-0">
+                        <p className="text-sm font-medium truncate" style={{ color: colors.textPrimary }}>
+                            {session?.user?.name || 'User'}
+                        </p>
+                        <p className="text-xs truncate" style={{ color: colors.textMuted }}>
+                            Manage Account
+                        </p>
                     </div>
                 </Link>
+                <button
+                    onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                    className="p-2 rounded-lg hover:bg-red-500/10 text-zinc-400 hover:text-red-400 transition-colors"
+                    title="Sign Out"
+                >
+                    <LogOut className="w-5 h-5" />
+                </button>
             </div>
         </aside>
     );
