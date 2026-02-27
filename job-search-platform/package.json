@@ -73,6 +73,8 @@
     "@radix-ui/react-toggle-group": "1.1.11",
     "@radix-ui/react-tooltip": "1.2.8",
     "@react-pdf/renderer": "4.3.1",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "@tiptap/extension-placeholder": "^3.11.0",
     "@tiptap/pm": "^3.11.0",
     "@tiptap/react": "^3.11.0",
@@ -112,6 +114,7 @@
     "sonner": "2.0.7",
     "tailwind-merge": "3.4.0",
     "tailwindcss-animate": "1.0.7",
+    "three": "^0.183.1",
     "zod": "3.25.76"
   },
   "devDependencies": {
