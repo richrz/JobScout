@@ -1,5 +1,16 @@
 # TDD-in-a-Box
 
+## Looking For The Runnable App?
+
+The production app in this repository is in:
+
+- `job-search-platform/`
+
+Start with:
+
+- [job-search-platform/README.md](job-search-platform/README.md)
+- [job-search-platform/docs/DEPLOYMENT.md](job-search-platform/docs/DEPLOYMENT.md)
+
 TDD-in-a-Box is a ready-to-run starter bundle that wires Task-master task orchestration, Autopilot’s RED→GREEN→COMMIT loop, and mandatory guardrails into any repository so automated agents and humans can ship code safely.
 
 **Top benefits for novice developers**

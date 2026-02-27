@@ -13,20 +13,30 @@ export const dynamic = "force-dynamic";
 
 // Server Component
 interface JobsPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
-  const page =
-    typeof searchParams.page === "string" ? parseInt(searchParams.page) : 1;
+  const resolvedSearchParams = (await searchParams) ?? {};
+
+  const parsedPage =
+    typeof resolvedSearchParams.page === "string"
+      ? parseInt(resolvedSearchParams.page, 10)
+      : 1;
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const limit = 12; // Matches grid layout
   const offset = (page - 1) * limit;
-  const query = typeof searchParams.q === "string" ? searchParams.q : undefined;
+  const query =
+    typeof resolvedSearchParams.q === "string"
+      ? resolvedSearchParams.q
+      : undefined;
   const sort =
-    typeof searchParams.sort === "string" ? searchParams.sort : "newest";
+    typeof resolvedSearchParams.sort === "string"
+      ? resolvedSearchParams.sort
+      : "newest";
 
   console.log("[JOBS PAGE] Sort parameter:", sort);
-  console.log("[JOBS PAGE] All searchParams:", searchParams);
+  console.log("[JOBS PAGE] All searchParams:", resolvedSearchParams);
 
   // Map sort parameter to orderBy clause
   const getOrderBy = (sortParam: string) => {
