@@ -31,7 +31,7 @@ function StarField() {
     <Points ref={points} positions={positions} stride={3} frustumCulled={false}>
       <PointMaterial
         transparent
-        color="#9fc9ff"
+        color="#90e8b0"
         size={0.018}
         sizeAttenuation
         depthWrite={false}
@@ -63,9 +63,9 @@ function EnergyCore() {
         <mesh ref={core}>
           <icosahedronGeometry args={[1.15, 2]} />
           <meshStandardMaterial
-            color="#78a8ff"
-            emissive="#2446ff"
-            emissiveIntensity={0.9}
+            color="#67d58f"
+            emissive="#1f8a50"
+            emissiveIntensity={0.95}
             metalness={0.4}
             roughness={0.18}
             wireframe
@@ -75,7 +75,7 @@ function EnergyCore() {
 
       <mesh ref={ring} rotation={[0.6, 0, 0]}>
         <torusGeometry args={[2.35, 0.02, 24, 180]} />
-        <meshBasicMaterial color="#5ce1e6" transparent opacity={0.8} />
+        <meshBasicMaterial color="#35e375" transparent opacity={0.78} />
       </mesh>
     </group>
   )
@@ -89,11 +89,11 @@ export default function CosmicLoginScene() {
         dpr={[1, 1.8]}
         gl={{ antialias: true, alpha: true }}
       >
-        <color attach="background" args={['#02040a']} />
-        <fog attach="fog" args={['#02040a', 7.5, 18]} />
+        <color attach="background" args={['#060d09']} />
+        <fog attach="fog" args={['#060d09', 7.5, 18]} />
         <ambientLight intensity={0.22} />
-        <directionalLight position={[4, 4, 2]} intensity={1.2} color="#8ec5ff" />
-        <pointLight position={[-3, -2, 3]} intensity={1.1} color="#50d5ff" />
+        <directionalLight position={[4, 4, 2]} intensity={1.2} color="#7ee39d" />
+        <pointLight position={[-3, -2, 3]} intensity={1.05} color="#35e375" />
 
         <StarField />
         <EnergyCore />
