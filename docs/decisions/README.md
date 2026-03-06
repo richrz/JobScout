@@ -15,3 +15,6 @@ Each ADR follows this format:
 | ADR | Title | Status | Date |
 |-----|-------|--------|------|
 | [001](./001-llm-provider-support.md) | LLM Provider Support | Accepted | 2025-12-12 |
+| [002](./002-kc-scraper-dual-pipeline.md) | KC Scraper Dual-Pipeline Architecture | Accepted | 2026-03-04 |
+| [003](./003-normalization-contract-and-provider-policy.md) | Normalization Contract and Provider Policy | Accepted | 2026-03-06 |
+| [004](./004-opportunity-workspace-naming.md) | Opportunity and Workspace Naming Standard | Accepted | 2026-03-06 |

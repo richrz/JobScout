@@ -1,0 +1,131 @@
+# JobScout Development Journal
+
+> A chronological record of strategic decisions, pivots, and progress. Read this to understand *why* things are the way they are.
+
+---
+
+## 2026-03-06 — Opportunity/Workspace Standard + Documentation Spine
+
+### Context
+We paused feature thrash and focused on product language and documentation integrity so future work does not keep looping on naming and architecture ambiguity.
+
+### Decisions Made
+1. **Canonical naming was locked:**
+   - `Opportunity` = the job object itself.
+   - `Workspace` = the Notion-like operating area tied to one opportunity.
+   - `Stage Journal` = stage-specific context inside the workspace.
+2. **Normalization policy was formalized:** direct providers only in production for normalization calls (`OpenAI` / `Google`), deterministic-first pipeline, selective LLM enrichment.
+3. **Geocoding is explicitly deferred** to v.next; not required for current normalization contract.
+
+### Documentation System Work
+- Added a **docs hub**: `docs/README.md` as the canonical entry point.
+- Added a **product docs index**: `docs/product/README.md`.
+- Added ADRs:
+  - `003-normalization-contract-and-provider-policy.md`
+  - `004-opportunity-workspace-naming.md`
+- Updated `docs/decisions/README.md` index for ADR 001-004 continuity.
+- Updated product concept docs to align with Opportunity/Workspace terminology.
+
+### Why This Matters
+This creates a single documentation spine:
+- Start at `docs/README.md`
+- Follow ADR index for binding decisions
+- Follow product index for active product specs
+
+It reduces drift between UI language, implementation conversations, and future architecture changes.
+
+---
+
+## 2026-03-04 — The KC Scraper Pivot
+
+### Context
+Discovered [itcompaniesnepal.com/jobs](https://itcompaniesnepal.com/jobs) — a solo dev scraping 926 company career pages in Nepal and aggregating them into a clean job board. Decided to replicate this approach for the **Kansas City metro area** (both MO and KS sides) as a new data source for the existing platform.
+
+### Key Decisions Made
+1. **No new branding or separate app.** KC scraped jobs funnel into the existing `job-search-platform` as another pipeline source alongside the JSearch API. Think of it as "bought data" vs "scraped data" — both land in the same `Job` table.
+2. **IT/Tech jobs at ALL employers** — not just tech companies. Hospitals, government, schools, banks — anyone with a career page. Filter for IT relevance at the LLM extraction layer.
+3. **Volume is a feature.** The more jobs we scrape, the more overwhelming the raw feed — which makes our filtering, triage, and workspace tools indispensable. This justifies the subscription price.
+4. **Gemini 3.1 Flash-Lite** for structured extraction.
+5. **Dual-pipeline architecture:** Pipeline A (API) + Pipeline B (scraped) → shared Normalizer → same DB.
+6. **Fingerprint-based deduplication** with fuzzy similarity fallback.
+7. **Polite scraping strategy:** Aggressive initial seed, then polite delta runs.
+
+### What I Was Feeling
+> "I'm getting lost in features." — Richard, 2026-03-04
+
+This is real. The project has accumulated a lot of vision docs, PRDs, and architectural plans from different sessions. This journal entry and the accompanying document sweep are an attempt to consolidate and ground everything.
+
+### Reference Documents Created
+- `docs/kc-scraper-plan.md` — Full implementation plan for the scraper engine
+- `kc_job_board_analysis.md` (brain artifact) — Deep analysis of the Nepal reference site
+- `kc_target_companies.md` (brain artifact) — Initial seed list of KC tech companies
+
+### Open Questions
+- Should we add a "community submit" flow where users can suggest companies to add?
+- At what point does the KC focus expand to other cities?
+- What's the optimal ratio of scraped vs API jobs for maximizing perceived value?
+
+---
+
+## 2026-03-05 — The Great Bug Smash & Filter Wiring
+
+### Context
+Attempted a demo the night before (Mar 4) on a second PC over WiFi. Almost nothing interactive worked — filters were cosmetic, search bars did nothing, dropdowns were decorative, the dashboard was 100% hardcoded fake data. Time to fix it all.
+
+### Demo & Network Access
+- Configured `NEXTAUTH_URL` to the LAN IP (`http://10.0.0.252:3480`) so NextAuth cookies work on the second PC.
+- Opened port 3480 in `ufw` — it was blocked by the firewall.
+- Added **⚡ Dev Auto-Login** button on sign-in page for one-click testing as `dev@localhost`.
+- Hid the Google OAuth button (doesn't work on local IP).
+- Discovered another Antigravity workspace was killing our dev server with `pkill -f "next dev"`. Added multi-project safety rules to `AGENTS.md`.
+
+### Filters & Search — The Core Fix
+**Root cause:** Every filter/search component used `useState` locally but never pushed state to URL params, so the server-rendered page never saw them.
+
+**What was fixed:**
+1. **`JobSearchInput.tsx`** [NEW] — Debounced search bar (400ms), pushes `?q=` to URL. Searches title, company, AND description.
+2. **`JobsFilterSidebar.tsx`** [REWRITTEN] — All filters now push to URL:
+   - Job Type → `?type=Full-time,Contract`
+   - Location → `?loc=Remote`
+   - Experience → `?exp=Senior Level`
+   - Salary slider → `?salaryMin=80&salaryMax=180` (debounced 300ms)
+   - "Clear All" resets URL, preserves sort
+3. **`/jobs/page.tsx`** [REWRITTEN] — Server component now reads all filter params, builds Prisma `AND` conditions, preserves filters in pagination URLs. "Reset Filters" button is now a `<Link href="/jobs">`.
+4. **`JobSortSelect.tsx`** — Added "Best Match" and "Lowest Match" sort options (uses `compositeScore`).
+
+### Dashboard Cleanup
+- Removed ALL fake data: Spotify/Airbnb/Notion jobs, fake activity stream (Google resume view, Figma application), fake interview widget with Sarah Connors.
+- Removed out-of-scope buttons: "Practice Interview", "Track App".
+- Added `/api/dashboard/stats` route — fetches real counts (jobs in inbox, pipeline, swipe queue).
+- Dashboard metrics now pull live data from the DB.
+- Search bar on dashboard now navigates to `/jobs?q=<query>` on Enter.
+- Added 10 rotating quotes attributed to **Richard A. Ruiz** 😂 — random one shown each page load.
+
+### Architecture Insight
+Clarified the intended data flow:
+> **Inbox** (browse/filter the full catalog) → **JobSwipe** (rapid triage: save or dismiss) → **Pipeline** (Kanban tracker for applications through stages)
+
+JobSwipe currently runs off its own independent feed. Future work: wire it to respect Inbox filters so the swiping experience is pre-filtered.
+
+### Files Changed
+- `src/components/jobs/JobSearchInput.tsx` [NEW]
+- `src/components/jobs/JobsFilterSidebar.tsx` [REWRITTEN]
+- `src/components/jobs/JobSortSelect.tsx` [MODIFIED]
+- `src/app/jobs/page.tsx` [REWRITTEN]
+- `src/app/dashboard-v2/page.tsx` [REWRITTEN]
+- `src/app/api/dashboard/stats/route.ts` [NEW]
+- `src/app/auth/signin/page.tsx` [MODIFIED — dev auto-login, hid Google button]
+- `AGENTS.md` [MODIFIED — multi-project safety rules]
+
+---
+
+## Earlier History
+
+> *Note: This journal was started on 2026-03-04. Earlier project history can be pieced together from git log, the PRD, and docs in `/docs/`.*
+
+### Key Milestones (Pre-Journal)
+- **Nov 2025**: Project inception. PRD written. Core vision: AI-powered job search CRM.
+- **Dec 2025**: "Prism" UI overhaul planned. Data pipeline architecture designed. LLM provider abstraction built (OpenAI, Anthropic, Gemini, Ollama, OpenRouter, Azure).
+- **Jan 2026**: Product Owner "Sisyphus" persona established. Market research on ageism in hiring completed. Triage feed, workspace, and resume builder implemented.
+- **Feb 2026**: JSearch API integration completed. Geographic heatmap built. Landing site created.
+- **Mar 2026**: KC scraper pivot (this entry).
