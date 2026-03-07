@@ -1,5 +1,8 @@
 # JobScout "Prism" Overhaul: Implementation Plan
 
+**Status:** Working Reference  
+**Note:** This plan captures an earlier redesign direction. Where it conflicts with newer ADRs and product contracts, the newer docs win.
+
 ## 1. Vision & Philosophy: "Intentional Minimalism"
 We are pivoting JobScout from a generic "Job Board" to a **Premium Candidate CRM**. The interface will be precision-engineered for the serious job seeker, creating a "Command Center" feel.
 
@@ -19,18 +22,24 @@ We are pivoting JobScout from a generic "Job Board" to a **Premium Candidate CRM
 *Problem:* Current state is polluted with mocks and disconnected features.
 *Solution:* A strict, unified data pipeline.
 
-### The Pipeline
-1.  **Ingest Layer (Source)**
-    - **Primary:** APIs (RapidAPI/JSearch, etc.).
-    - **Secondary:** Controlled Scrapers (`src/lib/scrapers`).
-    - *Action:* All incoming data lands in a `RawJob` buffer.
+### The Pipeline (Dual-Source Architecture — Updated 2026-03-04)
+
+Two independent ingest pipelines, one shared destination. Every `Job` record tracks its provenance via `source` and `sourceType` fields.
+
+1.  **Ingest Layer (Two Pipelines)**
+    - **Pipeline A — API/Bought:** JSearch (RapidAPI), Google for Jobs. `sourceType: 'api'`.
+    - **Pipeline B — Scraped/KC:** Custom scrapers for Kansas City company career pages. `sourceType: 'scraped'`. See `docs/kc-scraper-plan.md`.
+    - *Action:* Both pipelines produce a `NormalizedJob` shape.
 2.  **Normalization Layer (Refinery)**
-    - **Geocoding:** Google Maps API to convert "NYC" -> `lat/lng`.
-    - **Standardization:** Salary parsing, Remote status boolean.
-    - **Deduplication:** Hashing `source + id`.
+    - **Geocoding:** Google Maps API to convert locations → `lat/lng`.
+    - **Standardization:** Salary parsing, Remote status, job type classification.
+    - **LLM Extraction:** Gemini 3.1 Flash-Lite parses raw HTML into structured `skills`, `benefits`, `department` arrays.
+    - **Deduplication:** SHA256 fingerprint of `normalize(company + title + city)`. Fuzzy similarity as a secondary layer.
 3.  **Persistence Layer (The Lake)**
     - **Technology:** Prisma + PostgreSQL.
     - **Rule:** The UI *never* imports mock data files. It *only* reads from the DB via API.
+    - **Raw Content:** Scraped HTML stored separately in `RawJobContent` table for re-extraction.
+    - **Scraper Health:** `ScraperRun` table tracks each scrape attempt (success/failure/jobs found).
 4.  **Presentation Layer (The Glass)**
     - Server Actions / API Routes fetch from Prisma.
     - Components render the data.

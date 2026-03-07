@@ -49,6 +49,43 @@ This should reduce future thrash and make implementation decisions easier to jud
 
 ---
 
+## 2026-03-06 — Documentation Rationalization Pass
+
+### Context
+Before beginning the next large product update, we stopped to clean up the repository documentation so active specs would stop competing with stale plans, handoffs, and one-off execution notes.
+
+### Decisions Made
+1. **The docs spine was reinforced**:
+   - `docs/README.md` is the canonical hub
+   - `docs/decisions/` holds binding decisions
+   - `docs/product/` holds active product specs
+   - `JOURNAL.md` remains the chronological memory
+2. **Historical materials were explicitly separated** instead of left mixed into active navigation.
+3. **The root README was rewritten** to reflect the actual repository instead of a confusing TDD starter-kit identity.
+4. **The normalization contract status was aligned** with ADR 003 so the docs no longer disagree about whether it is adopted.
+
+### Documentation Cleanup Work
+- Added `docs/archive/README.md` to explain how historical docs are organized and how they should be used.
+- Reclassified the PRD as an umbrella reference document rather than the day-to-day binding spec.
+- Marked the redesign plan as a working reference rather than silent truth.
+- Removed outdated bootstrap memory from the active product docs path.
+- Archived older handoff, overhaul, remediation, and implementation-plan materials into explicit archive lanes.
+- Surfaced previously orphaned but still-useful reference docs such as the design system note, resume language spec, and functional test plan.
+
+### Why This Matters
+This gives the repo a clearer answer to:
+> "Which docs should we trust before we start building?"
+
+Answer:
+- the hub
+- the ADRs
+- the active product contracts
+- the journal for chronology
+
+Everything else is supporting context or history.
+
+---
+
 ## 2026-03-06 — Opportunity/Workspace Standard + Documentation Spine
 
 ### Context

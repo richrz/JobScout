@@ -1,5 +1,8 @@
 # Resume Personality Control – Product Spec
 
+**Status:** Active Reference  
+**Purpose:** Resume voice/tone control specification for the tailoring flow
+
 ## Goal
 - Give users clear control over how their resume sounds without exposing technical settings.
 - Default to a solid, low-effort starting point; make deeper tweaks optional.

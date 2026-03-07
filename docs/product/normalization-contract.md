@@ -1,8 +1,11 @@
 # Job Ingestion Normalization Contract
 
-**Status:** Draft for adoption  
+**Status:** Accepted  
 **Date:** 2026-03-06  
 **Owner:** Product + Engineering
+
+Accepted via:
+- [ADR 003](../decisions/003-normalization-contract-and-provider-policy.md)
 
 ## Purpose
 

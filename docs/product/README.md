@@ -1,5 +1,8 @@
 # Product Docs Index
 
+**Status:** Active  
+**Purpose:** Current product-spec navigation
+
 This folder holds active product strategy and operating concepts.
 
 ## Core Product Specs
@@ -8,17 +11,15 @@ This folder holds active product strategy and operating concepts.
 - Lifecycle concept: [workspace-lifecycle-concept.md](./workspace-lifecycle-concept.md)
 - Normalization contract: [normalization-contract.md](./normalization-contract.md)
 
+## Companion And Reference Docs
+
+- Product owner memory: [OWNER.md](./OWNER.md)
+- Market research: [market-research.md](./market-research.md)
 ## Recommended Reading Order
 
 1. [Lifecycle state contract](./lifecycle-state-contract.md)
 2. [Normalization contract](./normalization-contract.md)
 3. [Lifecycle concept](./workspace-lifecycle-concept.md)
-
-## Product Memory and Strategy
-
-- Product owner memory: [OWNER.md](./OWNER.md)
-- Market research: [market-research.md](./market-research.md)
-- Meta bootstrap notes: [META_BOOTSTRAP.md](./META_BOOTSTRAP.md)
 
 ## Naming Standard
 

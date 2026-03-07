@@ -1,5 +1,8 @@
 # JobScout Documentation Hub
 
+**Status:** Active  
+**Purpose:** Canonical entry point for current project documentation
+
 This is the canonical navigation page for project documentation.
 
 ## Start Here
@@ -22,6 +25,28 @@ This is the canonical navigation page for project documentation.
 - Rearchitecture plan: [rearchitecture_and_redesign.md](./plans/rearchitecture_and_redesign.md)
 - KC scraper strategy: [kc-job-acquisition-strategy.md](./kc-job-acquisition-strategy.md)
 - KC scraper implementation: [kc-scraper-plan.md](./kc-scraper-plan.md)
+
+## Active Vs Historical
+
+Active source of truth:
+- `docs/decisions/`
+- `docs/product/`
+- `docs/PRD-OPEN-SOURCE.md`
+- `JOURNAL.md`
+
+Working references:
+- `docs/plans/`
+- `docs/design/design-system.md`
+- `docs/kc-job-acquisition-strategy.md`
+- `docs/kc-scraper-plan.md`
+- `docs/resume-language-spec.md`
+- `FUNCTIONAL_TEST_PLAN.md`
+
+Historical records:
+- `docs/archive/`
+- `docs/audits/`
+- `docs/hitl-verify/`
+- `docs/handoffs/`
 
 ## Current Core Specs
 
@@ -51,6 +76,6 @@ This is the canonical navigation page for project documentation.
 ## Archive
 
 Legacy and historical materials are under:
-- `docs/archive/`
+- [docs/archive/README.md](./archive/README.md)
 
 These are useful references but are not the active source of truth.

@@ -1,5 +1,8 @@
 # JobScout Design System
 
+**Status:** Working Reference  
+**Note:** This captures an earlier visual system direction. Current product behavior and layout rules may have moved beyond parts of this document.
+
 This design package implements a modern, dark-themed dashboard aesthetic inspired by premium SaaS interfaces.
 
 ## Color Palette

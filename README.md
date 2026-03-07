@@ -1,68 +1,43 @@
-# TDD-in-a-Box
+# JobScout Repository Guide
 
-## Looking For The Runnable App?
+This repository contains the JobScout product, its documentation system, and the agent workflow tooling used to operate on it.
 
-The production app in this repository is in:
+## Where To Start
 
+- Product documentation hub: [docs/README.md](docs/README.md)
+- Development journal: [JOURNAL.md](JOURNAL.md)
+- Runnable app: [job-search-platform/README.md](job-search-platform/README.md)
+- App deployment notes: [job-search-platform/docs/DEPLOYMENT.md](job-search-platform/docs/DEPLOYMENT.md)
+
+## Repository Shape
+
+- `docs/`
+  - Canonical product and architecture documentation
 - `job-search-platform/`
+  - Main Next.js application
+- `landingsite/`
+  - Marketing/landing surface
+- `vps/`
+  - Infrastructure and deployment notes
 
-Start with:
+## Documentation Hierarchy
 
-- [job-search-platform/README.md](job-search-platform/README.md)
-- [job-search-platform/docs/DEPLOYMENT.md](job-search-platform/docs/DEPLOYMENT.md)
+Use this order when you need the current product truth:
 
-TDD-in-a-Box is a ready-to-run starter bundle that wires Task-master task orchestration, Autopilot’s RED→GREEN→COMMIT loop, and mandatory guardrails into any repository so automated agents and humans can ship code safely.
+1. [docs/README.md](docs/README.md)
+2. [docs/decisions/README.md](docs/decisions/README.md)
+3. [docs/product/README.md](docs/product/README.md)
+4. [JOURNAL.md](JOURNAL.md)
 
-**Top benefits for novice developers**
-- Clear guardrails that prevent skipping planning, testing, or review steps.
-- Turnkey scripts and documentation so getting from “blank repo” to TDD workflow is copy-paste simple.
-- Built-in handoff notes and logging templates that make teamwork transparent.
-- Auto installer included "Hey agent install setup4agents.json" and your repo is set up in seconds.
+Historical and one-off records live under `docs/archive/` and should not outrank the active specs.
 
-**Top benefits for expert developers**
-- Codified RED→GREEN discipline keeps large teams aligned on quality without micromanagement.
-- Autopilot-aware scripts remove toil when spinning up new projects or enforcing house rules.
-- Portable docs and guardrails make it easy to enforce consistent contributions across multiple repos.
+## Workflow Tooling
 
-## Contents
+This repo also includes the Task-master / Autopilot workflow kit.
+If you are working as an agent, the operational rules live in:
 
-```
-tdd-in-a-box/
-├── README.md                          # This overview
-├── docs/
-│   └── guides/
-│       ├── autopilot-tdd-stack-setup.md   # Full setup instructions
-│       ├── autopilot-agent-runbook.md     # Daily operating procedure for agents
-│       ├── taskmaster-guardrails.md       # Non-negotiable rules
-│       └── human-in-the-loop-workflow.md  # Post-subtask approval policy
-└── scripts/
-    ├── start-agent-work.sh                # Launches the next Autopilot session
-    ├── autopilot-reset.sh                 # Clears stale workflow-state.json safely
-    └── autopilot-wrapup.sh                # Logs end-of-session status snapshot
-```
+- [AGENTS.md](AGENTS.md)
+- [docs/guides/taskmaster-guardrails.md](docs/guides/taskmaster-guardrails.md)
+- [docs/guides/autopilot-agent-runbook.md](docs/guides/autopilot-agent-runbook.md)
 
-## How to use this kit
-
-1. Copy the entire `tdd-in-a-box/` folder into your new repository’s root.
-2. Either follow `docs/guides/autopilot-tdd-stack-setup.md` step-by-step, point an agent at `auto-install/setup4agents.json` for shell-based automation, or use `auto-install/repo_guidance.json` when the agent is operating purely through repository edits without direct command execution.
-3. After setup, share `docs/guides/autopilot-agent-runbook.md` with every agent. It references the other two guides and scripts so the workflow stays consistent.
-4. Commit the copied files so future clones inherit the same process.
-
-Keep this kit versioned: when guardrails or scripts evolve, update the files here and re-tag your downstream repos.
-
-## Git hygiene checklist
-
-> **Autopilot paused:** it spotted files you changed that aren’t saved into Git yet. To move forward, run the following and rerun the helper once nothing is left to save.
-
-After copying the kit or regenerating files, stage everything so git tracks the assets:
-
-```bash
-git add -A tdd-in-a-box docs/guides scripts
-git status -sb
-```
-
-If a file stays untracked, verify it isn’t ignored:
-
-```bash
-git check-ignore -v <path>
-```
+Those are process docs, not product specs.

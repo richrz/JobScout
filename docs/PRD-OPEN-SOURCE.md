@@ -2,8 +2,10 @@
 
 **Version**: 1.0  
 **Date**: November 2025  
-**Status**: Active Development  
+**Status**: Active Reference PRD  
 **License**: MIT (Open Source)
+
+> This is the umbrella product requirements document. Binding current-state behavior is increasingly captured in ADRs and product contracts under `docs/decisions/` and `docs/product/`.
 
 ---
 
@@ -196,11 +198,14 @@ A self-hosted platform that:
 **Description**: Automatically fetch and filter jobs from multiple sources.
 
 **Data Sources** (Configurable):
+- JSearch API (Google for Jobs aggregator) — primary bought data source
+- Company career pages (direct scraping) — **KC metro focus, see `docs/kc-scraper-plan.md`**
 - Indeed (RSS feeds + API)
 - LinkedIn Jobs (scraping)
-- Company career pages (direct scraping)
 - GitHub Jobs (if available)
 - Custom RSS feeds (user-provided)
+
+> **Note (2026-03-04):** The KC scraper pipeline is the newest addition. It introduces a dual-pipeline architecture where "bought" API data and "scraped" career page data coexist in the same `Job` table, differentiated by `sourceType`. See `docs/decisions/002-kc-scraper-dual-pipeline.md` for the full ADR.
 
 **Filtering Logic**:
 1. **Geographic**: Haversine distance from city centers (user-defined radius)
