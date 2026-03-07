@@ -18,8 +18,9 @@ This is the canonical navigation page for project documentation.
 2. [ADR 004: Opportunity and Workspace Naming](./decisions/004-opportunity-workspace-naming.md)
 3. [Lifecycle State Contract](./product/lifecycle-state-contract.md)
 4. [Recovery And Plan Levers](./product/recovery-and-plan-levers.md)
-5. [Normalization Contract](./product/normalization-contract.md)
-6. [Workspace Lifecycle Concept](./product/workspace-lifecycle-concept.md)
+5. [Resume Input And Voice Strategy](./product/resume-input-and-voice-strategy.md)
+6. [Normalization Contract](./product/normalization-contract.md)
+7. [Workspace Lifecycle Concept](./product/workspace-lifecycle-concept.md)
 
 ## Architecture and Plans
 
@@ -55,6 +56,7 @@ Historical records:
 
 - Opportunity lifecycle state contract: [lifecycle-state-contract.md](./product/lifecycle-state-contract.md)
 - Recovery and plan levers: [recovery-and-plan-levers.md](./product/recovery-and-plan-levers.md)
+- Resume input and voice strategy: [resume-input-and-voice-strategy.md](./product/resume-input-and-voice-strategy.md)
 - Opportunity/workspace lifecycle concept: [workspace-lifecycle-concept.md](./product/workspace-lifecycle-concept.md)
 - Ingestion normalization contract: [normalization-contract.md](./product/normalization-contract.md)
 

@@ -4,6 +4,59 @@
 
 ---
 
+## 2026-03-07 — Resume Input Contract And Voice Strategy
+
+### Context
+The planning conversation shifted back to the product’s real center of gravity: JobScout is not just an opportunity tracker. It is supposed to help users apply to many relevant jobs faster using AI-tailored materials that still sound like them.
+
+That exposed a risk in the current state of the app:
+- the resume engine is not yet strong enough to carry that promise cleanly
+- the current tone controls are richer in UI than in engine reality
+- future evidence farming only helps if the resume input contract becomes trustworthy first
+
+### Decisions Made
+1. **The resume engine is now treated as a first-class product contract**, not a loose side feature.
+2. **Resume generation should be grounded in clearly separated inputs**:
+   - stable profile facts
+   - approved reusable evidence
+   - target opportunity context
+   - reusable voice preset
+   - one-off AI guidance
+3. **Uploaded exemplar resumes are now part of the product direction**:
+   - they are meant to teach the system how the user sounds
+   - not silently become trusted factual truth
+4. **Voice and truth are now explicitly separated**:
+   - exemplar resumes can produce tone profiles
+   - facts extracted from them should go through review before entering the profile/evidence layer
+5. **The new tone feature should simplify the UI instead of multiplying controls**:
+   - `My ToneAdjust Profile` should appear as a preset
+   - selecting it should auto-align the current controls
+   - controls should remain read-only until the user chooses to customize
+6. **A new `AI Guidance` concept is part of the intended resume flow**:
+   - opportunity-level default guidance
+   - per-resume override for special cases that sliders cannot express
+
+### Why This Matters
+This work clarifies why the next resume wave exists.
+
+It is not about adding more novelty controls.
+It is about making AI tailoring more faithful to the user and more trustworthy at scale.
+
+If this is done well:
+- resume automation feels personal instead of generic
+- reusable evidence becomes dramatically more valuable
+- the app can help users apply broadly without making them sound like the model
+
+### Guardrail
+We also explicitly recorded a schema warning:
+- the current schema has good bones
+- but it should be treated as a bridge
+- not extended blindly while resume ownership, artifact state, and lifecycle ownership are still mixed
+
+That warning now lives in both the roadmap and the new product strategy doc so it does not get lost in chat history.
+
+---
+
 ## 2026-03-06 — Opportunity Lifecycle Contract
 
 ### Context

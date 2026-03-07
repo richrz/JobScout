@@ -1,7 +1,7 @@
 # Current Implementation Roadmap
 
 **Status:** Active  
-**Date:** 2026-03-06  
+**Date:** 2026-03-07
 **Purpose:** Canonical execution plan for the next major JobScout update
 
 ## What This Roadmap Governs
@@ -12,6 +12,7 @@ It is grounded in:
 
 - [ADR 004: Opportunity and Workspace Naming](../decisions/004-opportunity-workspace-naming.md)
 - [ADR 005: Opportunity Lifecycle State Contract](../decisions/005-opportunity-lifecycle-state-contract.md)
+- [Resume Input And Voice Strategy](../product/resume-input-and-voice-strategy.md)
 - [Job Ingestion Normalization Contract](../product/normalization-contract.md)
 - [Opportunity Lifecycle State Contract](../product/lifecycle-state-contract.md)
 
@@ -36,6 +37,37 @@ Turn JobScout into one coherent opportunity management product where:
 - Pipeline reflects real lifecycle rules instead of loose board movement
 - every opportunity owns one `Workspace`
 - artifacts, notes, and application events stay attached to that opportunity across the full journey
+
+## Cross-Cutting Decision Gate
+
+### Resume Engine Rationale
+
+The next major feature wave is not just UI polish.
+It exists because JobScout is ultimately an AI-assisted application engine, and the resume system is the product choke point.
+
+That means:
+- richer evidence capture only matters if resume generation can use it cleanly
+- tone controls only matter if the output still sounds like the user
+- opportunity and workspace features should support better applications, not distract from them
+
+This is why the current roadmap includes explicit work on resume handling, artifact trust, and opportunity-linked guidance.
+
+### Schema Decision Gate
+
+Treat the current schema as a bridge, not a blank check.
+
+Do not extend the data model for passed-bin workflows, stage journals, or resume/artifact flows until these core ownership questions are explicitly resolved:
+- one authoritative lifecycle model
+- the long-term role of `Application`
+- explicit ownership for working drafts, saved variants, and submitted snapshots
+- typed stage-journal structure
+- clear limits on JSON as workflow truth
+
+Current risks already identified:
+- `Application.status` and `Workspace.status` both carry lifecycle meaning
+- resume ownership is split across `Resume`, `Artifact`, and `Application.resumePath`
+- notes are still too flat to represent real stage journals
+- JSON fields are carrying more workflow meaning than they should
 
 ## Phase Overview
 
@@ -127,11 +159,13 @@ Key outcomes:
 - resume generation, saving, and applying all attach to the same opportunity/workspace system
 - resume creation and handling become explicit and trustworthy across draft, tailored, imported, and submitted states
 - document ownership, versioning, and restore behavior stop depending on which tab the user happened to use
+- voice presets and opportunity-level AI guidance plug into the same resume input contract instead of becoming separate side systems
 
 Done when:
 - “select a target job” in resume flow has a trustworthy relationship to the opportunity
 - the app can show the exact package sent for a real application state
 - users can understand the difference between an editable draft, a saved variant, and the submitted snapshot
+- users can tell the system how they usually sound and how this specific resume should differ
 
 ### Phase 6 — Normalize Intake And Refresh Sources
 
