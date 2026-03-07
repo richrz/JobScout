@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-03-06 — Opportunity Lifecycle Contract
+
+### Context
+We moved from loose brainstorming to a binding product contract for how an opportunity moves through the system. The goal was to stop Inbox, JobSwipe, Pipeline, Resume Builder, and Workspace from feeling like separate products.
+
+### Decisions Made
+1. **One lifecycle now governs the whole app** for the canonical `Opportunity` object:
+   - `NEW`
+   - `INTERESTED`
+   - `PREP`
+   - `APPLIED`
+   - `SCREENING`
+   - `INTERVIEW`
+   - `OFFER`
+   - `PASSED`
+   - `REJECTED`
+   - `WITHDRAWN`
+   - `ARCHIVED`
+2. **JobSwipe is officially a view mode of Inbox**, not its own feed universe.
+3. **Pipeline begins at `INTERESTED`** and should reflect shared opportunity state instead of inventing a separate one.
+4. **`PASSED` is now a recoverable holding state** with a 90-day default retention window and restore-to-prior-state behavior.
+5. **Documents are universal workspace artifacts**:
+   - drafts stay editable
+   - submitted application docs become immutable snapshots
+
+### Documentation System Work
+- Added the binding product spec: `docs/product/lifecycle-state-contract.md`
+- Added ADR:
+  - `005-opportunity-lifecycle-state-contract.md`
+- Updated the docs hub and product index with a recommended reading order so the active source of truth is easier to follow.
+- Updated the lifecycle concept doc so it now points to the accepted contract instead of drifting beside it.
+
+### Why This Matters
+This is the first clear answer to the question:
+> "What is the official lifecycle of a job card?"
+
+Answer:
+- it is an `Opportunity`
+- it owns one `Workspace`
+- every major app surface now has a shared contract for how that opportunity moves, stores notes, and carries documents forward
+
+This should reduce future thrash and make implementation decisions easier to judge against one product truth.
+
+---
+
 ## 2026-03-06 — Opportunity/Workspace Standard + Documentation Spine
 
 ### Context

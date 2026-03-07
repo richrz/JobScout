@@ -1,7 +1,10 @@
 # Opportunity and Workspace Lifecycle Concept
 
-**Status:** Discussion Draft  
+**Status:** Concept Companion  
 **Date:** 2026-03-06
+
+Binding lifecycle rules now live in:
+- [lifecycle-state-contract.md](./lifecycle-state-contract.md)
 
 ## Why This Exists
 
@@ -104,13 +107,12 @@ The workspace should contain:
 
 ## Recommended Lifecycle
 
-This needs to be formalized before implementation, but a likely structure is:
+The accepted lifecycle contract is:
 
 - `NEW`
-- `SHORTLISTED`
+- `INTERESTED`
 - `PASSED`
 - `PREP`
-- `READY_TO_APPLY`
 - `APPLIED`
 - `SCREENING`
 - `INTERVIEW`
@@ -118,6 +120,8 @@ This needs to be formalized before implementation, but a likely structure is:
 - `REJECTED`
 - `WITHDRAWN`
 - `ARCHIVED`
+
+`READY_TO_APPLY` should be treated as a readiness condition inside `PREP`, not a separate lifecycle state.
 
 ## Stage Journal Concept
 
@@ -171,10 +175,9 @@ Important distinction:
 Pipeline movement should be rule-based, not universally free drag-and-drop.
 
 Examples of rules:
-- `NEW -> SHORTLISTED`: manual
-- `SHORTLISTED -> PREP`: manual
-- `PREP -> READY_TO_APPLY`: requires required fields/checklist completion
-- `READY_TO_APPLY -> APPLIED`: requires submission package
+- `NEW -> INTERESTED`: manual
+- `INTERESTED -> PREP`: manual
+- `PREP -> APPLIED`: requires submission package and blockers cleared
 - `APPLIED -> SCREENING`: manual or imported from user updates
 - `SCREENING -> INTERVIEW`: manual
 - `INTERVIEW -> OFFER / REJECTED / WITHDRAWN`: manual
@@ -197,10 +200,10 @@ Requirements:
 - Retention-based
 - Separate from archive
 
-Questions still open:
-- How long should passed jobs live before purge?
-- Does restoring return to `NEW` or `SHORTLISTED`?
-- Should passed jobs keep prior notes and artifacts?
+Accepted direction:
+- Default retention is 90 days
+- Restore returns to the prior active state when known
+- Passed opportunities keep notes and artifacts
 
 ## Data Normalization Requirement
 

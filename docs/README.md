@@ -9,6 +9,14 @@ This is the canonical navigation page for project documentation.
 - Architecture decisions: [ADR Index](./decisions/README.md)
 - Product docs index: [Product Docs](./product/README.md)
 
+## Recommended Reading Order
+
+1. [PRD Open Source](./PRD-OPEN-SOURCE.md)
+2. [ADR 004: Opportunity and Workspace Naming](./decisions/004-opportunity-workspace-naming.md)
+3. [Lifecycle State Contract](./product/lifecycle-state-contract.md)
+4. [Normalization Contract](./product/normalization-contract.md)
+5. [Workspace Lifecycle Concept](./product/workspace-lifecycle-concept.md)
+
 ## Architecture and Plans
 
 - Rearchitecture plan: [rearchitecture_and_redesign.md](./plans/rearchitecture_and_redesign.md)
@@ -17,6 +25,7 @@ This is the canonical navigation page for project documentation.
 
 ## Current Core Specs
 
+- Opportunity lifecycle state contract: [lifecycle-state-contract.md](./product/lifecycle-state-contract.md)
 - Opportunity/workspace lifecycle concept: [workspace-lifecycle-concept.md](./product/workspace-lifecycle-concept.md)
 - Ingestion normalization contract: [normalization-contract.md](./product/normalization-contract.md)
 
@@ -26,6 +35,7 @@ This is the canonical navigation page for project documentation.
 - Dual-pipeline scraper architecture: [002](./decisions/002-kc-scraper-dual-pipeline.md)
 - Normalization contract and provider policy: [003](./decisions/003-normalization-contract-and-provider-policy.md)
 - Opportunity vs Workspace naming: [004](./decisions/004-opportunity-workspace-naming.md)
+- Opportunity lifecycle state contract: [005](./decisions/005-opportunity-lifecycle-state-contract.md)
 
 ## Guides and Process
 
@@ -44,4 +54,3 @@ Legacy and historical materials are under:
 - `docs/archive/`
 
 These are useful references but are not the active source of truth.
-

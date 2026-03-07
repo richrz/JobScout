@@ -18,3 +18,4 @@ Each ADR follows this format:
 | [002](./002-kc-scraper-dual-pipeline.md) | KC Scraper Dual-Pipeline Architecture | Accepted | 2026-03-04 |
 | [003](./003-normalization-contract-and-provider-policy.md) | Normalization Contract and Provider Policy | Accepted | 2026-03-06 |
 | [004](./004-opportunity-workspace-naming.md) | Opportunity and Workspace Naming Standard | Accepted | 2026-03-06 |
+| [005](./005-opportunity-lifecycle-state-contract.md) | Opportunity Lifecycle State Contract | Accepted | 2026-03-06 |
