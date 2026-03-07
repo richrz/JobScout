@@ -31,13 +31,12 @@ Use this order when you need the current product truth:
 
 Historical and one-off records live under `docs/archive/` and should not outrank the active specs.
 
-## Workflow Tooling
+## Agent Guidance
 
-This repo also includes the Task-master / Autopilot workflow kit.
-If you are working as an agent, the operational rules live in:
+If you are working as an agent, use:
 
 - [AGENTS.md](AGENTS.md)
-- [docs/guides/taskmaster-guardrails.md](docs/guides/taskmaster-guardrails.md)
-- [docs/guides/autopilot-agent-runbook.md](docs/guides/autopilot-agent-runbook.md)
+- [docs/guides/repo-workflow.md](docs/guides/repo-workflow.md)
+- [docs/guides/human-in-the-loop-workflow.md](docs/guides/human-in-the-loop-workflow.md)
 
-Those are process docs, not product specs.
+Those are workflow docs, not product specs.

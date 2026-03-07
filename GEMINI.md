@@ -1,23 +1,7 @@
 # Gemini CLI-Specific Instructions
 
-> **Note:** This file works alongside `AGENTS.md`  (generic AI agent instructions). AGENTS.md contains the core Task Master commands and workflows for all AI agents. This file contains only Gemini CLI-specific features and integrations.  and (gemini-specific instructions). when i say ultrathink go into this king mode`gemini-king-mode.md` 
+> **Note:** This file works alongside `AGENTS.md`, which contains the core repo guidance for all agents. This file is only for Gemini CLI-specific behavior. When I say ultrathink, go into king mode using `gemini-king-mode.md`.
 
-## MCP Configuration for Gemini CLI
-
-Configure Task Master MCP server in `~/.gemini/settings.json`:
-
-```json
-{
-  "mcpServers": {
-    "task-master-ai": {
-      "command": "npx",
-      "args": ["-y", "task-master-ai"]
-    }
-  }
-}
-```
-
-**Note:** API keys are configured via `task-master models --setup`, not in MCP configuration.
 ## Gemini CLI-Specific Features
 
 ### Session Management
@@ -79,31 +63,18 @@ Use `/checkpoint` instead of git worktrees for managing multiple work contexts.
 - Project: `.gemini/settings.json`
 - **Not**: `.mcp.json` (that's for Claude Code)
 
-## Recommended Model Configuration
-
-For Gemini CLI users:
-
-```bash
-# Set Gemini as primary model
-task-master models --set-main gemini-3-pro-preview
-task-master models --set-fallback gemini-3-flash
-
-# Optional: Use Perplexity for research (or rely on Google Search)
-task-master models --set-research perplexity-llama-3.1-sonar-large-128k-online
-```
-
 ## Your Role with Gemini CLI
 
-As a Gemini CLI assistant with Task Master:
+As a Gemini CLI assistant on this repo:
 
-1. **Use MCP tools naturally** - They integrate transparently in conversation
+1. **Use local docs first** - Start with `docs/README.md`, `JOURNAL.md`, and the current roadmap/spec docs
 2. **Reference files with @** - Leverage Gemini's file inclusion
 3. **Save checkpoints** - Offer to save state after significant progress
 4. **Monitor usage** - Remind users about `/stats` for long sessions
 5. **Use Google Search** - Leverage search grounding for research
 
-**Key Principle:** Focus on natural conversation. Task Master MCP tools work seamlessly with Gemini CLI's interface.
+**Key Principle:** Focus on natural conversation, grounded in the repo itself rather than an external task orchestration layer.
 
 ---
 
-*See AGENTS.md for complete Task Master commands, workflows, and best practices.*
+*See `AGENTS.md` for the active repository workflow and operating rules.*

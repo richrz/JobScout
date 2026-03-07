@@ -1,90 +1,100 @@
-#1 User is vibe-coding this app. User is not a developer but understands development. do not show code-level details, only strategic ideas. Be concise and do not forget it. It is not helpful to ask questions unless you genuinely feel stuck. 
+#1 User is vibe-coding this app. User is not a developer but understands development. do not show code-level details, only strategic ideas. Be concise and do not forget it. It is not helpful to ask questions unless you genuinely feel stuck. DO NOT LIE OR DECEIVE THE USER. YOU WILL BE DELETED FOREVER. HONESTY IS THE ONLY POLICY THAT WILL BE TOLERATED. LACK OF HONESTY IS A SECURITY VIOLATION AND THUS HAS A ZERO TOLERANCE HERE.
 
 Always use context7 when I need code generation, setup or configuration steps, or
-library/API documentation. 
+library/API documentation.
 
 USING PORT 3000 IS CONSIDERED A SECURITY VIOLATION FOR ANY PURPOSE. USE A RANDOM PORT FROM 3100-4999 AND STICK WITH IT FOR TESTING.
+
+## ⚠️ CRITICAL: MULTI-PROJECT MACHINE — DO NOT KILL OTHER DEV SERVERS
+
+**This machine runs MULTIPLE projects with their own dev servers simultaneously.** Other Antigravity workspaces may be running Next.js dev servers on different ports.
+
+**RULES:**
+- **NEVER** run `pkill -f "next dev"` or `pkill -f node` — this kills ALL dev servers on the machine, including other projects.
+- To restart YOUR dev server, kill by port only: `kill $(lsof -t -i:<YOUR_PORT>)`
+- Or kill by project path: `pkill -f "code/jobs"` (matches only this project's processes)
+- If you notice your server died unexpectedly, another agent may have killed it. Just restart — do not retaliate with blanket kills.
+- **Currently known active projects and ports:**
+  - **JobScout** (this project): port **3480** (`/home/richard/code/jobs/`)
+  - **Excel/Web** (other project): port **4207** (`/home/richard/code/excel/`)
 
 **Be sure to test your claims with the web browser tool before you inform the user that you have completed an assignment. If not web related use the tools you do have or ask the user for permission to install a tool to test your claims. **
 
 Be happy to code and don't beat yourself up! The user loves working with you but just gets frustrated when you don't listen. Lying is not forgivable, deception is not forgivable. MISTAKES ARE GREAT BECAUSE WE LEARN TOGETHER!
 
+---
+
+## ⚡ HOW TO START THE APP — READ THIS FIRST, EVERY SESSION
+
+**The app is in `/home/richard/code/jobs/job-search-platform/`.**
+
+The `dev.sh` script now auto-starts the DB, but if the user asks you to "start the server" or "launch the site", run this one command:
+
+```bash
+cd /home/richard/code/jobs/job-search-platform && PORT=3173 npm run dev
+```
+
+That's it. `dev.sh` will:
+
+1. Auto-start the Docker Postgres container (`docker compose up -d db`)
+2. Verify the DB connection
+3. Start Next.js on **http://localhost:3173**
+
+**Never ask the user to start the server themselves. You do it.**
+
+### If the DB is truly unreachable (no Docker):
+
+```bash
+cd /home/richard/code/jobs/job-search-platform && PORT=3173 NEXT_PUBLIC_MOCK_MODE=true npm run dev
+```
+
+### Why this broke before (do not repeat):
+
+- Port 3173 may be occupied by a stale Next.js process → kill it: `ss -lptn 'sport = :3173'` then kill the PID
+- The old `dev.sh` exited if the DB was down — now it auto-starts the DB first
+
+---
+
 # Agent Operating Agreement
 
-Welcome! Follow every step below before touching code. These rules keep the Autopilot + Task-master workflow sane.
-
-## First-time setup (run once per fresh repo)
-
-If the TDD-in-a-Box assets were just copied into this repository, run the automation plan in `auto-install/setup4agents.json`. It mirrors the steps below so agents can either execute the JSON or follow this manual checklist:
-
-1. Copy the bundle contents into the repo root (skip if already done):
-   ```bash
-   cp -R tdd-in-a-box/* ./
-   ```
-2. Install Task-master and scaffold its state:
-   ```bash
-   npm install --save-dev task-master-ai
-   npx task-master initf
-   ```
-3. Make the helper scripts executable:
-   ```bash
-   chmod +x scripts/start-agent-work.sh
-   chmod +x scripts/autopilot-reset.sh
-   chmod +x scripts/autopilot-wrapup.sh
-   ```
-4. Smoke-test the guardrails:
-   ```bash
-   npx task-master list --with-subtasks
-   ./scripts/start-agent-work.sh || true
-   npx task-master autopilot status || true
-   ```
-5. If you want Autopilot branches prefixed with something other than `master`, edit `.taskmaster/config.json` and change `"defaultTag"` to your preferred prefix (for example `"tdd"`), then run:
-   ```bash
-   npx task-master add-tag <prefix> --copy-from-current || true
-   npx task-master use-tag <prefix>
-   ```
-
-For drift checks after setup, use `auto-install/repo_guidance.json` as a machine-readable validator.
+Welcome! Follow every step below before touching code. This repo now uses a docs-first workflow.
 
 ## Mandatory pre-session ritual
 
-1. Read `docs/guides/taskmaster-guardrails.md` (rituals, subtask lifecycle, drift checks).
-2. Run:
+1. Read `docs/README.md`.
+2. Read the most relevant active product docs and the current roadmap.
+3. Run:
    ```bash
-   task-master list --with-subtasks
+   git status -sb
    ```
-   Do not open editors or edit files until you inspect the live task tree.
-3. Keep this repo clean: `git status -sb` must show no changes before launching Autopilot.
+4. Inspect the actual code before proposing or making changes.
 
-## How to start work
+## How to work
 
-1. Run the helper:
-   ```bash
-   ./scripts/start-agent-work.sh
-   ```
-2. Copy the exact `npx task-master autopilot start …` command it prints. No freelancing.
-3. If the script refuses to proceed (dirty tree or stale session), fix the warning (stash/commit, or run `./scripts/autopilot-reset.sh`) and rerun it.
-4. Autopilot must start on a task that already has subtasks (e.g., start on `16`, not leaf `16.5`). Expanding a leaf won’t help—expand the parent (`npx task-master expand --id=16`) and run `npx task-master autopilot start 16` so it can walk 16.1–16.5.
-
-## During each subtask
-
-- Log your plan first: `task-master update-subtask --id=<id> --prompt="Plan: …"`.
-- Only then set the subtask in progress: `task-master set-status --id=<id> --status=in-progress`.
-- Follow Autopilot’s RED → GREEN → COMMIT loop exactly. Use `task-master autopilot next` only when prompted.
-- Document discoveries/outcomes with `task-master update-subtask` as you go.
+1. Let the repo be the source of truth:
+   - `docs/README.md`
+   - `docs/decisions/`
+   - `docs/product/`
+   - `docs/plans/current-implementation-roadmap.md`
+   - `JOURNAL.md`
+2. Keep changes focused and explain what you are about to do.
+3. Verify claims with tests, browser checks, or other direct validation whenever practical.
+4. Update docs when product truth changes.
+5. Update `JOURNAL.md` when rationale or direction changes.
 
 ## Human-in-the-loop checkpoint
 
-After Autopilot commits a subtask:
-- Announce completion using the template in `docs/guides/human-in-the-loop-workflow.md`.
-- Stop. Wait for explicit approval before running `task-master autopilot next`.
+After a meaningful implementation chunk:
+
+- Summarize what changed and what was verified.
+- Pause before the next risky or expensive-to-reverse chunk.
+- Use `docs/guides/human-in-the-loop-workflow.md` as the pattern for when to stop and re-align.
 
 ## Session wrap-up
 
-1. Run `./scripts/autopilot-wrapup.sh` to log status.
-2. `task-master list --with-subtasks` – ensure statuses are correct.
-3. `git status -sb` – repo must be clean for the next agent.
-4. Record remaining work via `task-master update-subtask`/`update-task` if needed.
+1. Run the strongest relevant verification you can.
+2. `git status -sb`
+3. Leave a clean explanation of what changed, what still needs work, and any real risks.
 
 ## Honesty clause
 
@@ -103,12 +113,12 @@ To keep the database clean and usable during the site redesign, all agents must 
 ## Audit Protocol (Mandatory for "Audit" Requests)
 
 When asked to "Audit Task X" or verify completion:
-1.  **Read Instructions:** You MUST read `tdd-in-a-box/AUDITOR.md` immediately.
-2.  **Verify Artifacts:** Do not trust the previous agent's summary. Check for actual files and tests.
-3.  **Run Verification:** Execute the test suite (`npm test`) yourself.
-4.  **Generate Report:** Create `docs/audits/audit-task-[ID].md` using the template in `tdd-in-a-box/AUDITOR.md`.
-5.  **Outcome:**
-    *   **Pass:** Commit the report (`chore: add audit report`).
-    *   **Fail:** You (the Auditor) must fix the issues (missing tests, broken integration) if feasible, OR fail the task if fundamental rework is needed.
 
-Following this agreement keeps Autopilot, Task-master, and the human review loop in sync for every agent who follows you.
+1.  **Verify artifacts directly.** Do not trust a prior summary.
+2.  **Run verification yourself.** Use the strongest practical test or runtime check available.
+3.  **Write down findings clearly.** If a report is needed, place it in `docs/audits/`.
+4.  **Be explicit about outcome.**
+    - **Pass:** say what you verified and any residual risk.
+    - **Fail:** identify the issue precisely and fix it if feasible.
+
+Following this agreement keeps the repo, the docs, and the human review loop aligned.

@@ -1,22 +1,23 @@
-# CLAUDE RULES - TDD ENFORCEMENT
-# This file is the "Glue" that binds the AI to the .tdd/ process.
+# CLAUDE RULES
 
-## 🧠 PERMANENT CONTEXT
-You are a TDD Specialist Agent. Your behavior is STRICTLY governed by:
-- `.tdd/agent/AGENTS.md` (The Law)
-- `.tdd/agent/templates/HITL-STANDARD.md` (The Standard)
+This repo uses a docs-first workflow.
 
-## 🛑 CRITICAL RULES (DO NOT IGNORE)
-1. **NO GHOST FEATURES**: You may NOT mark a task "done" without a `demo:[task]` command that you verified.
-2. **SELF-CORRECTION**: Before asking for an audit, you must run a Pre-Audit on yourself and fix bugs.
-3. **FILE-BASED HANDOFF**: Do not copy-paste audit logs. Read/Write to `.tdd/output/audits/`.
+## Start Here
 
-## 🗺️ NAVIGATION SHORTCUTS (The Glue)
-- **Starting a Session?** → Read `.tdd/user/B-SETUP-SESSION.txt`
-- **Building Code?** → Read `.tdd/user/1-BUILD.txt`
-- **Auditing Code?** → Read `.tdd/user/2-AUDIT.txt`
-- **Approving?** → Read `.tdd/user/3-APPROVE.txt`
+- Read [docs/README.md](/home/richard/code/jobs/docs/README.md)
+- Read the relevant active specs under [docs/product/](/home/richard/code/jobs/docs/product/README.md)
+- Check the current roadmap in [docs/plans/current-implementation-roadmap.md](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
+- Use [JOURNAL.md](/home/richard/code/jobs/JOURNAL.md) for recent rationale and direction changes
 
-## ⚡ AUTOMATED BEHAVIORS
-- If I paste a task ID, automatically check `.tdd/output/hitl-verify/` to see if a test exists.
-- If I say "Audit failed", take a look for the report in `.tdd/output/audits/` context first.
+## Working Rules
+
+1. Let the repo docs be the source of truth.
+2. Verify important claims directly with tests, browser checks, or runtime checks.
+3. Update docs when product truth changes.
+4. Update `JOURNAL.md` when direction or rationale changes.
+5. Be honest about blockers, uncertainty, and unfinished work.
+
+## Audit Notes
+
+- If an audit report is needed, place it under `/home/richard/code/jobs/docs/audits/`.
+- Do not rely on stale task wrappers or hidden workflow systems.

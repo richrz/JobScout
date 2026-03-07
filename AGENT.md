@@ -1,5 +1,9 @@
 # Amp Instructions
 
-## Task Master AI Instructions
-**Import Task Master's development workflow commands and guidelines, treat as if import is in the main AGENT.md file.**
-@./.taskmaster/AGENT.md
+Use the repository's current guidance sources directly:
+
+- `AGENTS.md` for active agent instructions
+- `docs/README.md` for the documentation spine
+- `JOURNAL.md` for chronological product memory
+
+Do not rely on removed workflow state or external task orchestration for this repository's workflow.

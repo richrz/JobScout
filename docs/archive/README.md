@@ -24,13 +24,8 @@ This folder holds historical and non-binding project records.
   - older temporary memory/bootstrap artifacts
 - `session-history/`
   - handoff notes and session-specific pickup context
-- `tdd-in-a-box/`
-  - archived bundle copy retained for reference
-
 ## Still-Useful Historical Records
 
-- `audits/`
-  - verification history from earlier task cycles
 - `bugs/`
   - targeted bug writeups that may still matter operationally
 

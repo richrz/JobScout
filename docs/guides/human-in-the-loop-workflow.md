@@ -1,120 +1,69 @@
 ---
 title: "Human-in-the-Loop Workflow"
-description: "How agents work with human review between subtasks"
+description: "How agents should pause, summarize, and re-align with the human during real work"
 ---
 
 # Human-in-the-Loop Workflow
 
-## 🎯 Core Principle
+## Core Principle
 
-**Every subtask completion requires human review before proceeding to the next subtask.**
+Agents should keep momentum, but not run far past the user's intent.
 
-This ensures:
-- Each subtask is completed perfectly with zero errors
-- Code quality is maintained through review
-- Prevents cascading failures from incomplete work
-- Allows for course correction between subtasks
+Pause for human review when:
+- a meaningful implementation chunk is complete
+- a decision has non-obvious product or schema consequences
+- the next step would be expensive to reverse
+- the repo contains conflicting or surprising changes
 
-## 📋 Workflow Steps
+## Default Working Rhythm
 
-### For Each Subtask:
+1. Understand the request and inspect the code or docs first.
+2. Make a focused block of progress.
+3. Verify the work with the strongest practical check available.
+4. Summarize what changed in plain language.
+5. Pause when the next chunk would materially change direction or increase risk.
 
-1. **Start work**
-   ```bash
-   npx task-master autopilot start <subtaskId>
-   # or for manual: npx task-master set-status --id=<subtaskId> --status=in-progress
-   ```
+## When To Pause
 
-2. **Implement the subtask**
-   - Write code
-   - Write/update tests
-   - Run tests to ensure they pass
-   - Use `npx task-master update-subtask` to document progress
+Pause and re-align after:
+- completing a major feature slice
+- landing a schema or contract change
+- changing product behavior in a user-visible way
+- discovering that the existing plan is wrong
+- encountering unrelated dirty worktree changes that affect the same surface
 
-3. **Complete and commit**
-   ```bash
-   # For Autopilot workflow:
-   npx task-master autopilot complete --phase=RED --tests="..."
-   npx task-master autopilot complete --phase=GREEN --tests="..."
-   npx task-master autopilot commit
+Do not pause after every tiny edit.
+Do pause before the work becomes hard to unwind.
 
-   # For Manual workflow:
-   npx task-master set-status --id=<subtaskId> --status=done
-   tm-commit -m "feat: implement subtask X"
-   ```
+## Communication Template
 
-4. **STOP and notify user** ⛔
-   ```
-   "Subtask X is complete. All tests passing. Ready for review before proceeding."
-   ```
+Use a short summary that tells the human:
 
-5. **Wait for user instruction** ⏸️
-   - Do NOT start next subtask
-   - Do NOT run `autopilot next`
-   - Do NOT assume you should continue
-   - Wait for explicit: "Proceed to next subtask" or "Start subtask Y"
+- what changed
+- what was verified
+- what still feels risky or open
+- what the next logical chunk would be
 
-6. **When user approves, proceed to next subtask**
-   ```bash
-   npx task-master autopilot start <nextSubtaskId>
-   # or: npx task-master set-status --id=<nextSubtaskId> --status=in-progress
-   ```
+Example:
 
-## ⚠️ Common Mistakes to Avoid
+```text
+This slice is complete.
 
-❌ **Wrong**: `autopilot commit` → immediately `autopilot next`
-✅ **Correct**: `autopilot commit` → notify user → wait for approval → `autopilot start <next>`
-
-❌ **Wrong**: Assuming you should proceed after commit
-✅ **Correct**: Always wait for explicit user instruction
-
-❌ **Wrong**: Starting work on next subtask without telling the user previous is done
-✅ **Correct**: Clearly communicate completion and wait for next assignment
-
-## 📝 Agent Communication Template
-
-After completing a subtask, say:
-
-```
-"Subtask {id} - {title} is now complete:
-
-✅ Implementation: {what was built}
-✅ Tests: All {num} tests passing
-✅ Documentation: {docs updated}
-✅ Commit: {hash} - {message}
-
-Ready for your review before I proceed to the next subtask."
+- Changed: inbox batch pass and restore flow
+- Verified: browser flow + targeted tests
+- Risk: mobile action bar still needs a tighter layout pass
+- Next: connect passed-bin search and restore history
 ```
 
-## 🔧 When to Use `autopilot next`
+## Guardrails
 
-The `autopilot next` command should **only** be used when:
+- Never assume approval for the next risky chunk just because one chunk went well.
+- Never hide uncertainty when a design or data model still feels unstable.
+- Prefer one clear checkpoint over a flood of tiny “done” messages.
+- If the user is actively collaborating in chat, keep updates shorter and more frequent.
 
-1. User explicitly says: "Proceed to next subtask" or "Start the next one"
-2. You're resuming a workflow after a break: `autopilot resume` then `autopilot next`
-3. User approves continuation after review
+## Related Documentation
 
-**Never use autopilot next automatically after commit.**
-
-## 🎯 Success Criteria
-
-✅ Each subtask completed perfectly with zero errors
-✅ User notified after each subtask completion
-✅ User reviews before next subtask starts
-✅ Explicit user approval to proceed
-✅ Clear communication of what's done
-
-## 🛡️ Lightweight Operational Guardrails
-
-To keep Autopilot runs resilient without adding new tools:
-
-- **Pre-flight snapshot** before starting: verify a clean working tree and, if a prior session exists, copy `.taskmaster/sessions/workflow-state.json` to a dated backup.
-- **Health check after `autopilot status`**: ensure the reported `currentSubtask` matches the subtask table. If not, note the issue and run `autopilot resume` before continuing.
-- **Document the RED→GREEN handoff**: when completing a phase, record the test command, outcome, and timestamp in session notes.
-- **End-of-day wrap-up**: the on-duty agent captures `autopilot status` output (phase + subtask) and logs it for the next shift, calling out any anomalies.
-
-## 📚 Related Documentation
-
-- `docs/guides/taskmaster-guardrails.md` - Mandatory guardrails
-- `docs/guides/autopilot-agent-runbook.md` - Autopilot execution sequence
-- `scripts/agent-onboard.sh` (if available) - Automated onboarding script
+- `AGENTS.md`
+- `docs/guides/repo-workflow.md`
+- `docs/README.md`

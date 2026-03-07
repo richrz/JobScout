@@ -1,14 +1,13 @@
 {
   "name": "jobs",
   "version": "1.0.0",
-  "description": "TDD-in-a-Box is a ready-to-run starter bundle that wires Task-master task orchestration, Autopilot's RED→GREEN→COMMIT loop, and mandatory guardrails into any repository so automated agents and humans can ship code safely.",
+  "description": "Repository metadata for the JobScout product and its documentation/workflow helpers.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "tm": "task-master"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -25,8 +24,5 @@
   "packageManager": "npm@10.9.2",
   "engines": {
     "node": ">=18.0.0"
-  },
-  "devDependencies": {
-    "task-master-ai": "0.40.0"
   }
 }

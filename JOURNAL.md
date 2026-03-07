@@ -4,6 +4,44 @@
 
 ---
 
+## 2026-03-07 — Taskmaster Removal
+
+### Context
+Taskmaster and the TDD/Autopilot wrappers were creating more drag than control.
+
+The repo had accumulated:
+- Taskmaster package wiring
+- `.taskmaster/` state
+- a parallel `.tdd/` wrapper born out of frustration
+- editor and GitHub instruction files pushing agents back into the old system
+- workflow docs that no longer matched how the product is actually being built
+
+This was consuming attention and tokens without giving the team a trustworthy source of truth.
+
+### Decisions Made
+1. **Taskmaster is no longer part of the active workflow for this repo.**
+2. **The repo itself is now the workflow system**:
+   - docs hub
+   - active product specs
+   - roadmap
+   - journal
+   - focused git commits
+3. **The `.tdd/` experiment was removed too** because it still depended on the same Taskmaster assumptions and duplicated the confusion rather than fixing it.
+4. **Active agent instructions were rewritten** so future agents stop trying to use Taskmaster by default.
+5. **Taskmaster-specific scripts, guides, editor rules, and bundle copies were removed** from active surfaces.
+
+### Why This Matters
+This reduces process overhead and makes the repository more honest.
+
+Future work should now answer:
+- What is true? Read the docs spine.
+- What changed and why? Read the journal and commits.
+- What should happen next? Read the roadmap.
+
+That is a much better fit for how JobScout is actually being built.
+
+---
+
 ## 2026-03-07 — Resume Input Contract And Voice Strategy
 
 ### Context

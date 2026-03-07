@@ -49,7 +49,6 @@ Working references:
 Historical records:
 - `docs/archive/`
 - `docs/audits/`
-- `docs/hitl-verify/`
 - `docs/handoffs/`
 
 ## Current Core Specs
@@ -71,14 +70,12 @@ Historical records:
 
 ## Guides and Process
 
-- Agent runbook: [autopilot-agent-runbook.md](./guides/autopilot-agent-runbook.md)
-- Taskmaster guardrails: [taskmaster-guardrails.md](./guides/taskmaster-guardrails.md)
+- Repository workflow: [repo-workflow.md](./guides/repo-workflow.md)
 - Human-in-loop workflow: [human-in-the-loop-workflow.md](./guides/human-in-the-loop-workflow.md)
 
 ## Audits and Verification
 
-- Audits directory: `docs/audits/`
-- HITL verification notes: `docs/hitl-verify/`
+- Audit reports, when needed, live in `docs/audits/`
 
 ## Archive
 
