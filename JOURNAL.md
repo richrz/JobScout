@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-03-07 — Inbox Polish And Honest Filter Reset
+
+### Context
+The remaining worktree had a real product cluster mixed with half-truths.
+
+Some of the Inbox improvements were clearly worth keeping:
+- keyword search
+- match-based sorting
+- clickable job titles
+- save-from-detail flow
+- pipeline header improvements
+
+But the filter work was still pretending the app had structured work-mode and salary filtering when the underlying data was not normalized enough yet.
+
+### Decisions Made
+1. **Keyword search is now a first-class Inbox control** instead of relying only on sidebar filters.
+2. **Match sorting is now explicitly supported**:
+   - `Best Match`
+   - `Lowest Match`
+3. **Job titles in the Inbox are now clickable** and go to the same detail page as the Details button.
+4. **Saving from the job detail page now works directly** and feeds back into the shared opportunity/application flow.
+5. **Pipeline got a more useful header and manual add-application modal** as a practical workflow improvement.
+6. **Misleading structured filter controls were intentionally replaced with an honest placeholder**:
+   - search and sort are real now
+   - work-mode, salary, and experience filters should come back only after normalized data supports them
+7. **Geocoding remains intentionally disabled** while the map work stays paused.
+8. **JSearch ingestion was tightened**:
+   - KC-focused query defaults
+   - jobs without apply URLs are dropped before persistence
+
+### Why This Matters
+This is a better checkpoint than silently keeping half-working filters.
+
+The app now does a few important things more truthfully:
+- users can search and sort the Inbox reliably
+- users can click straight into details from the title
+- users can save from detail and see the result in Pipeline
+
+And just as important:
+- the UI no longer overpromises structured filters that the data cannot support yet
+
+That honesty buys us room to rebuild filtering properly on top of the normalization contract instead of layering more fake precision onto raw strings.
+
+---
+
 ## 2026-03-07 — Resume Artifact Defaults And Naming
 
 ### Context

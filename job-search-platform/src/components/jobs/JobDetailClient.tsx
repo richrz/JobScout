@@ -37,10 +37,13 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
     const [exaggerationLevel, setExaggerationLevel] = useState<'conservative' | 'balanced' | 'strategic'>('balanced');
     const [isApplying, setIsApplying] = useState(false);
     const [hasApplied, setHasApplied] = useState(false);
-    
+    const [isSaved, setIsSaved] = useState(false);
+
     // State for ATS Analysis
     const [resumeText, setResumeText] = useState('');
     const [showATS, setShowATS] = useState(false);
+
+    const hasApiKey = !!config?.llm?.apiKey;
 
     const handleApply = async () => {
         setIsApplying(true);
@@ -51,10 +54,23 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
             } else {
                 setError(result.error || 'Failed to apply');
             }
-        } catch (_) {
+        } catch {
             setError('Failed to apply');
         } finally {
             setIsApplying(false);
+        }
+    };
+
+    const handleSave = async () => {
+        try {
+            await fetch('/api/triage/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jobId: job.id, action: 'INTERESTED' }),
+            });
+            setIsSaved(true);
+        } catch {
+            setError('Failed to save job');
         }
     };
 
@@ -106,8 +122,8 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
                     <><Send className="w-4 h-4" /> Apply Now</>
                 )}
             </Button>
-            <Button size="lg" variant="outline" className="w-full gap-2">
-                <Save className="w-4 h-4" /> Save Job
+            <Button size="lg" variant="outline" className="w-full gap-2" onClick={handleSave} disabled={isSaved}>
+                {isSaved ? <><Check className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> Save Job</>}
             </Button>
 
             <div className="border-t border-white/10 my-4 pt-4">
@@ -116,7 +132,10 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
                 </h4>
                 
                 <div className="space-y-3">
-                    <Select value={exaggerationLevel} onValueChange={(val: any) => setExaggerationLevel(val)}>
+                    <Select
+                        value={exaggerationLevel}
+                        onValueChange={(val: 'conservative' | 'balanced' | 'strategic') => setExaggerationLevel(val)}
+                    >
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Strategy" />
                         </SelectTrigger>
@@ -132,10 +151,14 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
                         variant="secondary"
                         className="w-full bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20"
                         onClick={handleGenerateResume}
-                        disabled={isGenerating}
+                        disabled={isGenerating || !hasApiKey}
+                        title={!hasApiKey ? 'Configure an LLM API key in Settings first' : undefined}
                     >
-                        {isGenerating ? 'Tailoring...' : 'Generate Tailored CV'}
+                        {isGenerating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Tailoring...</> : 'Generate Tailored CV'}
                     </Button>
+                    {!hasApiKey && (
+                        <p className="text-xs text-amber-500/80 text-center">⚠ No API key set. <a href="/settings" className="underline hover:text-amber-400">Configure in Settings</a></p>
+                    )}
                 </div>
             </div>
 

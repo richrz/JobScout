@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { KanbanBoard } from '@/components/pipeline/KanbanBoard';
-import { Plus, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { PipelineHeader } from '@/components/pipeline/PipelineHeader';
+import { Search } from 'lucide-react';
 
 export default async function PipelinePage() {
     const session = await getServerSession(authOptions);
@@ -40,20 +40,7 @@ export default async function PipelinePage() {
             {/* Controls & Header */}
             <div className="flex flex-col gap-6 px-6 lg:px-10 py-8 shrink-0 border-b border-border">
                 <div className="flex flex-wrap justify-between items-end gap-4">
-                    <div className="flex flex-col gap-2">
-                        <h1 className="text-foreground text-3xl font-bold leading-tight tracking-tight">My Application Pipeline</h1>
-                        <p className="text-muted-foreground text-base font-normal leading-normal">
-                            {interviewCount > 0 ? (
-                                <>You have <span className="text-primary font-medium">{interviewCount} interview{interviewCount > 1 ? 's' : ''}</span> coming up this week.</>
-                            ) : (
-                                <>Track your job applications across all stages.</>
-                            )}
-                        </p>
-                    </div>
-                    <Button className="flex items-center justify-center gap-2 rounded-full h-12 px-6 bg-primary text-primary-foreground text-sm font-bold shadow-[0_0_15px_rgba(53,227,117,0.3)] hover:shadow-[0_0_20px_rgba(53,227,117,0.5)] transition-shadow">
-                        <Plus className="w-5 h-5" />
-                        <span>Add Application</span>
-                    </Button>
+                    <PipelineHeader interviewCount={interviewCount} />
                 </div>
 
                 {/* Filters & Search */}

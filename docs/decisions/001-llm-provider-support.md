@@ -53,6 +53,10 @@ Default models are updated to December 2025 versions:
 - Gemini: Gemini 3 Pro Preview, 2.5 Pro/Flash
 - Ollama: Llama 4, DeepSeek R1, Qwen 3
 
+### Scraper Extraction LLM (Added 2026-03-04)
+
+**Gemini 3.1 Flash-Lite** is used specifically for structured data extraction in the KC scraper pipeline. It parses raw HTML job descriptions into structured JSON (skills, benefits, department, experience, education, work mode). Chosen for its cost efficiency at high volume (~500 jobs/day). See `docs/decisions/002-kc-scraper-dual-pipeline.md`.
+
 ## Consequences
 
 ### Positive

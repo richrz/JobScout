@@ -30,9 +30,9 @@ export const authOptions: NextAuthOptions = {
           credentials.password === "devpass123"
         ) {
           return {
-            id: "dev-user-001",
-            email: "dev@localhost",
-            name: "Dev User",
+            id: "cmlzwp50r0000sbm7mcx2erzq",
+            email: "digicams@gmail.com",
+            name: "Richard R",
           };
         }
 
@@ -91,10 +91,10 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user }) {
       console.log("User signed in:", user.email);
     },
-    async signOut({ token }) {
+    async signOut() {
       console.log("User signed out");
     },
   },

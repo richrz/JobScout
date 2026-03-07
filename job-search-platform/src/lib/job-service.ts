@@ -7,7 +7,6 @@
 
 import { prisma } from '@/lib/prisma';
 import { JobListing } from './job-scrapers';
-import { geocodeLocation } from './geocoding';
 import { normalizeJobData } from './ingest/normalization';
 
 /**

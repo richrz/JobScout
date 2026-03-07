@@ -1,13 +1,12 @@
 "use client";
 
 import { Job } from "@prisma/client";
-import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScoreRadial } from "@/components/ui/score-radial";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ExternalLink, Check, Loader2, Star, X } from "lucide-react";
+import { Loader2, Star, X } from "lucide-react";
 import type { Route } from "next";
 import { useState } from "react";
 import { toggleJobInterest, dismissJob } from "@/app/actions/application";
@@ -20,6 +19,7 @@ interface JobCardProps {
 
 export function JobCard({ job, initialStatus = null }: JobCardProps) {
   const score = Math.round((job.compositeScore || 0) * 100);
+  const detailsHref = `/jobs/${job.id}` as Route;
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<string | null>(initialStatus);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -42,7 +42,7 @@ export function JobCard({ job, initialStatus = null }: JobCardProps) {
         }
         setError(result.error || 'Operation failed');
       }
-    } catch (error) {
+    } catch {
       setError('Operation failed');
     } finally {
       setIsActionLoading(false);
@@ -59,7 +59,7 @@ export function JobCard({ job, initialStatus = null }: JobCardProps) {
       } else {
         setError(result.error || 'Failed to dismiss');
       }
-    } catch (error) {
+    } catch {
       setError('Failed to dismiss');
     } finally {
       setIsActionLoading(false);
@@ -75,8 +75,13 @@ export function JobCard({ job, initialStatus = null }: JobCardProps) {
 
       {/* Header - job title and company */}
       <div className="mb-4">
-        <h3 className="text-xl font-bold text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2" title={job.title}>
-          {job.title}
+        <h3 className="text-xl font-bold leading-tight line-clamp-2" title={job.title}>
+          <Link
+            href={detailsHref}
+            className="text-foreground transition-colors hover:text-primary focus:outline-none focus:text-primary"
+          >
+            {job.title}
+          </Link>
         </h3>
         <p className="text-base text-muted-foreground mt-1 font-medium">{job.company}</p>
       </div>
@@ -118,7 +123,7 @@ export function JobCard({ job, initialStatus = null }: JobCardProps) {
 
       <div className="flex gap-2 mt-auto pt-4 border-t border-border">
         <Button variant="ghost" size="sm" className="flex-1 hover:bg-secondary hover:text-foreground text-muted-foreground" asChild>
-          <Link href={`/jobs/${job.id}` as Route}>
+          <Link href={detailsHref}>
             Details
           </Link>
         </Button>

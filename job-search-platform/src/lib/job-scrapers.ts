@@ -39,6 +39,18 @@ export interface CompanyScraperConfig {
   };
 }
 
+interface JSearchJob {
+  job_title?: string;
+  employer_name?: string;
+  job_city?: string;
+  job_state?: string;
+  job_country?: string;
+  job_description?: string;
+  job_salary?: string;
+  job_apply_link?: string;
+  job_posted_at_datetime_utc?: string;
+}
+
 /**
  * Fetch jobs using JSearch API (Google for Jobs aggregator)
  */
@@ -56,13 +68,13 @@ export async function fetchIndeedJobs(
   }
 
   try {
-    // Default search parameters - can be made configurable later
-    const query = options?.url || "software developer";
+    // KC-focused search — embed location in the query (Google for Jobs respects it)
+    const query = options?.url || "IT jobs in Kansas City Missouri";
     const searchParams = new URLSearchParams({
       query: query,
       page: "1",
-      num_pages: "1",
-      date_posted: "all", // Changed from 'week' to 'all' for more results
+      num_pages: "3",   // ~30 results per page
+      date_posted: "all",
     });
 
     console.log(`JSearch API: Searching for "${query}"...`);
@@ -97,7 +109,7 @@ export async function fetchIndeedJobs(
     const jobs: JobListing[] = [];
 
     if (data.data && Array.isArray(data.data)) {
-      data.data.forEach((job: any) => {
+      data.data.forEach((job: JSearchJob) => {
         jobs.push({
           title: job.job_title || "Unknown Title",
           company: job.employer_name || "Unknown Company",
@@ -117,16 +129,23 @@ export async function fetchIndeedJobs(
       });
     }
 
-    console.log(`✅ JSearch API returned ${jobs.length} jobs`);
+    // Filter out jobs with no apply link — sourceUrl is the unique dedup key
+    const validJobs = jobs.filter(j => j.sourceUrl && j.sourceUrl.trim());
+    const dropped = jobs.length - validJobs.length;
+    if (dropped > 0) {
+      console.warn(`⚠️  Dropped ${dropped} jobs with no apply URL`);
+    }
 
-    if (jobs.length === 0) {
+    console.log(`✅ JSearch API returned ${validJobs.length} usable jobs (${dropped} dropped, no URL)`);
+
+    if (validJobs.length === 0) {
       console.warn(
         "⚠️  No jobs found. Try different search terms or check API quota.",
       );
       console.warn("   Response data keys:", Object.keys(data));
     }
 
-    return jobs;
+    return validJobs;
   } catch (error) {
     console.error("❌ JSearch API error:", error);
     if (error instanceof Error) {

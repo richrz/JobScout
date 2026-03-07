@@ -34,6 +34,8 @@ export function JobSortSelect() {
       >
         <option value="newest">Newest First</option>
         <option value="oldest">Oldest First</option>
+        <option value="match-best">Best Match</option>
+        <option value="match-worst">Lowest Match</option>
         <option value="company">Company (A-Z)</option>
         <option value="title">Job Title (A-Z)</option>
       </select>

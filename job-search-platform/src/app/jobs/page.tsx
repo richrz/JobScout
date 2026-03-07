@@ -1,12 +1,15 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/jobs/JobCard";
 import { JobsFilterSidebar } from "@/components/jobs/JobsFilterSidebar";
 import { JobSortSelect } from "@/components/jobs/JobSortSelect";
+import { JobSearchInput } from "@/components/jobs/JobSearchInput";
 import { ChevronLeft, ChevronRight, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { Suspense } from "react";
 
 // Force dynamic rendering to prevent caching
 export const dynamic = "force-dynamic";
@@ -24,8 +27,10 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
       ? parseInt(resolvedSearchParams.page, 10)
       : 1;
   const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-  const limit = 12; // Matches grid layout
+  const limit = 12;
   const offset = (page - 1) * limit;
+
+  // Read all search/filter params
   const query =
     typeof resolvedSearchParams.q === "string"
       ? resolvedSearchParams.q
@@ -35,12 +40,8 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
       ? resolvedSearchParams.sort
       : "newest";
 
-  console.log("[JOBS PAGE] Sort parameter:", sort);
-  console.log("[JOBS PAGE] All searchParams:", resolvedSearchParams);
-
   // Map sort parameter to orderBy clause
   const getOrderBy = (sortParam: string) => {
-    console.log("[JOBS PAGE] getOrderBy called with:", sortParam);
     switch (sortParam) {
       case "newest":
         return { postedAt: "desc" as const };
@@ -50,36 +51,50 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         return { company: "asc" as const };
       case "title":
         return { title: "asc" as const };
+      case "match-best":
+        return { compositeScore: "desc" as const };
+      case "match-worst":
+        return { compositeScore: "asc" as const };
       default:
         return { postedAt: "desc" as const };
     }
   };
 
   const orderBy = getOrderBy(sort);
-  console.log("[JOBS PAGE] Final orderBy clause:", JSON.stringify(orderBy));
 
-  const where: any = {};
+  // Build Prisma where clause
+  const andConditions: Prisma.JobWhereInput[] = [];
+
+  // Text search across title + company + description
   if (query) {
-    where.OR = [
-      { title: { contains: query, mode: "insensitive" } },
-      { company: { contains: query, mode: "insensitive" } },
-    ];
+    andConditions.push({
+      OR: [
+        { title: { contains: query, mode: "insensitive" } },
+        { company: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
+      ],
+    });
   }
 
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
-  // Filter out dismissed jobs in the query if user is logged in
+  // Filter out dismissed jobs
   if (userId) {
-    where.NOT = {
-      workspaces: {
-        some: {
-          userId,
-          status: "DISMISSED",
+    andConditions.push({
+      NOT: {
+        workspaces: {
+          some: {
+            userId,
+            status: "DISMISSED",
+          },
         },
       },
-    };
+    });
   }
+
+  const where: Prisma.JobWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
   const [jobs, totalCount] = await Promise.all([
     prisma.job.findMany({
@@ -110,6 +125,16 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
   const totalPages = Math.ceil(totalCount / limit);
 
+  // Build pagination URL helper
+  const buildPageUrl = (p: number) => {
+    const params = new URLSearchParams();
+    if (p > 1) params.set("page", String(p));
+    if (query) params.set("q", query);
+    if (sort !== "newest") params.set("sort", sort);
+    const qs = params.toString();
+    return `/jobs${qs ? `?${qs}` : ""}`;
+  };
+
   return (
     <div className="w-full">
       {/* Page Header */}
@@ -127,24 +152,37 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
             <span className="text-foreground text-sm font-medium">Jobs</span>
           </div>
 
-          {/* Header & Sort */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 border-b border-border pb-6">
-            <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-                Job Inbox
-              </h1>
-              <p className="text-muted-foreground mt-2 text-base">
-                We found{" "}
-                <span className="text-primary font-bold">{totalCount}</span>{" "}
-                jobs matching your profile.
-              </p>
+          {/* Header, Search & Sort */}
+          <div className="flex flex-col gap-6 mb-10 border-b border-border pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+                  Job Inbox
+                </h1>
+                <p className="text-muted-foreground mt-2 text-base">
+                  {totalCount === 0 ? "No jobs match your search." : (
+                    <>
+                      We found{" "}
+                      <span className="text-primary font-bold">{totalCount}</span>{" "}
+                      job{totalCount !== 1 ? "s" : ""} matching your {query ? "search" : "profile"}.
+                    </>
+                  )}
+                </p>
+              </div>
+              <Suspense fallback={null}>
+                <JobSortSelect />
+              </Suspense>
             </div>
-            <JobSortSelect />
+            <Suspense fallback={null}>
+              <JobSearchInput key={query ?? ""} initialQuery={query ?? ""} />
+            </Suspense>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Filters Sidebar */}
-            <JobsFilterSidebar />
+            <Suspense fallback={null}>
+              <JobsFilterSidebar />
+            </Suspense>
 
             {/* Job Cards Grid */}
             <div className="lg:col-span-3">
@@ -157,15 +195,17 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                     No matching jobs found
                   </h3>
                   <p className="text-muted-foreground text-base max-w-md mx-auto mb-6">
-                    Try adjusting your filters or search criteria to see more
-                    results.
+                    Try a different keyword search or change the sort order to
+                    explore more results.
                   </p>
-                  <Button
-                    variant="outline"
-                    className="text-primary border-primary/20 hover:bg-primary/10"
-                  >
-                    Reset Filters
-                  </Button>
+                  <Link href="/jobs">
+                    <Button
+                      variant="outline"
+                      className="text-primary border-primary/20 hover:bg-primary/10"
+                    >
+                      Reset Filters
+                    </Button>
+                  </Link>
                 </div>
               ) : (
                 <>
@@ -184,10 +224,9 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                   {totalPages > 1 && (
                     <div className="mt-12 flex items-center justify-center">
                       <nav className="flex items-center gap-3">
-                        {/* Pagination Logic */}
                         {page > 1 && (
                           <Link
-                            href={`/jobs?page=${page - 1}${query ? `&q=${query}` : ""}${sort !== "newest" ? `&sort=${sort}` : ""}`}
+                            href={buildPageUrl(page - 1)}
                             className="size-12 flex items-center justify-center rounded-2xl bg-card text-muted-foreground hover:text-foreground hover:bg-secondary transition-all shadow-sm"
                           >
                             <ChevronLeft className="w-5 h-5" />
@@ -200,7 +239,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
                         {page < totalPages && (
                           <Link
-                            href={`/jobs?page=${page + 1}${query ? `&q=${query}` : ""}${sort !== "newest" ? `&sort=${sort}` : ""}`}
+                            href={buildPageUrl(page + 1)}
                             className="size-12 flex items-center justify-center rounded-2xl bg-card text-muted-foreground hover:text-foreground hover:bg-secondary transition-all shadow-sm"
                           >
                             <ChevronRight className="w-5 h-5" />
