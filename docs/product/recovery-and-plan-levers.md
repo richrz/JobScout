@@ -139,6 +139,11 @@ Recommended direction:
 - richer stage journals
 - artifact management
 - submitted document snapshots
+- multiple draft variants per opportunity
+- tone and style presets for resume and cover letter generation
+- saved personal tone profiles
+- richer document families such as screening notes, recruiter call notes, and interview prep packets
+- version history and draft comparison for key documents
 - bulk triage and restore
 - saved views and better history
 - reminders and follow-up tools
@@ -182,6 +187,7 @@ The middle tier should likely win on:
 - more system memory
 - better recovery
 - better organization
+- better resume and document control
 
 Not simply on "more jobs."
 
@@ -194,3 +200,14 @@ Still intentionally undecided:
 - exact archive retention by tier
 - whether archive has a soft storage quota
 - whether recovery-vault restore is support-only on all tiers or varies by plan
+
+## Packaging Notes To Revisit
+
+Promising Pro-tier levers to test later:
+
+- advanced tone settings and saved tone presets
+- higher limits on document versions or saved draft families
+- additional artifact types inside a workspace
+- compare-and-restore history for resumes and cover letters
+
+These should be treated as depth-of-workflow levers, not as arbitrary nuisance caps.

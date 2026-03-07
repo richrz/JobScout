@@ -125,10 +125,13 @@ Key outcomes:
 - submitted artifacts become immutable snapshots
 - application events record when, where, and how something was submitted
 - resume generation, saving, and applying all attach to the same opportunity/workspace system
+- resume creation and handling become explicit and trustworthy across draft, tailored, imported, and submitted states
+- document ownership, versioning, and restore behavior stop depending on which tab the user happened to use
 
 Done when:
 - “select a target job” in resume flow has a trustworthy relationship to the opportunity
 - the app can show the exact package sent for a real application state
+- users can understand the difference between an editable draft, a saved variant, and the submitted snapshot
 
 ### Phase 6 — Normalize Intake And Refresh Sources
 

@@ -302,6 +302,25 @@ This gives the product a much cleaner long-term story:
 
 ---
 
+## 2026-03-06 — Pro Tier Levers And Resume Hardening Note
+
+### Context
+We kept pushing on monetization and landed on a better direction: make the Pro tier deeper, not just bigger.
+
+### Locked Direction
+- Pro should likely include richer workflow tools beyond basic workspace access.
+- Strong candidates include:
+  - tone and style presets
+  - more document variants per opportunity
+  - additional document types inside the workspace
+  - version history and comparison for resume/cover-letter drafts
+
+### Important Backlog Note
+- Resume creation and document handling still need a dedicated hardening pass.
+- This now belongs explicitly in the implementation roadmap under artifacts and application events, not as a floating product note.
+
+---
+
 ## Earlier History
 
 > *Note: This journal was started on 2026-03-04. Earlier project history can be pieced together from git log, the PRD, and docs in `/docs/`.*
