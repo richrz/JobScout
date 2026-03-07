@@ -233,6 +233,46 @@ JobSwipe currently runs off its own independent feed. Future work: wire it to re
 
 ---
 
+## 2026-03-06 — Opportunity State Sync Foundation
+
+### Context
+Started Phase 1 of the larger lifecycle cleanup. The immediate goal was not to redesign the whole product yet, but to stop Inbox, JobSwipe, Pipeline, and Resume Builder from each writing their own partial version of the truth.
+
+### What Changed
+- Added a shared opportunity state sync layer so overlapping lifecycle writes now update both the legacy `Application` record and the newer `Workspace` record together.
+- Routed the main save/apply paths through that shared sync layer:
+  - Inbox save / unsave
+  - JobSwipe save / pass
+  - batch triage actions
+  - manual pipeline add
+  - workspace apply flow
+  - application status updates
+- Tightened destructive behavior:
+  - Inbox can no longer casually “unsave” or dismiss opportunities that are already truly active in the pipeline.
+  - Dismiss remains available for lightweight pre-pipeline states while we design the proper passed-bin / purgatory model.
+- Fixed Resume Builder data ownership bugs:
+  - the target-job dropdown now includes opportunities surfaced through `Workspace.INTERESTED`
+  - resume read/save uses the signed-in user instead of `findFirst()` on the users table
+
+### Why This Matters
+This is the first real step toward a canonical `Opportunity` lifecycle without ripping out the legacy pipeline model all at once. It gives us a safer bridge state:
+- save in JobSwipe now shows up in Pipeline
+- that same opportunity also shows as saved in Inbox
+- Resume Builder sees the same interested opportunity set
+
+### Live Verification
+- Saved an opportunity from JobSwipe in the browser.
+- Confirmed it appeared in Pipeline immediately.
+- Confirmed it appeared in the Resume Builder target-job dropdown.
+- Confirmed the same opportunity read back as `Interested` in Inbox.
+
+### Still Not Solved
+- Pipeline is still primarily driven by the legacy `Application` model.
+- There is still no formal passed-bin / recycle / restore workflow.
+- Transition rules between stages are still loose and need the next architecture pass.
+
+---
+
 ## Earlier History
 
 > *Note: This journal was started on 2026-03-04. Earlier project history can be pieced together from git log, the PRD, and docs in `/docs/`.*

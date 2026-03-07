@@ -24,17 +24,41 @@ export default async function ResumePage() {
         orderBy: { updatedAt: 'desc' }
     });
 
-    const jobs = interestedApplications.map(app => ({
-        id: app.job.id,
-        title: app.job.title,
-        company: app.job.company
-    }));
+    const interestedWorkspaces = await prisma.workspace.findMany({
+        where: {
+            userId: session.user.id,
+            status: 'INTERESTED'
+        },
+        include: { job: true },
+        orderBy: { updatedAt: 'desc' }
+    });
 
-    const user = await prisma.user.findFirst();
-    const profile = user ? await prisma.profile.findUnique({
-        where: { userId: user.id },
+    const jobMap = new Map<string, { id: string; title: string; company: string }>();
+
+    interestedApplications.forEach((app) => {
+        jobMap.set(app.job.id, {
+            id: app.job.id,
+            title: app.job.title,
+            company: app.job.company
+        });
+    });
+
+    interestedWorkspaces.forEach((workspace) => {
+        if (!jobMap.has(workspace.job.id)) {
+            jobMap.set(workspace.job.id, {
+                id: workspace.job.id,
+                title: workspace.job.title,
+                company: workspace.job.company
+            });
+        }
+    });
+
+    const jobs = Array.from(jobMap.values());
+
+    const profile = await prisma.profile.findUnique({
+        where: { userId: session.user.id },
         include: { experiences: true, educations: true }
-    }) : null;
+    });
 
     return (
         <div className="h-[calc(100vh-4rem)] flex flex-col overflow-hidden">

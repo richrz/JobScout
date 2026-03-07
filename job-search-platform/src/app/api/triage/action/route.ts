@@ -8,8 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { createWorkspace } from '@/lib/workspace/workspace-service';
-import { ApplicationStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { dismissOpportunity, syncOpportunityState } from '@/lib/opportunities/state-sync';
 
 export async function POST(request: NextRequest) {
     try {
@@ -30,22 +30,26 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
         }
 
-        // Create workspace with the specified status
-        const workspace = await createWorkspace({
-            userId: session.user.id,
-            jobId,
-            status: action as ApplicationStatus
+        await prisma.$transaction(async (tx) => {
+            if (action === 'INTERESTED') {
+                await syncOpportunityState(tx, {
+                    userId: session.user.id,
+                    jobId,
+                    legacyStatus: 'interested',
+                });
+                return;
+            }
+
+            await dismissOpportunity(tx, {
+                userId: session.user.id,
+                jobId,
+            });
         });
 
-        return NextResponse.json({ workspace }, { status: 201 });
+        return NextResponse.json({ success: true }, { status: 201 });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error processing triage action:', error);
-
-        // Handle unique constraint violation (already triaged/applied)
-        if (error.code === 'P2002') {
-            return NextResponse.json({ error: 'Job already triaged or applied' }, { status: 409 });
-        }
 
         return NextResponse.json({ error: 'Failed to process action' }, { status: 500 });
     }

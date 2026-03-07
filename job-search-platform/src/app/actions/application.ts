@@ -1,17 +1,23 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { dismissOpportunity, syncOpportunityState, type LegacyApplicationStatus } from '@/lib/opportunities/state-sync';
+
+function getJsonHistoryArray(value: Prisma.JsonValue | null | undefined): Prisma.InputJsonValue[] {
+    return Array.isArray(value) ? [...value] as Prisma.InputJsonValue[] : [];
+}
 
 export async function updateApplicationStatus(id: string, newStatus: string) {
     try {
         const application = await prisma.application.findUnique({
             where: { id },
-            select: { statusHistory: true, userId: true } // Added userId to select
+            select: { statusHistory: true, userId: true, jobId: true, appliedAt: true, status: true }
         });
 
         if (!application) {
@@ -20,15 +26,15 @@ export async function updateApplicationStatus(id: string, newStatus: string) {
 
         // Append to status history
         // Note: Prisma JSON types can be tricky, we cast to any[] or specific type if defined
-        const currentHistory = (application.statusHistory as any[]) || [];
+        const currentHistory = getJsonHistoryArray(application.statusHistory);
         const newHistoryEntry = {
             status: newStatus,
             timestamp: new Date().toISOString()
         };
 
-        const updateData: any = {
+        const updateData: Prisma.ApplicationUpdateInput = {
             status: newStatus,
-            statusHistory: [...currentHistory, newHistoryEntry],
+            statusHistory: [...currentHistory, newHistoryEntry] as Prisma.InputJsonValue[],
             updatedAt: new Date()
         };
 
@@ -60,12 +66,21 @@ export async function updateApplicationStatus(id: string, newStatus: string) {
             updateData.appliedAt = new Date();
         }
 
-        await prisma.application.update({
-            where: { id },
-            data: updateData
+        await prisma.$transaction(async (tx) => {
+            await tx.application.update({
+                where: { id },
+                data: updateData
+            });
+
+            await syncOpportunityState(tx, {
+                userId: application.userId,
+                jobId: application.jobId,
+                legacyStatus: newStatus as LegacyApplicationStatus,
+            });
         });
 
         revalidatePath('/pipeline');
+        revalidatePath('/jobs');
         return { success: true };
     } catch (error) {
         console.error('Failed to update application status:', error);
@@ -130,13 +145,21 @@ export async function uploadResume(id: string, formData: FormData) {
 
 export async function bulkArchiveApplications(ids: string[]) {
     try {
-        await prisma.application.updateMany({
+        const applications = await prisma.application.findMany({
             where: { id: { in: ids } },
-            data: {
-                status: 'archived',
-                updatedAt: new Date()
+            select: { userId: true, jobId: true }
+        });
+
+        await prisma.$transaction(async (tx) => {
+            for (const application of applications) {
+                await syncOpportunityState(tx, {
+                    userId: application.userId,
+                    jobId: application.jobId,
+                    legacyStatus: 'archived',
+                });
             }
         });
+
         revalidatePath('/pipeline');
         return { success: true };
     } catch (error) {
@@ -147,10 +170,28 @@ export async function bulkArchiveApplications(ids: string[]) {
 
 export async function bulkDeleteApplications(ids: string[]) {
     try {
-        await prisma.application.deleteMany({
-            where: { id: { in: ids } }
+        const applications = await prisma.application.findMany({
+            where: { id: { in: ids } },
+            select: { userId: true, jobId: true }
         });
+
+        await prisma.$transaction(async (tx) => {
+            await tx.application.deleteMany({
+                where: { id: { in: ids } }
+            });
+
+            for (const application of applications) {
+                await tx.workspace.deleteMany({
+                    where: {
+                        userId: application.userId,
+                        jobId: application.jobId,
+                    }
+                });
+            }
+        });
+
         revalidatePath('/pipeline');
+        revalidatePath('/jobs');
         return { success: true };
     } catch (error) {
         console.error('Failed to bulk delete:', error);
@@ -206,13 +247,6 @@ export async function applyToJob(jobId: string, initialStatus: string = 'interes
 
             const updateResult = await updateApplicationStatus(existingApplication.id, 'applied');
 
-            // Sync with Workspace
-            await prisma.workspace.upsert({
-                where: { userId_jobId: { userId, jobId } },
-                update: { status: 'APPLIED' },
-                create: { userId, jobId, status: 'APPLIED' }
-            });
-
             return {
                 success: updateResult.success,
                 error: updateResult.error,
@@ -244,36 +278,24 @@ export async function applyToJob(jobId: string, initialStatus: string = 'interes
             return { success: false, error: `Daily application limit of ${dailyLimit} reached.` };
         }
 
-        // Create new application
-        await prisma.application.create({
-            data: {
+        await prisma.$transaction(async (tx) => {
+            await syncOpportunityState(tx, {
                 userId,
                 jobId,
-                status: initialStatus,
-                appliedAt: initialStatus === 'applied' ? new Date() : null,
-                statusHistory: [
-                    {
-                        status: initialStatus,
-                        timestamp: new Date().toISOString()
-                    }
-                ]
-            }
-        });
-
-        // Sync with Workspace
-        await prisma.workspace.upsert({
-            where: { userId_jobId: { userId, jobId } },
-            update: { status: initialStatus === 'applied' ? 'APPLIED' : 'INTERESTED' },
-            create: { userId, jobId, status: initialStatus === 'applied' ? 'APPLIED' : 'INTERESTED' }
+                legacyStatus: initialStatus as LegacyApplicationStatus,
+            });
         });
 
         revalidatePath('/pipeline');
         revalidatePath('/jobs');
         return { success: true };
 
-    } catch (error: any) {
-        console.error('Failed to apply to job:', error?.message || error);
-        return { success: false, error: error?.message || 'Failed to apply to job' };
+    } catch (error: unknown) {
+        console.error('Failed to apply to job:', error instanceof Error ? error.message : error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to apply to job'
+        };
     }
 }
 
@@ -284,10 +306,18 @@ export async function toggleJobInterest(jobId: string): Promise<ActionResponse> 
         const userId = session.user.id;
 
         const existing = await prisma.application.findFirst({
-            where: { userId, jobId }
+            where: { userId, jobId },
+            select: { id: true, status: true }
         });
 
         if (existing) {
+            if (['applied', 'screening', 'interview', 'offer'].includes(existing.status)) {
+                return {
+                    success: false,
+                    error: 'This opportunity is already in your pipeline. Update it from the pipeline instead.'
+                };
+            }
+
             // Un-star: Remove both Application and Workspace
             await prisma.$transaction([
                 prisma.application.delete({ where: { id: existing.id } }),
@@ -300,7 +330,7 @@ export async function toggleJobInterest(jobId: string): Promise<ActionResponse> 
             // Star: Add both
             return await applyToJob(jobId, 'interested');
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Failed to toggle interest:', error);
         return { success: false, error: 'Failed to update interest' };
     }
@@ -312,18 +342,27 @@ export async function dismissJob(jobId: string): Promise<ActionResponse> {
         if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
         const userId = session.user.id;
 
-        // Dismiss simply creates a Workspace record with status DISMISSED
-        // This ensures it falls out of the Triage feed.
-        await prisma.workspace.upsert({
-            where: { userId_jobId: { userId, jobId } },
-            update: { status: 'DISMISSED' },
-            create: { userId, jobId, status: 'DISMISSED' }
+        const existing = await prisma.application.findFirst({
+            where: { userId, jobId },
+            select: { status: true }
+        });
+
+        if (existing && ['applied', 'screening', 'interview', 'offer'].includes(existing.status)) {
+            return {
+                success: false,
+                error: 'This opportunity is already active in your pipeline. Move it from the pipeline instead of dismissing it from Inbox.'
+            };
+        }
+
+        await prisma.$transaction(async (tx) => {
+            await dismissOpportunity(tx, { userId, jobId });
         });
 
         revalidatePath('/jobs');
         revalidatePath('/triage');
+        revalidatePath('/pipeline');
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Failed to dismiss job:', error);
         return { success: false, error: 'Failed to dismiss job' };
     }

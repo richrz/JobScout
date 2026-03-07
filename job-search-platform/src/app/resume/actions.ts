@@ -1,27 +1,32 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 /**
  * Save resume content to an application record
  */
-export async function saveResume(jobId: string, content: any, applicationId?: string) {
+export async function saveResume(jobId: string, content: unknown, applicationId?: string) {
     try {
         if (!jobId) {
             throw new Error('Job ID is required');
         }
 
-        const user = await prisma.user.findFirst();
-        if (!user) {
-            throw new Error('User not found');
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.id) {
+            throw new Error('Unauthorized');
         }
+
+        const resumeContent = content as Prisma.InputJsonValue;
 
         // Create or Update Resume record
         // We can try to find existing resume for this job/user
         const existingResume = await prisma.resume.findFirst({
             where: {
-                userId: user.id,
+                userId: session.user.id,
                 jobId: jobId
             }
         });
@@ -31,17 +36,17 @@ export async function saveResume(jobId: string, content: any, applicationId?: st
             resume = await prisma.resume.update({
                 where: { id: existingResume.id },
                 data: {
-                    content: content,
+                    content: resumeContent,
                     updatedAt: new Date()
                 }
             });
         } else {
             resume = await prisma.resume.create({
                 data: {
-                    userId: user.id,
+                    userId: session.user.id,
                     jobId: jobId,
                     title: 'Tailored Resume',
-                    content: content,
+                    content: resumeContent,
                     applicationId: applicationId || undefined,
                     tailoringMode: 'strategic' // Default
                 }

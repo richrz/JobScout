@@ -10,6 +10,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { createWorkspace } from '@/lib/workspace/workspace-service';
 import { prisma } from '@/lib/prisma';
+import { syncOpportunityState } from '@/lib/opportunities/state-sync';
 
 export async function POST(request: NextRequest) {
     try {
@@ -74,6 +75,14 @@ export async function POST(request: NextRequest) {
             resumeContent,
             resumeName,
             coverLetterContent
+        });
+
+        await prisma.$transaction(async (tx) => {
+            await syncOpportunityState(tx, {
+                userId,
+                jobId,
+                legacyStatus: 'applied',
+            });
         });
 
         return NextResponse.json({
