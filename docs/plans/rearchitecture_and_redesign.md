@@ -1,7 +1,7 @@
 # JobScout "Prism" Overhaul: Implementation Plan
 
-**Status:** Working Reference  
-**Note:** This plan captures an earlier redesign direction. Where it conflicts with newer ADRs and product contracts, the newer docs win.
+**Status:** Historical Working Reference  
+**Note:** This plan captures an earlier redesign direction. The current active execution plan is `docs/plans/current-implementation-roadmap.md`. Where they conflict, the newer roadmap and product contracts win.
 
 ## 1. Vision & Philosophy: "Intentional Minimalism"
 We are pivoting JobScout from a generic "Job Board" to a **Premium Candidate CRM**. The interface will be precision-engineered for the serious job seeker, creating a "Command Center" feel.

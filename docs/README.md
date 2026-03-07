@@ -22,6 +22,8 @@ This is the canonical navigation page for project documentation.
 
 ## Architecture and Plans
 
+- Current implementation roadmap: [current-implementation-roadmap.md](./plans/current-implementation-roadmap.md)
+- Plans index: [plans/README.md](./plans/README.md)
 - Rearchitecture plan: [rearchitecture_and_redesign.md](./plans/rearchitecture_and_redesign.md)
 - KC scraper strategy: [kc-job-acquisition-strategy.md](./kc-job-acquisition-strategy.md)
 - KC scraper implementation: [kc-scraper-plan.md](./kc-scraper-plan.md)

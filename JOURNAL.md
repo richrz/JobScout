@@ -86,6 +86,38 @@ Everything else is supporting context or history.
 
 ---
 
+## 2026-03-06 — Canonical Implementation Roadmap
+
+### Context
+After rationalizing the documentation system, the remaining gap was implementation ambiguity: multiple plans still existed, but none clearly translated the new lifecycle and normalization contracts into one build order.
+
+### Decisions Made
+1. **A single canonical implementation roadmap now exists** for the next major update.
+2. **The roadmap is anchored to accepted product truth**:
+   - opportunity/workspace naming
+   - lifecycle state contract
+   - normalization contract
+3. **Older redesign plans were demoted to supporting references** instead of being allowed to silently compete.
+4. **KC scraper docs remain active**, but only as workstream-specific references rather than the top-level implementation plan.
+
+### Roadmap Shape
+The active execution sequence is now:
+1. unify the opportunity state model
+2. tighten Inbox and the passed bin
+3. build the workspace layer
+4. make pipeline movement truthful
+5. unify artifacts and application events
+6. harden normalization and source refresh
+7. polish and verify the full flow
+
+### Why This Matters
+This gives the project one answer to:
+> "What should we build next, and in what order?"
+
+That should make the next update more disciplined and reduce the risk of rebuilding UI on top of fuzzy state.
+
+---
+
 ## 2026-03-06 — Opportunity/Workspace Standard + Documentation Spine
 
 ### Context
