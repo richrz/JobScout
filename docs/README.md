@@ -67,6 +67,7 @@ Historical records:
 - Opportunity vs Workspace naming: [004](./decisions/004-opportunity-workspace-naming.md)
 - Opportunity lifecycle state contract: [005](./decisions/005-opportunity-lifecycle-state-contract.md)
 - Recovery buckets and plan levers: [006](./decisions/006-recovery-buckets-and-plan-levers.md)
+- Resume artifact defaults and naming: [007](./decisions/007-resume-artifact-defaults-and-naming.md)
 
 ## Guides and Process
 

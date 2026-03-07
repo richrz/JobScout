@@ -54,7 +54,7 @@ The product should gradually pull durable knowledge out of the user’s head and
 
 That is why workspace capture, slash-capture, and resume-side import suggestions matter.
 
-## Voice Presets From Uploaded Exemplars
+## ToneAdjust Profile And Voice Samples
 
 We are adding uploaded exemplar resumes because tailored output still fails if it does not sound like the user.
 
@@ -67,13 +67,14 @@ Users want automation that preserves:
 This is a strong differentiator because the app is not only learning what jobs require.
 It is also learning how the user naturally presents themselves.
 
-### Working Defaults
+### Locked V1 Defaults
 
-Current working defaults for this feature wave:
-- support up to `3` user-uploaded voice presets
+The accepted defaults for this feature wave are:
+- user-facing profile name: `My ToneAdjust Profile`
+- support `1` ToneAdjust Profile per user in v1
+- support up to `3` global `Voice Samples` to tune that profile
 - learn `tone + jargon` in v1, not layout structure
-- keep presets in a global library with smart opportunity-level suggestions
-- allow the user to override the suggested preset
+- extracted facts from voice samples must enter review before they can become profile or evidence truth
 
 ## Separate Voice From Factual Truth
 
@@ -95,11 +96,11 @@ Working default:
 We are adding tone presets to simplify the current control model, not to create a second competing tone system.
 
 The intended model is:
-- preset chooses the overall voice
+- `My ToneAdjust Profile` chooses the overall voice
 - sliders are a fine-tune layer
 - `AI Guidance` handles special-case instructions
 
-### Working Defaults
+### Locked V1 Defaults
 
 - add `My ToneAdjust Profile` to the preset selector
 - when selected, existing controls auto-align to the preset
@@ -135,6 +136,37 @@ The system needs clear separation between:
 - `Submitted Snapshot`
 
 This is essential for mass application because users must be able to trust which version is editable, which version they liked, and which version became the application record.
+
+### Locked V1 Naming And Limits
+
+The accepted v1 naming and product defaults are:
+- `Voice Sample` = a global uploaded resume used only to tune `My ToneAdjust Profile`
+- `Existing Resume` = an opportunity-specific uploaded resume brought in from outside the app
+- `Working Draft` = the one editable resume tied to an opportunity
+- `Saved Variant` = a named checkpoint the user wants to keep
+- `Submitted Snapshot` = the frozen record of what was actually sent
+
+Current accepted product-config defaults:
+- `1` `Working Draft` per opportunity
+- up to `5` `Saved Variants` per opportunity
+- up to `2` `Existing Resume` uploads per opportunity
+- `Submitted Snapshots` are not artificially capped; they follow real application history
+
+Important guardrail:
+- these are product defaults and plan levers, not schema hard-limits
+
+## Existing Resume Uploads
+
+Users should be allowed to upload an existing resume for a specific opportunity.
+
+That is practical and aligned with the real product promise, because many users already have partially tailored materials they want to adapt rather than start from zero.
+
+Accepted behavior:
+- an uploaded `Existing Resume` can be kept as reference
+- or promoted to become the opportunity `Working Draft`
+- it does not automatically become factual truth
+- it does not automatically become a `Submitted Snapshot`
+- it remains attached to the opportunity workspace
 
 ## Schema Decision Gate
 

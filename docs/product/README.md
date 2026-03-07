@@ -36,3 +36,4 @@ Formalized in ADR:
 - [ADR 004](../decisions/004-opportunity-workspace-naming.md)
 - [ADR 005](../decisions/005-opportunity-lifecycle-state-contract.md)
 - [ADR 006](../decisions/006-recovery-buckets-and-plan-levers.md)
+- [ADR 007](../decisions/007-resume-artifact-defaults-and-naming.md)

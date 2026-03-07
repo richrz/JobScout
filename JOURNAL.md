@@ -4,6 +4,47 @@
 
 ---
 
+## 2026-03-07 — Resume Artifact Defaults And Naming
+
+### Context
+The resume strategy discussion reached the point where “good ideas” were no longer enough.
+
+We needed to stop drifting on:
+- what the reusable tone object is called
+- how many uploads or resume objects v1 should allow
+- how to distinguish a tone-learning upload from an opportunity-specific uploaded resume
+- whether users are allowed to bring an existing resume into an opportunity workflow
+
+### Decisions Made
+1. **The reusable user voice object is now `My ToneAdjust Profile`.**
+2. **v1 supports one ToneAdjust Profile per user** fed by up to `3` global `Voice Samples`.
+3. **Opportunity resume objects are now standardized**:
+   - `Existing Resume`
+   - `Working Draft`
+   - `Saved Variant`
+   - `Submitted Snapshot`
+4. **Accepted v1 defaults are now locked as product rules**:
+   - `1` working draft per opportunity
+   - up to `5` saved variants per opportunity
+   - up to `2` existing-resume uploads per opportunity
+   - submitted snapshots follow application history and are not artificially capped
+5. **Users are allowed to upload an `Existing Resume` for a specific opportunity**:
+   - keep it as reference
+   - or promote it into the working draft
+   - but never silently treat it as factual truth or a submitted record
+6. **These values are product defaults, not schema hard-limits.**
+
+### Why This Matters
+This reduces ambiguity before the resume system gets rebuilt.
+
+It also protects the product from two predictable failures:
+- confusing users with sloppy naming
+- baking packaging or UI defaults directly into the database model
+
+The result is a cleaner contract for future implementation and a better base for later plan design.
+
+---
+
 ## 2026-03-07 — Taskmaster Removal
 
 ### Context

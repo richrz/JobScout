@@ -160,6 +160,13 @@ Key outcomes:
 - resume creation and handling become explicit and trustworthy across draft, tailored, imported, and submitted states
 - document ownership, versioning, and restore behavior stop depending on which tab the user happened to use
 - voice presets and opportunity-level AI guidance plug into the same resume input contract instead of becoming separate side systems
+- accepted v1 resume defaults stay consistent:
+  - `My ToneAdjust Profile`
+  - `Voice Samples`
+  - `Existing Resume`
+  - `Working Draft`
+  - `Saved Variant`
+  - `Submitted Snapshot`
 
 Done when:
 - “select a target job” in resume flow has a trustworthy relationship to the opportunity
