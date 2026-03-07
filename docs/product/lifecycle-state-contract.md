@@ -264,6 +264,10 @@ Future edits create new drafts, not retroactive mutation of what was sent.
 
 After the retention window, the opportunity may auto-move to `ARCHIVED` while preserving history.
 
+Recovery, archive, trash, and packaging guidance live in:
+
+- [recovery-and-plan-levers.md](./recovery-and-plan-levers.md)
+
 ## Search and Filter Dependency
 
 This lifecycle assumes the opportunity has already passed the normalization contract.
@@ -290,3 +294,4 @@ If this contract is followed:
 - pipeline movement becomes intentional instead of sloppy
 - document state becomes universal
 - users can understand where an opportunity is and why
+- recovery and monetization can evolve without breaking lifecycle truth

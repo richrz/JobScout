@@ -19,3 +19,4 @@ Each ADR follows this format:
 | [003](./003-normalization-contract-and-provider-policy.md) | Normalization Contract and Provider Policy | Accepted | 2026-03-06 |
 | [004](./004-opportunity-workspace-naming.md) | Opportunity and Workspace Naming Standard | Accepted | 2026-03-06 |
 | [005](./005-opportunity-lifecycle-state-contract.md) | Opportunity Lifecycle State Contract | Accepted | 2026-03-06 |
+| [006](./006-recovery-buckets-and-plan-levers.md) | Recovery Buckets and Plan Levers | Accepted | 2026-03-06 |

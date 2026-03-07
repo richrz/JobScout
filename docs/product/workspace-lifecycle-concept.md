@@ -205,6 +205,9 @@ Accepted direction:
 - Restore returns to the prior active state when known
 - Passed opportunities keep notes and artifacts
 
+Companion spec:
+- [recovery-and-plan-levers.md](./recovery-and-plan-levers.md)
+
 ## Data Normalization Requirement
 
 Inbox filtering will stay unreliable until incoming jobs are normalized into structured fields.
@@ -258,6 +261,17 @@ Afternoon:
 - User opens the workspace from the board
 - Adds company research
 - Generates or edits resume draft
+
+## Packaging Direction
+
+The accepted monetization direction is:
+
+- do not mainly meter raw discovery volume
+- meter `Managed Opportunities`
+- use richer workspace tools and stronger recovery as higher-tier value
+
+Companion spec:
+- [recovery-and-plan-levers.md](./recovery-and-plan-levers.md)
 - Completes required checklist items
 - Moves card toward apply-ready state
 

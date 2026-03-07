@@ -17,8 +17,9 @@ This is the canonical navigation page for project documentation.
 1. [PRD Open Source](./PRD-OPEN-SOURCE.md)
 2. [ADR 004: Opportunity and Workspace Naming](./decisions/004-opportunity-workspace-naming.md)
 3. [Lifecycle State Contract](./product/lifecycle-state-contract.md)
-4. [Normalization Contract](./product/normalization-contract.md)
-5. [Workspace Lifecycle Concept](./product/workspace-lifecycle-concept.md)
+4. [Recovery And Plan Levers](./product/recovery-and-plan-levers.md)
+5. [Normalization Contract](./product/normalization-contract.md)
+6. [Workspace Lifecycle Concept](./product/workspace-lifecycle-concept.md)
 
 ## Architecture and Plans
 
@@ -53,6 +54,7 @@ Historical records:
 ## Current Core Specs
 
 - Opportunity lifecycle state contract: [lifecycle-state-contract.md](./product/lifecycle-state-contract.md)
+- Recovery and plan levers: [recovery-and-plan-levers.md](./product/recovery-and-plan-levers.md)
 - Opportunity/workspace lifecycle concept: [workspace-lifecycle-concept.md](./product/workspace-lifecycle-concept.md)
 - Ingestion normalization contract: [normalization-contract.md](./product/normalization-contract.md)
 
@@ -63,6 +65,7 @@ Historical records:
 - Normalization contract and provider policy: [003](./decisions/003-normalization-contract-and-provider-policy.md)
 - Opportunity vs Workspace naming: [004](./decisions/004-opportunity-workspace-naming.md)
 - Opportunity lifecycle state contract: [005](./decisions/005-opportunity-lifecycle-state-contract.md)
+- Recovery buckets and plan levers: [006](./decisions/006-recovery-buckets-and-plan-levers.md)
 
 ## Guides and Process
 

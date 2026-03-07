@@ -273,6 +273,35 @@ This is the first real step toward a canonical `Opportunity` lifecycle without r
 
 ---
 
+## 2026-03-06 — Recovery Model And Packaging Direction Locked
+
+### Context
+We needed to stop hand-waving around recycle bin, archive, deletion, and plan design. The bigger insight was that raw job volume is a weak pricing lever for this product, especially while application submission still includes real-world email and external-site choke points.
+
+### What Was Decided
+- `PASSED`, `ARCHIVE`, `TRASH`, and support-level recovery are now treated as separate concepts.
+- Normal user behavior should not hard-delete opportunities.
+- The primary commercial count lever should be `Managed Opportunities`, not raw discovery volume.
+- The mid-tier should likely win on richer workspace tooling, stronger recovery, and deeper system memory rather than simply "more jobs."
+
+### Why This Matters
+This gives the product a much cleaner long-term story:
+- discovery can stay broad and useful
+- recovery can feel trustworthy
+- pricing can align with real workflow value
+- the workspace becomes the center of gravity instead of a side feature
+
+### Reference Docs Created
+- `docs/product/recovery-and-plan-levers.md`
+- `docs/decisions/006-recovery-buckets-and-plan-levers.md`
+
+### Intentionally Still Open
+- exact plan limits
+- exact retention windows by tier
+- whether archive eventually gets a soft quota
+
+---
+
 ## Earlier History
 
 > *Note: This journal was started on 2026-03-04. Earlier project history can be pieced together from git log, the PRD, and docs in `/docs/`.*

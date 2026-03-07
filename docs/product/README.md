@@ -10,6 +10,7 @@ This folder holds active product strategy and operating concepts.
 - Lifecycle state contract: [lifecycle-state-contract.md](./lifecycle-state-contract.md)
 - Lifecycle concept: [workspace-lifecycle-concept.md](./workspace-lifecycle-concept.md)
 - Normalization contract: [normalization-contract.md](./normalization-contract.md)
+- Recovery and plan levers: [recovery-and-plan-levers.md](./recovery-and-plan-levers.md)
 
 ## Companion And Reference Docs
 
@@ -18,8 +19,9 @@ This folder holds active product strategy and operating concepts.
 ## Recommended Reading Order
 
 1. [Lifecycle state contract](./lifecycle-state-contract.md)
-2. [Normalization contract](./normalization-contract.md)
-3. [Lifecycle concept](./workspace-lifecycle-concept.md)
+2. [Recovery and plan levers](./recovery-and-plan-levers.md)
+3. [Normalization contract](./normalization-contract.md)
+4. [Lifecycle concept](./workspace-lifecycle-concept.md)
 
 ## Naming Standard
 
@@ -31,3 +33,4 @@ Use these terms consistently:
 Formalized in ADR:
 - [ADR 004](../decisions/004-opportunity-workspace-naming.md)
 - [ADR 005](../decisions/005-opportunity-lifecycle-state-contract.md)
+- [ADR 006](../decisions/006-recovery-buckets-and-plan-levers.md)
