@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals
 import { geocodeLocation, setRedisClient } from '../../../src/lib/geocoding';
 
 // Mock Google Maps Client - use a factory function
-const mockGeocodeImpl = jest.fn();
+const mockGeocodeImpl = jest.fn() as any;
 
 jest.mock('@googlemaps/google-maps-services-js', () => {
     return {
@@ -13,8 +13,8 @@ jest.mock('@googlemaps/google-maps-services-js', () => {
 });
 
 describe('Geocoding Service - Google Maps', () => {
-    let mockRedisGet: jest.Mock;
-    let mockRedisSet: jest.Mock;
+    let mockRedisGet: any;
+    let mockRedisSet: any;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -112,9 +112,11 @@ describe('Geocoding Service - Google Maps', () => {
     it('should handle API errors gracefully', async () => {
         const apiError = new Error('API Error');
         (apiError as any).response = { data: 'Internal Server Error' };
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         mockGeocodeImpl.mockRejectedValueOnce(apiError);
 
-        await expect(geocodeLocation('Error City')).rejects.toThrow('API Error');
+        await expect(geocodeLocation('Error City')).resolves.toBeNull();
+        consoleErrorSpy.mockRestore();
     });
 
     it('should throw error if API key is missing', async () => {

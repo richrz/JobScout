@@ -1,4 +1,5 @@
-import { getLLMClient, LLMConfig } from '@/lib/llm';
+import { getLLMClient } from '@/lib/llm';
+import type { LLMConfig } from '@/types/llm';
 import { ChatOpenAI } from '@langchain/openai';
 
 // Mock the ChatOpenAI class
@@ -26,6 +27,8 @@ describe('LLM Error Handling & Retry Logic', () => {
             provider: 'openai',
             model: 'gpt-4',
             apiKey: 'test-key',
+            temperature: 0.7,
+            maxTokens: 1000,
             maxRetries: 3, // We want to verify this config is respected
         };
 
@@ -49,6 +52,8 @@ describe('LLM Error Handling & Retry Logic', () => {
             provider: 'openai',
             model: 'gpt-4',
             apiKey: 'test-key',
+            temperature: 0.7,
+            maxTokens: 1000,
             maxRetries: 2,
         };
 

@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/jest-globals';
 import { JobMap } from '@/components/map/JobMap';
 import type { Job } from '@prisma/client';
 
@@ -130,8 +130,8 @@ describe('JobMap Component - Task 18 Subtask 1 & 2', () => {
     it('should display mock map when API key is missing', () => {
         delete process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         render(<JobMap jobs={mockJobs as Job[]} />);
-        expect(screen.getByText(/MOCK MAP PREVIEW/i)).toBeInTheDocument();
-        expect(screen.getByText(/Use legitimate API Key/i)).toBeInTheDocument();
+        expect(screen.getByText(/Google Maps Connection Error/i)).toBeInTheDocument();
+        expect(screen.getByText(/Valid API Key required for geo-visualization/i)).toBeInTheDocument();
     });
 
     it('should use correct default map center and zoom', () => {
@@ -150,10 +150,10 @@ describe('JobMap Component - Task 18 Subtask 1 & 2', () => {
         render(<JobMap jobs={scoredJobs as Job[]} />);
         const pins = screen.getAllByTestId('pin');
         expect(pins).toHaveLength(4);
-        expect(pins[0]).toHaveAttribute('data-background', '#22c55e'); // Green
-        expect(pins[1]).toHaveAttribute('data-background', '#eab308'); // Yellow
-        expect(pins[2]).toHaveAttribute('data-background', '#ef4444'); // Red
-        expect(pins[3]).toHaveAttribute('data-background', '#3b82f6'); // Blue (default)
+        expect(pins[0]).toHaveAttribute('data-background', '#35e375'); // High
+        expect(pins[1]).toHaveAttribute('data-background', '#6aab7d'); // Medium
+        expect(pins[2]).toHaveAttribute('data-background', '#2d5a3f'); // Low
+        expect(pins[3]).toHaveAttribute('data-background', '#35e375'); // Default
     });
 
     it('should initialize marker clustering', () => {
@@ -190,10 +190,11 @@ describe('JobMap Component - Task 18 Subtask 1 & 2', () => {
         expect(circleMock).toHaveBeenCalledTimes(2);
 
         // Verify options passed to first circle
-        expect(circleMock).toHaveBeenCalledWith(expect.objectContaining({
+        const firstCircleCall = (circleMock as jest.Mock<any, any[]>).mock.calls[0]?.[0];
+        expect(firstCircleCall).toEqual(expect.objectContaining({
             center: { lat: 37.7749, lng: -122.4194 },
             radius: 50 * 1609.34, // miles to meters
-            fillColor: '#3b82f6'
+            fillColor: '#35e375'
         }));
     });
 

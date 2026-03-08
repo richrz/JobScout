@@ -10,9 +10,27 @@ import { jest } from '@jest/globals';
 describe('ConfigActions', () => {
   const mockOnExport = jest.fn();
   const mockOnImport = jest.fn();
+  const originalCreateObjectURL = URL.createObjectURL;
 
   beforeEach(() => {
-    global.URL.createObjectURL = jest.fn();
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      writable: true,
+      value: jest.fn(() => 'blob:mock-url'),
+    });
+  });
+
+  afterEach(() => {
+    if (originalCreateObjectURL) {
+      Object.defineProperty(URL, 'createObjectURL', {
+        configurable: true,
+        writable: true,
+        value: originalCreateObjectURL,
+      });
+      return;
+    }
+
+    delete (URL as typeof URL & { createObjectURL?: typeof URL.createObjectURL }).createObjectURL;
   });
 
   test('renders export and import buttons', () => {

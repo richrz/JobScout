@@ -1,6 +1,6 @@
 import { ApplicationStatus, Prisma, type DocumentState } from '@prisma/client';
 
-function toResumeContent(content: unknown): Prisma.InputJsonValue {
+function toResumeContent(content: unknown): Prisma.InputJsonValue | Prisma.JsonNullValueInput {
   if (content === null) {
     return Prisma.JsonNull;
   }

@@ -1,6 +1,5 @@
 import {
   LLMProvider,
-  LLMConfig,
   LLMResponse,
   LLMMessage,
   ResumeGenerationRequest,
@@ -9,6 +8,8 @@ import {
   DEFAULT_MODELS,
   PROVIDER_CONFIGS,
 } from '@/types/llm';
+import type { LLMConfig } from '@/types/llm';
+export type { LLMConfig } from '@/types/llm';
 
 // LangChain imports
 import { ChatOpenAI } from '@langchain/openai';

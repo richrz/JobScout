@@ -352,7 +352,7 @@ describe('LLM Connection Testing Framework', () => {
       ];
 
       const { getLLMClient, validateLLMConfig } = require('@/lib/llm');
-      getLLMClient.mockImplementation((config) => {
+      getLLMClient.mockImplementation((config: LLMConfig) => {
         if (config.model === 'fast') return mockClients[0];
         if (config.model === 'medium') return mockClients[1];
         return mockClients[2];

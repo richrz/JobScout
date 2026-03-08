@@ -1,10 +1,10 @@
-import cron from 'node-cron';
+import cron, { type ScheduledTask } from 'node-cron';
 import { injectSimulatedJobs } from './simulator-service';
 
 // In-memory state for the simulation (reset on server restart)
 class ChronosManager {
     private static instance: ChronosManager;
-    private task: cron.ScheduledTask | null = null;
+    private task: ScheduledTask | null = null;
     private isRunning: boolean = false;
     private config = {
         jobsPerHour: 10,

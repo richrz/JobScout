@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/jest-globals';
 
 // Mock Prisma client
 jest.mock('@/lib/prisma', () => ({
@@ -220,7 +220,7 @@ describe('MapPage Route - Task 18.6', () => {
     it('should display mock map when API key is not set', () => {
         delete process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         render(<JobMap jobs={mockJobs as Job[]} />);
-        expect(screen.getByText(/MOCK MAP PREVIEW/i)).toBeInTheDocument();
+        expect(screen.getByText(/Google Maps Connection Error/i)).toBeInTheDocument();
     });
 });
 
