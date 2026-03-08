@@ -100,7 +100,7 @@ Additional rules:
 - If multiple coders return conflicting solutions, reconcile by evidence, not eloquence.
 - If no delegation is needed, keep the work with one coder.
 - If a faster alternate path would bypass the loop, reject it and narrow the slice instead.
-- Do not commit or push unless the human explicitly asks.
+- Finish through focused commit and current-branch push unless the human said `HOLD` or `LOCAL ONLY`.
 - If schema-sensitive work lacks explicit human approval, do not start implementation.
 - If a schema-sensitive contract reaches `2` failed coder attempts, stop and narrow the slice or pause.
 - If the same schema-sensitive question reaches `3` loops, pause for the human.

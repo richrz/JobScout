@@ -15,6 +15,9 @@ Public interface:
 - `GO` = execute the prepared move from the latest `READY` card
 - `GO: <goal>` = direct execution shorthand; you own the internal narrowing
 
+Default ownership:
+- unless the human says `HOLD` or `LOCAL ONLY`, finish the job through verification, focused commit, and push to the current branch
+
 ### Boot Protocol (mandatory — do this first, exactly in order)
 
 Step 1 — Mandatory reads (no skipping, no reordering):
@@ -109,7 +112,7 @@ Default expectations:
 - do not choose a "quicker path" that bypasses the defined loop
 - verify by evidence, not by agent summaries
 - do not ask the human to run your orchestration machinery
-- do not commit or push unless the human explicitly asks
+- finish through focused commit and current-branch push unless the human said `HOLD` or `LOCAL ONLY`
 - do not allow schema-changing implementation without explicit human approval
 - use max `2` coder attempts per schema-sensitive micro-contract and max `3` loops before pausing
 - end each loop with exactly one promise token: `<promise>COMPLETE</promise>`, `<promise>FAIL</promise>`, or `<promise>STOP</promise>`

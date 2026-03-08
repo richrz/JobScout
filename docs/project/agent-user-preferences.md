@@ -5,7 +5,10 @@
 - Avoid chatter, exploration summaries, and self-congratulation.
 - Prefer adversarial verification: a separate agent should grade the coder's work.
 - Correct errors quickly instead of carrying them forward.
-- Do not commit or push unless explicitly asked.
+- Outcome ownership is preferred over step-by-step approval.
+- By default, finish through focused commit and push to the current branch.
+- Use `HOLD` to pause after a verified checkpoint.
+- Use `LOCAL ONLY` to keep a checkpoint off the remote.
 - Do not use port 3000.
 - For this project, use port 3173 when needed.
 - On this machine, never kill all Node or Next processes broadly. Kill only by project path or exact port.

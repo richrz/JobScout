@@ -9,7 +9,7 @@
 
 ## Latest Product Checkpoint
 
-- `22a85f7` — Inbox polish, honest filter reset, and scraper cleanup
+- `48c3f12` — repo cleanup and process alignment checkpoint
 
 ## Read First
 
@@ -76,9 +76,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - retired `.taskmaster` / `.tdd` residue was deleted from `job-search-platform/`
   - scaffold loop folders under `docs/loops/2026-03-07/` were pruned
   - `paste.txt` was removed
+- Outcome ownership is now the default repo contract:
+  - `GO: <goal>` means finish to a natural endpoint
+  - focused commit and current-branch push are included by default
+  - stop only at real risk boundaries or when the human says `HOLD` / `LOCAL ONLY`
 - The docs spine was cleaned up and made the source of truth.
 - The repo-native sprint workflow and live baton-pass pointer were added.
-- The architect operating contract now defines the canonical path from `GO:` through proof, handoff, and optional commit/push.
+- The architect operating contract now defines the canonical path from `GO:` through proof, handoff, focused commit, and current-branch push.
 - Opportunity, workspace, lifecycle, recovery, and resume naming decisions were locked.
 - Inbox search, sort, clickable titles, and honest filter behavior were checkpointed in code.
 
@@ -102,11 +106,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `paste.txt` is gone
   - `job-search-platform/.taskmaster/` and `job-search-platform/.tdd/` are gone
   - `docs/loops/` now keeps only its root `README.md`
+- Outcome-ownership verification confirmed the active contract now treats current-branch commit and push as the default completion path.
 
 ## Known Risks
 
 - The current schema is acceptable as a bridge but should not be extended blindly.
-- The cleanup and process-doc checkpoint still needs a commit if the human wants a literally clean git status.
 - Local machine config remains intentionally local-only:
   - `.env.local`
   - `.gemini/settings.json`

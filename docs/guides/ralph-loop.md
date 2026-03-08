@@ -55,6 +55,7 @@ The orchestrator owns:
 - browser validation when relevant
 - proof artifacts
 - handoff judgment
+- closing the loop to a real checkpoint on the current branch unless a stop condition is reached
 
 The orchestrator does **not** self-justify completion based on a coder summary.
 It verifies artifacts directly.
@@ -136,7 +137,8 @@ Delegation is not permission to let sub-agents invent their own workflow.
 - no mixed-scope changes
 - no off-repo side paths
 - no “quicker path” exceptions
-- no commit or push unless the human explicitly asks
+- commit the verified checkpoint and push the current branch by default
+- use `HOLD` or `LOCAL ONLY` only when you intentionally want to stop short of that endpoint
 
 ## Schema-Sensitive Mode
 

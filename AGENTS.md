@@ -82,11 +82,13 @@ Welcome! Follow every step below before touching code. This repo now uses a docs
 3. Verify claims with tests, browser checks, or other direct validation whenever practical.
 4. Update docs when product truth changes.
 5. Update `JOURNAL.md` when rationale or direction changes.
-6. Prepare each meaningful sprint for:
-   - a focused commit
-   - a push
+6. By default, carry each meaningful sprint through:
    - an updated `docs/handoffs/current-pointer.md`
-7. Only commit or push when the human explicitly asks for it in this environment.
+   - a focused commit
+   - a push to the current branch
+7. Stop early only when:
+   - the human says `READY`, `HOLD`, or `LOCAL ONLY`
+   - a real stop condition is hit
 8. For the canonical end-to-end architect flow, use `docs/guides/architect-operating-contract.md`.
 
 ## Explicit Execution Gate
@@ -103,6 +105,20 @@ Public trust-building workflow:
 - `GO` = execute the prepared move
 
 The human does not need to decompose work into an implementation micro-task. The architect/orchestrator owns the internal narrowing into a safe micro-contract.
+
+Unless the human explicitly says `LOCAL ONLY` or `HOLD`, `GO` / `GO:` means carry the job to its natural stopping point:
+- inspect
+- edit
+- verify
+- update docs and pointer as needed
+- make a focused commit
+- push the current branch
+
+Default outcome ownership does not include:
+- merge to another branch
+- deploys or releases
+- secrets or account changes
+- destructive actions outside the approved scope
 
 Without explicit `GO` or `GO:`:
 - do not start a Ralph loop
@@ -130,6 +146,19 @@ If a `GO:` request is ambiguous or risky:
 - stop and explain the exact ambiguity
 - ask only for the missing decision
 - do not hide behind generic process language
+
+## Stop Conditions
+
+Stop and ask instead of pushing through when:
+- the requested move would touch overlapping dirty paths
+- the product choice is genuinely unclear
+- the work would extend or contradict an approved schema direction
+- the next step would be destructive outside the approved scope
+- the next step is external to the current branch checkpoint:
+  - merge
+  - deploy
+  - release
+  - secret or account changes
 
 ## Dirty Tree Discipline
 
@@ -265,8 +294,11 @@ After a meaningful implementation chunk:
    - what was verified
    - where screenshot/proof artifacts live
    - the next recommended task
-4. Leave a clean explanation of what changed, what still needs work, and any real risks.
-5. Do not create a side folder or alternate repo as a substitute for a handoff.
+4. Commit the verified checkpoint and push the current branch unless:
+   - the human said `LOCAL ONLY` or `HOLD`
+   - a stop condition blocked safe completion
+5. Leave a clean explanation of what changed, what still needs work, and any real risks.
+6. Do not create a side folder or alternate repo as a substitute for a handoff.
 
 ## Honesty clause
 

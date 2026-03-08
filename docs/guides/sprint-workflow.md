@@ -19,7 +19,7 @@ Every meaningful sprint should leave behind:
 
 ## The Workflow
 
-Commit and push are part of the ideal checkpoint sequence, but in this environment they are executed only when the human explicitly asks.
+Commit and push are part of the default completion path for a verified sprint.
 
 1. **Design**
    - Lock product or workflow decisions in the docs spine before building if the behavior is new or ambiguous.
@@ -54,17 +54,17 @@ Commit and push are part of the ideal checkpoint sequence, but in this environme
      - screenshot/proof capture
    - Do not claim completion without verification evidence.
 
-5. **Commit**
-   - If the human explicitly asks, make a focused commit whose message explains the implementation checkpoint.
-   - Otherwise, leave the worktree ready for a focused commit.
-
-6. **Push**
-   - If the human explicitly asks, push the branch so the checkpoint exists outside the local machine.
-   - Otherwise, leave the branch ready to push after approval.
-
-7. **Pointer**
+5. **Pointer**
    - Update `docs/handoffs/current-pointer.md`.
    - This is the official baton-pass file for the next agent.
+
+6. **Commit**
+   - Make a focused commit whose message explains the verified checkpoint.
+   - Use `HOLD` only when you intentionally want to pause before commit.
+
+7. **Push**
+   - Push the current branch so the checkpoint exists outside the local machine.
+   - Use `LOCAL ONLY` only when you intentionally want to keep the checkpoint off the remote.
 
 ## What The Pointer Must Contain
 

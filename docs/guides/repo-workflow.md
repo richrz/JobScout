@@ -33,8 +33,8 @@ Before making changes:
 - update `JOURNAL.md` when rationale or direction changes
 - keep commit scopes tight so history explains the work
 - end each meaningful sprint with an updated handoff pointer in `docs/handoffs/current-pointer.md`
-- prepare each meaningful sprint for a focused commit and push
-- actually commit or push only when the human explicitly asks
+- by default, finish each meaningful sprint with a focused commit and a push to the current branch
+- use `READY`, `HOLD`, or `LOCAL ONLY` only when you intentionally want to stop before that natural endpoint
 
 ## Sprint Sequence
 

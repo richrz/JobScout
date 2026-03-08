@@ -4,6 +4,46 @@
 
 ---
 
+## 2026-03-08 — Outcome Ownership Replaced Step-Level Approval
+
+### Context
+Even after simplifying the public interface, the repo still treated commit and push as separate approvals.
+
+That kept recreating the same bad working relationship:
+- the human states one outcome
+- the agent finishes part of it
+- then the agent asks for the next tiny permission
+
+That is just "tiny slices" under a different name.
+
+### Decisions Made
+1. **`GO: <goal>` now means outcome ownership, not partial execution.**
+2. **Default completion now includes:**
+   - verification
+   - pointer/docs updates
+   - focused commit
+   - push to the current branch
+3. **The default stop conditions are now explicit.**
+   - unclear product choice
+   - overlap with unrelated dirty paths
+   - schema direction that would extend or contradict approved ADRs
+   - destructive actions outside approved scope
+   - actions beyond the current branch checkpoint:
+     - merge
+     - deploy
+     - release
+     - secrets/account changes
+4. **`HOLD` and `LOCAL ONLY` are now the intentional exceptions.**
+   - `HOLD` = stop after the current verified checkpoint
+   - `LOCAL ONLY` = do not push the branch
+
+### Why This Matters
+This changes the relationship from:
+- "tell me each sub-step"
+
+to:
+- "tell me the outcome and I will own the rest unless a real boundary appears"
+
 ## 2026-03-08 — Public Execution Interface Simplified
 
 ### Context
@@ -688,7 +728,7 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
 
 - Closed loopholes that still allowed agents to invent a "quicker path" outside the Ralph loop.
 - Made it explicit that off-repo side folders, sibling repos, worktrees, and alternate planning tracks are not allowed without explicit human approval.
-- Made it explicit that commit and push are opt-in human actions in this environment, even when a sprint is prepared for handoff.
+- Made commit and push behavior explicit in the contract at that stage so agents stopped improvising handoff rules.
 - Tightened the current pointer so the first artifact cannot degrade into a vague checklist update.
 - Added schema-sensitive mode with architect-first execution, explicit human signoff before schema-changing implementation, and lower retry caps for ownership/lifecycle work.
 - Added Ralph-style promise tokens so the orchestrator must end each loop with an explicit `COMPLETE`, `FAIL`, or `STOP` state.

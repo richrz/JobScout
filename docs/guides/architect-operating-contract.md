@@ -11,7 +11,7 @@ This guide is the canonical end-to-end contract for architect-led execution in J
 
 Use it to keep one clear path from human intent to proof-based handoff:
 
-public interface (`ARCH/READY/GO`) -> boot/read order -> schema gate -> internal micro-contract -> coder -> independent verification -> verdict/token -> human checkpoint -> pointer/journal -> optional commit/push
+public interface (`ARCH/READY/GO`) -> boot/read order -> schema gate -> internal micro-contract -> coder -> independent verification -> verdict/token -> pointer/journal -> focused commit -> current-branch push
 
 ## Public Interface
 
@@ -41,6 +41,16 @@ Direct shorthand is also allowed:
 - `GO: <goal>` = authorize direct execution on the stated outcome without a separate `READY` checkpoint
 
 In either case, the architect/orchestrator owns the internal narrowing into a micro-contract. The human should not have to supply one.
+
+Default meaning of `GO` / `GO:`:
+- finish the requested outcome to its natural stopping point
+- include verification, pointer/docs updates, focused commit, and push to the current branch
+- do not stop at sub-steps just to ask for permission again
+
+Exceptions:
+- `READY` = planning checkpoint only
+- `HOLD` = pause after the current verified checkpoint
+- `LOCAL ONLY` = do not push the branch
 
 ## Ready Checkpoint
 
@@ -78,6 +88,21 @@ Execution rule:
 
 Local-only intentionally uncommitted files are not overlap by themselves unless the requested move needs them.
 
+## Stop Conditions
+
+Outcome ownership is the default, but it is not permission to cross every boundary.
+
+Stop and ask when:
+- a real product decision is still unclear
+- the work would extend or contradict an approved ADR or sprint direction
+- the requested scope overlaps unrelated dirty paths
+- the next action would be destructive outside the approved scope
+- the next action is external to the current branch checkpoint:
+  - merge
+  - deploy
+  - release
+  - secrets or account changes
+
 ## Rule Of Precedence
 
 When process docs disagree, use this order:
@@ -100,6 +125,7 @@ When process docs disagree, use this order:
 - When using the trust-building workflow, do not treat `ARCH:` or `READY` as execution permission.
 - If `GO: <goal>` is broad but clear, narrow it internally into the first safe micro-contract.
 - If `GO: <goal>` is ambiguous or risky, stop and ask only for the missing decision.
+- Unless the human says `HOLD` or `LOCAL ONLY`, treat `GO` / `GO:` as permission to finish through focused commit and current-branch push.
 
 ## Boot Order
 
@@ -222,8 +248,9 @@ After a meaningful verified chunk:
 
 - update `JOURNAL.md` only when rationale or direction changed
 - update `docs/handoffs/current-pointer.md` with what changed, what was verified, and what comes next
-- prepare commit and push information every sprint
-- actually commit or push only when the human explicitly asks
+- make a focused commit for the verified checkpoint
+- push the current branch unless the human said `LOCAL ONLY` or a stop condition was reached
+- do not treat merge, deploy, release, or secret changes as included in default outcome ownership
 
 ## Memory Contract
 
