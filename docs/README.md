@@ -36,6 +36,7 @@ Active source of truth:
 - `docs/decisions/`
 - `docs/product/`
 - `docs/PRD-OPEN-SOURCE.md`
+- `docs/handoffs/current-pointer.md`
 - `JOURNAL.md`
 
 Working references:
@@ -49,7 +50,6 @@ Working references:
 Historical records:
 - `docs/archive/`
 - `docs/audits/`
-- `docs/handoffs/`
 
 ## Current Core Specs
 
@@ -72,7 +72,9 @@ Historical records:
 ## Guides and Process
 
 - Repository workflow: [repo-workflow.md](./guides/repo-workflow.md)
+- Sprint workflow: [sprint-workflow.md](./guides/sprint-workflow.md)
 - Human-in-loop workflow: [human-in-the-loop-workflow.md](./guides/human-in-the-loop-workflow.md)
+- Live handoff pointer: [current-pointer.md](./handoffs/current-pointer.md)
 
 ## Audits and Verification
 

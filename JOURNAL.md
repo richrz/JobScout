@@ -4,6 +4,45 @@
 
 ---
 
+## 2026-03-07 — Repo-Native Sprint And Handoff Workflow
+
+### Context
+We reached the point where chat history was doing too much of the memory work.
+
+That is risky for a long-running product:
+- context windows reset
+- new agents arrive cold
+- commits alone do not always say what to read first or what to do next
+
+The repo needed a cleaner baton-pass pattern.
+
+### Decisions Made
+1. **The official sprint flow is now**:
+   - design
+   - sprint brief
+   - code
+   - verify
+   - commit
+   - push
+   - pointer
+2. **The repo, not chat, is the memory system** for handoff.
+3. **`docs/handoffs/current-pointer.md` is now the live baton-pass file** for the next agent.
+4. **Old ad hoc handoff files were retired** so the active handoff surface stops competing with stale process leftovers.
+
+### Why This Matters
+This creates a simpler answer to:
+> "If we clear the current agent’s memory, how does the next agent pick up cleanly?"
+
+Answer:
+- read the pointer
+- read the docs hub and roadmap
+- inspect the referenced checkpoint
+- continue from the named next task
+
+That is a much more durable workflow than hoping chat history remains available or complete.
+
+---
+
 ## 2026-03-07 — Inbox Polish And Honest Filter Reset
 
 ### Context

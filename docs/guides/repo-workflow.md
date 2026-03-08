@@ -31,6 +31,21 @@ Before making changes:
 - update product docs when product truth changes
 - update `JOURNAL.md` when rationale or direction changes
 - keep commit scopes tight so history explains the work
+- end each meaningful sprint with a commit, a push, and an updated handoff pointer in `docs/handoffs/current-pointer.md`
+
+## Sprint Sequence
+
+Use this default sequence:
+
+1. design
+2. sprint brief
+3. code
+4. verify
+5. commit
+6. push
+7. pointer
+
+For the full baton-pass workflow, see `docs/guides/sprint-workflow.md`.
 
 ## When To Update Docs
 

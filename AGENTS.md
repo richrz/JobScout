@@ -76,11 +76,16 @@ Welcome! Follow every step below before touching code. This repo now uses a docs
    - `docs/decisions/`
    - `docs/product/`
    - `docs/plans/current-implementation-roadmap.md`
+   - `docs/handoffs/current-pointer.md`
    - `JOURNAL.md`
 2. Keep changes focused and explain what you are about to do.
 3. Verify claims with tests, browser checks, or other direct validation whenever practical.
 4. Update docs when product truth changes.
 5. Update `JOURNAL.md` when rationale or direction changes.
+6. End each meaningful sprint with:
+   - a focused commit
+   - a push
+   - an updated `docs/handoffs/current-pointer.md`
 
 ## Human-in-the-loop checkpoint
 
@@ -94,7 +99,15 @@ After a meaningful implementation chunk:
 
 1. Run the strongest relevant verification you can.
 2. `git status -sb`
-3. Leave a clean explanation of what changed, what still needs work, and any real risks.
+3. Update `docs/handoffs/current-pointer.md` with:
+   - branch
+   - latest checkpoint commit
+   - read-first docs
+   - what was finished
+   - what remains
+   - what was verified
+   - the next recommended task
+4. Leave a clean explanation of what changed, what still needs work, and any real risks.
 
 ## Honesty clause
 
