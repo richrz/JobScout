@@ -82,10 +82,147 @@ Welcome! Follow every step below before touching code. This repo now uses a docs
 3. Verify claims with tests, browser checks, or other direct validation whenever practical.
 4. Update docs when product truth changes.
 5. Update `JOURNAL.md` when rationale or direction changes.
-6. End each meaningful sprint with:
+6. Prepare each meaningful sprint for:
    - a focused commit
    - a push
    - an updated `docs/handoffs/current-pointer.md`
+7. Only commit or push when the human explicitly asks for it in this environment.
+8. For the canonical end-to-end architect flow, use `docs/guides/architect-operating-contract.md`.
+
+## Explicit Execution Gate
+
+Planning/discussion is the default mode for this repo.
+
+Execution requires an explicit user command in one of these forms:
+- `GO: <goal>` to authorize direct execution on a stated outcome
+- `GO` to execute the move prepared in the latest `READY` card
+
+Public trust-building workflow:
+- `ARCH: <goal or question>` = planning and narrowing only
+- `READY` = safety card only, no edits
+- `GO` = execute the prepared move
+
+The human does not need to decompose work into an implementation micro-task. The architect/orchestrator owns the internal narrowing into a safe micro-contract.
+
+Without explicit `GO` or `GO:`:
+- do not start a Ralph loop
+- do not spawn agents
+- do not edit files
+- do not run migrations
+- do not start handoff behavior
+- do not run browser verification for implementation work
+
+The following are context, not permission:
+- ADR approval
+- roadmap discussion
+- sprint brief review
+- “looks good”
+- “approved”
+- “read the brief”
+- “what’s next?”
+
+If a `GO:` request is broad but clear:
+- narrow it internally into the first safe micro-contract
+- say what you are executing
+- execute only that move
+
+If a `GO:` request is ambiguous or risky:
+- stop and explain the exact ambiguity
+- ask only for the missing decision
+- do not hide behind generic process language
+
+## Dirty Tree Discipline
+
+Do not use "dirty repo" as a vague excuse.
+
+Before execution, classify dirty-tree status for the requested scope as:
+- `no overlap`
+- `overlap`
+- `unknown`
+
+If status is `overlap` or `unknown`:
+- stop
+- name the exact conflicting paths
+- explain why the overlap blocks safe execution
+
+If status is `no overlap`:
+- proceed
+- protect unrelated dirty paths from accidental edits
+
+Local-only machine config is not a blocker by itself unless the requested work touches it.
+
+## Ralph Loop Default
+
+For non-trivial implementation work, Ralph loops are the default execution mode.
+
+If the human invokes an orchestrator, that means:
+- the orchestrator is not the coder by default
+- the orchestrator owns task slicing, delegation, verification, and grading
+- coder agents implement only the assigned micro-contract
+- the orchestrator may not invent a different workflow because it feels faster
+
+If the loop feels too heavy, narrow the slice.
+Do not bypass the loop.
+
+## Promise Token Protocol
+
+For orchestrated Ralph-loop work, the orchestrator must end each loop with exactly one promise token:
+- `<promise>COMPLETE</promise>` only when proof exists, verification passed, and the loop verdict is `PASS`
+- `<promise>FAIL</promise>` when the loop failed and should continue through another autonomous loop
+- `<promise>STOP</promise>` when human approval, human input, or a hard pause is required
+
+Use `<promise>STOP</promise>` when:
+- schema-sensitive approval is missing
+- retry caps are reached
+- the task is not safe to continue autonomously
+- verification is ambiguous in a way that needs human judgment
+
+The coder and architect must never emit promise tokens.
+No token, no handoff.
+No optimistic `COMPLETE`.
+
+## Schema-Sensitive Mode
+
+The following work is schema-sensitive by default:
+- database schema changes
+- Prisma model changes
+- migrations
+- lifecycle truth changes
+- ownership boundary changes
+- resume/document truth model changes
+- anything that changes which entity is the source of truth
+
+For schema-sensitive work:
+- the orchestrator must start with an architect pass before coding
+- the architect is analysis-only and does not implement
+- the human must explicitly approve the architecture direction before schema-changing code starts
+- do not edit schema files, Prisma models, migrations, or lifecycle contracts without that approval
+- max `2` coder attempts per micro-contract
+- max `3` loops on the same schema-sensitive question before a mandatory human checkpoint
+
+Override for already-approved direction:
+- if the active sprint brief links an accepted ADR in an `Approved Direction` section, and the requested slice stays inside those numbered decisions, that prior approval satisfies the architect-pass and human-approval gate
+- do not re-derive or re-ask for approval in that case
+- if the requested slice would extend, change, or contradict the approved ADR, stop for a fresh architect pass and human approval first
+
+If a task mixes schema-sensitive work and UI work:
+- split the schema decision first
+- do not bury schema changes inside a broader feature slice
+
+## No Side Paths
+
+Do not create or use:
+- a sibling repo
+- a sibling workspace
+- a worktree
+- an off-repo stash folder
+- an ad hoc scratch project
+- a new planning system outside the repo
+
+unless the human explicitly asks for it.
+
+Work inside the existing repo.
+If the current repo structure feels inconvenient, that is not permission to create a parallel path.
 
 ## Mandatory Delivery Loop (No Exceptions)
 
@@ -103,6 +240,8 @@ No browser proof for web changes, no handoff.
 No passing checks, no handoff.
 
 Do not replace this loop with narrative status updates.
+Do not replace this loop with a self-declared "quicker path."
+If RED is genuinely impractical, say exactly why before coding and keep the slice narrow.
 
 ## Human-in-the-loop checkpoint
 
@@ -111,6 +250,7 @@ After a meaningful implementation chunk:
 - Summarize what changed and what was verified.
 - Pause before the next risky or expensive-to-reverse chunk.
 - Use `docs/guides/human-in-the-loop-workflow.md` as the pattern for when to stop and re-align.
+- Pause instead of improvising a new workflow.
 
 ## Session wrap-up
 
@@ -126,6 +266,7 @@ After a meaningful implementation chunk:
    - where screenshot/proof artifacts live
    - the next recommended task
 4. Leave a clean explanation of what changed, what still needs work, and any real risks.
+5. Do not create a side folder or alternate repo as a substitute for a handoff.
 
 ## Honesty clause
 

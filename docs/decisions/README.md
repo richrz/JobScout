@@ -21,3 +21,4 @@ Each ADR follows this format:
 | [005](./005-opportunity-lifecycle-state-contract.md) | Opportunity Lifecycle State Contract | Accepted | 2026-03-06 |
 | [006](./006-recovery-buckets-and-plan-levers.md) | Recovery Buckets and Plan Levers | Accepted | 2026-03-06 |
 | [007](./007-resume-artifact-defaults-and-naming.md) | Resume Artifact Defaults and Naming | Accepted | 2026-03-07 |
+| [008](./008-resume-document-truth-model.md) | Resume Document Truth Model | Accepted | 2026-03-08 |

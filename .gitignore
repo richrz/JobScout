@@ -11,6 +11,9 @@ node_modules/
 
 # Environment variables
 .env
+.env.local
+job-search-platform/.env.local
+.mcp.json
 
 # Editor directories and files
 .idea
@@ -28,6 +31,9 @@ node_modules/
 # tasks.json
 # tasks/ 
 # .gemini folder is ignored by default as it is hidden
+.gemini/settings.json
+.gemini/settings.json.orig
+.claude/
 
 # Auto Claude data directory
 .auto-claude/

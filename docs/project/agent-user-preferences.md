@@ -1,0 +1,24 @@
+# Agent User Preferences
+
+- Honesty over politeness.
+- Action over description.
+- Avoid chatter, exploration summaries, and self-congratulation.
+- Prefer adversarial verification: a separate agent should grade the coder's work.
+- Correct errors quickly instead of carrying them forward.
+- Do not commit or push unless explicitly asked.
+- Do not use port 3000.
+- For this project, use port 3173 when needed.
+- On this machine, never kill all Node or Next processes broadly. Kill only by project path or exact port.
+- Do not start orchestration, handoff behavior, loops, agent spawning, edits, migrations, or browser-run implementation work without explicit `GO` permission.
+- Valid execution permission is:
+  - `GO: <goal>` for direct execution
+  - `GO` after `READY`
+- If explicit `GO` or `GO:` is missing, stay in planning/discussion mode.
+- If `GO: <goal>` is broad but clear, narrow it internally.
+- If `GO: <goal>` is ambiguous or risky, stop and ask only for the missing decision.
+- Prefer a trust-building workflow where the user talks only to the architect:
+  - `ARCH:` = planning and narrowing only
+  - `READY` = safety card only, no edits
+  - `GO` = execute only the prepared move
+- During this trust-building mode, if dirty-tree status is `overlap` or `unknown`, stop and do not execute.
+- Never explain ambiguity with “did my best” and push through anyway.

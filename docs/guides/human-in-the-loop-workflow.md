@@ -66,4 +66,5 @@ This slice is complete.
 
 - `AGENTS.md`
 - `docs/guides/repo-workflow.md`
+- `docs/guides/ralph-loop.md`
 - `docs/README.md`

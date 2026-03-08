@@ -64,12 +64,38 @@
 - Resume ownership is currently split across `Resume`, `Artifact`, and `Application.resumePath`
 - If this sprint sprawls into Passed Bin or workspace UI work, the core ownership problem may stay unresolved
 
+## Approved Direction
+
+The schema architecture for this sprint is locked in [ADR 008: Resume Document Truth Model](../decisions/008-resume-document-truth-model.md).
+
+Key decisions (already approved — do not re-ask):
+
+1. **Add `workspaceId` FK to Resume.** Resume truth becomes workspace-scoped.
+2. **Add `DocumentState` enum** with values: `REFERENCE`, `WORKING_DRAFT`, `SAVED_VARIANT`, `SUBMITTED_SNAPSHOT`.
+3. **Submitted snapshots are immutable.** Application-level guard + DB constraint.
+4. **Deprecate `Application.resumePath`.** Stop writing to it. Submission truth = `SUBMITTED_SNAPSHOT` rows.
+5. **Add `applicationId` FK to Workspace** (optional, nullable). Cross-link only — no lifecycle unification.
+6. **Do not change `Application.status` or `Workspace.status`** in this sprint.
+7. **Orphan Resume rows stay unlinked.** No auto-migration. Legacy read-only until organically adopted.
+
+Agents: these decisions are settled. Read ADR 008 and proceed to slicing and implementation. Do not re-derive or re-ask for approval.
+
+## Execution Guardrails
+
+- Treat this sprint as schema-sensitive work.
+- The architecture direction is approved in ADR 008. No additional architect pass is needed.
+- Do not deviate from ADR 008 without explicit human approval.
+- Max `2` coder attempts per micro-contract.
+- Max `3` loops on the same ownership question before pausing for the human.
+- Split schema-sensitive decisions from adjacent UI work instead of bundling them together.
+
 ## Read First
 
-1. [Current Pointer](/home/richard/code/jobs/docs/handoffs/current-pointer.md)
-2. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
-3. [Resume Input And Voice Strategy](/home/richard/code/jobs/docs/product/resume-input-and-voice-strategy.md)
-4. [Opportunity Lifecycle State Contract](/home/richard/code/jobs/docs/product/lifecycle-state-contract.md)
+1. [ADR 008: Resume Document Truth Model](/home/richard/code/jobs/docs/decisions/008-resume-document-truth-model.md)
+2. [Current Pointer](/home/richard/code/jobs/docs/handoffs/current-pointer.md)
+3. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
+4. [Resume Input And Voice Strategy](/home/richard/code/jobs/docs/product/resume-input-and-voice-strategy.md)
+5. [Opportunity Lifecycle State Contract](/home/richard/code/jobs/docs/product/lifecycle-state-contract.md)
 
 ## Next Handback
 

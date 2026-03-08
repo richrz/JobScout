@@ -28,10 +28,13 @@ Before making changes:
 
 - keep changes focused
 - verify claims with the strongest practical check available
+- use Ralph loops for non-trivial implementation slices that need tighter determinism
 - update product docs when product truth changes
 - update `JOURNAL.md` when rationale or direction changes
 - keep commit scopes tight so history explains the work
-- end each meaningful sprint with a commit, a push, and an updated handoff pointer in `docs/handoffs/current-pointer.md`
+- end each meaningful sprint with an updated handoff pointer in `docs/handoffs/current-pointer.md`
+- prepare each meaningful sprint for a focused commit and push
+- actually commit or push only when the human explicitly asks
 
 ## Sprint Sequence
 
@@ -46,6 +49,7 @@ Use this default sequence:
 7. pointer
 
 For the full baton-pass workflow, see `docs/guides/sprint-workflow.md`.
+For deterministic micro-loop execution, see `docs/guides/ralph-loop.md`.
 
 ## When To Update Docs
 

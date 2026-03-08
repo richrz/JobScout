@@ -19,6 +19,8 @@ Every meaningful sprint should leave behind:
 
 ## The Workflow
 
+Commit and push are part of the ideal checkpoint sequence, but in this environment they are executed only when the human explicitly asks.
+
 1. **Design**
    - Lock product or workflow decisions in the docs spine before building if the behavior is new or ambiguous.
    - Use:
@@ -53,10 +55,12 @@ Every meaningful sprint should leave behind:
    - Do not claim completion without verification evidence.
 
 5. **Commit**
-   - Make a focused commit whose message explains the implementation checkpoint.
+   - If the human explicitly asks, make a focused commit whose message explains the implementation checkpoint.
+   - Otherwise, leave the worktree ready for a focused commit.
 
 6. **Push**
-   - Push the branch so the checkpoint exists outside the local machine.
+   - If the human explicitly asks, push the branch so the checkpoint exists outside the local machine.
+   - Otherwise, leave the branch ready to push after approval.
 
 7. **Pointer**
    - Update `docs/handoffs/current-pointer.md`.

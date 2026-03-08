@@ -71,9 +71,11 @@ Historical records:
 
 ## Guides and Process
 
+- Architect operating contract: [architect-operating-contract.md](./guides/architect-operating-contract.md)
 - Repository workflow: [repo-workflow.md](./guides/repo-workflow.md)
 - Sprint workflow: [sprint-workflow.md](./guides/sprint-workflow.md)
 - Human-in-loop workflow: [human-in-the-loop-workflow.md](./guides/human-in-the-loop-workflow.md)
+- Ralph loop workflow: [ralph-loop.md](./guides/ralph-loop.md)
 - Live handoff pointer: [current-pointer.md](./handoffs/current-pointer.md)
 
 ## Audits and Verification

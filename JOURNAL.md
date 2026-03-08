@@ -4,6 +4,112 @@
 
 ---
 
+## 2026-03-08 — Public Execution Interface Simplified
+
+### Context
+The process still expected the human to speak in implementation language like `GO: <tiny slice>`.
+
+That was a product failure, not a user failure.
+The user should be able to state the outcome they want while the architect/orchestrator does the narrowing internally.
+
+The repo also still left too much room for a vague "dirty repo" disclaimer instead of a path-level overlap check.
+
+### Decisions Made
+1. **The public workflow is now `ARCH -> READY -> GO`.**
+2. **Direct shorthand is allowed as `GO: <goal>`.**
+   - This authorizes execution on the stated outcome without forcing the human to phrase the work as a micro-task.
+3. **Internal narrowing is the architect/orchestrator's job.**
+   - Agents should convert a broad but clear goal into the first safe micro-contract.
+   - Agents should ask the human only when the goal is genuinely ambiguous or risky.
+4. **Dirty-tree handling is now explicit.**
+   - Agents must classify scope overlap as `no overlap`, `overlap`, or `unknown`.
+   - `overlap` and `unknown` require a stop with exact conflicting paths.
+   - "Dirty repo" is no longer an acceptable generic explanation.
+5. **`paste.txt` was reduced to a thin entry shim** so it stops competing with the architect contract as a second giant source of truth.
+
+### Why This Matters
+This makes the process act more like a product surface and less like an internal agent ritual.
+
+It also directly addresses the trust problem:
+- the human no longer has to manage internal slicing
+- the agent has to own narrowing
+- dirty-tree risk must be stated concretely or execution stops
+
+## 2026-03-08 — Default Repo Cleanup Policy Applied
+
+### Context
+The repo still carried known dirt even after the process contract improved.
+
+That was undermining trust because the same stale surfaces kept surviving from task to task:
+- tracked local machine config
+- retired `.taskmaster` and `.tdd` residue
+- scaffold loop folders that looked more real than they were
+- `paste.txt` still existing as an extra entry point
+
+### Decisions Made
+1. **Root local config is no longer repo truth.**
+   - `.env.local`
+   - `.gemini/settings.json`
+   - `.gemini/settings.json.orig`
+   - `.mcp.json`
+   are now treated as local-only and should not stay tracked.
+2. **Retired workflow residue was removed** from `job-search-platform/.taskmaster/` and `job-search-platform/.tdd/`.
+3. **The tracked legacy `.tdd` verification artifact was deleted** instead of archived.
+4. **Scaffold loop folders under `docs/loops/2026-03-07/` were deleted.**
+5. **`paste.txt` was removed** so it stops competing with the architect contract.
+
+### Why This Matters
+This reduces the number of ways the repo can look active while still carrying stale operational clutter.
+
+More importantly, it removes the biggest non-product sources of repeated "repo is dirty" friction without asking the human to remember the history of each leftover file.
+
+## 2026-03-08 — Architect Operating Contract
+
+### Context
+The repo had the right ingredients for deterministic execution, but they were spread across too many places and one key rule had drifted.
+
+The main conflict was:
+- the new explicit `GO:` gate said planning is the default
+- the active sprint brief said ADR 008 already approved the resume-document schema direction
+- the current pointer and orchestrator prompts still behaved as if every schema-sensitive task required a fresh architect STOP before any slice could begin
+
+That made the process feel unsafe and contradictory.
+
+### Decisions Made
+1. **`docs/guides/architect-operating-contract.md` is now the canonical end-to-end operating contract** for architect-led execution.
+2. **Process precedence is now explicit**:
+   - `AGENTS.md` hard gates first
+   - current pointer next
+   - active sprint brief + accepted ADR next
+   - roadmap/product docs after that
+   - templates are output shape only
+   - mem0 and project memory are reminders, not canonical truth
+3. **Accepted ADRs linked in a sprint brief now explicitly satisfy the approval gate for in-bounds schema slices.**
+   - Agents should not re-derive or re-ask for approval when the requested slice stays inside those approved decisions.
+   - If a requested slice would extend or change the approved direction, that still requires a fresh architect pass and human approval.
+4. **Commit and push language is now clarified**:
+   - every meaningful sprint should be prepared for commit/push
+   - actual commit/push still happens only when the human explicitly asks
+5. **Ralph loop scaffolds are now labeled honestly** until a real filled example exists.
+
+### Why This Matters
+This turns the architect role from “search several docs and guess which one wins” into one explicit contract.
+
+It also prevents the exact failure mode that has been burning time:
+- planning context being mistaken for execution permission
+- approved architecture being re-opened accidentally
+- process docs disagreeing about whether the next move is STOP or slice
+
+### Follow-On Decision
+We also added a temporary trust-building interface for execution:
+- `ARCH:` to think and narrow
+- `READY` to produce a safety card without edits
+- `GO` to execute only the prepared move
+
+This exists because the user does not yet trust the process to move safely from planning into action.
+The key guardrail is simple:
+- if dirty-tree status is `overlap` or `unknown`, do not execute
+
 ## 2026-03-07 — Resume Document Truth Model Sprint Brief
 
 ### Context
@@ -578,3 +684,20 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
 - **Jan 2026**: Product Owner "Sisyphus" persona established. Market research on ageism in hiring completed. Triage feed, workspace, and resume builder implemented.
 - **Feb 2026**: JSearch API integration completed. Geographic heatmap built. Landing site created.
 - **Mar 2026**: KC scraper pivot (this entry).
+# 2026-03-08 - Ralph loop anti-drift guardrails tightened
+
+- Closed loopholes that still allowed agents to invent a "quicker path" outside the Ralph loop.
+- Made it explicit that off-repo side folders, sibling repos, worktrees, and alternate planning tracks are not allowed without explicit human approval.
+- Made it explicit that commit and push are opt-in human actions in this environment, even when a sprint is prepared for handoff.
+- Tightened the current pointer so the first artifact cannot degrade into a vague checklist update.
+- Added schema-sensitive mode with architect-first execution, explicit human signoff before schema-changing implementation, and lower retry caps for ownership/lifecycle work.
+- Added Ralph-style promise tokens so the orchestrator must end each loop with an explicit `COMPLETE`, `FAIL`, or `STOP` state.
+- Tightened boot overflow behavior so orchestrators hit `<promise>STOP</promise>` instead of reopening exploratory drift when they exceed the allowed startup rounds.
+
+# 2026-03-07 - Ralph loop workflow added
+
+- Added a repo-native Ralph loop workflow for deterministic agent execution.
+- Locked the role split between orchestrator and coder so implementation and grading do not share incentives.
+- Added reusable micro-contract and verification report templates.
+- Added a lightweight loop runner to create proof folders under `docs/loops/`.
+- Positioned Ralph loops as a stricter execution layer on top of the existing docs-first and HITL workflow.
