@@ -9,7 +9,7 @@
 
 ## Latest Product Checkpoint
 
-- `48c3f12` — repo cleanup and process alignment checkpoint
+- `1f14980` — architect replies friendlier, concise, and always include What's Next
 
 ## Read First
 
