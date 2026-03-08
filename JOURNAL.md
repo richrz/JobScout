@@ -4,6 +4,33 @@
 
 ---
 
+## 2026-03-08 — Post-Rollout Stabilization Cleared The Typecheck Floor
+
+### Context
+After the resume ownership rollout shipped, the repo still had older type debt that made the floor feel less trustworthy than the product state actually was.
+
+The main problems were:
+- Prisma config drift against the installed Prisma version
+- a few app/runtime typing mismatches
+- stale tests that still asserted old map copy, old color tokens, or outdated profile/geocoding expectations
+
+### Decisions Made
+1. **Stabilization was treated as a real follow-through step, not optional cleanup.**
+2. **The repo-wide TypeScript baseline was cleared** before declaring the floor stable again.
+3. **Legacy tests were updated to match current product truth** instead of preserving stale expectations.
+4. **Parallel development was used where it was safe.**
+   - one lane handled app/runtime typing
+   - another lane scoped the test debt
+   - integration still happened centrally in the main lane
+
+### Why This Matters
+This gets the repo back to a place where the next product build can start from a cleaner, more trustworthy baseline instead of carrying known type debt forward.
+
+It also proved a better operating pattern:
+- broad goal from the human
+- safe split into disjoint lanes
+- central integration and verification before handoff
+
 ## 2026-03-08 — Resume Ownership, Inbox Multi-Select, And Passed Bin Shipped
 
 ### Context

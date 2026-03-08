@@ -9,7 +9,7 @@
 
 ## Latest Product Checkpoint
 
-- `4794835` — resume ownership, inbox multi-select, and passed bin shipped end to end
+- `04f57ec` — repo typing stabilized after the resume ownership rollout
 
 ## Read First
 
@@ -70,6 +70,15 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- The repo-wide TypeScript baseline is now clean again after the resume ownership rollout.
+- Prisma config was aligned with the installed Prisma version instead of importing Prisma 6-only config helpers.
+- Resume ownership helper typing was cleaned up so workspace-backed JSON writes typecheck correctly.
+- Chronos simulation typing now matches the current `node-cron` package.
+- The older flaky type debt in legacy tests was stabilized:
+  - map component tests now match the current product behavior
+  - geocoding tests now match the current graceful-null fallback behavior
+  - profile utility tests now match the current profile shape
+  - LLM tests now satisfy the stricter config/type requirements
 - The resume/document truth model is now implemented, not just planned.
 - `Workspace` now owns resume documents across working drafts, references, and submitted snapshots.
 - `ApplicationStatus` now uses `PASSED` instead of `DISMISSED`, and passed opportunities have a real restore/archive flow.
@@ -83,14 +92,24 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Remains
 
-- Clean up the older repo-wide TypeScript failures that still exist outside this slice.
 - Decide whether the next product move is:
   - real submitted artifact capture for apply flows
   - richer workspace guidance / journals
   - broader Next 16 route cleanup beyond the workspace area
+- Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 
 ## Verification
 
+- `npx tsc --noEmit` passed clean.
+- Focused stabilization suites passed:
+  - `tests/lib/llm-testing.test.ts`
+  - `tests/unit/llm-error-handling.test.ts`
+  - `tests/unit/components/ConfigActions.test.tsx`
+  - `tests/unit/components/map/JobMap.test.tsx`
+  - `tests/unit/components/map/MapControls.test.tsx`
+  - `tests/unit/lib/geocoding.test.ts`
+  - `tests/unit/lib/profile-utils.test.ts`
+  - `tests/unit/pages/MapPage.test.tsx`
 - Prisma migration deployed locally and Prisma client regenerated successfully.
 - Targeted unit verification passed:
   - `tests/unit/lib/passed-bin.test.ts`
@@ -102,16 +121,20 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - Passed Bin page load and restore/archive controls
   - Workspace resume documents panel
   - Workspace notes fetch and note creation after fixing async route params
+  - Settings smoke load after the stabilization pass
 - Proof artifacts live at:
   - `/home/richard/code/jobs/job-search-platform/output/playwright/inbox-multiselect-toolbar.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/passed-bin.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/workspace-notes-fixed.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/stabilization-settings-smoke.png`
 
 ## Known Risks
 
-- `npx tsc --noEmit` still reports older unrelated repo issues outside this feature slice.
 - The new schema direction is now in place, so follow ADR 008 instead of re-introducing `application.resumePath` ownership patterns.
+- `tests/lib/llm-testing.test.ts` passes, but Jest still reports a forced worker exit from open timers / handles after that suite finishes.
 
 ## Next Recommended Task
 
-- Do a focused cleanup pass on the remaining repo-wide TypeScript / Next 16 debt so future feature work starts from a steadier floor.
+- Resume product work on top of the stabilized floor:
+  - real submitted artifact capture for apply flows is the best next build
+  - fix the LLM test open-handle leak the next time that suite or retry logic is touched
