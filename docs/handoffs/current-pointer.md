@@ -19,6 +19,37 @@
 4. [Resume Input And Voice Strategy](/home/richard/code/jobs/docs/product/resume-input-and-voice-strategy.md)
 5. [Journal](/home/richard/code/jobs/JOURNAL.md)
 
+## First 10 Minutes Contract
+
+For a fresh/no-context agent, do this in order before broad exploration:
+
+1. Confirm repo root and branch in one line.
+2. Confirm the 3 required docs were read:
+   - sprint brief
+   - current pointer
+   - roadmap
+3. Name the first file to change and the first verification check.
+4. Post at most 2 exploration updates.
+5. Then do one of:
+   - ship a small first artifact (small diff, focused checklist update, or failing test that captures the gap)
+   - declare a concrete blocker with the exact missing path/decision
+
+Rules:
+- Do not keep narrating exploration after 2 updates.
+- If repo path mismatch appears, stop and resolve path first.
+- First concrete artifact should land within the first implementation chunk.
+
+## Mandatory Delivery Gate
+
+Before any handoff on this sprint:
+
+1. Show RED -> GREEN verification for the sprint target.
+2. Run broader checks after GREEN.
+3. Verify the live web flow in browser.
+4. Capture proof artifacts (screenshots and/or concrete test output references).
+
+If any item is missing, no handoff.
+
 ## Current Sprint Goal
 
 - Finalize and implement the resume/document truth model so mass-tailored application flow becomes trustworthy end to end.

@@ -87,6 +87,23 @@ Welcome! Follow every step below before touching code. This repo now uses a docs
    - a push
    - an updated `docs/handoffs/current-pointer.md`
 
+## Mandatory Delivery Loop (No Exceptions)
+
+For implementation work, this minimum loop is required:
+
+1. Create or run a failing check first (`RED`).
+2. Implement the smallest change to address the failure.
+3. Re-run checks and continue until all targeted checks pass (`GREEN`).
+4. Run broader regression checks for nearby behavior.
+5. Verify the user flow in the browser.
+6. Capture evidence (screenshots and/or concrete proof artifacts).
+
+No evidence, no handoff.
+No browser proof for web changes, no handoff.
+No passing checks, no handoff.
+
+Do not replace this loop with narrative status updates.
+
 ## Human-in-the-loop checkpoint
 
 After a meaningful implementation chunk:
@@ -106,6 +123,7 @@ After a meaningful implementation chunk:
    - what was finished
    - what remains
    - what was verified
+   - where screenshot/proof artifacts live
    - the next recommended task
 4. Leave a clean explanation of what changed, what still needs work, and any real risks.
 

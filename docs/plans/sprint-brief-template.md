@@ -30,6 +30,17 @@ Use this template for the next focused implementation slice when the work needs 
 ## Verification
 
 - The strongest practical checks expected for this sprint
+- Required RED check(s) before coding
+- Required GREEN check(s) to declare success
+- Required broader regression checks
+- Required browser flow verification
+- Required evidence artifacts (screenshots and/or proof logs)
+
+## Handoff Gate
+
+- No handoff if RED/GREEN evidence is missing
+- No handoff if browser verification is missing for web changes
+- No handoff if screenshot/proof artifacts are missing
 
 ## Risks
 

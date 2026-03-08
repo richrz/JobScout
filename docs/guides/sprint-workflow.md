@@ -41,12 +41,16 @@ Every meaningful sprint should leave behind:
    - Avoid mixed work that hides what changed or why.
 
 4. **Verify**
-   - Run the strongest practical checks available.
-   - Prefer direct evidence:
-     - browser validation for user flows
-     - targeted tests or lint for code changes
-     - simple runtime checks for scripts or docs
-   - Do not claim completion without verification.
+   - Run the mandatory minimum loop:
+     - fail (`RED`)
+     - code
+     - fail
+     - code
+     - pass (`GREEN`)
+     - broader checks
+     - browser validation
+     - screenshot/proof capture
+   - Do not claim completion without verification evidence.
 
 5. **Commit**
    - Make a focused commit whose message explains the implementation checkpoint.
@@ -67,6 +71,7 @@ Every meaningful sprint should leave behind:
 - what was finished
 - what remains
 - what was verified
+- where screenshot/proof artifacts live
 - known risks or dirty local state
 - next recommended task
 
@@ -83,3 +88,10 @@ Start here, in order:
 ## Rule Of Thumb
 
 If a new agent cannot answer “what is true, what changed, and what should happen next?” within a few minutes, the sprint was not handed off cleanly enough.
+
+## Handoff Gate
+
+No handoff if any of these are missing:
+- failing-to-passing verification history for the sprint target
+- browser verification for web-facing behavior
+- concrete evidence artifacts (screenshots and/or test output references)
