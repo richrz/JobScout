@@ -8,12 +8,13 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 interface RouteParams {
-    params: { id: string; noteId: string };
+    params: Promise<{ id: string; noteId: string }>;
 }
 
 // PATCH - update note content
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
     try {
+        const { noteId } = await params;
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,7 +22,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
         // Fetch note with workspace to verify ownership
         const note = await prisma.warRoomNote.findUnique({
-            where: { id: params.noteId },
+            where: { id: noteId },
             include: { workspace: { select: { userId: true } } }
         });
 
@@ -41,7 +42,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         }
 
         const updated = await prisma.warRoomNote.update({
-            where: { id: params.noteId },
+            where: { id: noteId },
             data: { content }
         });
 
@@ -56,13 +57,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE - remove note
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
+        const { noteId } = await params;
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const note = await prisma.warRoomNote.findUnique({
-            where: { id: params.noteId },
+            where: { id: noteId },
             include: { workspace: { select: { userId: true } } }
         });
 
@@ -74,7 +76,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        await prisma.warRoomNote.delete({ where: { id: params.noteId } });
+        await prisma.warRoomNote.delete({ where: { id: noteId } });
 
         return NextResponse.json({ success: true });
 

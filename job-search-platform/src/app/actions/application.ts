@@ -8,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { dismissOpportunity, syncOpportunityState, type LegacyApplicationStatus } from '@/lib/opportunities/state-sync';
+import { upsertWorkspaceResume } from '@/lib/resume/workspace-resume-service';
 
 function getJsonHistoryArray(value: Prisma.JsonValue | null | undefined): Prisma.InputJsonValue[] {
     return Array.isArray(value) ? [...value] as Prisma.InputJsonValue[] : [];
@@ -125,17 +126,46 @@ export async function uploadResume(id: string, formData: FormData) {
 
         await writeFile(filepath, buffer);
 
-        // Update database
         const publicPath = `/uploads/${filename}`;
-        await prisma.application.update({
+        const application = await prisma.application.findUnique({
             where: { id },
-            data: {
-                resumePath: publicPath,
-                updatedAt: new Date()
+            select: {
+                id: true,
+                userId: true,
+                jobId: true,
+                status: true,
+                workspace: {
+                    select: { id: true }
+                }
             }
         });
 
+        if (!application) {
+            throw new Error('Application not found');
+        }
+
+        const uploadedResume = await prisma.$transaction(async (tx) => {
+            return upsertWorkspaceResume(tx, {
+                userId: application.userId,
+                jobId: application.jobId,
+                title: file.name,
+                content: {
+                    source: 'upload',
+                    originalFilename: file.name,
+                    mimeType: file.type,
+                    path: publicPath,
+                },
+                documentState: 'REFERENCE',
+                applicationId: application.id,
+                workspaceId: application.workspace?.id,
+                pdfSnapshot: publicPath,
+            });
+        });
+
         revalidatePath('/pipeline');
+        if (uploadedResume.workspaceId) {
+            revalidatePath(`/workspace/${uploadedResume.workspaceId}`);
+        }
         return { success: true, path: publicPath };
     } catch (error) {
         console.error('Failed to upload resume:', error);
@@ -318,14 +348,7 @@ export async function toggleJobInterest(jobId: string): Promise<ActionResponse> 
                 };
             }
 
-            // Un-star: Remove both Application and Workspace
-            await prisma.$transaction([
-                prisma.application.delete({ where: { id: existing.id } }),
-                prisma.workspace.deleteMany({ where: { userId, jobId } })
-            ]);
-            revalidatePath('/pipeline');
-            revalidatePath('/jobs');
-            return { success: true, message: 'Removed from interested' };
+            return { success: true, message: 'Already in your workspace' };
         } else {
             // Star: Add both
             return await applyToJob(jobId, 'interested');
@@ -361,6 +384,7 @@ export async function dismissJob(jobId: string): Promise<ActionResponse> {
         revalidatePath('/jobs');
         revalidatePath('/triage');
         revalidatePath('/pipeline');
+        revalidatePath('/passed');
         return { success: true };
     } catch (error: unknown) {
         console.error('Failed to dismiss job:', error);

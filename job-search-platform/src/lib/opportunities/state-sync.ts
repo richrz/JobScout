@@ -7,6 +7,7 @@ export type LegacyApplicationStatus =
   | 'screening'
   | 'interview'
   | 'offer'
+  | 'passed'
   | 'rejected'
   | 'archived';
 
@@ -17,6 +18,7 @@ const WORKSPACE_STATUS_BY_LEGACY_STATUS: Record<LegacyApplicationStatus, Applica
   screening: 'FOLLOW_UP',
   interview: 'FOLLOW_UP',
   offer: 'FOLLOW_UP',
+  passed: 'PASSED',
   rejected: 'ARCHIVED',
   archived: 'ARCHIVED',
 };
@@ -42,10 +44,9 @@ export async function syncOpportunityState(
     userId: string;
     jobId: string;
     legacyStatus: LegacyApplicationStatus;
-    resumePath?: string | null;
   }
 ) {
-  const { userId, jobId, legacyStatus, resumePath } = input;
+  const { userId, jobId, legacyStatus } = input;
   const workspaceStatus = workspaceStatusForLegacyStatus(legacyStatus);
 
   const existingApplication = await tx.application.findFirst({
@@ -57,6 +58,8 @@ export async function syncOpportunityState(
       appliedAt: true,
     },
   });
+
+  let applicationId: string | null = existingApplication?.id ?? null;
 
   if (existingApplication) {
     const currentHistory = getJsonHistoryArray(existingApplication.statusHistory);
@@ -72,10 +75,6 @@ export async function syncOpportunityState(
       ] as Prisma.InputJsonValue[];
     }
 
-    if (resumePath) {
-      updateData.resumePath = resumePath;
-    }
-
     if (legacyStatus === 'applied' && !existingApplication.appliedAt) {
       updateData.appliedAt = new Date();
     }
@@ -85,30 +84,39 @@ export async function syncOpportunityState(
       data: updateData,
     });
   } else {
-    await tx.application.create({
+    const application = await tx.application.create({
       data: {
         userId,
         jobId,
         status: legacyStatus,
-        resumePath: resumePath || undefined,
         appliedAt: legacyStatus === 'applied' ? new Date() : null,
         statusHistory: [buildStatusHistoryEntry(legacyStatus)],
       },
     });
+
+    applicationId = application.id;
   }
 
-  await tx.workspace.upsert({
+  const workspace = await tx.workspace.upsert({
     where: { userId_jobId: { userId, jobId } },
     update: {
       status: workspaceStatus,
+      applicationId: applicationId ?? undefined,
       updatedAt: new Date(),
     },
     create: {
       userId,
       jobId,
+      applicationId: applicationId ?? undefined,
       status: workspaceStatus,
     },
   });
+
+  return {
+    applicationId,
+    workspaceId: workspace.id,
+    workspaceStatus,
+  };
 }
 
 export async function dismissOpportunity(
@@ -119,27 +127,28 @@ export async function dismissOpportunity(
   }
 ) {
   const { userId, jobId } = input;
+  const existingApplication = await tx.application.findFirst({
+    where: { userId, jobId },
+    select: { id: true },
+  });
 
-  await tx.workspace.upsert({
+  const workspace = await tx.workspace.upsert({
     where: { userId_jobId: { userId, jobId } },
     update: {
-      status: 'DISMISSED',
+      status: 'PASSED',
+      applicationId: existingApplication?.id ?? undefined,
       updatedAt: new Date(),
     },
     create: {
       userId,
       jobId,
-      status: 'DISMISSED',
+      applicationId: existingApplication?.id ?? undefined,
+      status: 'PASSED',
     },
   });
 
-  await tx.application.deleteMany({
-    where: {
-      userId,
-      jobId,
-      status: {
-        in: ['discovered', 'interested', 'rejected', 'archived'],
-      },
-    },
-  });
+  return {
+    applicationId: existingApplication?.id ?? null,
+    workspaceId: workspace.id,
+  };
 }

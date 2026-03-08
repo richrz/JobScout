@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
 import { ApplicationStatus } from '@prisma/client';
-import { CheckCircle, Clock, Archive, Moon } from 'lucide-react';
+import { CheckCircle, Clock, Archive, Moon, Star, Inbox } from 'lucide-react';
 
 interface StatusToggleProps {
     workspaceId: string;
@@ -13,6 +13,11 @@ interface StatusToggleProps {
 }
 
 const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; icon: React.ReactNode }> = {
+    INTERESTED: {
+        label: 'Interested',
+        color: 'text-cyan-400 border-cyan-400/50',
+        icon: <Star className="w-4 h-4" />
+    },
     APPLIED: {
         label: 'Applied',
         color: 'text-electric-green border-electric-green/50',
@@ -32,6 +37,11 @@ const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; i
         label: 'Archived',
         color: 'text-slate-500 border-slate-500/50',
         icon: <Archive className="w-4 h-4" />
+    },
+    PASSED: {
+        label: 'Passed',
+        color: 'text-amber-300 border-amber-300/50',
+        icon: <Inbox className="w-4 h-4" />
     }
 };
 

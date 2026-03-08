@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
 
-export type TriageAction = 'INTERESTED' | 'DISMISSED';
+export type TriageAction = 'INTERESTED' | 'PASSED';
 
 interface QueuedItem {
     jobId: string;
@@ -45,8 +45,8 @@ export function TriageQueueProvider({ children }: { children: ReactNode }) {
             setIsCommitting(false);
         }
 
-        toast(action === 'INTERESTED' ? 'Job Saved' : 'Job Dismissed', {
-            description: 'Saved to pipeline.',
+        toast(action === 'INTERESTED' ? 'Job Saved' : 'Job Passed', {
+            description: action === 'INTERESTED' ? 'Saved to pipeline.' : 'Moved to Passed Bin.',
             duration: 2000
         });
     }, []);

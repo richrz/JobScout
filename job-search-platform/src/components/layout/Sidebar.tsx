@@ -12,6 +12,7 @@ import {
     Layers,
     List,
     FileText,
+    Archive,
     Settings,
     Map as MapIcon,
     LogOut,
@@ -85,6 +86,7 @@ export function Sidebar() {
                     </h3>
                     <NavItem item={{ href: '/', label: 'Dashboard', icon: LayoutDashboard }} isActive={pathname === '/'} />
                     <NavItem item={{ href: '/jobs', label: 'Inbox', icon: Briefcase }} isActive={pathname === '/jobs'} />
+                    <NavItem item={{ href: '/passed', label: 'Passed Bin', icon: Archive }} isActive={pathname === '/passed'} />
                     <NavItem item={{ href: '/triage', label: 'JobSwipe', icon: Layers }} isActive={pathname === '/triage'} />
                     <NavItem item={{ href: '/pipeline', label: 'Pipeline', icon: List }} isActive={pathname === '/pipeline'} />
                 </div>

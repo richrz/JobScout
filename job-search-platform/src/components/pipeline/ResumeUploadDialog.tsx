@@ -14,15 +14,35 @@ import { Label } from "@/components/ui/label";
 import { Application, Job } from '@prisma/client';
 import { uploadResume } from '@/app/actions/application';
 import { Input } from "@/components/ui/input";
+import { summarizeResumeDocuments, type ResumeDocumentState } from '@/lib/resume/document-summary';
 
 type ApplicationWithJob = Application & {
     job: Job;
+    workspace?: {
+        id: string;
+        resumes: {
+            id: string;
+            title: string;
+            documentState: string;
+            pdfSnapshot: string | null;
+            createdAt: Date;
+        }[];
+    } | null;
 };
 
 export function ResumeUploadDialog({ application }: { application: ApplicationWithJob }) {
     const [open, setOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [file, setFile] = useState<File | null>(null);
+    const summary = summarizeResumeDocuments(
+        (application.workspace?.resumes || []).map((resume) => ({
+            ...resume,
+            documentState: resume.documentState as ResumeDocumentState,
+        }))
+    );
+    const currentDocument = summary.workingDraft || summary.reference || summary.latestSubmittedSnapshot;
+    const currentLabel = currentDocument?.title || currentDocument?.pdfSnapshot?.split('/').pop() || null;
+    const currentHref = currentDocument?.pdfSnapshot || null;
 
     async function handleUpload() {
         if (!file) return;
@@ -39,7 +59,7 @@ export function ResumeUploadDialog({ application }: { application: ApplicationWi
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-6 w-6" title="Resume">
-                    <FileText className={`h-3 w-3 ${application.resumePath ? 'text-blue-500' : ''}`} />
+                    <FileText className={`h-3 w-3 ${summary.hasAnyDocuments ? 'text-blue-500' : ''}`} />
                 </Button>
             </DialogTrigger>
             <DialogContent>
@@ -51,17 +71,21 @@ export function ResumeUploadDialog({ application }: { application: ApplicationWi
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
-                    {application.resumePath && (
+                    {currentLabel && (
                         <div className="flex items-center justify-between p-3 border rounded-md bg-slate-50">
                             <span className="text-sm truncate max-w-[200px]">
-                                {application.resumePath.split('/').pop()}
+                                {currentLabel}
                             </span>
-                            <Button variant="outline" size="sm" asChild>
-                                <a href={application.resumePath} target="_blank" rel="noopener noreferrer">
-                                    <Eye className="mr-2 h-3 w-3" />
-                                    View
-                                </a>
-                            </Button>
+                            {currentHref ? (
+                                <Button variant="outline" size="sm" asChild>
+                                    <a href={currentHref} target="_blank" rel="noopener noreferrer">
+                                        <Eye className="mr-2 h-3 w-3" />
+                                        View
+                                    </a>
+                                </Button>
+                            ) : (
+                                <span className="text-xs text-muted-foreground">Saved in workspace</span>
+                            )}
                         </div>
                     )}
 

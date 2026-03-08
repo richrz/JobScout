@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { upsertWorkspaceResume } from '@/lib/resume/workspace-resume-service';
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,44 +16,23 @@ export async function POST(request: NextRequest) {
         // TODO: Get actual userId from session
         const mockUserId = userId || 'mock-user-id';
 
-        // Check if application already exists
-        let application = await prisma.application.findFirst({
-            where: {
-                jobId,
+        const resume = await prisma.$transaction(async (tx) => {
+            return upsertWorkspaceResume(tx, {
                 userId: mockUserId,
-            },
+                jobId,
+                title: 'Existing Resume',
+                content: {
+                    source: 'legacy-api',
+                    path: resumePath,
+                },
+                documentState: 'REFERENCE',
+                pdfSnapshot: resumePath,
+            });
         });
-
-        if (application) {
-            // Update existing application with resume path
-            application = await prisma.application.update({
-                where: { id: application.id },
-                data: {
-                    resumePath,
-                    updatedAt: new Date(),
-                },
-            });
-        } else {
-            // Create new application record
-            application = await prisma.application.create({
-                data: {
-                    userId: mockUserId,
-                    jobId,
-                    status: 'discovered',
-                    resumePath,
-                    statusHistory: [
-                        {
-                            status: 'discovered',
-                            timestamp: new Date().toISOString(),
-                        },
-                    ],
-                },
-            });
-        }
 
         return NextResponse.json({
             success: true,
-            application,
+            resume,
         });
     } catch (error) {
         console.error('Resume save error:', error);

@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard,
     Briefcase,
+    Archive,
     FileText,
     Settings,
     List,
@@ -28,6 +29,7 @@ const colors = {
 const NAV_ITEMS = [
     { href: '/', label: 'Home', icon: LayoutDashboard },
     { href: '/jobs', label: 'Inbox', icon: Briefcase },
+    { href: '/passed', label: 'Passed', icon: Archive },
     { href: '/triage', label: 'Swipe', icon: Layers },
     { href: '/pipeline', label: 'Pipeline', icon: List },
     { href: '/resume', label: 'Resumes', icon: FileText },

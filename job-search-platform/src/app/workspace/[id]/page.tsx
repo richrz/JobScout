@@ -7,24 +7,29 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { ArtifactViewer } from '@/components/workspace/ArtifactViewer';
 import { NotesEditor } from '@/components/workspace/NotesEditor';
 import { StatusToggle } from '@/components/workspace/StatusToggle';
+import { ResumeDocumentsPanel } from '@/components/workspace/ResumeDocumentsPanel';
 import { ArrowLeft, Building2, MapPin, Calendar, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface WorkspacePageProps {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export default async function WorkspacePage({ params }: WorkspacePageProps) {
     const session = await getServerSession(authOptions);
+    const { id } = await params;
 
     if (!session?.user?.id) {
         redirect('/auth/signin');
     }
 
     const workspace = await prisma.workspace.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
             job: true,
+            resumes: {
+                orderBy: { createdAt: 'desc' }
+            },
             artifacts: {
                 orderBy: { createdAt: 'asc' }
             }
@@ -40,7 +45,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         notFound();
     }
 
-    const { job, artifacts } = workspace;
+    const { job, artifacts, resumes } = workspace;
 
     return (
         <div className="min-h-screen w-full bg-background">
@@ -106,6 +111,17 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
                 <div className="grid lg:grid-cols-2 gap-8">
                     {/* Left Column: Artifacts */}
                     <div>
+                        <ResumeDocumentsPanel
+                            resumes={resumes.map((resume) => ({
+                                id: resume.id,
+                                title: resume.title,
+                                documentState: resume.documentState,
+                                pdfSnapshot: resume.pdfSnapshot,
+                                createdAt: resume.createdAt.toISOString(),
+                                content: JSON.stringify(resume.content, null, 2),
+                            }))}
+                        />
+
                         <ArtifactViewer
                             artifacts={artifacts.map(a => ({
                                 ...a,

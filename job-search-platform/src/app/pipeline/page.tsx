@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { KanbanBoard } from '@/components/pipeline/KanbanBoard';
 import { PipelineHeader } from '@/components/pipeline/PipelineHeader';
 import { Search } from 'lucide-react';
+import { shouldHideFromPipeline } from '@/lib/opportunities/passed-bin';
 
 export default async function PipelinePage() {
     const session = await getServerSession(authOptions);
@@ -13,24 +14,54 @@ export default async function PipelinePage() {
         redirect('/auth/signin');
     }
 
-    const applications = await prisma.application.findMany({
-        where: { userId: session.user.id },
-        include: { job: true },
-        orderBy: { updatedAt: 'desc' }
-    });
+    const [applications, workspaces] = await Promise.all([
+        prisma.application.findMany({
+            where: { userId: session.user.id },
+            include: { job: true },
+            orderBy: { updatedAt: 'desc' }
+        }),
+        prisma.workspace.findMany({
+            where: { userId: session.user.id },
+            select: {
+                id: true,
+                jobId: true,
+                status: true,
+                resumes: {
+                    select: {
+                        id: true,
+                        title: true,
+                        documentState: true,
+                        pdfSnapshot: true,
+                        createdAt: true,
+                    },
+                    orderBy: {
+                        createdAt: 'desc',
+                    }
+                }
+            }
+        })
+    ]);
+
+    const workspaceByJobId = new Map(workspaces.map((workspace) => [workspace.jobId, workspace]));
+    const visibleApplications = applications
+        .map((application) => ({
+            ...application,
+            workspace: workspaceByJobId.get(application.jobId) || null,
+        }))
+        .filter((application) => !shouldHideFromPipeline(application.workspace?.status || null));
 
     console.log(`[PipelinePage] User: ${session.user.id} (${session.user.email})`);
-    console.log(`[PipelinePage] Applications found: ${applications.length}`);
-    applications.forEach(a => console.log(` - App: ${a.job?.title} Status: ${a.status}`));
+    console.log(`[PipelinePage] Applications found: ${visibleApplications.length}`);
+    visibleApplications.forEach(a => console.log(` - App: ${a.job?.title} Status: ${a.status}`));
 
     // Count applications per stage
     const stageCounts = {
-        interested: applications.filter(a => a.status === 'interested').length,
-        applied: applications.filter(a => a.status === 'applied').length,
-        screening: applications.filter(a => a.status === 'screening').length,
-        interview: applications.filter(a => a.status === 'interview').length,
-        offer: applications.filter(a => a.status === 'offer').length,
-        rejected: applications.filter(a => a.status === 'rejected').length,
+        interested: visibleApplications.filter(a => a.status === 'interested').length,
+        applied: visibleApplications.filter(a => a.status === 'applied').length,
+        screening: visibleApplications.filter(a => a.status === 'screening').length,
+        interview: visibleApplications.filter(a => a.status === 'interview').length,
+        offer: visibleApplications.filter(a => a.status === 'offer').length,
+        rejected: visibleApplications.filter(a => a.status === 'rejected').length,
     };
 
     const interviewCount = stageCounts.interview;
@@ -75,7 +106,7 @@ export default async function PipelinePage() {
 
             {/* Kanban Board */}
             <div className="flex-1 min-h-0 overflow-x-auto p-6 lg:p-10">
-                <KanbanBoard initialApplications={applications} />
+                <KanbanBoard initialApplications={visibleApplications} />
             </div>
         </div>
     );

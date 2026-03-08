@@ -1,10 +1,10 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { upsertWorkspaceResume } from '@/lib/resume/workspace-resume-service';
 
 /**
  * Save resume content to an application record
@@ -20,54 +20,40 @@ export async function saveResume(jobId: string, content: unknown, applicationId?
             throw new Error('Unauthorized');
         }
 
-        const resumeContent = content as Prisma.InputJsonValue;
-
-        // Create or Update Resume record
-        // We can try to find existing resume for this job/user
-        const existingResume = await prisma.resume.findFirst({
+        const workspace = await prisma.workspace.findUnique({
             where: {
-                userId: session.user.id,
-                jobId: jobId
-            }
+                userId_jobId: {
+                    userId: session.user.id,
+                    jobId,
+                },
+            },
+            select: { id: true },
         });
 
-        let resume;
-        if (existingResume) {
-            resume = await prisma.resume.update({
-                where: { id: existingResume.id },
-                data: {
-                    content: resumeContent,
-                    updatedAt: new Date()
-                }
+        const resume = await prisma.$transaction(async (tx) => {
+            return upsertWorkspaceResume(tx, {
+                userId: session.user.id,
+                jobId,
+                title: 'Working Draft',
+                content,
+                documentState: 'WORKING_DRAFT',
+                applicationId: applicationId || undefined,
+                workspaceId: workspace?.id,
             });
-        } else {
-            resume = await prisma.resume.create({
-                data: {
-                    userId: session.user.id,
-                    jobId: jobId,
-                    title: 'Tailored Resume',
-                    content: resumeContent,
-                    applicationId: applicationId || undefined,
-                    tailoringMode: 'strategic' // Default
-                }
-            });
-        }
-
-        // Also update Application if provided
-        if (applicationId) {
-            await prisma.application.update({
-                where: { id: applicationId },
-                data: {
-                    resumePath: `/resumes/${resume.id}`, // Virtual path or link to resume view
-                    updatedAt: new Date()
-                }
-            });
-        }
+        });
 
         revalidatePath('/dashboard');
         revalidatePath('/resume');
+        revalidatePath('/pipeline');
+        if (resume.workspaceId) {
+            revalidatePath(`/workspace/${resume.workspaceId}`);
+        }
 
-        return { success: true, path: `/resume/${resume.jobId}` }; // Return path to view it
+        return {
+            success: true,
+            path: `/resume?jobId=${resume.jobId}`,
+            workspaceId: resume.workspaceId || null,
+        };
     } catch (error) {
         console.error('Failed to save resume:', error);
         return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };

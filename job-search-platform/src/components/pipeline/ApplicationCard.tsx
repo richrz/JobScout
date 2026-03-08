@@ -30,6 +30,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ApplicationWithJob = Application & {
     job: Job;
+    workspace?: {
+        id: string;
+        status: string;
+        resumes: {
+            id: string;
+            title: string;
+            documentState: string;
+            pdfSnapshot: string | null;
+            createdAt: Date;
+        }[];
+    } | null;
 };
 
 interface StageConfig {

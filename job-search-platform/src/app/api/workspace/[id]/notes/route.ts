@@ -10,12 +10,13 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 interface RouteParams {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 // GET all notes for a workspace
 export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
         // Verify workspace ownership
         const workspace = await prisma.workspace.findUnique({
-            where: { id: params.id },
+            where: { id },
             select: { userId: true }
         });
 
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }
 
         const notes = await prisma.warRoomNote.findMany({
-            where: { workspaceId: params.id },
+            where: { workspaceId: id },
             orderBy: { updatedAt: 'desc' }
         });
 
@@ -51,13 +52,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // POST a new note
 export async function POST(request: NextRequest, { params }: RouteParams) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const workspace = await prisma.workspace.findUnique({
-            where: { id: params.id },
+            where: { id },
             select: { userId: true }
         });
 
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         const note = await prisma.warRoomNote.create({
             data: {
-                workspaceId: params.id,
+                workspaceId: id,
                 content
             }
         });

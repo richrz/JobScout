@@ -52,7 +52,7 @@ describe('KanbanBoard', () => {
             id: 'app-1',
             userId: 'user-1',
             jobId: 'job-1',
-            status: 'discovered',
+            status: 'interested',
             resumePath: null,
             notes: null,
             createdAt: new Date(),
@@ -111,7 +111,7 @@ describe('KanbanBoard', () => {
     it('renders all columns', () => {
         render(<KanbanBoard initialApplications={mockApplications} />);
 
-        expect(screen.getByText('Discovered')).toBeInTheDocument();
+        expect(screen.getByText('Interested')).toBeInTheDocument();
         expect(screen.getByText('Applied')).toBeInTheDocument();
         expect(screen.getByText('Interview')).toBeInTheDocument();
         // ... check other columns

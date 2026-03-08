@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
-import { JobCard } from "@/components/jobs/JobCard";
+import { InboxGrid } from "@/components/jobs/InboxGrid";
 import { JobsFilterSidebar } from "@/components/jobs/JobsFilterSidebar";
 import { JobSortSelect } from "@/components/jobs/JobSortSelect";
 import { JobSearchInput } from "@/components/jobs/JobSearchInput";
@@ -79,15 +79,12 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
-  // Filter out dismissed jobs
+  // Inbox should only show discovery items that are not already being managed.
   if (userId) {
     andConditions.push({
       NOT: {
         workspaces: {
-          some: {
-            userId,
-            status: "DISMISSED",
-          },
+          some: { userId },
         },
       },
     });
@@ -105,23 +102,6 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     }),
     prisma.job.count({ where }),
   ]);
-
-  const userInteractions: Record<string, string> = {};
-  if (userId && jobs.length > 0) {
-    const jobIds = jobs.map((j) => j.id);
-    const [apps, ws] = await Promise.all([
-      prisma.application.findMany({
-        where: { userId, jobId: { in: jobIds } },
-        select: { jobId: true, status: true },
-      }),
-      prisma.workspace.findMany({
-        where: { userId, jobId: { in: jobIds } },
-        select: { jobId: true, status: true },
-      }),
-    ]);
-    ws.forEach((w) => (userInteractions[w.jobId] = w.status.toLowerCase()));
-    apps.forEach((a) => (userInteractions[a.jobId] = a.status.toLowerCase()));
-  }
 
   const totalPages = Math.ceil(totalCount / limit);
 
@@ -210,15 +190,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
               ) : (
                 <>
                   {/* Job Cards Grid */}
-                  <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {jobs.map((job) => (
-                      <JobCard
-                        key={job.id}
-                        job={job}
-                        initialStatus={userInteractions[job.id]}
-                      />
-                    ))}
-                  </div>
+                  <InboxGrid jobs={jobs} />
 
                   {/* Pagination */}
                   {totalPages > 1 && (

@@ -6,7 +6,8 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { ApplicationStatus } from '@prisma/client';
+import { ApplicationStatus, Prisma } from '@prisma/client';
+import { upsertWorkspaceResume } from '@/lib/resume/workspace-resume-service';
 
 export interface CreateWorkspaceInput {
     userId: string;
@@ -15,12 +16,14 @@ export interface CreateWorkspaceInput {
     resumeName?: string;
     coverLetterContent?: string;
     status?: ApplicationStatus;
+    applicationId?: string | null;
 }
 
 export interface WorkspaceWithArtifacts {
     id: string;
     userId: string;
     jobId: string;
+    applicationId?: string | null;
     status: ApplicationStatus;
     priority: string;
     createdAt: Date;
@@ -30,77 +33,102 @@ export interface WorkspaceWithArtifacts {
         name: string;
         createdAt: Date;
     }[];
+    resumes: {
+        id: string;
+        title: string;
+        documentState: string;
+        pdfSnapshot: string | null;
+        createdAt: Date;
+    }[];
 }
+
+type WorkspaceDbClient = Prisma.TransactionClient | typeof prisma;
 
 /**
  * Creates a workspace for a job application and snapshots any provided documents.
  * Uses a transaction to ensure atomicity.
  */
-export async function createWorkspace(input: CreateWorkspaceInput): Promise<WorkspaceWithArtifacts> {
-    const { userId, jobId, resumeContent, resumeName, coverLetterContent } = input;
+export async function createWorkspace(
+    input: CreateWorkspaceInput,
+    db: WorkspaceDbClient = prisma
+): Promise<WorkspaceWithArtifacts> {
+    const { userId, jobId, resumeContent, resumeName, coverLetterContent, applicationId } = input;
 
-    // Use a transaction to create workspace and artifacts atomically
-    const result = await prisma.$transaction(async (tx) => {
-        // 1. Create the workspace
-        const workspace = await tx.workspace.create({
-            data: {
+    const workspace = await db.workspace.upsert({
+        where: {
+            userId_jobId: {
                 userId,
                 jobId,
-                status: input.status || 'APPLIED',
-                priority: 'medium',
+            },
+        },
+        update: {
+            status: input.status || 'APPLIED',
+            applicationId: applicationId || undefined,
+            updatedAt: new Date(),
+        },
+        create: {
+            userId,
+            jobId,
+            status: input.status || 'APPLIED',
+            priority: 'medium',
+            applicationId: applicationId || undefined,
+        }
+    });
+
+    const artifacts: { id: string; type: string; name: string; createdAt: Date }[] = [];
+    const resumes: WorkspaceWithArtifacts['resumes'] = [];
+
+    if (resumeContent) {
+        const submittedSnapshot = await upsertWorkspaceResume(db, {
+            userId,
+            jobId,
+            workspaceId: workspace.id,
+            applicationId,
+            title: resumeName || `Submitted Resume - ${new Date().toISOString().split('T')[0]}`,
+            content: {
+                text: resumeContent,
+                source: 'workspace-apply',
+            },
+            documentState: 'SUBMITTED_SNAPSHOT',
+        });
+        resumes.push({
+            id: submittedSnapshot.id,
+            title: submittedSnapshot.title,
+            documentState: submittedSnapshot.documentState,
+            pdfSnapshot: submittedSnapshot.pdfSnapshot,
+            createdAt: submittedSnapshot.createdAt,
+        });
+    }
+
+    if (coverLetterContent) {
+        const coverLetterArtifact = await db.artifact.create({
+            data: {
+                workspaceId: workspace.id,
+                type: 'COVER_LETTER',
+                name: `Cover Letter - ${new Date().toISOString().split('T')[0]}`,
+                storagePath: `workspaces/${workspace.id}/cover-letter.txt`,
+                content: coverLetterContent,
             }
         });
+        artifacts.push({
+            id: coverLetterArtifact.id,
+            type: coverLetterArtifact.type,
+            name: coverLetterArtifact.name,
+            createdAt: coverLetterArtifact.createdAt
+        });
+    }
 
-        const artifacts: { id: string; type: string; name: string; createdAt: Date }[] = [];
-
-        // 2. Snapshot resume if provided
-        if (resumeContent) {
-            const resumeArtifact = await tx.artifact.create({
-                data: {
-                    workspaceId: workspace.id,
-                    type: 'RESUME',
-                    name: resumeName || `Resume-${new Date().toISOString().split('T')[0]}`,
-                    storagePath: `workspaces/${workspace.id}/resume.txt`,
-                    content: resumeContent,
-                }
-            });
-            artifacts.push({
-                id: resumeArtifact.id,
-                type: resumeArtifact.type,
-                name: resumeArtifact.name,
-                createdAt: resumeArtifact.createdAt
-            });
-        }
-
-        // 3. Snapshot cover letter if provided
-        if (coverLetterContent) {
-            const coverLetterArtifact = await tx.artifact.create({
-                data: {
-                    workspaceId: workspace.id,
-                    type: 'COVER_LETTER',
-                    name: `Cover Letter - ${new Date().toISOString().split('T')[0]}`,
-                    storagePath: `workspaces/${workspace.id}/cover-letter.txt`,
-                    content: coverLetterContent,
-                }
-            });
-            artifacts.push({
-                id: coverLetterArtifact.id,
-                type: coverLetterArtifact.type,
-                name: coverLetterArtifact.name,
-                createdAt: coverLetterArtifact.createdAt
-            });
-        }
-
-        return {
-            id: workspace.id,
-            userId: workspace.userId,
-            jobId: workspace.jobId,
-            status: workspace.status,
-            priority: workspace.priority,
-            createdAt: workspace.createdAt,
-            artifacts
-        };
-    });
+    const result = {
+        id: workspace.id,
+        userId: workspace.userId,
+        jobId: workspace.jobId,
+        applicationId: workspace.applicationId,
+        status: workspace.status,
+        priority: workspace.priority,
+        createdAt: workspace.createdAt,
+        artifacts,
+        resumes,
+    };
 
     console.log(`Created workspace ${result.id} with ${result.artifacts.length} artifacts`);
     return result;
@@ -120,6 +148,18 @@ export async function getWorkspace(workspaceId: string): Promise<WorkspaceWithAr
                     name: true,
                     createdAt: true
                 }
+            },
+            resumes: {
+                select: {
+                    id: true,
+                    title: true,
+                    documentState: true,
+                    pdfSnapshot: true,
+                    createdAt: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                }
             }
         }
     });
@@ -130,10 +170,12 @@ export async function getWorkspace(workspaceId: string): Promise<WorkspaceWithAr
         id: workspace.id,
         userId: workspace.userId,
         jobId: workspace.jobId,
+        applicationId: workspace.applicationId,
         status: workspace.status,
         priority: workspace.priority,
         createdAt: workspace.createdAt,
-        artifacts: workspace.artifacts
+        artifacts: workspace.artifacts,
+        resumes: workspace.resumes,
     };
 }
 
@@ -152,6 +194,18 @@ export async function getUserWorkspaces(userId: string): Promise<WorkspaceWithAr
                     createdAt: true
                 }
             },
+            resumes: {
+                select: {
+                    id: true,
+                    title: true,
+                    documentState: true,
+                    pdfSnapshot: true,
+                    createdAt: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                }
+            },
             job: {
                 select: {
                     title: true,
@@ -166,10 +220,12 @@ export async function getUserWorkspaces(userId: string): Promise<WorkspaceWithAr
         id: w.id,
         userId: w.userId,
         jobId: w.jobId,
+        applicationId: w.applicationId,
         status: w.status,
         priority: w.priority,
         createdAt: w.createdAt,
-        artifacts: w.artifacts
+        artifacts: w.artifacts,
+        resumes: w.resumes,
     }));
 }
 

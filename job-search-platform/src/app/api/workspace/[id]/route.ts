@@ -12,17 +12,18 @@ import { prisma } from '@/lib/prisma';
 import { ApplicationStatus } from '@prisma/client';
 
 interface RouteParams {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const workspace = await getWorkspace(params.id);
+        const workspace = await getWorkspace(id);
 
         if (!workspace) {
             return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
@@ -52,12 +53,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
     try {
+        const { id } = await params;
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const workspace = await getWorkspace(params.id);
+        const workspace = await getWorkspace(id);
 
         if (!workspace) {
             return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
@@ -71,13 +73,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         const { status } = body;
 
         // Validate status
-        const validStatuses: ApplicationStatus[] = ['APPLIED', 'FOLLOW_UP', 'DORMANT', 'ARCHIVED'];
+        const validStatuses: ApplicationStatus[] = ['INTERESTED', 'APPLIED', 'FOLLOW_UP', 'DORMANT', 'ARCHIVED', 'PASSED'];
         if (status && !validStatuses.includes(status)) {
             return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
         }
 
         if (status) {
-            await updateWorkspaceStatus(params.id, status);
+            await updateWorkspaceStatus(id, status);
         }
 
         return NextResponse.json({

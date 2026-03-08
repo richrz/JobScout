@@ -15,9 +15,20 @@ import { cn } from "@/lib/utils";
 interface JobCardProps {
   job: Job;
   initialStatus?: string | null;
+  isSelected?: boolean;
+  selectionMode?: boolean;
+  onToggleSelection?: (jobId: string) => void;
+  onResolved?: (jobId: string) => void;
 }
 
-export function JobCard({ job, initialStatus = null }: JobCardProps) {
+export function JobCard({
+  job,
+  initialStatus = null,
+  isSelected = false,
+  selectionMode = false,
+  onToggleSelection,
+  onResolved,
+}: JobCardProps) {
   const score = Math.round((job.compositeScore || 0) * 100);
   const detailsHref = `/jobs/${job.id}` as Route;
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -34,7 +45,9 @@ export function JobCard({ job, initialStatus = null }: JobCardProps) {
     try {
       const result = await toggleJobInterest(job.id);
       if (result.success) {
-        setCurrentStatus(prev => prev ? null : 'interested');
+        setCurrentStatus('interested');
+        setIsDismissed(true);
+        onResolved?.(job.id);
       } else {
         if (result.error === 'Unauthorized') {
           router.push('/auth/signin');
@@ -56,6 +69,7 @@ export function JobCard({ job, initialStatus = null }: JobCardProps) {
       const result = await dismissJob(job.id);
       if (result.success) {
         setIsDismissed(true);
+        onResolved?.(job.id);
       } else {
         setError(result.error || 'Failed to dismiss');
       }
@@ -70,6 +84,15 @@ export function JobCard({ job, initialStatus = null }: JobCardProps) {
 
   return (
     <div className="flex flex-col h-full group p-6 rounded-2xl bg-card transition-all duration-300 hover:shadow-2xl hover:bg-card/90 relative overflow-hidden">
+      <div className={`absolute top-4 right-4 z-20 ${selectionMode || isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onToggleSelection?.(job.id)}
+          className="h-4 w-4 rounded-md border-border bg-background/50 text-primary focus:ring-primary cursor-pointer shadow-sm"
+        />
+      </div>
+
       {/* Hover Highlight */}
       <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -137,7 +160,7 @@ export function JobCard({ job, initialStatus = null }: JobCardProps) {
               : "border-primary/20 text-primary hover:bg-primary/10"
           )}
           onClick={handleToggleInterest}
-          disabled={isActionLoading}
+          disabled={isActionLoading || isInterested}
         >
           {isActionLoading ? (
             <Loader2 className="w-4 h-4 animate-spin" />

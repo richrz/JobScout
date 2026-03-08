@@ -48,7 +48,7 @@ export function TriageDeck() {
     // We keep a "history" here locally just for visual restoration.
     const [actionHistory, setActionHistory] = useState<TriageJob[]>([]);
 
-    const handleAction = async (jobId: string, action: 'INTERESTED' | 'DISMISSED') => {
+    const handleAction = async (jobId: string, action: 'INTERESTED' | 'PASSED') => {
         if (actionLoading) return;
 
         const job = jobs.find(j => j.id === jobId);
@@ -123,7 +123,7 @@ export function TriageDeck() {
                             job={job}
                             index={index}
                             onSwipe={(direction) => {
-                                const action = direction === 'right' ? 'INTERESTED' : 'DISMISSED';
+                                const action = direction === 'right' ? 'INTERESTED' : 'PASSED';
                                 handleAction(job.id, action);
                             }}
                         />
@@ -139,7 +139,7 @@ export function TriageDeck() {
             {jobs.length > 0 && (
                 <div className="flex flex-col gap-4 w-full max-w-md mb-24">
                     <TriageActions
-                        onPass={() => handleAction(jobs[0].id, 'DISMISSED')}
+                        onPass={() => handleAction(jobs[0].id, 'PASSED')}
                         onSave={() => handleAction(jobs[0].id, 'INTERESTED')}
                         disabled={actionLoading}
                     />

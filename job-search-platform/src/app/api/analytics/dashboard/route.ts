@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
             INTERESTED: 0,
             APPLIED: 0,
             FOLLOW_UP: 0,
-            DISMISSED: 0
+            PASSED: 0
         };
 
         funnel.forEach(group => {

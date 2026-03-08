@@ -1,7 +1,7 @@
 /**
  * POST /api/triage/action
  * 
- * Handles triage actions (Interested/Dismissed) for a job.
+ * Handles triage actions (Interested/Passed) for a job.
  * Creates a Workspace with the corresponding status.
  */
 
@@ -10,6 +10,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { dismissOpportunity, syncOpportunityState } from '@/lib/opportunities/state-sync';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
     try {
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Validate action type
-        if (!['INTERESTED', 'DISMISSED'].includes(action)) {
+        if (!['INTERESTED', 'PASSED', 'DISMISSED'].includes(action)) {
             return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
         }
 
@@ -45,6 +46,10 @@ export async function POST(request: NextRequest) {
                 jobId,
             });
         });
+
+        revalidatePath('/jobs');
+        revalidatePath('/triage');
+        revalidatePath('/passed');
 
         return NextResponse.json({ success: true }, { status: 201 });
 

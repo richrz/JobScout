@@ -165,9 +165,9 @@ async function main() {
     });
 
     const interested = workspaces.find(w => w.jobId === jobs[0].id);
-    const dismissed = workspaces.find(w => w.jobId === jobs[1].id);
+    const passed = workspaces.find(w => w.jobId === jobs[1].id);
 
-    if (interested?.status === 'INTERESTED' && dismissed?.status === 'DISMISSED') {
+    if (interested?.status === 'INTERESTED' && passed?.status === 'PASSED') {
         console.log('  ✅ Statuses persisted correctly');
     } else {
         console.error('  ❌ Incorrect statuses!');
@@ -187,7 +187,7 @@ async function main() {
     console.log('╔══════════════════════════════════════════════════════════════╗');
     console.log('║                    ✅ DEMO PASSED                            ║');
     console.log('║  Triage Feed functionality works correctly.                  ║');
-    console.log('║  - INTERESTED/DISMISSED actions persist correctly            ║');
+    console.log('║  - INTERESTED/PASSED actions persist correctly               ║');
     console.log('║  - Feed correctly filters processed jobs                     ║');
     console.log('╚══════════════════════════════════════════════════════════════╝\n');
 

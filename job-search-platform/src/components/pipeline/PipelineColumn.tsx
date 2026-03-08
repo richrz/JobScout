@@ -5,10 +5,21 @@ import { Application, Job } from '@prisma/client';
 import { ApplicationCard } from './ApplicationCard';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { Star, Send, Phone, Gift, X, FileSearch } from 'lucide-react';
+import { Star, Send, Phone, Gift, X, FileSearch, type LucideIcon } from 'lucide-react';
 
 type ApplicationWithJob = Application & {
     job: Job;
+    workspace?: {
+        id: string;
+        status: string;
+        resumes: {
+            id: string;
+            title: string;
+            documentState: string;
+            pdfSnapshot: string | null;
+            createdAt: Date;
+        }[];
+    } | null;
 };
 
 interface PipelineColumnProps {
@@ -25,7 +36,7 @@ const columnConfig: Record<string, {
     bg: string;
     border: string;
     text: string;
-    icon: React.ElementType;
+    icon: LucideIcon;
     cardBorder: string;
     glowClass?: string;
 }> = {

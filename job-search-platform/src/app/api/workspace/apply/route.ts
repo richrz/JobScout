@@ -48,50 +48,37 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 4. Check if workspace already exists
-        const existingWorkspace = await prisma.workspace.findUnique({
-            where: {
-                userId_jobId: {
-                    userId,
-                    jobId
-                }
-            }
-        });
-
-        if (existingWorkspace) {
-            return NextResponse.json(
-                {
-                    error: 'You have already applied to this job',
-                    workspaceId: existingWorkspace.id
-                },
-                { status: 409 }
-            );
-        }
-
-        // 5. Create workspace with artifacts
-        const workspace = await createWorkspace({
-            userId,
-            jobId,
-            resumeContent,
-            resumeName,
-            coverLetterContent
-        });
-
-        await prisma.$transaction(async (tx) => {
-            await syncOpportunityState(tx, {
+        const result = await prisma.$transaction(async (tx) => {
+            const syncResult = await syncOpportunityState(tx, {
                 userId,
                 jobId,
                 legacyStatus: 'applied',
             });
+
+            const workspace = await createWorkspace({
+                userId,
+                jobId,
+                resumeContent,
+                resumeName,
+                coverLetterContent,
+                status: 'APPLIED',
+                applicationId: syncResult.applicationId,
+            }, tx);
+
+            return {
+                workspace,
+                applicationId: syncResult.applicationId,
+            };
         });
 
         return NextResponse.json({
             success: true,
             message: `Application created for ${job.title} at ${job.company}`,
             workspace: {
-                id: workspace.id,
-                status: workspace.status,
-                artifactCount: workspace.artifacts.length
+                id: result.workspace.id,
+                status: result.workspace.status,
+                artifactCount: result.workspace.artifacts.length,
+                resumeCount: result.workspace.resumes.length,
             }
         }, { status: 201 });
 

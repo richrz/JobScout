@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
         const { revalidatePath } = await import('next/cache');
         revalidatePath('/pipeline');
         revalidatePath('/jobs');
+        revalidatePath('/passed');
 
         return NextResponse.json({ success: true, count: items.length });
 
