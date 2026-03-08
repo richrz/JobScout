@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-03-07 — Resume Document Truth Model Sprint Brief
+
+### Context
+The next implementation move needed to stop being “we should probably fix the resume system next” and become a real sprint target.
+
+The product direction is already clear:
+- JobScout is ultimately an AI-assisted application engine
+- the resume system is the choke point
+- richer workspace or Inbox work will not matter enough if document ownership stays fuzzy
+
+### Decisions Made
+1. **The next sprint is now explicitly centered on the resume/document truth model.**
+2. **The sprint brief locks the implementation focus** around:
+   - `Workspace` owning notes, guidance, and artifacts
+   - `Application` becoming event/history instead of main truth
+   - clean separation of `Existing Resume`, `Working Draft`, `Saved Variant`, and `Submitted Snapshot`
+   - resume generation using only approved facts, selected tone, and optional AI guidance
+3. **Inbox multi-select, Passed Bin, and richer workspace UI are intentionally out of scope** for this sprint so the core ownership problem gets solved first.
+
+### Why This Matters
+This keeps the next build step from drifting back into UI work while the deepest data and trust problem remains unresolved.
+
+It also gives future agents a much clearer answer to:
+> "What are we actually building next?"
+
+Answer:
+- the resume/document truth model first
+- then the next feature wave on top of that foundation
+
+---
+
 ## 2026-03-07 — Repo-Native Sprint And Handoff Workflow
 
 ### Context

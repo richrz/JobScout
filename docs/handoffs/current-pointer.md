@@ -15,8 +15,9 @@
 
 1. [Docs Hub](/home/richard/code/jobs/docs/README.md)
 2. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
-3. [Resume Input And Voice Strategy](/home/richard/code/jobs/docs/product/resume-input-and-voice-strategy.md)
-4. [Journal](/home/richard/code/jobs/JOURNAL.md)
+3. [Resume Document Truth Model Sprint Brief](/home/richard/code/jobs/docs/plans/resume-document-truth-model-sprint-brief.md)
+4. [Resume Input And Voice Strategy](/home/richard/code/jobs/docs/product/resume-input-and-voice-strategy.md)
+5. [Journal](/home/richard/code/jobs/JOURNAL.md)
 
 ## Current Sprint Goal
 
@@ -34,6 +35,7 @@
 
 - Lock the resume/document truth model in implementation, not just docs.
 - Decide the schema ownership changes before building Passed Bin, stage journals, or richer artifact flows.
+- Execute the new sprint brief for the resume/document truth model.
 - Build the next major product wave:
   - resume/document contract
   - Inbox multi-select and Passed Bin

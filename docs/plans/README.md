@@ -7,6 +7,7 @@
 
 - [current-implementation-roadmap.md](./current-implementation-roadmap.md)
 - [sprint-brief-template.md](./sprint-brief-template.md)
+- [resume-document-truth-model-sprint-brief.md](./resume-document-truth-model-sprint-brief.md)
 
 This is the implementation plan that should guide the next major product update.
 If another plan conflicts with it, this roadmap wins unless a newer ADR or product contract says otherwise.
