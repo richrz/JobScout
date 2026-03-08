@@ -195,6 +195,20 @@ Owns:
 - invariants
 - first safe slice
 
+Default reply shape:
+- `What Happened`
+- `Risk`
+- `Direction`
+- `What Must Stay True`
+- `Approval Needed`
+- `What's Next`
+
+Default reply style:
+- friendly
+- less formal
+- concise
+- always include both a short recap and a clear next move
+
 Does not:
 - implement
 - verify final completion

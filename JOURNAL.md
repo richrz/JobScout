@@ -4,6 +4,34 @@
 
 ---
 
+## 2026-03-08 — Architect Replies Became Friendlier And More Actionable
+
+### Context
+The architect role still sounded too formal and report-like.
+
+That caused two problems:
+- the tone felt colder than it needed to
+- replies could explain what happened without clearly telling the human what to do next
+
+### Decisions Made
+1. **Architect replies should be friendly, direct, and concise.**
+2. **Architect replies must always include both:**
+   - a short `What Happened`
+   - a clear `What's Next`
+3. **The architect template headings were updated** to:
+   - `What Happened`
+   - `Risk`
+   - `Direction`
+   - `What Must Stay True`
+   - `Approval Needed`
+   - `What's Next`
+4. **The orchestrator prompts were updated** so schema-sensitive architect passes now require those headings exactly.
+
+### Why This Matters
+This keeps architect replies useful to an actual human instead of reading like internal paperwork.
+
+The architect should help the human move, not just summarize the situation.
+
 ## 2026-03-08 — Outcome Ownership Replaced Step-Level Approval
 
 ### Context

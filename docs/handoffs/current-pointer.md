@@ -80,6 +80,10 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `GO: <goal>` means finish to a natural endpoint
   - focused commit and current-branch push are included by default
   - stop only at real risk boundaries or when the human says `HOLD` / `LOCAL ONLY`
+- Architect replies are now tuned for collaboration:
+  - friendlier and less formal
+  - concise
+  - always include `What's Next`
 - The docs spine was cleaned up and made the source of truth.
 - The repo-native sprint workflow and live baton-pass pointer were added.
 - The architect operating contract now defines the canonical path from `GO:` through proof, handoff, focused commit, and current-branch push.
@@ -107,6 +111,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `job-search-platform/.taskmaster/` and `job-search-platform/.tdd/` are gone
   - `docs/loops/` now keeps only its root `README.md`
 - Outcome-ownership verification confirmed the active contract now treats current-branch commit and push as the default completion path.
+- Architect contract verification confirmed the template and orchestrator prompts now require `What's Next` in architect replies.
 
 ## Known Risks
 

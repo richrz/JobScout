@@ -173,7 +173,7 @@ After completing steps 1–8, output a Boot Receipt before doing anything else:
 If schema-sensitive = yes and no accepted ADR in the active sprint brief clearly covers the requested slice (or the requested slice would change that direction):
 - Output the Boot Receipt with schema-sensitive = yes.
 - You may do up to 2 additional code inspection rounds to ground the Architect Pass.
-- Output the Architect Pass using the exact headings from `docs/templates/architect-prompt.md`: Current Truth → Risk → Proposed Direction → Invariants → Human Approval Needed → First Safe Slice.
+- Output the Architect Pass using the exact headings from `docs/templates/architect-prompt.md`: What Happened → Risk → Direction → What Must Stay True → Approval Needed → What's Next.
 - End with `<promise>STOP</promise>`.
 - Do not proceed to coder delegation, move recommendation, or contract writing until the human explicitly approves the direction.
 - No narrative analysis. Template headings only, then stop.
