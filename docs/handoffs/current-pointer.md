@@ -9,7 +9,7 @@
 
 ## Latest Product Checkpoint
 
-- `1f14980` — architect replies friendlier, concise, and always include What's Next
+- `4794835` — resume ownership, inbox multi-select, and passed bin shipped end to end
 
 ## Read First
 
@@ -17,7 +17,7 @@
 2. [Architect Operating Contract](/home/richard/code/jobs/docs/guides/architect-operating-contract.md)
 3. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
 4. [Resume Document Truth Model Sprint Brief](/home/richard/code/jobs/docs/plans/resume-document-truth-model-sprint-brief.md)
-5. [Resume Input And Voice Strategy](/home/richard/code/jobs/docs/product/resume-input-and-voice-strategy.md)
+5. [Resume Document Truth Model ADR](/home/richard/code/jobs/docs/decisions/008-resume-document-truth-model.md)
 6. [Journal](/home/richard/code/jobs/JOURNAL.md)
 
 ## First 10 Minutes Contract
@@ -70,61 +70,48 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
-- Taskmaster and `.tdd` were removed from the active workflow.
-- Default repo cleanup policy was applied:
-  - root local config is being removed from tracked repo truth
-  - retired `.taskmaster` / `.tdd` residue was deleted from `job-search-platform/`
-  - scaffold loop folders under `docs/loops/2026-03-07/` were pruned
-  - `paste.txt` was removed
-- Outcome ownership is now the default repo contract:
-  - `GO: <goal>` means finish to a natural endpoint
-  - focused commit and current-branch push are included by default
-  - stop only at real risk boundaries or when the human says `HOLD` / `LOCAL ONLY`
-- Architect replies are now tuned for collaboration:
-  - friendlier and less formal
-  - concise
-  - always include `What's Next`
-- The docs spine was cleaned up and made the source of truth.
-- The repo-native sprint workflow and live baton-pass pointer were added.
-- The architect operating contract now defines the canonical path from `GO:` through proof, handoff, focused commit, and current-branch push.
-- Opportunity, workspace, lifecycle, recovery, and resume naming decisions were locked.
-- Inbox search, sort, clickable titles, and honest filter behavior were checkpointed in code.
+- The resume/document truth model is now implemented, not just planned.
+- `Workspace` now owns resume documents across working drafts, references, and submitted snapshots.
+- `ApplicationStatus` now uses `PASSED` instead of `DISMISSED`, and passed opportunities have a real restore/archive flow.
+- Inbox now supports multi-select with batch `Pass Selected` and `Save Selected`.
+- Passed Bin now exists as a first-class page with search, batch selection, restore, and archive actions.
+- Pipeline and workspace surfaces now read resume ownership from workspace-backed documents instead of relying on `application.resumePath`.
+- Workspace now shows a `Resume Documents` panel and the workspace notes routes were fixed for the current Next async `params` contract.
+- Resume save, resume upload, and apply flows now snapshot or upsert workspace-owned documents consistently.
+- ADR 008 implementation is backed by a shipped Prisma migration:
+  - `job-search-platform/prisma/migrations/20260308230500_resume_document_truth_and_passed_bin/migration.sql`
 
 ## What Remains
 
-- Lock the resume/document truth model in implementation, not just docs.
-- Implement the already-approved schema ownership changes before building Passed Bin, stage journals, or richer artifact flows.
-- Execute the new sprint brief for the resume/document truth model.
-- Build the next major product wave:
-  - resume/document contract
-  - Inbox multi-select and Passed Bin
-  - workspace capture
+- Clean up the older repo-wide TypeScript failures that still exist outside this slice.
+- Decide whether the next product move is:
+  - real submitted artifact capture for apply flows
+  - richer workspace guidance / journals
+  - broader Next 16 route cleanup beyond the workspace area
 
 ## Verification
 
-- Latest product checkpoint was browser-verified on `http://127.0.0.1:3173`.
-- Docs link sweeps were run during the docs cleanup passes.
-- Process docs were aligned so the public interface is `ARCH/READY/GO`, direct `GO: <goal>` still works, and dirty-tree overlap now blocks execution explicitly.
-- Repo cleanup verification confirmed:
-  - local config files still exist locally but are now ignored
-  - `paste.txt` is gone
-  - `job-search-platform/.taskmaster/` and `job-search-platform/.tdd/` are gone
-  - `docs/loops/` now keeps only its root `README.md`
-- Outcome-ownership verification confirmed the active contract now treats current-branch commit and push as the default completion path.
-- Architect contract verification confirmed the template and orchestrator prompts now require `What's Next` in architect replies.
+- Prisma migration deployed locally and Prisma client regenerated successfully.
+- Targeted unit verification passed:
+  - `tests/unit/lib/passed-bin.test.ts`
+  - `tests/unit/lib/resume-document-summary.test.ts`
+  - `tests/unit/components/pipeline/ApplicationCard.test.tsx`
+  - `tests/unit/components/pipeline/KanbanBoard.test.tsx`
+- Browser verification passed on `http://127.0.0.1:3173` for:
+  - Inbox multi-select toolbar and batch actions surface
+  - Passed Bin page load and restore/archive controls
+  - Workspace resume documents panel
+  - Workspace notes fetch and note creation after fixing async route params
+- Proof artifacts live at:
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/inbox-multiselect-toolbar.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/passed-bin.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/workspace-notes-fixed.png`
 
 ## Known Risks
 
-- The current schema is acceptable as a bridge but should not be extended blindly.
-- Local machine config remains intentionally local-only:
-  - `.env.local`
-  - `.gemini/settings.json`
-  - `.mcp.json`
+- `npx tsc --noEmit` still reports older unrelated repo issues outside this feature slice.
+- The new schema direction is now in place, so follow ADR 008 instead of re-introducing `application.resumePath` ownership patterns.
 
 ## Next Recommended Task
 
-- Finalize and implement the resume/document truth model:
-  - follow ADR 008 without re-opening approved architecture
-  - `Workspace` owns notes, guidance, and artifacts
-  - `Application` becomes event/history
-  - resume generation uses approved facts, selected tone, and optional AI guidance
+- Do a focused cleanup pass on the remaining repo-wide TypeScript / Next 16 debt so future feature work starts from a steadier floor.

@@ -4,6 +4,38 @@
 
 ---
 
+## 2026-03-08 — Resume Ownership, Inbox Multi-Select, And Passed Bin Shipped
+
+### Context
+The product had already converged on the right direction in ADR 008, but the app still behaved like the older model:
+- resume ownership was split between `Application` and `Workspace`
+- Inbox had only one-at-a-time triage
+- Passed Bin was still mostly an idea
+- workspace notes were broken by stale Next dynamic route signatures
+
+That meant the docs were ahead of the product, and the user could not trust the workflow end to end.
+
+### Decisions Made
+1. **`Workspace` is now the live owner of resume documents.**
+   - working drafts, references, and submitted snapshots are stored as workspace-linked resume records
+   - apply flows now snapshot documents instead of treating `application.resumePath` as the durable source of truth
+2. **Passed work became a first-class lifecycle.**
+   - `PASSED` replaced `DISMISSED`
+   - Passed Bin now supports search, restore, archive, and batch selection
+3. **Inbox triage now supports multi-select.**
+   - batch `Save Selected`
+   - batch `Pass Selected`
+4. **Workspace and pipeline UIs now read document truth from workspace-owned resumes.**
+5. **The stale Next async `params` bug was fixed** in the workspace routes that were still breaking notes and status APIs at runtime.
+
+### Why This Matters
+This is the first checkpoint where the approved ownership model actually exists in the product surface instead of only in docs.
+
+It also turns three separate frustrations into one coherent flow:
+- Inbox can move multiple jobs quickly
+- Passed Bin gives recovery instead of silent loss
+- Workspace now visibly owns the resume history behind each opportunity
+
 ## 2026-03-08 — Architect Replies Became Friendlier And More Actionable
 
 ### Context
