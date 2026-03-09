@@ -1,5 +1,31 @@
+import '@/lib/load-root-env';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+
+function getDefaultLlmConfig() {
+    return {
+        provider: 'custom',
+        model: process.env.ZAI_MODEL || 'glm-5',
+        apiKey: process.env.ZAI_API_KEY || '',
+        apiEndpoint: process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/',
+        temperature: 0.7,
+        maxTokens: 2000,
+    };
+}
+
+function normalizeLlmConfig(rawConfig: Record<string, unknown> | null | undefined) {
+    const defaults = getDefaultLlmConfig();
+    const raw = rawConfig || {};
+
+    return {
+        provider: typeof raw.provider === 'string' && raw.provider ? raw.provider : defaults.provider,
+        model: typeof raw.model === 'string' && raw.model ? raw.model : defaults.model,
+        apiKey: typeof raw.apiKey === 'string' && raw.apiKey ? raw.apiKey : defaults.apiKey,
+        apiEndpoint: typeof raw.apiEndpoint === 'string' && raw.apiEndpoint ? raw.apiEndpoint : defaults.apiEndpoint,
+        temperature: typeof raw.temperature === 'number' ? raw.temperature : defaults.temperature,
+        maxTokens: typeof raw.maxTokens === 'number' ? raw.maxTokens : defaults.maxTokens,
+    };
+}
 
 export async function GET() {
     try {
@@ -11,7 +37,7 @@ export async function GET() {
         if (!config) {
             return NextResponse.json({
                 search: { cities: [], keywords: [], categories: [], excludeKeywords: [], recencyDays: 30 },
-                llm: { provider: 'openai', model: 'gpt-5.2', apiKey: '', temperature: 0.7, maxTokens: 2000 },
+                llm: getDefaultLlmConfig(),
                 automation: { dailyApplicationLimit: 20, autoApply: false, requireManualReview: true },
                 version: 1,
                 lastUpdated: new Date(),
@@ -20,7 +46,7 @@ export async function GET() {
 
         return NextResponse.json({
             search: config.searchParams,
-            llm: config.llmConfig,
+            llm: normalizeLlmConfig(config.llmConfig as Record<string, unknown> | null),
             automation: config.dailyCaps,
             version: config.version || 1,
             lastUpdated: config.updatedAt,
@@ -90,7 +116,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({
             search: config.searchParams,
-            llm: config.llmConfig,
+            llm: normalizeLlmConfig(config.llmConfig as Record<string, unknown> | null),
             automation: config.dailyCaps,
             version: config.version || 1,
             lastUpdated: config.updatedAt,

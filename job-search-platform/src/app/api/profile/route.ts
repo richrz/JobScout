@@ -1,6 +1,8 @@
+import '@/lib/load-root-env';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { addProfileMemory } from '@/lib/mem0';
 
 export const dynamic = 'force-dynamic';
 
@@ -137,6 +139,12 @@ export async function POST(request: Request) {
             },
             include: { experiences: true, educations: true }
         });
+
+        try {
+            await addProfileMemory(profile, user.id);
+        } catch (memoryError) {
+            console.error('Failed to sync profile to Mem0:', memoryError);
+        }
 
         revalidatePath('/resume');
 

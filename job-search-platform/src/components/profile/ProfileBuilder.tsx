@@ -1,9 +1,12 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm, useFieldArray, useFormContext } from 'react-hook-form';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { calculateCompleteness, Profile } from '@/lib/profile-utils';
+import {
+  mergeImportedProfile,
+  type ImportedProfile,
+} from '@/lib/profile-import';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,7 +21,20 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Trash2, Plus, RefreshCw, Sparkles, Briefcase, GraduationCap, FolderGit2 } from 'lucide-react';
+import {
+  Trash2,
+  Plus,
+  RefreshCw,
+  Sparkles,
+  Briefcase,
+  GraduationCap,
+  FolderGit2,
+  Upload,
+  FileText,
+  Check,
+  X,
+  Loader2,
+} from 'lucide-react';
 
 const sections = [
   { id: 'contact', title: 'Contact Information' },
@@ -846,6 +862,21 @@ export function ProfileBuilder() {
   const [activeSection, setActiveSection] = useState('contact');
   const [saveStatus, setSaveStatus] = useState('Saved');
   const [isLoading, setIsLoading] = useState(true);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importReview, setImportReview] = useState<{
+    filename: string;
+    extractedCharacters: number;
+    counts: {
+      experiences: number;
+      educations: number;
+      skills: number;
+      projects: number;
+      certifications: number;
+    };
+    importedProfile: ImportedProfile;
+  } | null>(null);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
 
   const methods = useForm<Profile>({
     defaultValues: {
@@ -932,6 +963,56 @@ export function ProfileBuilder() {
     }
   };
 
+  const handleImportClick = () => {
+    importInputRef.current?.click();
+  };
+
+  const handleImportFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setImportError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/profile/import-resume', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || 'Resume import failed');
+      }
+
+      setImportReview({
+        ...payload.review,
+        importedProfile: payload.importedProfile,
+      });
+      setSaveStatus('Import ready for review');
+    } catch (error) {
+      console.error('Failed to import resume:', error);
+      setImportError(error instanceof Error ? error.message : 'Resume import failed');
+    } finally {
+      setIsImporting(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleApplyImport = async () => {
+    if (!importReview) return;
+
+    const mergedProfile = mergeImportedProfile(methods.getValues(), importReview.importedProfile);
+    methods.reset(mergedProfile);
+    setImportReview(null);
+    setImportError(null);
+    await handleSave(mergedProfile);
+  };
+
   const { isDirty } = methods.formState;
   const values = methods.watch();
   const progress = calculateCompleteness(values);
@@ -950,11 +1031,71 @@ export function ProfileBuilder() {
         <div className="bg-background/80 backdrop-blur border-b p-4 space-y-4 z-10 sticky top-0">
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-bold">Profile Builder</h1>
-            <span className={`text-sm font-medium ${saveStatus === 'Saved' ? 'text-green-500' :
-              saveStatus === 'Saving...' ? 'text-amber-500' : 'text-red-500'
-              }`}>{saveStatus}</span>
+            <div className="flex items-center gap-3">
+              <input
+                ref={importInputRef}
+                type="file"
+                accept=".docx"
+                className="hidden"
+                onChange={handleImportFile}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={handleImportClick}
+                disabled={isImporting}
+              >
+                {isImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                Import Resume
+              </Button>
+              <span className={`text-sm font-medium ${saveStatus === 'Saved' ? 'text-green-500' :
+                saveStatus === 'Saving...' ? 'text-amber-500' : saveStatus.includes('Import') ? 'text-blue-500' : 'text-red-500'
+                }`}>{saveStatus}</span>
+            </div>
           </div>
           <ProgressBar progress={progress} />
+          {importError && (
+            <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
+              {importError}
+            </div>
+          )}
+          {importReview && (
+            <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Review imported resume
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {importReview.filename} extracted {importReview.counts.experiences} roles, {importReview.counts.skills} skills, and {importReview.counts.educations} education entries.
+                  </p>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full bg-background px-2.5 py-1 border border-border">Experience: {importReview.counts.experiences}</span>
+                    <span className="rounded-full bg-background px-2.5 py-1 border border-border">Skills: {importReview.counts.skills}</span>
+                    <span className="rounded-full bg-background px-2.5 py-1 border border-border">Education: {importReview.counts.educations}</span>
+                    <span className="rounded-full bg-background px-2.5 py-1 border border-border">Projects: {importReview.counts.projects}</span>
+                    <span className="rounded-full bg-background px-2.5 py-1 border border-border">Certs: {importReview.counts.certifications}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Nothing is saved yet. Applying this import will merge the extracted data into your master profile.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setImportReview(null)}>
+                    <X className="w-4 h-4 mr-1.5" />
+                    Dismiss
+                  </Button>
+                  <Button type="button" size="sm" onClick={handleApplyImport}>
+                    <Check className="w-4 h-4 mr-1.5" />
+                    Apply Import
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex flex-1 overflow-hidden">
           <div className="w-64 bg-slate-50/50 dark:bg-slate-900/20 p-4 border-r overflow-y-auto hidden md:block">

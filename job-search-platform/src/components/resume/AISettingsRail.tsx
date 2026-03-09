@@ -55,6 +55,7 @@ interface IndustryPreset {
 // ============================================================================
 
 const INDUSTRY_PRESETS: IndustryPreset[] = [
+    { id: 'zero', name: 'Resume Writer Zero', settings: { voice: 'professional', density: 'balanced', license: 'polish-up', insider: 'industry-aware' } },
     { id: 'attorney', name: 'Attorney / Legal', settings: { voice: 'buttoned-up', density: 'balanced', license: 'just-facts', insider: 'industry-aware' } },
     { id: 'tech', name: 'IT / Tech', settings: { voice: 'professional', density: 'comprehensive', license: 'polish-up', insider: 'deep-insider' } },
     { id: 'teacher', name: 'Education', settings: { voice: 'professional', density: 'balanced', license: 'polish-up', insider: 'plain-english' } },
@@ -120,7 +121,7 @@ export function AISettingsRail({
     onAdvancedSettingsChange,
     className,
 }: AISettingsRailProps) {
-    const DEFAULT_PRESET = 'tech';
+    const DEFAULT_PRESET = 'zero';
     const [selectedPreset, setSelectedPreset] = useState<string | null>(DEFAULT_PRESET);
     const [selectedMode, setSelectedMode] = useState<string | null>(null);
     const [fineTuneOpen, setFineTuneOpen] = useState(false);
@@ -194,6 +195,7 @@ export function AISettingsRail({
                 {/* Industry Preset */}
                 <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">Industry Preset</Label>
+                    <p className="text-[11px] text-muted-foreground">Default baseline: Resume Writer Zero. Built for strong, readable tech resumes.</p>
                     <Select value={selectedPreset ?? 'custom'} onValueChange={handlePresetChange}>
                         <SelectTrigger className="w-full h-9">
                             <SelectValue placeholder="Select preset" />

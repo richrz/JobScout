@@ -60,9 +60,10 @@ const DEFAULT_CONFIG: AppConfig = {
         recencyDays: 30,
     },
     llm: {
-        provider: 'openai',
-        model: 'gpt-5.2',
+        provider: 'custom',
+        model: 'glm-5',
         apiKey: '',
+        apiEndpoint: '',
         temperature: 0.7,
         maxTokens: 2000,
     },

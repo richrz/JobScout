@@ -30,6 +30,23 @@ That means:
 - evidence farming exists to improve future tailored output
 - tone controls exist to make AI output sound like the user, not the model
 
+## Baseline Resume Writer
+
+The default resume-writing baseline is `Resume Writer Zero`.
+
+This writer should:
+- produce strong, trustworthy baseline drafts before any special tone tweaks
+- be especially strong at tech resumes
+- translate technical depth into plain-English value for recruiters and hiring managers
+- stay readable, ATS-friendly, and impact-first
+- remain grounded in approved facts instead of hype
+
+This baseline is the reference point for later variation:
+- more concise
+- more detailed
+- more formal
+- more aggressive
+
 ## Resume Input Contract Rationale
 
 We are formalizing a resume input contract because resume generation should only pull from clearly separated inputs:
@@ -167,6 +184,20 @@ Accepted behavior:
 - it does not automatically become factual truth
 - it does not automatically become a `Submitted Snapshot`
 - it remains attached to the opportunity workspace
+
+## Imported Resume Parsing
+
+Imported resumes should not default to one opportunity.
+
+Working model:
+- imported resume = global source material for profile and resume generation
+- imported facts must be reviewed before they become profile truth
+- a workspace-specific hard link is optional and separate
+
+This keeps the system honest:
+- import supports master-data growth first
+- workspace attachments stay intentional
+- JobScout-generated resumes continue to come from structured truth, not blind document reuse
 
 ## Schema Decision Gate
 

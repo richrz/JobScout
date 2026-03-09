@@ -471,7 +471,7 @@ export class LLMConnectionTester {
       case 'openrouter': return 'OPENROUTER_API_KEY';
       case 'azure': return 'AZURE_OPENAI_API_KEY';
       case 'ollama': return 'OLLAMA_BASE_URL';
-      case 'custom': return 'CUSTOM_API_KEY';
+      case 'custom': return 'ZAI_API_KEY';
       default: return 'API_KEY';
     }
   }

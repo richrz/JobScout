@@ -122,7 +122,7 @@ export const DEFAULT_MODELS: Record<LLMProvider, string> = {
   ollama: 'llama2',
   openrouter: 'meta-llama/llama-3-8b-instruct',
   azure: 'gpt-4',
-  custom: 'custom-model',
+  custom: 'glm-5',
 };
 
 // Provider-specific configurations
@@ -177,7 +177,7 @@ export const PROVIDER_CONFIGS: Record<LLMProvider, ProviderConfig> = {
   custom: {
     requiresApiKey: true,
     requiresEndpoint: true,
-    supportedModels: ['custom-model'],
+    supportedModels: ['glm-5'],
     defaultTemperature: 0.7,
     maxTokens: 4096,
   },

@@ -1,5 +1,6 @@
 'use server';
 
+import '@/lib/load-root-env';
 import { prisma } from '@/lib/prisma';
 import { getLLMClient } from '@/lib/llm';
 import { ResumeGenerator } from '@/lib/llm';
@@ -21,11 +22,12 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
         // Get user's LLM configuration from database
         // For now, use default OpenAI configuration
         const llmConfig = {
-            provider: 'openai' as const,
-            model: 'gpt-5.2',
+            provider: 'custom' as const,
+            model: process.env.ZAI_MODEL || 'glm-5',
             temperature: 0.7,
             maxTokens: 2000,
-            apiKey: process.env.OPENAI_API_KEY,
+            apiKey: process.env.ZAI_API_KEY,
+            apiEndpoint: process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/',
         };
 
         // Check for Mock Mode explicitly
@@ -35,8 +37,8 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
         }
 
         // Verify API Key existence when not in Mock Mode
-        if (!process.env.OPENAI_API_KEY) {
-            throw new Error('Configuration Error: OPENAI_API_KEY is not set. Ensure secrets are configured or enable NEXT_PUBLIC_MOCK_MODE.');
+        if (!process.env.ZAI_API_KEY) {
+            throw new Error('Configuration Error: ZAI_API_KEY is not set. Ensure secrets are configured or enable NEXT_PUBLIC_MOCK_MODE.');
         }
 
         const llmClient = getLLMClient(llmConfig);

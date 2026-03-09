@@ -1,10 +1,14 @@
+import '@/lib/load-root-env';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getLLMClient, ResumeGenerator } from '@/lib/llm';
+import { getResumeMemoryContext } from '@/lib/mem0';
+import { normalizeResumeWriterStrategy } from '@/lib/resume/resume-writer-zero';
 
 export async function POST(request: Request) {
     try {
-        const { jobId, exaggerationLevel = 'balanced' } = await request.json();
+        const { jobId, exaggerationLevel } = await request.json();
+        const normalizedExaggerationLevel = normalizeResumeWriterStrategy(exaggerationLevel);
 
         if (!jobId) {
             return NextResponse.json(
@@ -25,8 +29,18 @@ export async function POST(request: Request) {
             );
         }
 
+        const user = await prisma.user.findFirst();
+        if (!user) {
+            return NextResponse.json(
+                { success: false, error: 'No user found' },
+                { status: 404 }
+            );
+        }
+
         // Get user profile
-        const profile = await prisma.profile.findFirst();
+        const profile = await prisma.profile.findFirst({
+            where: { userId: user.id },
+        });
 
         if (!profile) {
             return NextResponse.json(
@@ -47,12 +61,24 @@ export async function POST(request: Request) {
         } | null;
 
         const llmConfig = {
-            provider: llmSettings?.provider || 'openai',
-            model: llmSettings?.model || 'gpt-4o-mini',
+            provider: llmSettings?.provider || 'custom',
+            model: llmSettings?.model || process.env.ZAI_MODEL || 'glm-5',
             temperature: llmSettings?.temperature || 0.7,
             maxTokens: llmSettings?.maxTokens || 2000,
-            apiKey: llmSettings?.apiKey || (llmSettings?.provider === 'anthropic' ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY),
-            apiEndpoint: llmSettings?.apiEndpoint || (llmSettings?.provider === 'anthropic' ? process.env.ANTHROPIC_BASE_URL : undefined),
+            apiKey:
+                llmSettings?.apiKey ||
+                (llmSettings?.provider === 'anthropic'
+                    ? process.env.ANTHROPIC_API_KEY
+                    : llmSettings?.provider === 'custom'
+                      ? process.env.ZAI_API_KEY
+                      : process.env.ZAI_API_KEY),
+            apiEndpoint:
+                llmSettings?.apiEndpoint ||
+                (llmSettings?.provider === 'anthropic'
+                    ? process.env.ANTHROPIC_BASE_URL
+                    : llmSettings?.provider === 'custom'
+                      ? (process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/')
+                      : (process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/')),
         };
 
         // Validate we have an API key
@@ -67,11 +93,26 @@ export async function POST(request: Request) {
         const llmClient = getLLMClient(llmConfig as any);
         const generator = new ResumeGenerator(llmClient);
 
+        let memoryInstructions = '';
+        try {
+            memoryInstructions = await getResumeMemoryContext(
+                {
+                    title: job.title,
+                    company: job.company,
+                    description: job.description,
+                },
+                user.id
+            );
+        } catch (memoryError) {
+            console.error('Failed to retrieve Mem0 context:', memoryError);
+        }
+
         // Generate tailored resume
         const response = await generator.generateTailoredResume({
             jobDescription: job.description,
             userProfile: profile,
-            exaggerationLevel,
+            exaggerationLevel: normalizedExaggerationLevel,
+            customInstructions: memoryInstructions || undefined,
         });
 
         return NextResponse.json({

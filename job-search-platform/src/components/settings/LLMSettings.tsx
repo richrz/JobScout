@@ -72,7 +72,9 @@ const DEFAULT_MODELS: Record<string, { value: string; label: string }[]> = {
         { value: 'gpt-4.1', label: 'GPT-4.1' },
         { value: 'gpt-4o', label: 'GPT-4o' },
     ],
-    custom: [],
+    custom: [
+        { value: 'glm-5', label: 'GLM-5 (Z.AI Coding Plan)' },
+    ],
 };
 
 interface ModelOption {
@@ -91,8 +93,8 @@ export function LLMSettings() {
 
     const form = useForm<LLMConfig>({
         defaultValues: config?.llm || {
-            provider: 'openai',
-            model: 'gpt-5.2',
+            provider: 'custom',
+            model: 'glm-5',
             apiKey: '',
             apiEndpoint: '',
             temperature: 0.7,

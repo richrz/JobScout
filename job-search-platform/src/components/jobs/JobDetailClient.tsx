@@ -8,6 +8,8 @@ import { Sparkles, Save, Send, FileText, Loader2, Check } from 'lucide-react';
 import { ATSScore } from '@/components/resume/ATSScore';
 import { Textarea } from '@/components/ui/textarea';
 import { applyToJob } from '@/app/actions/application';
+import type { ExaggerationLevel } from '@/types/llm';
+import { RESUME_WRITER_ZERO_NAME } from '@/lib/resume/resume-writer-zero';
 
 interface SerializedJob {
     id: string;
@@ -34,7 +36,7 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedResume, setGeneratedResume] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [exaggerationLevel, setExaggerationLevel] = useState<'conservative' | 'balanced' | 'strategic'>('balanced');
+    const [exaggerationLevel, setExaggerationLevel] = useState<ExaggerationLevel>('professional');
     const [isApplying, setIsApplying] = useState(false);
     const [hasApplied, setHasApplied] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -134,15 +136,15 @@ export function JobDetailClient({ job }: JobDetailClientProps) {
                 <div className="space-y-3">
                     <Select
                         value={exaggerationLevel}
-                        onValueChange={(val: 'conservative' | 'balanced' | 'strategic') => setExaggerationLevel(val)}
+                        onValueChange={(val: ExaggerationLevel) => setExaggerationLevel(val)}
                     >
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Strategy" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="conservative">Conservative</SelectItem>
-                            <SelectItem value="balanced">Balanced</SelectItem>
-                            <SelectItem value="strategic">Strategic</SelectItem>
+                            <SelectItem value="authentic">Realist</SelectItem>
+                            <SelectItem value="professional">{RESUME_WRITER_ZERO_NAME}</SelectItem>
+                            <SelectItem value="persuasive">Strategist</SelectItem>
                         </SelectContent>
                     </Select>
 

@@ -1,4 +1,4 @@
-
+import '@/lib/load-root-env';
 import { NextResponse } from 'next/server';
 import { getLLMClient } from '@/lib/llm';
 import { LLMConfig } from '@/types/llm';
@@ -29,15 +29,25 @@ export async function POST(request: Request) {
         `;
 
         let config: LLMConfig = {
-            provider: 'gemini',
-            apiKey: process.env.GOOGLE_API_KEY || '',
-            model: 'gemini-1.5-flash',
+            provider: 'custom',
+            apiKey: process.env.ZAI_API_KEY || '',
+            apiEndpoint: process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/',
+            model: process.env.ZAI_MODEL || 'glm-5',
             temperature: 0.7,
             maxTokens: 500
         };
 
         // Priority Selection
-        if (process.env.OPENROUTER_API_KEY) {
+        if (process.env.ZAI_API_KEY) {
+            config = {
+                provider: 'custom',
+                apiKey: process.env.ZAI_API_KEY,
+                apiEndpoint: process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/',
+                model: process.env.ZAI_MODEL || 'glm-5',
+                temperature: 0.7,
+                maxTokens: 500
+            };
+        } else if (process.env.OPENROUTER_API_KEY) {
             config = {
                 provider: 'openrouter',
                 apiKey: process.env.OPENROUTER_API_KEY,
@@ -56,7 +66,7 @@ export async function POST(request: Request) {
         }
 
         if (!config.apiKey) {
-            console.error("No valid API key found for: Google, OpenRouter, or OpenAI");
+            console.error("No valid API key found for: Z.AI, OpenRouter, or OpenAI");
             return NextResponse.json({ error: 'No LLM API key configured' }, { status: 500 });
         }
 

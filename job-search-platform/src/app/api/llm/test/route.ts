@@ -1,3 +1,4 @@
+import '@/lib/load-root-env';
 import { NextResponse } from 'next/server';
 import { getLLMClient } from '@/lib/llm';
 

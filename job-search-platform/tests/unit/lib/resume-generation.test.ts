@@ -51,7 +51,7 @@ describe('generateTailoredResume', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
-        process.env = { ...originalEnv, OPENAI_API_KEY: 'sk-dummy-key' };
+        process.env = { ...originalEnv, ZAI_API_KEY: 'zai-dummy-key' };
     });
 
     afterAll(() => {

@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-03-08 — Master Data Resume Import Shipped As Global DOCX Parsing
+
+### Context
+The app could upload resumes into opportunity workspaces, but it could not turn a real resume into profile master data.
+
+That was the wrong shape for the next product step because imported resumes are better treated as global source material first, not as opportunity-attached truth by default.
+
+### Decisions Made
+1. **DOCX import now starts in Profile Builder / Master Data, not in an opportunity workspace.**
+2. **Imported resume parsing is review-before-save.**
+   - upload a resume
+   - inspect extracted counts
+   - apply the import explicitly
+3. **Structured profile data stays the internal truth.**
+   - imported documents feed profile data
+   - they do not become truth automatically
+4. **PDF import/export stays a follow-up lane.**
+   - DOCX import shipped first because the real sample resumes and parser path were cleaner there
+
+### Why This Matters
+This is the first real bridge from existing resumes into JobScout master data.
+
+It also keeps the product aligned with the intended model:
+- global import first
+- structured truth in the profile
+- optional workspace hard-links later when they are intentional
+
+## 2026-03-08 — Resume Writer Zero Became The Default Resume Baseline
+
+### Context
+The product already had resume generation, but it still lacked a clearly named baseline writer that the rest of the resume system could branch from.
+
+That made it harder to reason about what "normal" meant before users asked for more concise, more technical, or more aggressive variants.
+
+### Decisions Made
+1. **`Resume Writer Zero` is now the default baseline resume writer.**
+2. **The baseline is optimized for high-end tech hiring without becoming jargon soup.**
+3. **Its core job is to translate complex technical work into clear recruiter and hiring-manager value while staying truthful.**
+4. **The resume UI now surfaces `Resume Writer Zero` as the default preset reference.**
+
+### Why This Matters
+This gives the app one trustworthy center of gravity for resume quality.
+
+It also creates a better foundation for imported resumes, voice tuning, and later variants because "more" or "less" can now branch from a named default instead of an implicit prompt.
+
 ## 2026-03-08 — Post-Rollout Stabilization Cleared The Typecheck Floor
 
 ### Context

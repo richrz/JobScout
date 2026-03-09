@@ -10,6 +10,7 @@ import {
 } from '@/types/llm';
 import type { LLMConfig } from '@/types/llm';
 export type { LLMConfig } from '@/types/llm';
+import { buildResumeWriterZeroPrompt } from '@/lib/resume/resume-writer-zero';
 
 // LangChain imports
 import { ChatOpenAI } from '@langchain/openai';
@@ -877,69 +878,15 @@ export class ResumeGenerator {
   }
 
   private buildSystemPrompt(exaggerationLevel: keyof typeof EXAGGERATION_TEMPERATURE_MAP): string {
-    const basePrompt = `You are an expert resume writer and career coach with deep experience in crafting ATS-optimized resumes that land interviews. You specialize in tailoring resumes to specific job descriptions while maintaining authenticity and professionalism.
+    const writerPrompt = buildResumeWriterZeroPrompt(exaggerationLevel);
+    const formatPrompt = `Output contract:
+- Produce ATS-friendly content that a recruiter can scan quickly.
+- Reorder and emphasize experience based on relevance to the target role.
+- Keep dates and formatting consistent.
+- Use strong action verbs and impact-first writing.
+- Maintain truthful representation of the candidate's background at all times.`;
 
-Your task is to create a tailored resume that:
-1. Highlights the candidate's most relevant experience for this specific role
-2. Uses keywords naturally from the job description to pass ATS screening
-3. Reorders work history to prioritize the most relevant positions
-4. Adapts the tone and emphasis based on the desired exaggeration level
-5. Maintains factual accuracy while positioning the candidate optimally
-
-Format Requirements:
-- Use clean, ATS-friendly markdown format
-- Include clear section headers (##)
-- Use bullet points with strong action verbs
-- Keep dates and formatting consistent
-- Ensure professional formatting that reads well in both human and machine review
-
-Content Guidelines:
-- Focus on achievements and quantifiable results
-- Incorporate relevant keywords from the job description
-- Highlight transferable skills and experiences
-- Maintain truthful representation of the candidate's background`;
-
-    const levelSpecificPrompt = this.getExaggerationLevelPrompt(exaggerationLevel);
-    return `${basePrompt}\n\n${levelSpecificPrompt}`;
-  }
-
-  private getExaggerationLevelPrompt(exaggerationLevel: keyof typeof EXAGGERATION_TEMPERATURE_MAP): string {
-    switch (exaggerationLevel) {
-      case 'authentic': // Formerly Strict
-        return `STRATEGY: THE REALIST (Literal & Fact-Based)
-Psychological Goal: Authenticity & Trust
-- STRICTLY adhere to the provided facts. Do not embellish.
-- Focus on clarity, grammar, and professional formatting only.
-- Use neutral, objective language (e.g., "Responsible for...", "Assisted with...").
-- Do NOT infer skills or experiences not explicitly stated.
-- Ideal for: Highly regulated industries or candidates who want 100% control.`;
-
-      case 'professional': // Formerly Balanced/Strategic (Default)
-        return `STRATEGY: THE PROFESSIONAL (Enhanced & Expanded)
-Psychological Goal: Competence & Reliability
-- Expand concise bullet points into full, professional sentences.
-- Use strong but realistic action verbs (e.g., "Led", "Developed", "Managed").
-- Add standard industry context to flesh out brief descriptions.
-- Optimize for ATS keywords while maintaining a natural tone.
-- Balance modesty with confidence.
-- Ideal for: Most candidates who want a polished, standard resume.`;
-
-      case 'persuasive': // Formerly Visionary/Creative
-        return `STRATEGY: THE STRATEGIST (Creative & Bold)
-Psychological Goal: Impression Management & Impact
-- AGGRESSIVELY reframe experience to match the target job description.
-- Use "creativity" to bridge gaps: Infer likely skills/duties based on roles.
-- Use high-impact, persuasive language (e.g., "Spearheaded", "Transformed", "Pioneered").
-- Emphasize results and potential over just duties.
-- "Cover all bases": If the job asks for X and the candidate did something similar to X, frame it as X.
-- Note: This mode takes liberties. The user reviews this to dial it back.`;
-
-      default:
-        // Fallback to professional
-        return `STRATEGY: PROFESSIONAL
-- Use professional, clear language
-- Focus on achievements and results`;
-    }
+    return `${writerPrompt}\n\n${formatPrompt}`;
   }
 
   private buildUserPrompt(request: ResumeGenerationRequest): string {

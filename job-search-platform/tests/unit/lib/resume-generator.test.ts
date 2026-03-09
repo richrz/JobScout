@@ -62,7 +62,9 @@ describe('ResumeGenerator', () => {
         expect(callArgs[0].role).toBe('system');
         expect(callArgs[1].role).toBe('user');
 
-        // Verify system prompt contains exaggeration level instructions
+        // Verify system prompt contains the new baseline writer contract
+        expect(callArgs[0].content).toContain('Resume Writer Zero');
+        expect(callArgs[0].content).toContain('Translate complex systems');
         expect(callArgs[0].content).toContain('STRATEGY: THE PROFESSIONAL');
 
         // Verify user prompt contains job description and resume data
@@ -79,6 +81,7 @@ describe('ResumeGenerator', () => {
         });
 
         const callArgs = mockGenerateResponse.mock.calls[0][0];
+        expect(callArgs[0].content).toContain('Resume Writer Zero');
         expect(callArgs[0].content).toContain('STRATEGY: THE STRATEGIST');
     });
 

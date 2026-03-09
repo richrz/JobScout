@@ -74,6 +74,12 @@ interface IndustryPreset {
 
 const INDUSTRY_PRESETS: IndustryPreset[] = [
     {
+        id: 'zero',
+        name: 'Resume Writer Zero',
+        settings: { voice: 'professional', density: 'balanced', license: 'polish-up', insider: 'industry-aware' },
+        description: 'Default baseline: strong, readable tech writing for recruiters and hiring managers'
+    },
+    {
         id: 'attorney',
         name: 'Attorney',
         settings: { voice: 'buttoned-up', density: 'balanced', license: 'just-facts', insider: 'industry-aware' },
@@ -157,7 +163,7 @@ export function ResumeAIControlCenter({
     onAdvancedSettingsChange,
     className,
 }: ResumeAIControlCenterProps) {
-    const DEFAULT_PRESET = 'tech';
+    const DEFAULT_PRESET = 'zero';
     const [selectedPreset, setSelectedPreset] = useState<string | null>(DEFAULT_PRESET);
     const [showLivePreview, setShowLivePreview] = useState(true);
     const [localAdvanced, setLocalAdvanced] = useState(advancedSettings);
@@ -256,7 +262,7 @@ export function ResumeAIControlCenter({
                     <div className="flex items-center justify-between gap-3">
                         <div className="space-y-1">
                             <Label className="text-sm font-medium">Industry preset</Label>
-                            <p className="text-xs text-muted-foreground">Start with a preset, then tweak.</p>
+                            <p className="text-xs text-muted-foreground">Start with Resume Writer Zero, then tweak if you want more or less punch.</p>
                         </div>
                         <Tooltip>
                             <TooltipTrigger asChild>

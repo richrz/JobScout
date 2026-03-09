@@ -89,18 +89,24 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - Resume save, resume upload, and apply flows now snapshot or upsert workspace-owned documents consistently.
 - ADR 008 implementation is backed by a shipped Prisma migration:
   - `job-search-platform/prisma/migrations/20260308230500_resume_document_truth_and_passed_bin/migration.sql`
+- `Resume Writer Zero` is now the default baseline resume writer for the app.
+- The resume prompt now explicitly optimizes for strong tech resumes that stay readable to recruiters and hiring managers.
+- Resume UI presets now surface `Resume Writer Zero` as the default baseline instead of leaving the default writer implicit.
+- Master Data now supports global DOCX resume import from Profile Builder.
+- Imported resumes now parse into reviewable profile facts before merge instead of attaching to one opportunity by default.
+- Applying an imported resume now merges extracted work history and skills into profile master data.
 
 ## What Remains
 
 - Decide whether the next product move is:
+  - PDF import for resume parsing
+  - docx/pdf export from structured resume truth
   - real submitted artifact capture for apply flows
-  - richer workspace guidance / journals
-  - broader Next 16 route cleanup beyond the workspace area
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 
 ## Verification
 
-- `npx tsc --noEmit` passed clean.
+- `npx tsc --noEmit` is blocked only by the older unrelated `tests/unit/components/ConfigActions.test.tsx` delete-operand error.
 - Focused stabilization suites passed:
   - `tests/lib/llm-testing.test.ts`
   - `tests/unit/llm-error-handling.test.ts`
@@ -116,22 +122,33 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `tests/unit/lib/resume-document-summary.test.ts`
   - `tests/unit/components/pipeline/ApplicationCard.test.tsx`
   - `tests/unit/components/pipeline/KanbanBoard.test.tsx`
+- Focused resume/Mem0 verification passed:
+  - `tests/unit/lib/resume-generator.test.ts`
+  - `tests/unit/lib/resume-generation.test.ts`
+  - `tests/unit/lib/mem0.test.ts`
+  - `tests/unit/lib/profile-import.test.ts`
 - Browser verification passed on `http://127.0.0.1:3173` for:
   - Inbox multi-select toolbar and batch actions surface
   - Passed Bin page load and restore/archive controls
   - Workspace resume documents panel
   - Workspace notes fetch and note creation after fixing async route params
   - Settings smoke load after the stabilization pass
+  - Resume Builder showing `Resume Writer Zero` as the default preset baseline
+  - Career / Master Data DOCX import review and merge using `sample-resumes/RichardRuiz_SHI.docx`
 - Proof artifacts live at:
   - `/home/richard/code/jobs/job-search-platform/output/playwright/inbox-multiselect-toolbar.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/passed-bin.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/workspace-notes-fixed.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/stabilization-settings-smoke.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-writer-zero-default.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-imported-work-history.png`
 
 ## Known Risks
 
 - The new schema direction is now in place, so follow ADR 008 instead of re-introducing `application.resumePath` ownership patterns.
 - `tests/lib/llm-testing.test.ts` passes, but Jest still reports a forced worker exit from open timers / handles after that suite finishes.
+- Repo-wide `npx tsc --noEmit` is currently blocked by an older unrelated failure in `tests/unit/components/ConfigActions.test.tsx`.
+- DOCX import is shipped first; PDF import/export is still pending.
 
 ## Next Recommended Task
 
