@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `5a686c5` — replaces the Resume Builder left-rail card stack with a lower-entropy control console: one segmented rewrite-strength control, three expandable voice groups, and a real below-fold scroll cue
 - `b0ca0ef` — redesigns the Resume Builder center into one drafting workspace instead of tabs plus a detached preview pane
 - `1557625` — simplified the Resume Builder drafting flow with plain-English rewrite controls and explicit draft-vs-Career-Data language
 - `498922d` — advanced the resume stack with committed PDF import, DOCX export, Profile Builder cleanup, and the new 7-dimension Resume Builder rail
@@ -129,6 +130,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - section jumps replace tabs
   - the preview lives inside the same workspace shell
   - the preview copy now explains that it is the same current draft shown in export layout
+- Resume Builder left rail now behaves like a focused control console instead of a same-looking card stack:
+  - rewrite strength is one segmented primary choice
+  - the seven voice sliders are grouped behind three expandable sections
+  - only one group stays open at a time
+  - a bottom fade plus `Scroll for more controls` now signals hidden depth
 - Profile Builder header now places `Import Resume` next to `Profile Builder` instead of burying the action away from the master-data context.
 - Contact info now supports `Title`, `First Name`, and `Last Name` separately instead of forcing one flat full-name field.
 - Phone values now normalize to a readable display format like `(949) 743-4975`.
@@ -183,6 +189,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `tests/unit/lib/profile-import-service.test.ts`
 - Focused resume stack verification passed:
   - `tests/unit/components/resume/AISettingsRail.test.tsx`
+  - `tests/unit/components/resume/ResumeBuilder.test.tsx`
   - `tests/unit/lib/resume-export.test.ts`
   - `tests/unit/components/resume/ats-compliance.test.tsx`
   - `tests/unit/components/profile/ProfileBuilder.test.tsx`
@@ -215,6 +222,12 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
     - `Jump to section`
     - no tab UI
     - `What the current draft looks like`
+  - Resume Builder left rail redesign showing:
+    - `Writing Profile`
+    - `Rewrite Strength`
+    - `Voice Controls`
+    - `Scroll for more controls`
+    - progressive disclosure between `Tone & Clarity`, `Technical Signal`, and `Positioning`
   - Career / Master Data contact cleanup after import:
     - import button placement
     - split contact name fields
@@ -238,6 +251,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-rail-seven-dimensions.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-guided-redesign.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-workspace-shell.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-left-rail-redesign.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-resume-stack.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-skills-tab.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-contact-cleanup.png`
