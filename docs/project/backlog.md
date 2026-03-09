@@ -12,9 +12,9 @@ Rules:
 
 ## Now
 
-- [ ] Redesign the Resume Builder AI settings rail so one primary writing strategy is clear and only real output-changing controls are exposed.
 - [ ] Add import review and merge control for Master Data so users can accept or reject imported fields before they become truth.
 - [ ] Capture the exact submitted resume artifact for each apply flow so the system knows what was actually sent.
+- [ ] Infer the 7-dimension voice profile from uploaded writing samples so Resume Builder stops depending on manual-only slider setup.
 
 ## Active Bugs And UX Debt
 

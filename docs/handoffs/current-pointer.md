@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `1557625` — simplified the Resume Builder drafting flow with plain-English rewrite controls and explicit draft-vs-Career-Data language
 - `498922d` — advanced the resume stack with committed PDF import, DOCX export, Profile Builder cleanup, and the new 7-dimension Resume Builder rail
 - `ce4adc3` — codified the resume customization trust model, backlog tracker, and docs pointers
 - `afbeb10` — hardened DOCX import parsing for real resume variants
@@ -117,16 +118,17 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - Resume Builder now uses one visible writing strategy plus 7 explicit voice dimensions instead of the old overlapping preset/control stack.
 - The new rail is wired into generation through custom voice-profile instructions rather than being cosmetic-only.
 - Resume generation now reads current Prisma-backed `experiences` / `educations` profile data correctly instead of only the older legacy shape.
+- Resume Builder now explains itself as a job-specific draft:
+  - the left rail uses plain-English rewrite language
+  - the fake `Starting Point` section is gone
+  - the center editor explicitly says it starts from Career Data but edits the current draft
+  - the rail groups the 7 controls into clearer voice sections instead of one long dump
 - Profile Builder header now places `Import Resume` next to `Profile Builder` instead of burying the action away from the master-data context.
 - Contact info now supports `Title`, `First Name`, and `Last Name` separately instead of forcing one flat full-name field.
 - Phone values now normalize to a readable display format like `(949) 743-4975`.
 - Re-importing a better resume summary now replaces the shorter truncated summary instead of leaving the weaker text behind.
 - Work History remove actions no longer overlap the company field.
 - Skills refresh now explains what it uses and shows a real loading state instead of a vague `Generating...` label.
-- The current resume AI settings rail was reviewed against the shipped code and should be redesigned, not merely polished:
-  - too many overlapping controls
-  - only part of the UI meaningfully changes output today
-  - control labels and widgets do not explain themselves clearly enough
 - The resume customization product spec now explicitly requires preview-confirm review before accepting a rewritten draft.
 - Keyword coverage is now positioned as an inspectable overlay tied to the target job instead of a black-box ATS score.
 - The backlog now tracks local/private model support as a later trust feature rather than a v1 blocker.
@@ -196,10 +198,12 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - Career / Master Data PDF import review using the generated proof artifact `job-search-platform/output/playwright/profile-import-sample.pdf`
   - Resume Builder DOCX download via `/api/resume/export/docx`
   - Resume Builder PDF download via the existing PDF export surface
-  - Resume Builder redesigned rail showing:
-    - `Writing Profile`
-    - `Conservative / Balanced / Standout`
-    - the 7 voice dimensions
+  - Resume Builder redesigned drafting flow showing:
+    - `Rewrite This Draft`
+    - `How hard should JobScout rewrite this?`
+    - `Tune The Voice`
+    - no `Starting Point`
+    - explicit `Resume Draft For This Job` copy
   - Career / Master Data contact cleanup after import:
     - import button placement
     - split contact name fields
@@ -221,6 +225,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-proof.docx`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-proof.pdf`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-rail-seven-dimensions.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-guided-redesign.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-resume-stack.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-skills-tab.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-contact-cleanup.png`

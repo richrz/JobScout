@@ -4,6 +4,40 @@
 
 ---
 
+## 2026-03-09 — Resume Builder Now Reads Like A Drafting Tool Instead Of A Settings Dump
+
+### Context
+The first rail redesign fixed some truth problems, but the page still read like internal tooling:
+- `Writing Goal` was vague
+- `Starting Point` looked smarter than it really was
+- `Technical IC` was insider language
+- the middle editor still did not explain its relationship to Career Data clearly enough
+
+That left the page technically improved, but still confusing in the exact places the user has to trust.
+
+### Decisions Made
+1. **The Resume Builder rail now uses plain-English rewrite language.**
+   - `Writing Goal` became a direct question about how hard JobScout should rewrite the draft
+   - the strategy labels now read like user intent instead of internal settings
+2. **`Starting Point` was removed from the rail.**
+   - it was a hardcoded preset section pretending to be more intelligent than it was
+3. **The voice controls are now grouped into clearer cards.**
+   - tone and clarity
+   - technical signal
+   - positioning
+4. **The main editor now explains itself as a job-specific draft.**
+   - it starts from Career Data
+   - edits in the center affect this draft, not the master profile
+
+### Why This Matters
+This makes the page more trustworthy.
+
+Instead of asking the user to decode product jargon, the page now explains:
+- what the left side actually changes
+- how hard the rewrite should push
+- where the draft comes from
+- what is still separate from Career Data
+
 ## 2026-03-09 — Resume Customization Now Has A Draft Product Spec
 
 ### Context
