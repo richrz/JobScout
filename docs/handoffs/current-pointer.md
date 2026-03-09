@@ -9,7 +9,7 @@
 
 ## Latest Product Checkpoint
 
-- `04f57ec` — repo typing stabilized after the resume ownership rollout
+- `da6abb9` — wired Resume Writer Zero, root-env AI config, Mem0 hooks, and global DOCX profile import
 
 ## Read First
 
@@ -98,10 +98,9 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Remains
 
-- Decide whether the next product move is:
-  - PDF import for resume parsing
-  - docx/pdf export from structured resume truth
-  - real submitted artifact capture for apply flows
+- Ship PDF import for resume parsing into Profile Builder / Master Data.
+- Ship docx/pdf export from the same structured resume truth.
+- Real submitted artifact capture for apply flows is still pending after the resume I/O lane.
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 
 ## Verification
@@ -152,6 +151,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## Next Recommended Task
 
-- Resume product work on top of the stabilized floor:
-  - real submitted artifact capture for apply flows is the best next build
-  - fix the LLM test open-handle leak the next time that suite or retry logic is touched
+- Resume product work on top of the new import baseline:
+  - PDF import next
+  - then docx/pdf export from structured resume truth
+  - then real submitted artifact capture for apply flows
