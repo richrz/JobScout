@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-03-09 — Resume Builder Center Became One Drafting Workspace
+
+### Context
+Even after the left rail cleanup, the center of Resume Builder still felt like two unrelated tools:
+- a tabbed editor in the middle
+- a detached preview pane on the right
+
+That made the page feel generic and broke the mental model. The user is not editing "tabs." They are shaping one resume draft for one job.
+
+### Decisions Made
+1. **The center of Resume Builder now behaves like one drafting workspace.**
+   - the tabbed shell is gone
+   - the editor now flows from top to bottom as one working document
+2. **Section switching became jump navigation instead of tabs.**
+   - Basics
+   - Summary
+   - Work History
+   - Skills
+3. **The preview now belongs to the same workspace instead of reading like a separate app pane.**
+   - shared shell
+   - sticky preview card
+   - explicit copy that this is the same draft shown in export layout
+4. **The source-of-truth split is now stated directly.**
+   - Career Data is the source
+   - edits here affect the current draft only
+
+### Why This Matters
+This gives Resume Builder one coherent mental model:
+- choose the target job
+- shape one draft
+- preview that same draft
+- save or export the version you want to send
+
+That is much closer to how the user actually thinks about resume work.
+
 ## 2026-03-09 — Resume Builder Now Reads Like A Drafting Tool Instead Of A Settings Dump
 
 ### Context

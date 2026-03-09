@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `b0ca0ef` — redesigns the Resume Builder center into one drafting workspace instead of tabs plus a detached preview pane
 - `1557625` — simplified the Resume Builder drafting flow with plain-English rewrite controls and explicit draft-vs-Career-Data language
 - `498922d` — advanced the resume stack with committed PDF import, DOCX export, Profile Builder cleanup, and the new 7-dimension Resume Builder rail
 - `ce4adc3` — codified the resume customization trust model, backlog tracker, and docs pointers
@@ -123,6 +124,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - the fake `Starting Point` section is gone
   - the center editor explicitly says it starts from Career Data but edits the current draft
   - the rail groups the 7 controls into clearer voice sections instead of one long dump
+- Resume Builder center is now one drafting workspace:
+  - tabbed editing is gone
+  - section jumps replace tabs
+  - the preview lives inside the same workspace shell
+  - the preview copy now explains that it is the same current draft shown in export layout
 - Profile Builder header now places `Import Resume` next to `Profile Builder` instead of burying the action away from the master-data context.
 - Contact info now supports `Title`, `First Name`, and `Last Name` separately instead of forcing one flat full-name field.
 - Phone values now normalize to a readable display format like `(949) 743-4975`.
@@ -204,6 +210,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
     - `Tune The Voice`
     - no `Starting Point`
     - explicit `Resume Draft For This Job` copy
+  - Resume Builder unified drafting workspace showing:
+    - `Draft Workspace`
+    - `Jump to section`
+    - no tab UI
+    - `What the current draft looks like`
   - Career / Master Data contact cleanup after import:
     - import button placement
     - split contact name fields
@@ -226,6 +237,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-proof.pdf`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-rail-seven-dimensions.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-guided-redesign.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-workspace-shell.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-resume-stack.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-skills-tab.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-contact-cleanup.png`
