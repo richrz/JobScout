@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `ce4adc3` — codified the resume customization trust model, backlog tracker, and docs pointers
 - `afbeb10` — hardened DOCX import parsing for real resume variants
 - Current working tree adds uncommitted PDF import plus DOCX/PDF export from structured resume truth
 - Current working tree also adds uncommitted Profile Builder UX cleanup and a grounded AI settings rail critique
