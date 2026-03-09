@@ -4,6 +4,83 @@
 
 ---
 
+## 2026-03-09 — Resume Customization Now Has A Draft Product Spec
+
+### Context
+The repo already had the resume input and voice strategy rationale, but the actual v1 product contract for the trust-first customization stack was still spread across chat and working assumptions.
+
+That was enough to discuss direction, but not enough to hand the work cleanly to future agents.
+
+### Decisions Made
+1. **A draft product spec now exists at `docs/product/resume-customization-product-spec.md`.**
+2. **The draft locks the main product shape without pretending the unresolved details are finished.**
+   - core promise: `You, but everywhere`
+   - trust-first customization
+   - anti-spam, pro-signal stance
+   - `Resume Writer Zero` fallback
+   - `Fact Lock`, `Transparent Diff`, `Human Signal Check`, audience/jargon tuning, and optional `Signature Phrase` layer
+3. **The open questions remain explicit `TBD`s.**
+   - final seven voice dimensions
+   - confidence model
+   - signature phrase limits
+   - final profile naming
+4. **The product indexes now point to this draft spec so new agents can find it.**
+
+### Why This Matters
+This creates a real handoff artifact for the resume profiler and builder stack.
+
+Future work can now argue with one visible spec instead of reconstructing the product from memory or chat.
+
+## 2026-03-09 — A Plain Backlog Tracker Became Part Of The Active Docs
+
+### Context
+The project had a real backlog, but it was spread across chat, the handoff pointer, a few bug docs, and memory.
+
+That made follow-up work harder to trust because new agents had to reconstruct the open bugs and next product work instead of reading one obvious list.
+
+### Decisions Made
+1. **A single plain-language backlog file now exists at `docs/project/backlog.md`.**
+2. **The docs hub now points to the backlog as an active source of truth.**
+3. **The live handoff pointer now tells new agents to read the backlog early instead of reconstructing it from chat.**
+4. **Detailed bug reports stay in `docs/bugs/`, but the backlog is now the front door.**
+
+### Why This Matters
+This gives the project one simple place to look for:
+- what is broken
+- what UX debt is known
+- what product work is next
+
+That should make new agents less likely to miss known issues or start wandering.
+
+## 2026-03-09 — Profile Builder Was Cleaned Up, And The AI Settings Rail Needs A Reset
+
+### Context
+After resume import started working on real files, the next friction was no longer "can the file get in?" It was whether the Profile Builder felt trustworthy once the imported data landed.
+
+The review surfaced two truths:
+- parts of Profile Builder still felt clumsy or visually broken
+- the Resume Builder AI settings rail looked powerful, but the shipped controls were not explaining themselves well and not all of them were meaningfully wired
+
+### Decisions Made
+1. **Profile Builder contact editing was made more honest and readable.**
+   - `Import Resume` now sits next to the main `Profile Builder` heading
+   - contact info now supports title + first name + last name
+   - phone numbers normalize into a readable format
+2. **Resume re-import now prefers the better summary instead of preserving a shorter truncated one.**
+3. **Work History and Skills UX were cleaned up for clarity.**
+   - remove controls no longer overlap fields
+   - skills refresh now explains what it scans and shows a visible progress state
+4. **The current AI settings rail should be redesigned, not just relabeled.**
+   - too many overlapping control groups
+   - inconsistent widgets
+   - helper text is too thin
+   - some visible controls imply precision that the generation path does not actually honor yet
+
+### Why This Matters
+Resume import only helps if the user trusts the master-data editing surface afterward.
+
+This also clarified the next UX debt honestly: the resume AI rail needs to become simpler, more legible, and more truthful about what each choice really changes.
+
 ## 2026-03-08 — DOCX Import Hardened Against Real Resume Variants
 
 ### Context
@@ -24,6 +101,39 @@ It also sets a better floor for the next chunk:
 - PDF import
 - export from structured truth
 - richer review and merge controls later
+
+## 2026-03-09 — PDF Import And DOCX/PDF Export Landed On Structured Resume Truth
+
+### Context
+After DOCX import shipped, the next honest gap was still the rest of resume I/O:
+- PDF resumes still could not enter the same Profile Builder import lane
+- export from `/resume` was not yet complete across both file formats
+
+That meant the resume system had the right internal truth shape, but not the full input/output loop around it.
+
+### Decisions Made
+1. **Profile Builder now accepts PDF resumes in the same global import flow as DOCX.**
+2. **PDF import keeps the same review-before-merge contract.**
+   - parse first
+   - show extracted counts
+   - merge only on explicit apply
+3. **DOCX and PDF export now both start from the same structured resume truth on `/resume`.**
+4. **DOCX export moved behind a server route for browser safety.**
+   - the client asks for the file
+   - the server builds the DOCX
+   - the browser downloads it cleanly
+5. **The shared resume document shape was centralized instead of duplicated across export surfaces.**
+
+### Why This Matters
+This closes the first real resume I/O loop:
+- import source material into master data
+- keep structured profile/resume data as truth
+- export the resulting resume cleanly as DOCX or PDF
+
+It also means the next resume lane can move up the stack:
+- submitted artifact capture
+- finer review/merge controls
+- optional hard-links from imported reference resumes into opportunity workspaces
 
 ## 2026-03-08 — Master Data Resume Import Shipped As Global DOCX Parsing
 
@@ -886,6 +996,13 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
 - Added schema-sensitive mode with architect-first execution, explicit human signoff before schema-changing implementation, and lower retry caps for ownership/lifecycle work.
 - Added Ralph-style promise tokens so the orchestrator must end each loop with an explicit `COMPLETE`, `FAIL`, or `STOP` state.
 - Tightened boot overflow behavior so orchestrators hit `<promise>STOP</promise>` instead of reopening exploratory drift when they exceed the allowed startup rounds.
+
+# 2026-03-09 - Resume customization trust model tightened
+
+- Added `preview -> confirm` to the resume customization product spec so rewrites must be reviewed before they become the accepted artifact.
+- Added `keyword coverage overlay` to the trust model so job targeting stays inspectable instead of collapsing into a black-box ATS score.
+- Marked local/private model support as a later trust extension rather than a v1 blocker.
+- Added matching backlog items so future agents can pick these up from one plain-language source.
 
 # 2026-03-07 - Ralph loop workflow added
 

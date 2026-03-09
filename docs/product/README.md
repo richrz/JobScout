@@ -12,6 +12,7 @@ This folder holds active product strategy and operating concepts.
 - Normalization contract: [normalization-contract.md](./normalization-contract.md)
 - Recovery and plan levers: [recovery-and-plan-levers.md](./recovery-and-plan-levers.md)
 - Resume input and voice strategy: [resume-input-and-voice-strategy.md](./resume-input-and-voice-strategy.md)
+- Resume customization product spec: [resume-customization-product-spec.md](./resume-customization-product-spec.md)
 
 ## Companion And Reference Docs
 
@@ -22,8 +23,9 @@ This folder holds active product strategy and operating concepts.
 1. [Lifecycle state contract](./lifecycle-state-contract.md)
 2. [Recovery and plan levers](./recovery-and-plan-levers.md)
 3. [Resume input and voice strategy](./resume-input-and-voice-strategy.md)
-4. [Normalization contract](./normalization-contract.md)
-5. [Lifecycle concept](./workspace-lifecycle-concept.md)
+4. [Resume customization product spec](./resume-customization-product-spec.md)
+5. [Normalization contract](./normalization-contract.md)
+6. [Lifecycle concept](./workspace-lifecycle-concept.md)
 
 ## Naming Standard
 

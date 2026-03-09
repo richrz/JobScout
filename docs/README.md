@@ -9,6 +9,7 @@ This is the canonical navigation page for project documentation.
 
 - Product direction: [PRD Open Source](./PRD-OPEN-SOURCE.md)
 - Development journal: [`/JOURNAL.md`](/home/richard/code/jobs/JOURNAL.md)
+- Backlog tracker: [project/backlog.md](./project/backlog.md)
 - Architecture decisions: [ADR Index](./decisions/README.md)
 - Product docs index: [Product Docs](./product/README.md)
 
@@ -36,6 +37,7 @@ Active source of truth:
 - `docs/decisions/`
 - `docs/product/`
 - `docs/PRD-OPEN-SOURCE.md`
+- `docs/project/backlog.md`
 - `docs/handoffs/current-pointer.md`
 - `JOURNAL.md`
 
@@ -56,6 +58,7 @@ Historical records:
 - Opportunity lifecycle state contract: [lifecycle-state-contract.md](./product/lifecycle-state-contract.md)
 - Recovery and plan levers: [recovery-and-plan-levers.md](./product/recovery-and-plan-levers.md)
 - Resume input and voice strategy: [resume-input-and-voice-strategy.md](./product/resume-input-and-voice-strategy.md)
+- Resume customization product spec: [resume-customization-product-spec.md](./product/resume-customization-product-spec.md)
 - Opportunity/workspace lifecycle concept: [workspace-lifecycle-concept.md](./product/workspace-lifecycle-concept.md)
 - Ingestion normalization contract: [normalization-contract.md](./product/normalization-contract.md)
 
@@ -77,6 +80,7 @@ Historical records:
 - Human-in-loop workflow: [human-in-the-loop-workflow.md](./guides/human-in-the-loop-workflow.md)
 - Ralph loop workflow: [ralph-loop.md](./guides/ralph-loop.md)
 - Live handoff pointer: [current-pointer.md](./handoffs/current-pointer.md)
+- Backlog tracker: [project/backlog.md](./project/backlog.md)
 
 ## Audits and Verification
 

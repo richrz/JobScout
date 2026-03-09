@@ -10,25 +10,30 @@
 ## Latest Product Checkpoint
 
 - `afbeb10` — hardened DOCX import parsing for real resume variants
+- Current working tree adds uncommitted PDF import plus DOCX/PDF export from structured resume truth
+- Current working tree also adds uncommitted Profile Builder UX cleanup and a grounded AI settings rail critique
+- Current working tree also tightens the resume customization trust contract around preview-confirm review, keyword coverage overlay, and later local/private model support
 
 ## Read First
 
 1. [Docs Hub](/home/richard/code/jobs/docs/README.md)
 2. [Architect Operating Contract](/home/richard/code/jobs/docs/guides/architect-operating-contract.md)
-3. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
-4. [Resume Document Truth Model Sprint Brief](/home/richard/code/jobs/docs/plans/resume-document-truth-model-sprint-brief.md)
-5. [Resume Document Truth Model ADR](/home/richard/code/jobs/docs/decisions/008-resume-document-truth-model.md)
-6. [Journal](/home/richard/code/jobs/JOURNAL.md)
+3. [Backlog Tracker](/home/richard/code/jobs/docs/project/backlog.md)
+4. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
+5. [Resume Document Truth Model Sprint Brief](/home/richard/code/jobs/docs/plans/resume-document-truth-model-sprint-brief.md)
+6. [Resume Document Truth Model ADR](/home/richard/code/jobs/docs/decisions/008-resume-document-truth-model.md)
+7. [Journal](/home/richard/code/jobs/JOURNAL.md)
 
 ## First 10 Minutes Contract
 
 After execution permission is satisfied in `AGENTS.md` (`GO: <goal>` or `GO` after `READY`), do this in order before broad exploration:
 
 1. Confirm repo root and branch in one line.
-2. Confirm the 3 required docs were read:
-   - sprint brief
+2. Confirm the required docs were read:
    - current pointer
+   - backlog
    - roadmap
+   - sprint brief when relevant
 3. Name the first file to change and the first verification check.
 4. Post at most 2 exploration updates.
 5. Then do one of:
@@ -97,17 +102,37 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - Applying an imported resume now merges extracted work history and skills into profile master data.
 - DOCX import now handles the denser multiline resume formats from the current local sample-resume set instead of only the cleaner first sample.
 - The Profile Builder import route now survives ordinary words like `experience` inside bullet text without truncating the section early.
+- Profile Builder now accepts PDF resumes in the same global import flow and surfaces the same review-before-merge step for PDF parsing.
+- Resume export now works from the structured resume truth on `/resume` for both DOCX and PDF.
+- DOCX export is now browser-safe by generating the file on the server and downloading it through `/api/resume/export/docx`.
+- Resume PDF and DOCX export now share one structured resume document type instead of duplicating the shape across components.
+- Profile Builder header now places `Import Resume` next to `Profile Builder` instead of burying the action away from the master-data context.
+- Contact info now supports `Title`, `First Name`, and `Last Name` separately instead of forcing one flat full-name field.
+- Phone values now normalize to a readable display format like `(949) 743-4975`.
+- Re-importing a better resume summary now replaces the shorter truncated summary instead of leaving the weaker text behind.
+- Work History remove actions no longer overlap the company field.
+- Skills refresh now explains what it uses and shows a real loading state instead of a vague `Generating...` label.
+- The current resume AI settings rail was reviewed against the shipped code and should be redesigned, not merely polished:
+  - too many overlapping controls
+  - only part of the UI meaningfully changes output today
+  - control labels and widgets do not explain themselves clearly enough
+- The resume customization product spec now explicitly requires preview-confirm review before accepting a rewritten draft.
+- Keyword coverage is now positioned as an inspectable overlay tied to the target job instead of a black-box ATS score.
+- The backlog now tracks local/private model support as a later trust feature rather than a v1 blocker.
 
 ## What Remains
 
-- Ship PDF import for resume parsing into Profile Builder / Master Data.
-- Ship docx/pdf export from the same structured resume truth.
+- The new plain-language backlog now lives in `/home/richard/code/jobs/docs/project/backlog.md`, and follow-up work should start there instead of being reconstructed from chat.
 - Real submitted artifact capture for apply flows is still pending after the resume I/O lane.
+- Richer import review controls are still pending:
+  - field-level accept/reject before merge
+  - optional hard-linking a specific imported resume into an opportunity workspace later
+- The resume AI settings rail still needs a ground-up simplification pass so the visible controls match the output knobs that are actually wired.
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 
 ## Verification
 
-- `npx tsc --noEmit` is blocked only by the older unrelated `tests/unit/components/ConfigActions.test.tsx` delete-operand error.
+- `npx tsc --noEmit` now passes.
 - Focused stabilization suites passed:
   - `tests/lib/llm-testing.test.ts`
   - `tests/unit/llm-error-handling.test.ts`
@@ -129,6 +154,10 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `tests/unit/lib/mem0.test.ts`
   - `tests/unit/lib/profile-import.test.ts`
   - `tests/unit/lib/profile-import-service.test.ts`
+- Focused Profile Builder cleanup verification passed:
+  - `tests/unit/components/profile/ProfileBuilder.test.tsx`
+  - `tests/unit/lib/profile-import.test.ts`
+  - `tests/unit/lib/profile-import-service.test.ts`
 - Browser verification passed on `http://127.0.0.1:3173` for:
   - Inbox multi-select toolbar and batch actions surface
   - Passed Bin page load and restore/archive controls
@@ -138,6 +167,16 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - Resume Builder showing `Resume Writer Zero` as the default preset baseline
   - Career / Master Data DOCX import review and merge using `sample-resumes/RichardRuiz_SHI.docx`
   - Career / Master Data DOCX import review and merge using `sample-resumes/Richard_Ruiz_Resume_Cyberhaven.docx`
+  - Career / Master Data PDF import review using the generated proof artifact `job-search-platform/output/playwright/profile-import-sample.pdf`
+  - Resume Builder DOCX download via `/api/resume/export/docx`
+  - Resume Builder PDF download via the existing PDF export surface
+  - Career / Master Data contact cleanup after import:
+    - import button placement
+    - split contact name fields
+    - formatted phone
+    - longer summary retained after re-import
+  - Career / Master Data Work History remove-button layout
+  - Career / Master Data Skills refresh helper text and loading progress state
 - Proof artifacts live at:
   - `/home/richard/code/jobs/job-search-platform/output/playwright/inbox-multiselect-toolbar.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/passed-bin.png`
@@ -146,17 +185,23 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-writer-zero-default.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-imported-work-history.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-import-cyberhaven-work-history.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-import-pdf-review.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-import-sample.pdf`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-docx-pdf-buttons.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-proof.docx`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-proof.pdf`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-contact-cleanup.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-work-history-cleanup.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-skills-refresh-state.png`
 
 ## Known Risks
 
 - The new schema direction is now in place, so follow ADR 008 instead of re-introducing `application.resumePath` ownership patterns.
 - `tests/lib/llm-testing.test.ts` passes, but Jest still reports a forced worker exit from open timers / handles after that suite finishes.
-- Repo-wide `npx tsc --noEmit` is currently blocked by an older unrelated failure in `tests/unit/components/ConfigActions.test.tsx`.
-- DOCX import is shipped first; PDF import/export is still pending.
+- PDF import proof currently uses a generated sample PDF artifact rather than a user-supplied real PDF resume.
 
 ## Next Recommended Task
 
-- Resume product work on top of the new import baseline:
-  - PDF import next
-  - then docx/pdf export from structured resume truth
-  - then real submitted artifact capture for apply flows
+- Use the new backlog tracker as the first stop for follow-up work selection:
+  - `/home/richard/code/jobs/docs/project/backlog.md`
+- Then take the top `Now` item from the backlog.
