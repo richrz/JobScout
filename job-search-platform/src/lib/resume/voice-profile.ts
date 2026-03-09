@@ -31,7 +31,7 @@ interface ResumeVoiceDimension {
 export const VOICE_DIMENSIONS: ResumeVoiceDimension[] = [
   {
     key: 'formality',
-    label: 'Formality',
+    label: 'Professional Tone',
     description: 'How polished or conversational the wording feels.',
     lowLabel: 'Conversational',
     highLabel: 'Executive',
@@ -44,7 +44,7 @@ export const VOICE_DIMENSIONS: ResumeVoiceDimension[] = [
   },
   {
     key: 'brevity',
-    label: 'Brevity',
+    label: 'Bullet Length',
     description: 'How compressed or expansive each bullet becomes.',
     lowLabel: 'Expansive',
     highLabel: 'Punchy',
@@ -57,7 +57,7 @@ export const VOICE_DIMENSIONS: ResumeVoiceDimension[] = [
   },
   {
     key: 'technicalDepth',
-    label: 'Technical Depth',
+    label: 'Technical Detail',
     description: 'How much specialist language and technical detail to keep.',
     lowLabel: 'Plain-English',
     highLabel: 'Specialist',
@@ -70,7 +70,7 @@ export const VOICE_DIMENSIONS: ResumeVoiceDimension[] = [
   },
   {
     key: 'evidence',
-    label: 'Evidence',
+    label: 'Proof Level',
     description: 'How strongly the writing leans on metrics, proof, and concrete examples.',
     lowLabel: 'Narrative',
     highLabel: 'Proof-Heavy',
@@ -83,7 +83,7 @@ export const VOICE_DIMENSIONS: ResumeVoiceDimension[] = [
   },
   {
     key: 'confidence',
-    label: 'Confidence',
+    label: 'Directness',
     description: 'How strongly the resume claims ownership and impact.',
     lowLabel: 'Modest',
     highLabel: 'Assertive',
@@ -96,7 +96,7 @@ export const VOICE_DIMENSIONS: ResumeVoiceDimension[] = [
   },
   {
     key: 'warmth',
-    label: 'Warmth',
+    label: 'Human Tone',
     description: 'How human, relational, or crisp the writing feels.',
     lowLabel: 'Crisp',
     highLabel: 'Human',
@@ -109,7 +109,7 @@ export const VOICE_DIMENSIONS: ResumeVoiceDimension[] = [
   },
   {
     key: 'persuasion',
-    label: 'Persuasion',
+    label: 'Fit Focus',
     description: 'How hard the draft should sell fit for the target role.',
     lowLabel: 'Descriptive',
     highLabel: 'Targeted',
@@ -196,19 +196,19 @@ export const STRATEGY_OPTIONS: Array<{
 }> = [
   {
     id: 'conservative',
-    label: 'Conservative',
-    description: 'Stay close to the source facts and keep the phrasing restrained.',
+    label: 'Keep It Close',
+    description: 'Stay close to the source material and keep the wording restrained.',
     exaggerationLevel: 'authentic',
   },
   {
     id: 'balanced',
-    label: 'Balanced',
-    description: 'Resume Writer Zero default: strong, readable, and credible.',
+    label: 'Sharpen It',
+    description: 'Make it cleaner and stronger without overreaching.',
     exaggerationLevel: 'professional',
   },
   {
     id: 'standout',
-    label: 'Standout',
+    label: 'Push It Harder',
     description: 'Push fit and positioning harder while staying inside the facts.',
     exaggerationLevel: 'persuasive',
   },

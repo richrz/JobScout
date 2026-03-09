@@ -44,7 +44,6 @@ import {
     XCircle,
     Plus,
     Trash2,
-    RefreshCcw,
     ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -270,7 +269,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                 <div className="flex items-center gap-4">
                     <Select value={jobId} onValueChange={setJobId}>
                         <SelectTrigger className="w-[320px]">
-                            <SelectValue placeholder="Select a target job..." />
+                            <SelectValue placeholder="Choose the job this draft is for..." />
                         </SelectTrigger>
                         <SelectContent>
                             {jobs.map((job) => (
@@ -294,7 +293,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         ) : (
                             <Wand2 className="h-4 w-4" />
                         )}
-                        {loading ? 'Generating...' : 'Generate'}
+                        {loading ? 'Rewriting...' : 'Rewrite Draft'}
                     </Button>
 
                     <Button
@@ -343,44 +342,104 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                 {/* Center - Editor */}
                 <main className="flex-1 overflow-y-auto p-6 bg-background">
                     <Tabs value={activeTab} onValueChange={setActiveTab}>
-                        <div className="flex items-center justify-between mb-6">
-                            <TabsList className="bg-secondary/50">
-                                <TabsTrigger value="contact" className="gap-2">
-                                    <User className="h-4 w-4" />
-                                    Contact
-                                </TabsTrigger>
-                                <TabsTrigger value="summary" className="gap-2">
-                                    <FileText className="h-4 w-4" />
-                                    Summary
-                                </TabsTrigger>
-                                <TabsTrigger value="experience" className="gap-2">
-                                    <Briefcase className="h-4 w-4" />
-                                    Experience
-                                </TabsTrigger>
-                                <TabsTrigger value="skills" className="gap-2">
-                                    <Wrench className="h-4 w-4" />
-                                    Skills
-                                </TabsTrigger>
-                            </TabsList>
+                        <div className="mb-6 grid gap-4 xl:grid-cols-[1.35fr_0.95fr]">
+                            <Card className="border-border/60 bg-card/70 shadow-sm">
+                                <CardHeader className="pb-3">
+                                    <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-primary/80">
+                                        Resume Draft For This Job
+                                    </div>
+                                    <CardTitle className="text-xl">
+                                        {selectedJob
+                                            ? `${selectedJob.title} at ${selectedJob.company}`
+                                            : 'Choose a job to start tailoring this draft'}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2 text-sm leading-6 text-muted-foreground">
+                                    <p>
+                                        Starts from Career Data, then becomes the working draft for this one job.
+                                    </p>
+                                    <p>
+                                        Editing here changes this draft only. It does not rewrite your master Career Data.
+                                    </p>
+                                </CardContent>
+                            </Card>
+
+                            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                                <Card className="border-border/60 bg-card/70 shadow-sm">
+                                    <CardHeader className="pb-3">
+                                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                                            Source
+                                        </div>
+                                        <CardTitle className="text-base">Career Data</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="text-sm leading-6 text-muted-foreground">
+                                        Contact details, summary, work history, and skills are pulled from your Career page first.
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="border-border/60 bg-card/70 shadow-sm">
+                                    <CardHeader className="pb-3">
+                                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                                            Output
+                                        </div>
+                                        <CardTitle className="text-base">Job-specific draft</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="text-sm leading-6 text-muted-foreground">
+                                        Rewrite, adjust, refresh the preview, then save or export the version you want to send.
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between mb-6 gap-4">
+                            <div className="space-y-2">
+                                <div className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                                    Draft Sections
+                                </div>
+                                <TabsList className="bg-secondary/50">
+                                    <TabsTrigger value="contact" className="gap-2">
+                                        <User className="h-4 w-4" />
+                                        Basics
+                                    </TabsTrigger>
+                                    <TabsTrigger value="summary" className="gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        Summary
+                                    </TabsTrigger>
+                                    <TabsTrigger value="experience" className="gap-2">
+                                        <Briefcase className="h-4 w-4" />
+                                        Work History
+                                    </TabsTrigger>
+                                    <TabsTrigger value="skills" className="gap-2">
+                                        <Wrench className="h-4 w-4" />
+                                        Skills
+                                    </TabsTrigger>
+                                </TabsList>
+                                <p className="text-xs text-muted-foreground">
+                                    Edit the current draft section by section. Your master Career Data stays on the Career page.
+                                </p>
+                            </div>
 
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={updatePreview}
                                 className="h-auto flex-col gap-1 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/50 group"
-                                aria-label="Update Preview"
+                                aria-label="Refresh Preview"
                             >
                                 <div className="p-1 rounded-full bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
                                     <ArrowRight className="h-4 w-4" />
                                 </div>
-                                <span className="font-medium text-xs text-primary/80">Update</span>
+                                <span className="font-medium text-xs text-primary/80">Refresh Preview</span>
                             </Button>
                         </div>
 
                         <TabsContent value="contact">
                             <Card className="border-border/50 shadow-sm">
                                 <CardHeader>
-                                    <CardTitle className="text-base">Contact Information</CardTitle>
+                                    <CardTitle className="text-base">Draft Basics</CardTitle>
+                                    <p className="text-sm text-muted-foreground">
+                                        Adjust the identity and contact details shown on this specific resume.
+                                    </p>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="grid gap-2">
@@ -425,7 +484,10 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         <TabsContent value="summary">
                             <Card className="border-border/50 shadow-sm">
                                 <CardHeader>
-                                    <CardTitle className="text-base">Professional Summary</CardTitle>
+                                    <CardTitle className="text-base">Draft Summary</CardTitle>
+                                    <p className="text-sm text-muted-foreground">
+                                        This is the opening pitch for this job, not your permanent master summary.
+                                    </p>
                                 </CardHeader>
                                 <CardContent>
                                     <Textarea
@@ -443,7 +505,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                                 {resumeData.experience.map((exp, index) => (
                                     <Card key={index} className="border-border/50 shadow-sm">
                                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                                            <CardTitle className="text-base">Experience {index + 1}</CardTitle>
+                                            <CardTitle className="text-base">Work History {index + 1}</CardTitle>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
@@ -504,7 +566,7 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                                 ))}
                                 <Button variant="outline" onClick={addExperience} className="w-full gap-2 border-dashed border-border hover:bg-secondary/50">
                                     <Plus className="h-4 w-4" />
-                                    Add Experience
+                                    Add Work History
                                 </Button>
                             </div>
                         </TabsContent>
@@ -513,6 +575,9 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                             <Card className="border-border/50 shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="text-base">Skills</CardTitle>
+                                    <p className="text-sm text-muted-foreground">
+                                        Keep this list focused on the skills you want this version of the resume to emphasize.
+                                    </p>
                                 </CardHeader>
                                 <CardContent>
                                     <Textarea
@@ -534,8 +599,8 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                 {/* Right - PDF Preview */}
                 <aside className="w-[45%] border-l bg-muted/10 flex flex-col flex-shrink-0">
                     <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-muted/5">
-                        <span className="text-sm font-medium">Preview</span>
-                        <span className="text-xs text-muted-foreground">A4 Format</span>
+                        <span className="text-sm font-medium">Resume Page Preview</span>
+                        <span className="text-xs text-muted-foreground">Refresh after edits</span>
                     </div>
                     <div className="flex-1 p-4">
                         <div className="h-full bg-card rounded-lg shadow-lg overflow-hidden border border-border relative group">

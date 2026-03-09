@@ -7,7 +7,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { AISettingsRail } from '@/components/resume/AISettingsRail';
 import {
   RESUME_WRITER_ZERO_PROFILE,
-  STARTER_PROFILES,
   STRATEGY_OPTIONS,
   VOICE_DIMENSIONS,
   type ResumeVoiceProfile,
@@ -61,8 +60,13 @@ describe('AISettingsRail', () => {
     return { onProfileChange, onStrategyChange };
   }
 
-  it('shows the shared strategy and seven voice dimensions', () => {
+  it('shows the rewritten flow and seven voice dimensions', () => {
     renderRail();
+
+    expect(screen.getByText('What this changes')).toBeInTheDocument();
+    expect(screen.getByText('How hard should JobScout rewrite this?')).toBeInTheDocument();
+    expect(screen.getByText('Tune The Voice')).toBeInTheDocument();
+    expect(screen.queryByText('Starting Point')).not.toBeInTheDocument();
 
     STRATEGY_OPTIONS.forEach((option) => {
       expect(screen.getByRole('button', { name: new RegExp(option.label, 'i') })).toBeInTheDocument();
@@ -77,23 +81,15 @@ describe('AISettingsRail', () => {
   it('lets the user pick a primary writing strategy', () => {
     const { onStrategyChange } = renderRail();
 
-    fireEvent.click(screen.getByRole('button', { name: /standout/i }));
+    fireEvent.click(screen.getByRole('button', { name: /push it harder/i }));
 
     expect(onStrategyChange).toHaveBeenCalledWith('standout');
-  });
-
-  it('applies a shared starter voice profile', () => {
-    const { onProfileChange } = renderRail();
-
-    fireEvent.click(screen.getByRole('button', { name: /leadership/i }));
-
-    expect(onProfileChange).toHaveBeenCalledWith(STARTER_PROFILES[2].profile);
   });
 
   it('updates one voice dimension without dropping the rest of the profile', () => {
     const { onProfileChange } = renderRail();
 
-    fireEvent.change(screen.getByRole('slider', { name: 'Formality' }), {
+    fireEvent.change(screen.getByRole('slider', { name: 'Professional Tone' }), {
       target: { value: '80' },
     });
 
@@ -108,13 +104,16 @@ describe('AISettingsRail', () => {
     const onStrategyChange = jest.fn();
 
     renderRail({
-      profile: STARTER_PROFILES[1].profile,
+      profile: {
+        ...defaultProfile,
+        warmth: 82,
+      },
       strategy: 'standout',
       onProfileChange,
       onStrategyChange,
     });
 
-    fireEvent.click(screen.getByLabelText('Reset to Resume Writer Zero'));
+    fireEvent.click(screen.getByLabelText('Reset rewrite settings'));
 
     expect(onStrategyChange).toHaveBeenCalledWith('balanced');
     expect(onProfileChange).toHaveBeenCalledWith(RESUME_WRITER_ZERO_PROFILE);
