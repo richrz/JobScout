@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+import { extractProfileFromResumeText } from '@/lib/profile-import-service';
 import {
   mergeImportedProfile,
   sanitizeImportedProfile,
@@ -92,5 +93,61 @@ describe('profile import helpers', () => {
     expect(merged.experiences[0]?.description).toContain('complex renewal strategy');
     expect(merged.experiences[0]?.technologies).toEqual(['Salesforce', 'Outreach']);
     expect(merged.skills).toEqual(['Salesforce', 'React', 'TypeScript']);
+  });
+
+  it('parses dense docx-style experience blocks into reviewable roles', async () => {
+    const imported = await extractProfileFromResumeText(`
+Richard Ruiz
+
+Professional Summary
+Seasoned Pre-Sales Engineer and Solutions Architect with over 15 years of experience.
+
+Professional Experience
+
+VP of Sales & Systems EngineeringAdroit Worldwide Media (AWM Inc.) - Aliso Viejo, CA2020 - Present- Supported enterprise sales teams with pre-sales opportunities from qualification through production hand-off.
+
+Principal Sales ArchitectEase Inc. - Aliso Viejo, CA2017 - 2020- Led pre-sales technical activities, offering expertise in data protection and security solutions.
+
+Managing Solutions Architect & Principal Presales EngineerEase Inc. - Aliso Viejo, CAGordian Health IT2015 - 2017- Led a team of solutions architects in designing and delivering complex IT infrastructure solutions.
+
+Principal Windows and Azure Cloud Sales ArchitectMicrosoft Corporation - Redmond, WA2006 - 2015- Led technical sales teams, driving product sales and providing world-class support.
+
+Key Skills
+- Cloud Computing
+
+Education
+Bachelor’s Degree in Physics
+San Diego State University
+`);
+
+    expect(imported.experiences).toHaveLength(4);
+    expect(imported.experiences[0]?.position).toBe('VP of Sales & Systems Engineering');
+    expect(imported.experiences[0]?.company).toContain('Adroit Worldwide Media');
+    expect(imported.experiences[1]?.company).toBe('Ease Inc.');
+    expect(imported.experiences[2]?.company).toContain('Gordian Health IT');
+    expect(imported.experiences[3]?.company).toBe('Microsoft Corporation');
+    expect(imported.educations[0]).toMatchObject({
+      degree: 'Bachelor’s Degree',
+      field: 'Physics',
+      school: 'San Diego State University',
+    });
+  });
+
+  it('extracts obvious contact details from imported resume text', async () => {
+    const imported = await extractProfileFromResumeText(`
+Richard Ruiz
+
+richardruiz@live.com 949-743-4975 linkedin.com/in/richardruiz
+
+Professional Summary
+Seasoned Solutions Architect.
+
+Professional Experience
+Principal ArchitectExample Corp - Irvine, CA2021 - Present
+`);
+
+    expect(imported.contactInfo.email).toBe('richardruiz@live.com');
+    expect(imported.contactInfo.phone).toBe('949-743-4975');
+    expect(imported.contactInfo.linkedin).toBe('linkedin.com/in/richardruiz');
   });
 });
