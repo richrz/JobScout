@@ -31,6 +31,48 @@ This creates a real handoff artifact for the resume profiler and builder stack.
 
 Future work can now argue with one visible spec instead of reconstructing the product from memory or chat.
 
+## 2026-03-09 — Resume Stack Checkpoint Landed Around Truth, Control, And I/O
+
+### Context
+The resume surface had several partially-finished truths at once:
+- Profile Builder import and cleanup work was already in progress
+- export from structured resume truth existed locally but was not checkpointed
+- the old Resume Builder AI rail had been criticized accurately, but not replaced
+- the customization spec still said the final 7 voice dimensions were unresolved
+
+That left the product with the right direction but an incomplete, hard-to-trust surface.
+
+### Decisions Made
+1. **The resume customization spec now locks the final 7 voice dimensions.**
+   - Formality
+   - Brevity
+   - Technical Depth
+   - Evidence
+   - Confidence
+   - Warmth
+   - Persuasion
+2. **Resume Builder now uses one truthful writing strategy plus 7 explicit sliders instead of the older overlapping controls.**
+3. **The new rail is wired into resume generation.**
+   - the controls now feed custom voice-profile instructions into generation instead of pretending to change output
+4. **The broader resume stack was checkpointed as one coherent slice.**
+   - Profile Builder contact cleanup
+   - PDF import support in the master-data lane
+   - browser-safe DOCX export route
+   - shared structured resume document type
+5. **Resume generation now reads the Prisma-backed profile shape correctly for experiences and educations.**
+
+### Why This Matters
+This turns the resume surface into something closer to one real system:
+- import source material into trusted master data
+- shape output from structured truth
+- export cleanly
+- control the writing profile with explicit, understandable dimensions
+
+The next layer is no longer “clean up the random UI.” It is the actual profiler logic above this:
+- infer the 7-dimension profile from uploads
+- express confidence honestly
+- add fact lock, preview-confirm, and other trust features from the customization spec
+
 ## 2026-03-09 — A Plain Backlog Tracker Became Part Of The Active Docs
 
 ### Context

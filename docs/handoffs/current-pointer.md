@@ -9,11 +9,10 @@
 
 ## Latest Product Checkpoint
 
+- `498922d` — advanced the resume stack with committed PDF import, DOCX export, Profile Builder cleanup, and the new 7-dimension Resume Builder rail
 - `ce4adc3` — codified the resume customization trust model, backlog tracker, and docs pointers
 - `afbeb10` — hardened DOCX import parsing for real resume variants
-- Current working tree adds uncommitted PDF import plus DOCX/PDF export from structured resume truth
-- Current working tree also adds uncommitted Profile Builder UX cleanup and a grounded AI settings rail critique
-- Current working tree also tightens the resume customization trust contract around preview-confirm review, keyword coverage overlay, and later local/private model support
+- Current working tree still contains unrelated dashboard / agent-doc dirt outside the resume stack slice
 
 ## Read First
 
@@ -107,6 +106,17 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - Resume export now works from the structured resume truth on `/resume` for both DOCX and PDF.
 - DOCX export is now browser-safe by generating the file on the server and downloading it through `/api/resume/export/docx`.
 - Resume PDF and DOCX export now share one structured resume document type instead of duplicating the shape across components.
+- The resume customization spec now locks the final 7 voice dimensions:
+  - Formality
+  - Brevity
+  - Technical Depth
+  - Evidence
+  - Confidence
+  - Warmth
+  - Persuasion
+- Resume Builder now uses one visible writing strategy plus 7 explicit voice dimensions instead of the old overlapping preset/control stack.
+- The new rail is wired into generation through custom voice-profile instructions rather than being cosmetic-only.
+- Resume generation now reads current Prisma-backed `experiences` / `educations` profile data correctly instead of only the older legacy shape.
 - Profile Builder header now places `Import Resume` next to `Profile Builder` instead of burying the action away from the master-data context.
 - Contact info now supports `Title`, `First Name`, and `Last Name` separately instead of forcing one flat full-name field.
 - Phone values now normalize to a readable display format like `(949) 743-4975`.
@@ -128,7 +138,15 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - Richer import review controls are still pending:
   - field-level accept/reject before merge
   - optional hard-linking a specific imported resume into an opportunity workspace later
-- The resume AI settings rail still needs a ground-up simplification pass so the visible controls match the output knobs that are actually wired.
+- The next resume-profiler layer is still pending:
+  - infer the 7-dimension voice profile from uploaded writing samples
+  - express confidence when the inferred voice signal is weak
+  - separate optional signature phrases from the main 7-dimension sliders
+- Trust features from the resume customization spec are still not fully built:
+  - fact lock
+  - preview -> confirm diff flow
+  - keyword coverage overlay
+  - human signal check
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 
 ## Verification
@@ -155,6 +173,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `tests/unit/lib/mem0.test.ts`
   - `tests/unit/lib/profile-import.test.ts`
   - `tests/unit/lib/profile-import-service.test.ts`
+- Focused resume stack verification passed:
+  - `tests/unit/components/resume/AISettingsRail.test.tsx`
+  - `tests/unit/lib/resume-export.test.ts`
+  - `tests/unit/components/resume/ats-compliance.test.tsx`
+  - `tests/unit/components/profile/ProfileBuilder.test.tsx`
+  - `tests/unit/lib/profile-import.test.ts`
+  - `tests/unit/lib/profile-import-service.test.ts`
 - Focused Profile Builder cleanup verification passed:
   - `tests/unit/components/profile/ProfileBuilder.test.tsx`
   - `tests/unit/lib/profile-import.test.ts`
@@ -171,6 +196,10 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - Career / Master Data PDF import review using the generated proof artifact `job-search-platform/output/playwright/profile-import-sample.pdf`
   - Resume Builder DOCX download via `/api/resume/export/docx`
   - Resume Builder PDF download via the existing PDF export surface
+  - Resume Builder redesigned rail showing:
+    - `Writing Profile`
+    - `Conservative / Balanced / Standout`
+    - the 7 voice dimensions
   - Career / Master Data contact cleanup after import:
     - import button placement
     - split contact name fields
@@ -191,6 +220,9 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-docx-pdf-buttons.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-proof.docx`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-export-proof.pdf`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-rail-seven-dimensions.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-resume-stack.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-skills-tab.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-contact-cleanup.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-work-history-cleanup.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-skills-refresh-state.png`
@@ -205,4 +237,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
-- Then take the top `Now` item from the backlog.
+- Then take the next resume-profiler layer:
+  - infer the 7-dimension voice profile from uploaded writing samples
+  - keep `Resume Writer Zero` as fallback when the signal is weak
+  - start wiring fact lock and preview-confirm into the rewrite flow
