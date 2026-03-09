@@ -4,6 +4,108 @@
 
 ---
 
+## 2026-03-09 — Resume Builder Left Rail Dropped The Card Stack
+
+### Context
+Even after the earlier Resume Builder cleanup, the left column still felt like too many equal-weight cards jammed into a narrow box.
+
+That made the page hard to scan for three reasons:
+- the strategy controls and voice controls all looked equally important
+- the page hid depth below the fold without signaling it well
+- the user still had to decode containers instead of making one clear choice at a time
+
+### Decisions Made
+1. **The left rail now behaves like a compact control console instead of a pile of cards.**
+2. **Rewrite strategy became one primary segmented choice.**
+   - one visible control
+   - one live description
+   - no repeated strategy cards
+3. **The seven voice sliders now live behind three expandable groups.**
+   - Tone & Clarity
+   - Technical Signal
+   - Positioning
+4. **Only one group stays open at a time.**
+   - this lowers noise and keeps the user focused on one type of decision
+5. **The rail now signals hidden depth explicitly.**
+   - bottom fade
+   - `Scroll for more controls` cue
+
+### Why This Matters
+This reduces the information entropy of the page.
+
+The left rail now says:
+- choose rewrite strength
+- open the kind of voice control you want
+- adjust that one group
+- keep moving
+
+That is much closer to a usable drafting tool than the earlier same-looking card stack.
+
+## 2026-03-09 — Resume Stack Was Reworked Into One Trustworthy System
+
+### Context
+Today’s work stopped being a collection of small resume tweaks and became one connected resume-system pass.
+
+The product truth now spans:
+- import source material into Career Data
+- shape a job-specific draft in Resume Builder
+- export the exact draft you want to send
+- move toward a trust-first customization model instead of generic AI polish
+
+### What Shipped Today
+1. **The resume customization stack now has a real product spec.**
+   - `You, but everywhere` is the core proposition
+   - trust primitives are explicit:
+     - `Fact Lock`
+     - `Transparent Diff`
+     - `Human Signal Check`
+     - audience / jargon tuning
+     - `Resume Writer Zero` fallback
+2. **Resume import and export became part of the real product flow.**
+   - global DOCX import into Profile Builder master data
+   - hardened DOCX parsing against current local resume samples
+   - PDF import into the same review-before-merge lane
+   - DOCX and PDF export from the same structured resume truth
+3. **Profile Builder became more trustworthy after import.**
+   - clearer import placement
+   - better contact handling
+   - better summary replacement on re-import
+   - less broken work-history editing
+   - clearer skill-refresh behavior
+4. **Resume Builder’s voice controls were reset around the final 7 dimensions.**
+   - Formality
+   - Brevity
+   - Technical Depth
+   - Evidence
+   - Confidence
+   - Warmth
+   - Persuasion
+5. **Resume Builder itself was restructured twice.**
+   - first, the page stopped reading like a vague settings dump
+   - then the center became one drafting workspace instead of tabs plus a detached preview pane
+
+### Direction Now
+The next design problem is no longer “what should the controls be called?”
+
+It is information architecture:
+- the left column still has too many equal-weight surfaces
+- too many boxes compete for attention
+- scrolling depth is not communicated well
+- the page still asks the user to decode control containers instead of making one clear choice at a time
+
+The next redesign direction is:
+- reduce the entropy of the left column
+- stop using a same-looking stack of cards as the default answer
+- use clearer hierarchy, progressive disclosure, and visible below-fold cues
+- make the rail feel like a focused control console, not a pile of settings boxes
+
+### Why This Matters
+This makes the resume system more coherent:
+- Career Data is the source
+- Resume Builder shapes a draft for one job
+- export uses that same draft truth
+- the product is moving toward trustworthy voice amplification rather than generic AI rewriting
+
 ## 2026-03-09 — Resume Builder Center Became One Drafting Workspace
 
 ### Context

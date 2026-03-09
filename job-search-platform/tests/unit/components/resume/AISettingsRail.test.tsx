@@ -60,22 +60,27 @@ describe('AISettingsRail', () => {
     return { onProfileChange, onStrategyChange };
   }
 
-  it('shows the rewritten flow and seven voice dimensions', () => {
+  it('shows one primary rewrite control and grouped voice disclosures', () => {
     renderRail();
 
-    expect(screen.getByText('What this changes')).toBeInTheDocument();
-    expect(screen.getByText('How hard should JobScout rewrite this?')).toBeInTheDocument();
-    expect(screen.getByText('Tune The Voice')).toBeInTheDocument();
+    expect(screen.getByText('Writing Profile')).toBeInTheDocument();
+    expect(screen.getByText('Rewrite Strength')).toBeInTheDocument();
+    expect(screen.getByText('Voice Controls')).toBeInTheDocument();
+    expect(screen.getByText('Manual for now. Upload-based voice learning comes later.')).toBeInTheDocument();
     expect(screen.queryByText('Starting Point')).not.toBeInTheDocument();
 
     STRATEGY_OPTIONS.forEach((option) => {
       expect(screen.getByRole('button', { name: new RegExp(option.label, 'i') })).toBeInTheDocument();
     });
 
-    VOICE_DIMENSIONS.forEach((dimension) => {
-      expect(screen.getByText(dimension.label)).toBeInTheDocument();
-      expect(screen.getByRole('slider', { name: dimension.label })).toBeInTheDocument();
-    });
+    expect(screen.getByRole('button', { name: /tone & clarity/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /technical signal/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /positioning/i })).toBeInTheDocument();
+
+    expect(screen.getByText('Professional Tone')).toBeInTheDocument();
+    expect(screen.getByText('Human Tone')).toBeInTheDocument();
+    expect(screen.getByText('Bullet Length')).toBeInTheDocument();
+    expect(screen.queryByText('Technical Detail')).not.toBeInTheDocument();
   });
 
   it('lets the user pick a primary writing strategy', () => {
@@ -84,6 +89,16 @@ describe('AISettingsRail', () => {
     fireEvent.click(screen.getByRole('button', { name: /push it harder/i }));
 
     expect(onStrategyChange).toHaveBeenCalledWith('standout');
+  });
+
+  it('expands another voice group and hides the previous one', () => {
+    renderRail();
+
+    fireEvent.click(screen.getByRole('button', { name: /technical signal/i }));
+
+    expect(screen.getByText('Technical Detail')).toBeInTheDocument();
+    expect(screen.getByText('Proof Level')).toBeInTheDocument();
+    expect(screen.queryByText('Professional Tone')).not.toBeInTheDocument();
   });
 
   it('updates one voice dimension without dropping the rest of the profile', () => {

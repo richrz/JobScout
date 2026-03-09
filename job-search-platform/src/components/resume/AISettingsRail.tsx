@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { RotateCcw, Sparkles, Wand2 } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronDown, RotateCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
@@ -30,6 +30,44 @@ interface DimensionControlProps {
   onChange: (value: number) => void;
 }
 
+type DimensionGroupId = 'tone' | 'technical' | 'positioning';
+
+const DIMENSION_SUMMARY_LABELS: Record<ResumeVoiceDimensionKey, string> = {
+  formality: 'Tone',
+  brevity: 'Length',
+  technicalDepth: 'Audience',
+  evidence: 'Proof',
+  confidence: 'Directness',
+  warmth: 'Warmth',
+  persuasion: 'Fit',
+};
+
+const DIMENSION_GROUPS: Array<{
+  id: DimensionGroupId;
+  title: string;
+  description: string;
+  keys: ResumeVoiceDimensionKey[];
+}> = [
+  {
+    id: 'tone',
+    title: 'Tone & Clarity',
+    description: 'Shape how polished, human, and concise the writing feels.',
+    keys: ['formality', 'warmth', 'brevity'],
+  },
+  {
+    id: 'technical',
+    title: 'Technical Signal',
+    description: 'Control how technical and proof-heavy the draft becomes.',
+    keys: ['technicalDepth', 'evidence'],
+  },
+  {
+    id: 'positioning',
+    title: 'Positioning',
+    description: 'Control how directly the draft sells fit for the role.',
+    keys: ['confidence', 'persuasion'],
+  },
+];
+
 function cloneProfile(profile: ResumeVoiceProfile): ResumeVoiceProfile {
   return { ...profile };
 }
@@ -38,17 +76,13 @@ function DimensionControl({ dimension, value, onChange }: DimensionControlProps)
   const descriptor = getVoiceDimensionDescriptor(dimension.key, value);
 
   return (
-    <div className="rounded-xl border border-border/60 bg-background/60 p-3">
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <div>
+    <div className="space-y-2 border-t border-border/60 pt-4 first:border-t-0 first:pt-0">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
           <div className="text-sm font-semibold text-foreground">{dimension.label}</div>
-          <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
-            {dimension.description}
-          </p>
+          <p className="text-[11px] leading-5 text-muted-foreground">{dimension.description}</p>
         </div>
-        <div className="rounded-full border border-primary/20 bg-primary/10 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-primary">
-          {descriptor} · {value}
-        </div>
+        <div className="shrink-0 text-[11px] font-medium text-primary">{descriptor}</div>
       </div>
 
       <Slider
@@ -61,35 +95,13 @@ function DimensionControl({ dimension, value, onChange }: DimensionControlProps)
         aria-label={dimension.label}
       />
 
-      <div className="mt-1 flex justify-between text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="flex justify-between text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
         <span>{dimension.lowLabel}</span>
         <span>{dimension.highLabel}</span>
       </div>
     </div>
   );
 }
-
-const DIMENSION_GROUPS: Array<{
-  title: string;
-  description: string;
-  keys: ResumeVoiceDimensionKey[];
-}> = [
-  {
-    title: 'Tone & Clarity',
-    description: 'Control how polished, human, and concise the wording feels.',
-    keys: ['formality', 'warmth', 'brevity'],
-  },
-  {
-    title: 'Technical Signal',
-    description: 'Control how technical and proof-heavy the draft becomes.',
-    keys: ['technicalDepth', 'evidence'],
-  },
-  {
-    title: 'Positioning',
-    description: 'Control how direct and role-focused the draft feels.',
-    keys: ['confidence', 'persuasion'],
-  },
-];
 
 export function AISettingsRail({
   profile,
@@ -99,6 +111,44 @@ export function AISettingsRail({
   className,
 }: AISettingsRailProps) {
   const safeProfile = clampVoiceProfile(profile);
+  const [openGroup, setOpenGroup] = useState<DimensionGroupId>('tone');
+  const [showScrollCue, setShowScrollCue] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const selectedStrategy =
+    STRATEGY_OPTIONS.find((option) => option.id === strategy) ?? STRATEGY_OPTIONS[1];
+
+  const groupSummaries = useMemo(() => {
+    return DIMENSION_GROUPS.reduce<Record<DimensionGroupId, string>>((acc, group) => {
+      acc[group.id] = group.keys
+        .map((key) => {
+          const descriptor = getVoiceDimensionDescriptor(key, safeProfile[key]);
+          return `${DIMENSION_SUMMARY_LABELS[key]}: ${descriptor}`;
+        })
+        .join(' · ');
+      return acc;
+    }, { tone: '', technical: '', positioning: '' });
+  }, [safeProfile]);
+
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node) return;
+
+    const updateCue = () => {
+      const canScroll = node.scrollHeight > node.clientHeight + 8;
+      const atBottom = node.scrollTop + node.clientHeight >= node.scrollHeight - 12;
+      setShowScrollCue(canScroll && !atBottom);
+    };
+
+    updateCue();
+    node.addEventListener('scroll', updateCue, { passive: true });
+    window.addEventListener('resize', updateCue);
+
+    return () => {
+      node.removeEventListener('scroll', updateCue);
+      window.removeEventListener('resize', updateCue);
+    };
+  }, [openGroup, strategy, safeProfile]);
 
   const handleDimensionChange = (key: ResumeVoiceDimensionKey, value: number) => {
     onProfileChange(
@@ -110,128 +160,171 @@ export function AISettingsRail({
   };
 
   const handleReset = () => {
+    setOpenGroup('tone');
     onStrategyChange('balanced');
     onProfileChange(cloneProfile(RESUME_WRITER_ZERO_PROFILE));
   };
 
   return (
     <div className={cn('flex h-full flex-col bg-background', className)}>
-      <div className="flex items-center justify-between border-b border-border/80 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <div>
-            <div className="text-sm font-semibold text-foreground">Rewrite This Draft</div>
-            <div className="text-[11px] text-muted-foreground">Career Data stays separate.</div>
-          </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={handleReset}
-          aria-label="Reset rewrite settings"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-        <div className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-4 py-4 shadow-sm">
-          <div className="flex items-start gap-3">
-            <div className="rounded-xl border border-primary/20 bg-primary/10 p-2 text-primary">
-              <Wand2 className="h-3.5 w-3.5" />
+      <div className="border-b border-border/80 px-5 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span>Writing Profile</span>
             </div>
-            <div className="space-y-1">
-              <div className="text-sm font-semibold text-foreground">What this changes</div>
-              <p className="text-[11px] leading-5 text-muted-foreground">
-                This adjusts wording, emphasis, and fit for the current resume draft. It does not
-                rewrite your Career Data.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <section className="space-y-3">
-          <div>
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              How hard should JobScout rewrite this?
-            </div>
-            <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
-              Choose how much the draft should polish and position your experience.
+            <p className="text-[11px] leading-5 text-muted-foreground">
+              Shape this draft without changing your Career Data.
             </p>
           </div>
-          <div className="grid gap-2">
-            {STRATEGY_OPTIONS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => onStrategyChange(option.id)}
-                aria-pressed={strategy === option.id}
-                className={cn(
-                  'rounded-2xl border px-3 py-3 text-left transition-colors',
-                  strategy === option.id
-                    ? 'border-primary/50 bg-primary/10 shadow-[0_0_0_1px_rgba(53,227,117,0.15)]'
-                    : 'border-border/80 bg-card/60 hover:border-primary/25 hover:bg-card',
-                )}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm font-semibold text-foreground">{option.label}</div>
-                  {strategy === option.id ? (
-                    <div className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-foreground">
-                      Live
-                    </div>
-                  ) : null}
-                </div>
-                <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
-                  {option.description}
-                </p>
-              </button>
-            ))}
-          </div>
-        </section>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleReset}
+            aria-label="Reset rewrite settings"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+        </div>
 
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              Tune The Voice
-            </div>
-            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              Manual for now
-            </span>
-          </div>
-          <div className="space-y-3">
-            {DIMENSION_GROUPS.map((group) => (
-              <div key={group.title} className="rounded-2xl border border-border/80 bg-card/60 p-3 shadow-sm">
-                <div className="mb-3">
-                  <div className="text-sm font-semibold text-foreground">{group.title}</div>
-                  <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
-                    {group.description}
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  {group.keys.map((key) => {
-                    const dimension = VOICE_DIMENSIONS.find((item) => item.key === key);
-                    if (!dimension) return null;
-                    return (
-                      <DimensionControl
-                        key={dimension.key}
-                        dimension={dimension}
-                        value={safeProfile[dimension.key]}
-                        onChange={(value) => handleDimensionChange(dimension.key, value)}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+          <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 font-medium text-primary">
+            {selectedStrategy.label}
+          </span>
+          <span>{selectedStrategy.description}</span>
+        </div>
       </div>
 
-      <div className="border-t border-border/80 bg-card/40 px-4 py-3">
+      <div className="relative flex-1 overflow-hidden">
+        <div ref={scrollRef} className="h-full overflow-y-auto px-5 py-5">
+          <section className="space-y-4 pb-6">
+            <div className="space-y-2">
+              <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                Rewrite Strength
+              </div>
+              <p className="text-sm leading-6 text-muted-foreground">
+                Choose how hard JobScout should polish and position this draft.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 rounded-2xl border border-border/70 bg-card/40 p-1">
+              {STRATEGY_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => onStrategyChange(option.id)}
+                  aria-pressed={strategy === option.id}
+                  className={cn(
+                    'rounded-xl px-3 py-2 text-center text-sm font-medium transition-colors',
+                    strategy === option.id
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:bg-background/80 hover:text-foreground',
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-[11px] leading-5 text-muted-foreground">
+              {selectedStrategy.description}
+            </p>
+          </section>
+
+          <section className="space-y-4 border-t border-border/80 pt-6">
+            <div className="flex items-end justify-between gap-4">
+              <div className="space-y-2">
+                <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                  Voice Controls
+                </div>
+                <p className="text-sm leading-6 text-muted-foreground">
+                  Manual for now. Upload-based voice learning comes later.
+                </p>
+              </div>
+              <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                7 sliders
+              </div>
+            </div>
+
+            <div className="divide-y divide-border/70 rounded-[24px] border border-border/70 bg-background/20">
+              {DIMENSION_GROUPS.map((group) => {
+                const isOpen = openGroup === group.id;
+
+                return (
+                  <div key={group.id}>
+                    <button
+                      type="button"
+                      className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left"
+                      onClick={() => setOpenGroup((current) => (current === group.id ? current : group.id))}
+                      aria-expanded={isOpen}
+                    >
+                      <div className="min-w-0 space-y-1">
+                        <div className="text-sm font-semibold text-foreground">{group.title}</div>
+                        <p className="text-[11px] leading-5 text-muted-foreground">
+                          {group.description}
+                        </p>
+                        <div className="text-[11px] leading-5 text-primary/80">
+                          {groupSummaries[group.id]}
+                        </div>
+                      </div>
+
+                      <div className="flex shrink-0 items-center gap-2 pt-0.5">
+                        <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                          {isOpen ? 'Open' : 'Expand'}
+                        </span>
+                        <ChevronDown
+                          className={cn(
+                            'h-4 w-4 text-muted-foreground transition-transform',
+                            isOpen && 'rotate-180',
+                          )}
+                        />
+                      </div>
+                    </button>
+
+                    {isOpen ? (
+                      <div className="overflow-hidden">
+                        <div className="space-y-5 px-4 pb-5">
+                          {group.keys.map((key) => {
+                            const dimension = VOICE_DIMENSIONS.find((item) => item.key === key);
+                            if (!dimension) return null;
+
+                            return (
+                              <DimensionControl
+                                key={dimension.key}
+                                dimension={dimension}
+                                value={safeProfile[dimension.key]}
+                                onChange={(value) => handleDimensionChange(dimension.key, value)}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </div>
+
+        {showScrollCue ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-3">
+            <div className="h-14 bg-gradient-to-t from-background via-background/92 to-transparent" />
+            <div className="absolute inset-x-0 bottom-3 flex justify-center">
+              <div className="rounded-full border border-border/80 bg-background/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-muted-foreground shadow-sm">
+                Scroll for more controls
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="border-t border-border/80 px-5 py-4">
         <p className="text-[11px] leading-5 text-muted-foreground">
-          Voice learning from uploaded resumes is not live yet. For now, adjust the draft here and
-          JobScout will use these settings only for this resume.
+          These controls shape only this draft. Voice learning from uploaded resumes is not live
+          yet.
         </p>
       </div>
     </div>
