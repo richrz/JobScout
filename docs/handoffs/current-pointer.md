@@ -9,7 +9,7 @@
 
 ## Latest Product Checkpoint
 
-- `da6abb9` — wired Resume Writer Zero, root-env AI config, Mem0 hooks, and global DOCX profile import
+- `afbeb10` — hardened DOCX import parsing for real resume variants
 
 ## Read First
 
@@ -95,6 +95,8 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - Master Data now supports global DOCX resume import from Profile Builder.
 - Imported resumes now parse into reviewable profile facts before merge instead of attaching to one opportunity by default.
 - Applying an imported resume now merges extracted work history and skills into profile master data.
+- DOCX import now handles the denser multiline resume formats from the current local sample-resume set instead of only the cleaner first sample.
+- The Profile Builder import route now survives ordinary words like `experience` inside bullet text without truncating the section early.
 
 ## What Remains
 
@@ -126,6 +128,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `tests/unit/lib/resume-generation.test.ts`
   - `tests/unit/lib/mem0.test.ts`
   - `tests/unit/lib/profile-import.test.ts`
+  - `tests/unit/lib/profile-import-service.test.ts`
 - Browser verification passed on `http://127.0.0.1:3173` for:
   - Inbox multi-select toolbar and batch actions surface
   - Passed Bin page load and restore/archive controls
@@ -134,6 +137,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - Settings smoke load after the stabilization pass
   - Resume Builder showing `Resume Writer Zero` as the default preset baseline
   - Career / Master Data DOCX import review and merge using `sample-resumes/RichardRuiz_SHI.docx`
+  - Career / Master Data DOCX import review and merge using `sample-resumes/Richard_Ruiz_Resume_Cyberhaven.docx`
 - Proof artifacts live at:
   - `/home/richard/code/jobs/job-search-platform/output/playwright/inbox-multiselect-toolbar.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/passed-bin.png`
@@ -141,6 +145,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/stabilization-settings-smoke.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-writer-zero-default.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-imported-work-history.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-import-cyberhaven-work-history.png`
 
 ## Known Risks
 

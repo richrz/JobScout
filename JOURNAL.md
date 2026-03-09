@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-03-08 — DOCX Import Hardened Against Real Resume Variants
+
+### Context
+The first DOCX import ship worked on one cleaner sample, but several real local resumes still under-parsed.
+
+That meant the route existed, yet the trustworthy outcome was not there: importing the current sample-resume set into Master Data still failed in practice for denser formats.
+
+### Decisions Made
+1. **DOCX import parsing was hardened against real multiline and dense resume layouts.**
+2. **Section slicing now stops only on real headings, not ordinary words like `experience` inside bullet text.**
+3. **Experience extraction now handles multiline headers, inline bullets, and the extra employer-line variant seen in the sample resumes.**
+4. **Browser proof was upgraded from one clean sample to the harder Cyberhaven-style resume.**
+
+### Why This Matters
+This turns DOCX import from a promising first pass into something the user can actually use on the current sample-resume set.
+
+It also sets a better floor for the next chunk:
+- PDF import
+- export from structured truth
+- richer review and merge controls later
+
 ## 2026-03-08 — Master Data Resume Import Shipped As Global DOCX Parsing
 
 ### Context
