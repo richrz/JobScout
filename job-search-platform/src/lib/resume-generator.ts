@@ -12,6 +12,7 @@ export interface ResumeGenerationRequest {
     jobDescription: string;
     profile: any; // Profile data
     exaggerationLevel: ExaggerationLevel;
+    customInstructions?: string;
 }
 
 /**
@@ -48,6 +49,7 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
             jobDescription: request.jobDescription,
             userProfile: request.profile,
             exaggerationLevel: request.exaggerationLevel,
+            customInstructions: request.customInstructions,
         });
 
         let content = response.content;
@@ -93,7 +95,8 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
  */
 export async function generateAndPreviewResume(
     jobId: string,
-    exaggerationLevel: ExaggerationLevel = 'professional'
+    exaggerationLevel: ExaggerationLevel = 'professional',
+    customInstructions?: string,
 ) {
     let profile: any = null;
     try {
@@ -120,6 +123,7 @@ export async function generateAndPreviewResume(
             jobDescription: job.description,
             profile,
             exaggerationLevel,
+            customInstructions,
         });
 
         return {

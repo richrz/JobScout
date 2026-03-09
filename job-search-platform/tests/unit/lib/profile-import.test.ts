@@ -35,12 +35,14 @@ describe('profile import helpers', () => {
     const currentProfile = {
       contactInfo: {
         name: 'Richard Ruiz',
+        firstName: 'Richard',
+        lastName: 'Ruiz',
         email: 'rruiz@deskwise.io',
-        phone: '',
+        phone: '9497434975',
         linkedin: '',
         location: '',
         portfolio: '',
-        summary: '',
+        summary: 'Seasoned Strategic Solutions Engineer with extensive',
       },
       workHistory: [],
       experiences: [
@@ -64,7 +66,10 @@ describe('profile import helpers', () => {
 
     const importedProfile = sanitizeImportedProfile({
       contactInfo: {
+        name: 'Richard Ruiz',
         linkedin: 'linkedin.com/in/richardruiz',
+        summary:
+          'Seasoned Strategic Solutions Engineer with extensive experience in complex data center sales, IT administration, and enterprise-level technical consulting.',
       },
       experiences: [
         {
@@ -88,7 +93,11 @@ describe('profile import helpers', () => {
     const merged = mergeImportedProfile(currentProfile, importedProfile);
 
     expect(merged.contactInfo.email).toBe('rruiz@deskwise.io');
+    expect(merged.contactInfo.firstName).toBe('Richard');
+    expect(merged.contactInfo.lastName).toBe('Ruiz');
+    expect(merged.contactInfo.phone).toBe('(949) 743-4975');
     expect(merged.contactInfo.linkedin).toBe('linkedin.com/in/richardruiz');
+    expect(merged.contactInfo.summary).toContain('enterprise-level technical consulting');
     expect(merged.experiences).toHaveLength(2);
     expect(merged.experiences[0]?.description).toContain('complex renewal strategy');
     expect(merged.experiences[0]?.technologies).toEqual(['Salesforce', 'Outreach']);
@@ -147,7 +156,7 @@ Principal ArchitectExample Corp - Irvine, CA2021 - Present
 `);
 
     expect(imported.contactInfo.email).toBe('richardruiz@live.com');
-    expect(imported.contactInfo.phone).toBe('949-743-4975');
+    expect(imported.contactInfo.phone).toBe('(949) 743-4975');
     expect(imported.contactInfo.linkedin).toBe('linkedin.com/in/richardruiz');
   });
 });

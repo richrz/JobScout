@@ -1,7 +1,15 @@
 import { z } from 'zod';
-import type { Profile } from '@/lib/profile-utils';
+import {
+  buildContactName,
+  formatPhoneDisplay,
+  normalizeContactInfo,
+  type Profile,
+} from '@/lib/profile-utils';
 
 const contactInfoSchema = z.object({
+  honorific: z.string().trim().optional().default(''),
+  firstName: z.string().trim().optional().default(''),
+  lastName: z.string().trim().optional().default(''),
   name: z.string().trim().optional().default(''),
   email: z.string().trim().optional().default(''),
   phone: z.string().trim().optional().default(''),
@@ -94,15 +102,18 @@ export function mergeImportedProfile(current: Profile, imported: ImportedProfile
 }
 
 function sanitizeContactInfo(contactInfo: ImportedProfile['contactInfo']) {
-  return {
+  return normalizeContactInfo({
+    honorific: cleanText(contactInfo.honorific),
+    firstName: cleanText(contactInfo.firstName),
+    lastName: cleanText(contactInfo.lastName),
     name: cleanText(contactInfo.name),
     email: cleanText(contactInfo.email),
-    phone: cleanText(contactInfo.phone),
+    phone: formatPhoneDisplay(contactInfo.phone),
     linkedin: cleanText(contactInfo.linkedin),
     location: cleanText(contactInfo.location),
     portfolio: cleanText(contactInfo.portfolio),
     summary: cleanText(contactInfo.summary),
-  };
+  });
 }
 
 function sanitizeExperience(experience: ImportedProfile['experiences'][number]) {
@@ -150,14 +161,23 @@ function sanitizeCertification(certification: ImportedProfile['certifications'][
 }
 
 function mergeContactInfo(current: Profile['contactInfo'], imported: ImportedProfile['contactInfo']) {
+  const normalizedCurrent = normalizeContactInfo(current);
+  const normalizedImported = normalizeContactInfo(imported as Profile['contactInfo']);
+  const honorific = normalizedCurrent.honorific || normalizedImported.honorific || '';
+  const firstName = normalizedCurrent.firstName || normalizedImported.firstName || '';
+  const lastName = normalizedCurrent.lastName || normalizedImported.lastName || '';
+
   return {
-    name: current.name || imported.name || '',
-    email: current.email || imported.email || '',
-    phone: current.phone || imported.phone || '',
-    linkedin: current.linkedin || imported.linkedin || '',
-    location: current.location || imported.location || '',
-    portfolio: current.portfolio || imported.portfolio || '',
-    summary: current.summary || imported.summary || '',
+    honorific,
+    firstName,
+    lastName,
+    name: buildContactName({ firstName, lastName }),
+    email: normalizedCurrent.email || normalizedImported.email || '',
+    phone: normalizedCurrent.phone || normalizedImported.phone || '',
+    linkedin: normalizedCurrent.linkedin || normalizedImported.linkedin || '',
+    location: normalizedCurrent.location || normalizedImported.location || '',
+    portfolio: normalizedCurrent.portfolio || normalizedImported.portfolio || '',
+    summary: chooseLongerText(normalizedCurrent.summary || '', normalizedImported.summary || ''),
   };
 }
 

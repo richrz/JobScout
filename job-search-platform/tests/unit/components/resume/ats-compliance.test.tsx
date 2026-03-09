@@ -60,9 +60,10 @@ describe('ATS Compliance for ResumePDF', () => {
         const pages = document.querySelectorAll('[data-testid="pdf-page"]');
         expect(pages.length).toBeGreaterThan(0);
 
-        // Check that page style includes Helvetica font
-        const pageStyle = JSON.parse(pages[0].getAttribute('data-style') || '{}');
-        expect(pageStyle.fontFamily).toBe('Helvetica');
+        // The page receives a composed style array; assert the base style still uses Helvetica.
+        const pageStyle = JSON.parse(pages[0].getAttribute('data-style') || '[]');
+        const styleList = Array.isArray(pageStyle) ? pageStyle : [pageStyle];
+        expect(styleList.some((style) => style?.fontFamily === 'Helvetica')).toBe(true);
     });
 
     it('does not use tables for layout', () => {

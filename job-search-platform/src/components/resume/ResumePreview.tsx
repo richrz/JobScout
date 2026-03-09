@@ -4,41 +4,10 @@ import React, { memo } from 'react';
 import dynamic from 'next/dynamic';
 import { ResumePDF } from './ResumePDF';
 import { Loader2 } from 'lucide-react';
-
-// Define ResumeData interface locally or import it if better located. 
-// For now, mirroring the interface from ResumePDF.tsx which exports ResumePDFProps but relies on local ResumeContent.
-// Ideally ResumeContent should be exported from ResumePDF.tsx
-
-interface ResumeContent {
-    contactInfo: {
-        name: string;
-        email: string;
-        phone: string;
-        location: string;
-    };
-    summary: string;
-    experience: Array<{
-        id: string;
-        title: string;
-        company: string;
-        location: string;
-        startDate: string;
-        endDate: string;
-        description: string;
-    }>;
-    education: Array<{
-        id: string;
-        degree: string;
-        school: string;
-        location: string;
-        startDate: string;
-        endDate: string;
-    }>;
-    skills: string[];
-}
+import type { ResumeDocumentData } from '@/lib/resume-document';
 
 interface ResumePreviewProps {
-    data: ResumeContent;
+    data: ResumeDocumentData;
     mode?: 'light' | 'dark';
 }
 

@@ -1,7 +1,46 @@
-import { describe, expect, it } from '@jest/globals';
-import { extractProfileFromResumeText } from '@/lib/profile-import-service';
+import { describe, expect, it, jest } from '@jest/globals';
+
+const mockPdfGetText = jest.fn(async () => ({
+  text: `Professional Summary
+Seasoned Solutions Architect
+Professional Experience
+Principal Architect
+Deskwise, Remote, CO
+2021 - Present
+- Built reliable resume workflows.
+-- 1 of 1 --`,
+}));
+const mockPdfDestroy = jest.fn(async () => undefined);
+
+jest.mock('pdf-parse', () => ({
+  PDFParse: Object.assign(
+    jest.fn(() => ({
+      getText: mockPdfGetText,
+      destroy: mockPdfDestroy,
+    })),
+    { setWorker: jest.fn() },
+  ),
+}));
+
+import {
+  extractProfileFromResumeText,
+  extractTextFromResumeFile,
+} from '@/lib/profile-import-service';
 
 describe('profile import resume parser', () => {
+  it('extracts structured text from uploaded PDF files', async () => {
+    const file = new File(['fake-pdf'], 'resume.pdf', { type: 'application/pdf' });
+
+    const text = await extractTextFromResumeFile(file);
+
+    expect(text).toContain('Professional Summary');
+    expect(text).toContain('Principal Architect');
+    expect(text).toContain('Built reliable resume workflows.');
+    expect(text).not.toContain('-- 1 of 1 --');
+    expect(mockPdfGetText).toHaveBeenCalled();
+    expect(mockPdfDestroy).toHaveBeenCalled();
+  });
+
   it('parses multiline DOCX-style experience headers into master-data experiences', async () => {
     const imported = await extractProfileFromResumeText(`
 Richard Ruiz

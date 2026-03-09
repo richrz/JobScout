@@ -894,8 +894,14 @@ export class ResumeGenerator {
 
     // Extract profile data with proper typing
     const contactInfo = userProfile.contactInfo as ContactInfo || {};
-    const workHistory = userProfile.workHistory as WorkExperience[] || [];
-    const education = userProfile.education as Education[] || [];
+    const workHistory =
+      (userProfile.experiences as WorkExperience[]) ||
+      (userProfile.workHistory as WorkExperience[]) ||
+      [];
+    const education =
+      (userProfile.educations as Education[]) ||
+      (userProfile.education as Education[]) ||
+      [];
     const skills = userProfile.skills || [];
     const projects = userProfile.projects as Project[] || [];
     const certifications = userProfile.certifications as Certification[] || [];

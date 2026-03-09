@@ -1,10 +1,26 @@
 import '@/lib/load-root-env';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
+import { pathToFileURL } from 'url';
 import * as cheerio from 'cheerio';
+import type { AnyNode } from 'domhandler';
 import mammoth from 'mammoth';
+import { PDFParse } from 'pdf-parse';
 import {
   sanitizeImportedProfile,
   type ImportedProfile,
 } from '@/lib/profile-import';
+
+const pdfWorkerPathCandidates = [
+  resolve(process.cwd(), 'node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'),
+  resolve(process.cwd(), 'job-search-platform/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'),
+];
+
+const pdfWorkerPath = pdfWorkerPathCandidates.find((candidate) => existsSync(candidate));
+
+if (pdfWorkerPath) {
+  PDFParse.setWorker(pathToFileURL(pdfWorkerPath).href);
+}
 
 export async function extractTextFromResumeFile(file: File): Promise<string> {
   const filename = file.name.toLowerCase();
@@ -17,10 +33,10 @@ export async function extractTextFromResumeFile(file: File): Promise<string> {
   }
 
   if (mimeType.includes('pdf') || filename.endsWith('.pdf')) {
-    throw new Error('PDF import is next. This shipped pass supports DOCX import first.');
+    return extractTextFromPdfBuffer(buffer);
   }
 
-  throw new Error('Unsupported file type. Upload a DOCX resume for now.');
+  throw new Error('Unsupported file type. Upload a DOCX or PDF resume.');
 }
 
 export async function extractProfileFromResumeText(text: string): Promise<ImportedProfile> {
@@ -29,11 +45,26 @@ export async function extractProfileFromResumeText(text: string): Promise<Import
 
 function normalizeResumeText(text: string): string {
   return text
+    .replace(/\f/g, '\n')
     .replace(/\r/g, '')
+    .replace(/(?:^|\n)\s*--\s*\d+\s+of\s+\d+\s*--\s*(?=\n|$)/gi, '\n')
+    .replace(/(?:^|\n)\s*page\s+\d+\s+of\s+\d+\s*(?=\n|$)/gi, '\n')
+    .replace(/[ \t]+/g, ' ')
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\u00a0/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+async function extractTextFromPdfBuffer(buffer: Buffer) {
+  const parser = new PDFParse({ data: buffer });
+
+  try {
+    const result = await parser.getText();
+    return normalizeResumeText(result.text || '');
+  } finally {
+    await parser.destroy();
+  }
 }
 
 function parseResumeTextHeuristically(text: string): ImportedProfile {
@@ -90,7 +121,7 @@ function sliceSection(text: string, startHeading: string, endHeadings: string[])
   const startMatch = findHeadingMatch(text, startHeading);
   if (!startMatch) return '';
 
-  const afterStart = text.slice(startMatch.index + startMatch[0].length);
+  const afterStart = text.slice((startMatch.index ?? 0) + startMatch[0].length);
   let endIndex = afterStart.length;
 
   for (const heading of endHeadings) {
@@ -310,7 +341,7 @@ function convertResumeHtmlToText(html: string) {
 
 function collectResumeBlocks(
   $: cheerio.CheerioAPI,
-  node: cheerio.AnyNode,
+  node: AnyNode,
   blocks: string[],
 ) {
   if (node.type === 'text') {
@@ -521,10 +552,10 @@ function splitTitleAndCompany(raw: string) {
 function splitDegreeAndField(value: string) {
   const trimmed = cleanText(value);
   const match = trimmed.match(
-    /^(?<degree>.+?(?:Degree|Bachelor(?:'s|’s)?|Master(?:'s|’s)?|Associate(?:'s|’s)?|B\.?S\.?|M\.?S\.?|PhD|Doctorate))(?:\s+in\s+(?<field>.+))?$/i,
+    /^(.+?(?:Degree|Bachelor(?:'s|’s)?|Master(?:'s|’s)?|Associate(?:'s|’s)?|B\.?S\.?|M\.?S\.?|PhD|Doctorate))(?:\s+in\s+(.+))?$/i,
   );
 
-  if (!match?.groups) {
+  if (!match) {
     return {
       degree: trimmed,
       field: '',
@@ -532,8 +563,8 @@ function splitDegreeAndField(value: string) {
   }
 
   return {
-    degree: cleanText(match.groups.degree),
-    field: cleanText(match.groups.field || ''),
+    degree: cleanText(match[1] || ''),
+    field: cleanText(match[2] || ''),
   };
 }
 

@@ -52,7 +52,6 @@ This v1 spec does not try to:
 - produce a black-box ATS score as the primary value
 - support deep per-user model fine-tuning
 - finalize the exact ML architecture for voice inference
-- finalize all seven voice dimensions and slider names
 
 ## Core Product Position
 
@@ -96,8 +95,23 @@ The v1 profile should:
 - influence multiple resume generations over time
 - remain separate from factual truth
 
-Important v1 constraint:
-- the final seven dimensions and their names are still `TBD`
+The final seven voice dimensions are:
+- `Formality` — conversational ↔ executive
+- `Brevity` — expansive ↔ punchy
+- `Technical Depth` — plain-English ↔ specialist
+- `Evidence` — narrative ↔ proof-heavy
+- `Confidence` — modest ↔ assertive
+- `Warmth` — crisp ↔ human
+- `Persuasion` — descriptive ↔ targeted
+
+Each dimension must change one thing clearly:
+- `Formality` changes polish and register, not truth or jargon density
+- `Brevity` changes compression, not technical depth
+- `Technical Depth` changes specialist vocabulary and explanation level, not factual scope
+- `Evidence` changes how much the draft leans on metrics and concrete proof, not whether facts are invented
+- `Confidence` changes ownership language and strength of verbs, not factual scope
+- `Warmth` changes relational tone, not rigor
+- `Persuasion` changes how aggressively the draft frames fit to the target role, not the underlying facts
 
 ### 3. Fact Lock
 
@@ -284,13 +298,11 @@ These matter, but they are not v1 blockers:
 
 These are real `TBD`s, not hidden assumptions:
 
-1. What are the final seven voice dimensions?
-2. What should each slider control, and what must it not control?
-3. How much writing is enough for a strong voice profile versus a weak one?
-4. What should the confidence model look like in product language?
-5. How should signature phrases be detected, approved, and limited?
-6. How much audience tuning belongs in v1 versus later?
-7. What is the right user-facing name for the profile system?
+1. How much writing is enough for a strong voice profile versus a weak one?
+2. What should the confidence model look like in product language?
+3. How should signature phrases be detected, approved, and limited?
+4. How much audience tuning belongs in v1 versus later?
+5. What is the right user-facing name for the profile system?
 
 ## Success Criteria
 

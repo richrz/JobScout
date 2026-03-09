@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import type { ResumeDocumentData } from '@/lib/resume-document';
 
 // Register standard fonts
 Font.register({
@@ -80,36 +81,8 @@ const stripHtml = (html: string) => {
     return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
 };
 
-interface ResumeContent {
-    contactInfo: {
-        name: string;
-        email: string;
-        phone: string;
-        location: string;
-    };
-    summary: string;
-    experience: Array<{
-        id: string;
-        title: string;
-        company: string;
-        location: string;
-        startDate: string;
-        endDate: string;
-        description: string;
-    }>;
-    education: Array<{
-        id: string;
-        degree: string;
-        school: string;
-        location: string;
-        startDate: string;
-        endDate: string;
-    }>;
-    skills: string[];
-}
-
 interface ResumePDFProps {
-    content: ResumeContent;
+    content: ResumeDocumentData;
     mode?: 'light' | 'dark';
 }
 

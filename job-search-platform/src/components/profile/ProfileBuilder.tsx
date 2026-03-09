@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useForm, useFieldArray, useFormContext } from 'react-hook-form';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { calculateCompleteness, Profile } from '@/lib/profile-utils';
+import {
+  calculateCompleteness,
+  normalizeContactInfo,
+  type Profile,
+} from '@/lib/profile-utils';
 import {
   mergeImportedProfile,
   type ImportedProfile,
@@ -21,6 +25,13 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Trash2,
   Plus,
@@ -45,25 +56,72 @@ const sections = [
   { id: 'certifications', title: 'Certifications' }
 ];
 
+const HONORIFIC_OPTIONS = [
+  { value: 'Mr', label: 'Mr' },
+  { value: 'Ms', label: 'Ms' },
+  { value: 'Mrs', label: 'Mrs' },
+  { value: 'Other', label: 'Other' },
+];
+
 function ContactSection() {
-  const { control } = useFormContext();
+  const { control } = useFormContext<Profile>();
 
   return (
     <div className="space-y-6 max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[140px,1fr,1fr] gap-6">
         <FormField
           control={control}
-          name="contactInfo.name"
+          name="contactInfo.honorific"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Select value={field.value || ''} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {HONORIFIC_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        <FormField
+          control={control}
+          name="contactInfo.firstName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>First Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Richard" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="contactInfo.lastName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Last Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Ruiz" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={control}
           name="contactInfo.email"
@@ -84,8 +142,14 @@ function ContactSection() {
             <FormItem>
               <FormLabel>Phone</FormLabel>
               <FormControl>
-                <Input placeholder="+1 (555) 000-0000" {...field} />
+                <Input
+                  placeholder="(555) 000-0000"
+                  value={field.value || ''}
+                  onChange={(event) => field.onChange(normalizeContactInfo({ phone: event.target.value }).phone)}
+                  onBlur={(event) => field.onChange(normalizeContactInfo({ phone: event.target.value }).phone)}
+                />
               </FormControl>
+              <FormDescription>Format: (555) 000-0000</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -137,16 +201,17 @@ function ContactSection() {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Professional Summary</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Brief overview of your professional background..."
-                className="min-h-[150px]"
+              <FormControl>
+                <Textarea
+                  placeholder="Brief overview of your professional background..."
+                  className="min-h-[180px]"
                 {...field}
               />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+              </FormControl>
+              <FormDescription>Keep this to 3-5 readable lines. A re-import should now replace shorter imported summaries with fuller ones.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
       />
     </div>
   );
@@ -181,7 +246,23 @@ function WorkHistorySection() {
 
       <div className="space-y-6">
         {fields.map((field, index) => (
-          <div key={field.id} className="group relative border border-border/50 bg-card/50 p-6 rounded-xl space-y-6 transition-all hover:border-primary/20 hover:shadow-sm">
+          <div key={field.id} className="group border border-border/50 bg-card/50 p-6 rounded-xl space-y-6 transition-all hover:border-primary/20 hover:shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-foreground">Role {index + 1}</p>
+                <p className="text-xs text-muted-foreground">Keep each role separate so imports and resume tailoring stay accurate.</p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => remove(index)}
+                className="shrink-0 text-muted-foreground hover:text-destructive transition-colors"
+                aria-label={`Remove work history entry ${index + 1}`}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={control}
@@ -282,15 +363,6 @@ function WorkHistorySection() {
               )}
             />
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => remove(index)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
           </div>
         ))}
       </div>
@@ -580,24 +652,47 @@ function SkillsSectionReal() {
       </div>
 
       <div className="space-y-4 pt-4 border-t border-border/50">
-        <div className="flex items-center justify-between">
-          <FormLabel className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div className="space-y-1">
+            <FormLabel className="flex items-center gap-2 text-muted-foreground">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
-            AI Suggestions
-            {isGenerating && <span className="animate-pulse text-xs text-primary font-normal">Generating...</span>}
-          </FormLabel>
+              Suggested missing skills
+            </FormLabel>
+            <p className="text-xs text-muted-foreground">
+              Uses your saved work history, education, projects, and current skills to suggest likely gaps.
+            </p>
+          </div>
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={generateSuggestions}
             disabled={isGenerating}
-            className="text-primary hover:text-primary/80 h-auto p-0 hover:bg-transparent font-normal"
+            className="text-primary hover:text-primary/80 h-auto p-0 hover:bg-transparent font-normal justify-start"
           >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isGenerating ? 'animate-spin' : ''}`} />
-            Refresh
+            {isGenerating ? (
+              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+            )}
+            {isGenerating ? 'Refreshing suggestions...' : 'Refresh suggestions'}
           </Button>
         </div>
+
+        {isGenerating && (
+          <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">Scanning your profile for missing skills</p>
+                <p className="text-xs text-muted-foreground">Looking through work history, education, projects, and your current skills.</p>
+              </div>
+            </div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/10">
+              <div className="h-full w-1/3 rounded-full bg-primary/60 animate-pulse" />
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2">
           {aiSuggestions.filter(s => !skills.includes(s)).slice(0, 15).map((skill) => (
@@ -898,8 +993,10 @@ export function ProfileBuilder() {
       .then(res => res.json())
       .then(data => {
         if (data && !data.error) {
+          const normalizedContactInfo = normalizeContactInfo(data.contactInfo || {});
           const processed = {
             ...data,
+            contactInfo: normalizedContactInfo,
             experiences: data.experiences?.map((e: any) => ({
               ...e,
               startDate: e.startDate ? e.startDate.split('T')[0] : '',
@@ -935,6 +1032,7 @@ export function ProfileBuilder() {
 
       const processedData = {
         ...data,
+        contactInfo: normalizeContactInfo(data.contactInfo || {}),
         projects: (data.projects || []).map((project: any) => ({
           ...project,
           technologies: typeof project.technologies === 'string'
@@ -1029,13 +1127,13 @@ export function ProfileBuilder() {
     <Form {...methods}>
       <div className="flex h-full flex-col">
         <div className="bg-background/80 backdrop-blur border-b p-4 space-y-4 z-10 sticky top-0">
-          <div className="flex justify-between items-center">
-            <h1 className="text-xl font-bold">Profile Builder</h1>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <h1 className="text-xl font-bold">Profile Builder</h1>
               <input
                 ref={importInputRef}
                 type="file"
-                accept=".docx"
+                accept=".docx,.pdf"
                 className="hidden"
                 onChange={handleImportFile}
               />
@@ -1050,6 +1148,8 @@ export function ProfileBuilder() {
                 {isImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                 Import Resume
               </Button>
+            </div>
+            <div className="flex items-center gap-3">
               <span className={`text-sm font-medium ${saveStatus === 'Saved' ? 'text-green-500' :
                 saveStatus === 'Saving...' ? 'text-amber-500' : saveStatus.includes('Import') ? 'text-blue-500' : 'text-red-500'
                 }`}>{saveStatus}</span>

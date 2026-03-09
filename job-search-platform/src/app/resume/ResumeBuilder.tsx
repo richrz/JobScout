@@ -6,6 +6,8 @@ import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { ResumePDF } from '@/components/resume/ResumePDF';
 import { ResumePreview } from '@/components/resume/ResumePreview';
+import type { ResumeDocumentData } from '@/lib/resume-document';
+import { generateFileName } from '@/lib/file-naming';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,11 +23,14 @@ import {
 } from "@/components/ui/select";
 import { generateAndPreviewResume } from '@/lib/resume-generator';
 import { saveResume } from './actions';
+import { AISettingsRail } from '@/components/resume/AISettingsRail';
 import {
-    AISettingsRail,
-    type PersonalitySettings,
-    type AdvancedSettings,
-} from '@/components/resume/AISettingsRail';
+    buildVoiceProfilePrompt,
+    mapStrategyToExaggerationLevel,
+    RESUME_WRITER_ZERO_PROFILE,
+    type ResumeVoiceProfile,
+    type ResumeWritingStrategy,
+} from '@/lib/resume/voice-profile';
 import {
     Wand2,
     Download,
@@ -49,14 +54,7 @@ const PDFDownloadLink = dynamic(
     { ssr: false }
 );
 
-// Resume data type matching ResumePDF's ResumeContent interface
-interface ResumeData {
-    contactInfo: { name: string; email: string; phone: string; location: string };
-    summary: string;
-    experience: Array<{ id: string; title: string; company: string; location: string; startDate: string; endDate: string; description: string }>;
-    education: Array<{ id: string; degree: string; school: string; location: string; startDate: string; endDate: string }>;
-    skills: string[];
-}
+type ResumeData = ResumeDocumentData;
 
 
 // Initial state
@@ -68,16 +66,16 @@ const initialResumeState: ResumeData = {
     skills: [],
 };
 
-const DownloadButton = React.memo(({ data }: { data: ResumeData }) => (
-    <PDFDownloadLink document={<ResumePDF content={data} />} fileName="resume.pdf">
+const PDFDownloadButton = React.memo(({ data, fileName }: { data: ResumeData; fileName: string }) => (
+    <PDFDownloadLink document={<ResumePDF content={data} />} fileName={fileName}>
         {({ loading: pdfLoading }) => (
             <Button variant="outline" disabled={pdfLoading} className="gap-2">
                 {pdfLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                Download
+                PDF
             </Button>
         )}
     </PDFDownloadLink>
-), (prev, next) => prev.data === next.data);
+), (prev, next) => prev.data === next.data && prev.fileName === next.fileName);
 
 interface Job {
     id: string;
@@ -133,17 +131,8 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
     const [activeTab, setActiveTab] = useState('contact');
 
     // AI settings state
-    const [personalitySettings, setPersonalitySettings] = useState<PersonalitySettings>({
-        voice: 'professional',
-        density: 'balanced',
-        license: 'polish-up',
-        insider: 'industry-aware',
-    });
-    const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>({
-        requireEvidence: false,
-        atsHeavy: false,
-        prioritizeAchievements: true,
-    });
+    const [writingStrategy, setWritingStrategy] = useState<ResumeWritingStrategy>('balanced');
+    const [voiceProfile, setVoiceProfile] = useState<ResumeVoiceProfile>(RESUME_WRITER_ZERO_PROFILE);
 
     // Handlers
     const updateContact = (field: string, value: string) => {
@@ -182,14 +171,11 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
         }
         setLoading(true);
         try {
-            const strategyMap = {
-                'just-facts': 'authentic',
-                'polish-up': 'professional',
-                'sell-hard': 'persuasive',
-            } as const;
-            const strategy = strategyMap[personalitySettings.license];
-
-            const result = await generateAndPreviewResume(jobId, strategy as any);
+            const result = await generateAndPreviewResume(
+                jobId,
+                mapStrategyToExaggerationLevel(writingStrategy),
+                buildVoiceProfilePrompt(voiceProfile, writingStrategy),
+            );
 
             if (result.success && result.content) {
                 setResumeData(result.content);
@@ -237,6 +223,40 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
     };
 
     const selectedJob = jobs.find(j => j.id === jobId);
+    const exportBaseName = selectedJob
+        ? generateFileName('YYYY-MM-DD - {company} - {role}', selectedJob as any)
+        : 'resume';
+
+    const handleDocxDownload = async () => {
+        try {
+            const response = await fetch('/api/resume/export/docx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resumeData,
+                    fileName: `${exportBaseName}.docx`,
+                    job: selectedJob ? { company: selectedJob.company, title: selectedJob.title } : null,
+                }),
+            });
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => null);
+                throw new Error(payload?.error || 'DOCX export failed');
+            }
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${exportBaseName}.docx`;
+            link.click();
+            URL.revokeObjectURL(url);
+            toast.success('DOCX downloaded');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to export DOCX');
+        }
+    };
 
     // Memoize the preview section to prevent any possible re-renders/flickering
     const memoizedPreview = React.useMemo(() => (
@@ -299,19 +319,24 @@ export default function ResumeBuilder({ jobs, initialProfile }: { jobs: Job[], i
                         {saveStatus === 'success' ? 'Saved' : saveStatus === 'error' ? 'Failed' : 'Save'}
                     </Button>
 
-                    <DownloadButton data={previewData} />
+                    <Button variant="outline" onClick={handleDocxDownload} className="gap-2">
+                        <FileText className="h-4 w-4" />
+                        DOCX
+                    </Button>
+
+                    <PDFDownloadButton data={resumeData} fileName={`${exportBaseName}.pdf`} />
                 </div>
             </header>
 
             {/* Main 3-Panel Layout */}
             <div className="flex flex-1 overflow-hidden">
                 {/* Left Rail - AI Settings */}
-                <aside className="w-60 border-r bg-background flex-shrink-0">
+                <aside className="w-72 border-r bg-background/95 flex-shrink-0 xl:w-80">
                     <AISettingsRail
-                        settings={personalitySettings}
-                        onSettingsChange={setPersonalitySettings}
-                        advancedSettings={advancedSettings}
-                        onAdvancedSettingsChange={setAdvancedSettings}
+                        profile={voiceProfile}
+                        onProfileChange={setVoiceProfile}
+                        strategy={writingStrategy}
+                        onStrategyChange={setWritingStrategy}
                     />
                 </aside>
 
