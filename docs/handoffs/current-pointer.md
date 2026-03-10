@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `96e1906` — turns cockpit `CRAFTING` into a real drafting studio with a live preview, fact lock controls, keyword coverage overlay, and preview/confirm rewrite flow; the live rewrite shell is browser-verified and the current `GLM-5` provider boundary is now surfaced cleanly when plan access is unavailable
 - `ac94517` — extends the cockpit workspace across the later stages: `APPLIED` is now a submission/follow-up desk, `SCREENING` is now a screening desk, `INTERVIEW` is now an interview prep board, `OFFER` is now a decision board, and `AGENTS.md` now explicitly says not to re-ask for already approved or routine in-scope work
 - `745a4bb` — makes the cockpit workspace stage-owned for the first two real stages: `INTERESTED` now has live in-cockpit notes, `CRAFTING` now has a compact draft desk with rewrite/save controls and a live text-first preview, and cockpit draft saves now revalidate `/dashboard-wireframe`
 - `1841a67` — restores the cockpit shell’s visual hierarchy on `/dashboard-wireframe`: compact telemetry strip, a stronger Jump Back In / While You Were Out top row, stage-colored river columns, company identity on cards, urgency signals, and a less debug-like workspace panel
@@ -85,6 +86,23 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- `CRAFTING` is no longer just a compact bridge desk inside the cockpit.
+- The cockpit `CRAFTING` section is now a real drafting studio:
+  - live document preview
+  - summary editing
+  - visible skills editing
+  - experience-focus editing for the top roles
+- Rewrites are now staged instead of auto-applying to the live draft.
+  - `Rewrite draft` creates a suggested draft
+  - review happens before replacement
+  - the live draft changes only after explicit acceptance
+- Fact lock is now visible and controllable inside the cockpit drafting flow:
+  - contact details
+  - work history facts
+  - metrics and numbers
+  - visible skills
+- Keyword coverage is now visible inside `CRAFTING` as an inspectable overlay instead of an opaque ATS-style score.
+- The cockpit drafting flow now reports the real provider boundary cleanly when live `GLM-5` access is unavailable, instead of dumping the raw provider error text.
 - The cockpit workspace is now stage-owned across the later managed stages too.
 - `APPLIED` cards now open a submission and follow-up desk inside the cockpit:
   - submission record
@@ -244,10 +262,9 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 ## What Remains
 
 - The new plain-language backlog now lives in `/home/richard/code/jobs/docs/project/backlog.md`, and follow-up work should start there instead of being reconstructed from chat.
-- `CRAFTING` is now real, but still intentionally compact:
+- `CRAFTING` is now a real cockpit drafting studio, but the deeper studio layers are still pending:
   - full voice controls are not embedded there yet
   - BlockNote Resume Studio is still future work inside `CRAFTING`, not shipped in this slice
-  - preview-confirm diff, fact lock, and keyword overlay are still pending trust features
 - Real submitted artifact capture for apply flows is still pending after the resume I/O lane.
 - Richer import review controls are still pending:
   - field-level accept/reject before merge
@@ -278,6 +295,21 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `INTERESTED` workspace screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-interested-workspace.png`
   - `CRAFTING` workspace screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-workspace.png`
   - browser proof summary: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-workspace-verification.json`
+- Focused cockpit drafting studio verification passed:
+  - `tests/unit/lib/cockpit-drafting.test.ts`
+  - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx`
+  - `tests/unit/lib/cockpit-phase1.test.ts`
+  - `npx tsc --noEmit`
+- Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for the live `CRAFTING` studio shell:
+  - `Drafting studio` visible
+  - `Fact lock` visible
+  - `Keyword coverage` visible
+  - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-studio.png`
+  - proof summary: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-studio-verification.json`
+- Live rewrite boundary is now verified honestly in the browser:
+  - the configured `GLM-5` provider path currently reports plan access unavailable
+  - rewrite review does not complete live until that provider access issue is resolved
+  - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-rewrite-state.png`
 - Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for the live `APPLIED` cockpit workspace:
   - `Submission record` visible
   - `Follow-up log` visible
@@ -408,12 +440,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - `tests/lib/llm-testing.test.ts` passes, but Jest still reports a forced worker exit from open timers / handles after that suite finishes.
 - PDF import proof currently uses a generated sample PDF artifact rather than a user-supplied real PDF resume.
 - Live browser proof for `SCREENING`, `INTERVIEW`, and `OFFER` still depends on having real opportunities in those stages; current March 9 live data only exposed `APPLIED` beyond the first two stages.
+- Live browser proof for the full `CRAFTING` rewrite-review round-trip is currently blocked by provider access: the configured Z.AI `GLM-5` call returns a plan-access failure on this account.
 
 ## Next Recommended Task
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
 - Then deepen the cockpit where the value is still compressed:
-  - turn `CRAFTING` into the real in-cockpit drafting workspace
-  - bring preview-confirm diff, fact lock, and keyword coverage into that cockpit flow
+  - resolve live `GLM-5` access or choose an explicitly approved fallback model so the cockpit rewrite-review path can be fully browser-proven
+  - then continue into the deeper `CRAFTING` studio layer with embedded BlockNote editing
   - keep legacy pages as fallback until the cockpit path has true parity
