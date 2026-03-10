@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — stabilizes cockpit `CRAFTING` rewrite completion timing with a hard timeout and profile-based fallback draft path so rewrites no longer hang indefinitely; browser proof now includes a completed staged rewrite with narrative diffs visible
 - `pending local checkpoint` — deepens cockpit `CRAFTING` review into richer per-role narrative diffs and expands BlockNote from summary-only to targetable summary/role narrative editing with explicit write-back controls
 - `pending local checkpoint` — adds granular inline diff review in cockpit `CRAFTING` (summary wording diff + experience bullet-level diff) and embeds BlockNote as a deep in-cockpit summary editor with explicit load/apply controls
 - `1cbb710` — turns staged cockpit `CRAFTING` rewrites into a real section-by-section review flow so `summary`, `skills`, and `experience` can each keep current content or take the staged rewrite before apply; live browser proof now shows mixed acceptance inside `/dashboard-wireframe`
@@ -92,6 +93,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- Cockpit rewrite timing is now stabilized.
+  - live rewrite calls now run with an explicit timeout
+  - timeout path returns a deterministic profile-based fallback draft
+  - cockpit `CRAFTING` no longer depends on indefinite provider wait for staged review to appear
+- Browser-proven end-to-end staged rewrite now includes narrative diffs after rewrite completion.
 - Experience review in `CRAFTING` now renders richer narrative diff context per role.
   - updated roles show inline wording diff plus line-level bullet diff
   - added/removed roles keep explicit line-level deltas
@@ -396,6 +402,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx --runInBand`
   - `tests/unit/lib/resume-generation.test.ts --runInBand`
   - `npx tsc --noEmit`
+- Rewrite timing stabilization verification passed:
+  - `tests/unit/lib/resume-generation.test.ts --runInBand` (includes timeout fallback test)
+  - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx --runInBand`
+  - `tests/unit/lib/cockpit-drafting.test.ts --runInBand`
+  - `npx tsc --noEmit`
 - Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for mixed section acceptance in cockpit `CRAFTING`:
   - staged rewrite review showed separate controls for `summary`, `skills`, and `experience`
   - the live run kept current visible skills while accepting the rewritten summary
@@ -412,6 +423,12 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - target indicator and explicit apply control rendered in-panel
   - screenshot:
     - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-blocknote-role-writeback.png`
+- Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for completed staged rewrite + narrative diff render:
+  - rewrite completed to staged review instead of hanging in `Rewriting...`
+  - staged review showed narrative diff blocks under experience review
+  - screenshots:
+    - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-rewrite-complete-narrative-review.png`
+    - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-rewrite-narrative-diff-detail.png`
 - Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for the live `APPLIED` cockpit workspace:
   - `Submission record` visible
   - `Follow-up log` visible
@@ -542,14 +559,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - `tests/lib/llm-testing.test.ts` passes, but Jest still reports a forced worker exit from open timers / handles after that suite finishes.
 - PDF import proof currently uses a generated sample PDF artifact rather than a user-supplied real PDF resume.
 - Live browser proof for `SCREENING`, `INTERVIEW`, and `OFFER` still depends on having real opportunities in those stages; current March 9 live data only exposed `APPLIED` beyond the first two stages.
-- Section review is now trustful at the section level, but deeper inline wording diffs are still not visualized inside the cockpit.
-- During this checkpoint, the live rewrite request stayed in a long-running `Rewriting...` state on `/dashboard-wireframe`, so the newest narrative-diff UI was validated by tests and static cockpit rendering, not by a completed live provider round-trip.
+- Timeout fallback uses profile truth to keep cockpit flow moving, but can produce less aggressively tailored language than a completed provider response.
 
 ## Next Recommended Task
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
 - Then deepen the cockpit where the value is still compressed:
-  - stabilize live rewrite response timing in cockpit `CRAFTING` so staged review can be browser-proven reliably
-  - after rewrite stability, extend BlockNote from role narrative targeting into richer multi-section drafting (experience + selected supporting sections) without leaving cockpit flow
+  - improve fallback draft quality so timeout-path rewrites stay closer to job targeting intent
+  - extend BlockNote from role narrative targeting into richer multi-section drafting (experience + selected supporting sections) without leaving cockpit flow
   - keep legacy pages as fallback until the cockpit path has true parity

@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-03-10 — CRAFTING Rewrite Timing Stabilized With Timeout Fallback
+
+### Context
+Live cockpit rewrite could remain in `Rewriting...` when provider responses stalled.
+
+That blocked reliable browser proof for staged review and narrative diff rendering.
+
+### Decisions Made
+1. **Added a hard rewrite timeout in server generation flow.**
+   - rewrites now fail fast from the UI perspective instead of hanging indefinitely
+2. **Added deterministic profile-based fallback when timeout hits.**
+   - fallback draft is built from saved profile fields
+   - staged review can still proceed so cockpit flow remains usable
+3. **Kept staged review contract unchanged.**
+   - rewrite still stages first
+   - apply remains explicit
+   - no silent overwrite behavior introduced
+
+### Verification
+- unit test now covers timeout fallback behavior in `generateTailoredResume`
+- cockpit component tests still pass
+- browser proof now shows completed staged rewrite with narrative diffs active after rewrite completion
+
+### Why This Matters
+This resolves the timing instability that was blocking trustworthy end-to-end cockpit proof.
+
+`CRAFTING` rewrite now completes to a clear result path:
+- provider response
+- or timeout fallback
+- then staged review with diffs
+
+The user is no longer stuck waiting on an indefinite rewrite state.
+
 ## 2026-03-10 — CRAFTING Narrative Diff Depth + BlockNote Role Targeting
 
 ### Context
