@@ -9,8 +9,9 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — hardens the cockpit `CRAFTING` rewrite parser so malformed model JSON is repaired into a structured staged draft instead of collapsing raw response text into the opening summary; browser proof now shows a previously polluted summary being replaced by a normal rewritten summary in-panel
 - `pending local checkpoint` — cleans redesign residue so the repo only keeps active cockpit-direction files, adds the active cockpit interaction spec, and checkpoints the intentional March 10 dashboard/app-shell/docs edits after sanity verification
-- `pending local checkpoint` — fixes the custom Z.AI key resolution so JobScout now prefers `JOBSCOUT_ZAI_API_KEY / API_KEY / ZAI_API_KEY`, proves the live cockpit `CRAFTING` rewrite/apply/save loop on `/dashboard-wireframe`, and adds a safe plain preview fallback when the PDF preview throws; remaining defect is malformed model JSON, not provider access
+- `pending local checkpoint` — fixes the custom Z.AI key resolution so JobScout now prefers `JOBSCOUT_ZAI_API_KEY / API_KEY / ZAI_API_KEY`, proves the live cockpit `CRAFTING` rewrite/apply/save loop on `/dashboard-wireframe`, and adds a safe plain preview fallback when the PDF preview throws
 - `96e1906` — turns cockpit `CRAFTING` into a real drafting studio with a live preview, fact lock controls, keyword coverage overlay, and preview/confirm rewrite flow; the live rewrite shell is browser-verified and the current `GLM-5` provider boundary is now surfaced cleanly when plan access is unavailable
 - `ac94517` — extends the cockpit workspace across the later stages: `APPLIED` is now a submission/follow-up desk, `SCREENING` is now a screening desk, `INTERVIEW` is now an interview prep board, `OFFER` is now a decision board, and `AGENTS.md` now explicitly says not to re-ask for already approved or routine in-scope work
 - `745a4bb` — makes the cockpit workspace stage-owned for the first two real stages: `INTERESTED` now has live in-cockpit notes, `CRAFTING` now has a compact draft desk with rewrite/save controls and a live text-first preview, and cockpit draft saves now revalidate `/dashboard-wireframe`
@@ -23,7 +24,7 @@
 - `498922d` — advanced the resume stack with committed PDF import, DOCX export, Profile Builder cleanup, and the new 7-dimension Resume Builder rail
 - `ce4adc3` — codified the resume customization trust model, backlog tracker, and docs pointers
 - `afbeb10` — hardened DOCX import parsing for real resume variants
-- Current working tree still contains unrelated dashboard / agent-doc dirt outside the resume stack slice
+- Working tree should stay clean between intentional slices; do not recreate redesign residue or proof-artifact sprawl outside the kept cockpit path.
 
 ## Read First
 
@@ -96,6 +97,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `API_KEY`
   - `ZAI_API_KEY`
 - The live cockpit `CRAFTING` rewrite path now gets through `glm-5` on the coding endpoint instead of failing on the stale app-local key.
+- The cockpit rewrite parser now repairs malformed model JSON before falling back to raw text.
+  - fenced or truncated JSON is cleaned first
+  - delimiter balancing is attempted before parse retry
+  - if parse still fails, structured sections are salvaged instead of dumping the whole model payload into `summary`
+- A previously polluted cockpit draft was re-run through the live rewrite flow and the staged/apply step replaced the raw JSON summary with a normal human summary in-panel.
 - The live cockpit drafting loop is now browser-proven end to end:
   - rewrite request completes
   - suggested rewrite is staged for review
@@ -291,14 +297,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - infer the 7-dimension voice profile from uploaded writing samples
   - express confidence when the inferred voice signal is weak
   - separate optional signature phrases from the main 7-dimension sliders
-- Trust features from the resume customization spec are still not fully built:
+- Trust features from the resume customization spec are now partially live inside cockpit `CRAFTING`:
   - fact lock
-  - preview -> confirm diff flow
+  - preview -> confirm review
   - keyword coverage overlay
-  - human signal check
-- The rewrite parser still needs hardening for malformed model output.
-  - Z.AI can return non-parseable JSON for the tailored resume payload.
-  - The current fallback keeps the flow alive, but it can collapse the raw response into the summary field.
+  - human signal check is still pending
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 - Move from the Phase 1 shell into deeper Phase 2 cockpit work:
   - strengthen the later-stage desks from status boards into richer working surfaces
@@ -334,6 +337,16 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - rewrite review appears, can be applied, and can be saved back to the workspace
   - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-zai-rewrite-review.png`
   - proof summary: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-zai-rewrite-proof.json`
+- Parser hardening verification passed:
+  - `tests/unit/lib/resume-generation.test.ts --runInBand`
+  - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx --runInBand`
+  - `npx tsc --noEmit`
+- Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for malformed JSON recovery in cockpit `CRAFTING`:
+  - a polluted raw-JSON opening summary was present in the working draft before rewrite
+  - live rewrite staged successfully
+  - applying the staged rewrite replaced the raw JSON with a normal summary
+  - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-parser-hardening-clean-summary.png`
+  - supporting screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-parser-hardening-proof.png`
 - Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for the live `APPLIED` cockpit workspace:
   - `Submission record` visible
   - `Follow-up log` visible
@@ -473,6 +486,6 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
 - Then deepen the cockpit where the value is still compressed:
-  - harden the tailored-resume parser so malformed model JSON becomes a structured staged draft instead of a summary-field dump
+  - move from staged rewrite repair into true section-by-section diff review inside `CRAFTING`
   - then continue into the deeper `CRAFTING` studio layer with embedded BlockNote editing
   - keep legacy pages as fallback until the cockpit path has true parity

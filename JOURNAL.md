@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-03-10 — CRAFTING Rewrite Parser Now Repairs Malformed Model Output
+
+### Context
+The live `CRAFTING` rewrite loop was working again after the Z.AI key-path fix, but one trust break remained:
+- malformed model JSON could survive the fallback path
+- when that happened, the cockpit could stage or show raw JSON inside the opening summary field
+
+That was unacceptable because the rewrite flow looked "successful" while degrading the draft.
+
+### Decisions Made
+1. **Resume rewrite parsing now has a repair path before raw fallback.**
+   - strip markdown fences
+   - clean the JSON candidate
+   - rebalance delimiters
+   - salvage structured fields when full parse still fails
+2. **Raw model output no longer wins if structured sections can be recovered.**
+   - contact info
+   - summary
+   - experience
+   - education
+   - skills
+3. **The cockpit rewrite flow was browser-checked against an already polluted draft.**
+   - rewrite staged successfully
+   - applying the staged rewrite replaced the raw JSON summary with a normal summary
+   - the proof image now shows the cleaned summary/skills state in-panel
+4. **The nearby regression in `scripts/test-resume-generation.ts` was cleaned up so repo-wide typecheck stays green.**
+
+### Why This Matters
+This closes the last obvious trust break in the current cockpit drafting loop.
+
+The rewrite flow now behaves like a real staged editor flow:
+- broken model JSON is repaired when possible
+- structured draft sections survive
+- the user no longer gets a JSON blob dumped into the summary field just because the model response was imperfect
+
 ## 2026-03-10 — CRAFTING Became A Real Cockpit Drafting Studio
 
 ### Context

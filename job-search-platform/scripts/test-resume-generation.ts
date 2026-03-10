@@ -25,10 +25,10 @@ async function main() {
     try {
         const result = await generateAndPreviewResume(job.id, 'persuasive');
         console.log('Generation Result:', result.success ? 'Success' : 'Failed');
-        if (result.success) {
+        if (result.success && result.content) {
             console.log('Content keys:', Object.keys(result.content));
             console.log('Sample Summary:', result.content.summary?.substring(0, 100));
-            console.log('Sample Experience:', result.content.experience?.[0]?.role);
+            console.log('Sample Experience:', result.content.experience?.[0]?.title);
         } else {
             console.error('Error:', result.error);
         }

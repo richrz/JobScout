@@ -1,3 +1,14 @@
+const mockResumeGeneratorGenerateTailoredResume = jest.fn(async () => ({
+    content: JSON.stringify({
+        contactInfo: { name: 'John Doe', email: 'john@example.com' },
+        summary: 'Senior Developer with React expertise',
+        experience: [],
+        education: [],
+        skills: ['React', 'TypeScript']
+    }),
+    usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
+}));
+
 // Mock LLM dependencies to avoid import errors in tests
 jest.mock('@/lib/llm', () => ({
     getLLMClient: jest.fn(() => ({
@@ -17,16 +28,7 @@ jest.mock('@/lib/llm', () => ({
         })),
     })),
     ResumeGenerator: jest.fn().mockImplementation(() => ({
-        generateTailoredResume: jest.fn(async () => ({
-            content: JSON.stringify({
-                contactInfo: { name: 'John Doe', email: 'john@example.com' },
-                summary: 'Senior Developer with React expertise',
-                experience: [],
-                education: [],
-                skills: ['React', 'TypeScript']
-            }),
-            usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
-        })),
+        generateTailoredResume: mockResumeGeneratorGenerateTailoredResume,
     })),
 }));
 
@@ -52,6 +54,17 @@ describe('generateTailoredResume', () => {
 
     beforeEach(() => {
         process.env = { ...originalEnv, ZAI_API_KEY: 'zai-dummy-key' };
+        mockResumeGeneratorGenerateTailoredResume.mockReset();
+        mockResumeGeneratorGenerateTailoredResume.mockResolvedValue({
+            content: JSON.stringify({
+                contactInfo: { name: 'John Doe', email: 'john@example.com' },
+                summary: 'Senior Developer with React expertise',
+                experience: [],
+                education: [],
+                skills: ['React', 'TypeScript']
+            }),
+            usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
+        });
     });
 
     afterAll(() => {
@@ -150,5 +163,59 @@ describe('generateTailoredResume', () => {
 
         expect(authentic.content).toBeDefined();
         expect((authentic.content as any).contactInfo.name).toBe('John Doe'); // Based on mock response
+    });
+
+    it('repairs malformed JSON into a structured resume draft instead of dumping raw content into summary', async () => {
+        const mockProfile = {
+            contactInfo: {
+                name: 'Richard Ruiz',
+                email: 'rruiz@deskwise.io',
+                phone: '(949) 743-4975',
+                location: 'Colorado Springs, CO',
+            },
+            workHistory: [],
+            education: [],
+            skills: ['AWS', 'AI'],
+            projects: [],
+            certifications: [],
+        };
+
+        mockResumeGeneratorGenerateTailoredResume.mockResolvedValue({
+            content: `{
+  "contactInfo": {
+    "name": "Richard Ruiz",
+    "email": "rruiz@deskwise.io",
+    "phone": "(949) 743-4975",
+    "location": "Colorado Springs, CO"
+  },
+  "summary": "Enterprise solutions consultant with cloud and AI experience.",
+  "experience": [
+    {
+      "id": "exp1",
+      "title": "Solutions Engineer",
+      "company": "Adroit Worldwide Media (AWM Inc.)",
+      "location": "Remote",
+      "startDate": "Jan 2020",
+      "endDate": "Present",
+      "description": "Led technical pre-sales and proof-of-concept work."
+    }
+  ],
+  "education": [],
+  "skills": ["AWS", "AI", "Solution Selling"]`,
+            usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
+        });
+
+        const result = await generateTailoredResume({
+            jobDescription: 'Enterprise AI solutions role',
+            profile: mockProfile,
+            exaggerationLevel: 'professional',
+        });
+
+        expect((result.content as any).contactInfo.name).toBe('Richard Ruiz');
+        expect((result.content as any).summary).toContain('Enterprise solutions consultant');
+        expect((result.content as any).summary).not.toContain('"contactInfo"');
+        expect((result.content as any).experience).toHaveLength(1);
+        expect((result.content as any).experience[0].title).toBe('Solutions Engineer');
+        expect((result.content as any).skills).toContain('Solution Selling');
     });
 });

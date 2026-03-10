@@ -8,12 +8,287 @@ import { Profile } from '@prisma/client';
 import { isMockMode } from './env';
 import { ExaggerationLevel } from '@/types/llm';
 import { getResolvedZAIConfig } from '@/lib/zai-config';
+import type { ResumeDocumentData } from '@/lib/resume-document';
 
 export interface ResumeGenerationRequest {
     jobDescription: string;
     profile: any; // Profile data
     exaggerationLevel: ExaggerationLevel;
     customInstructions?: string;
+}
+
+function stripMarkdownCodeBlocks(content: string) {
+    if (content.includes('```json')) {
+        return content.replace(/```json\n?|\n?```/g, '').trim();
+    }
+
+    if (content.includes('```')) {
+        return content.replace(/```\n?|\n?```/g, '').trim();
+    }
+
+    return content.trim();
+}
+
+function cleanupJsonCandidate(content: string) {
+    return content
+        .replace(/^[^{[]*/, '')
+        .replace(/,\s*([}\]])/g, '$1')
+        .trim();
+}
+
+function balanceJsonDelimiters(content: string) {
+    const stack: string[] = [];
+    let inString = false;
+    let escaping = false;
+    let balanced = '';
+
+    for (const char of content) {
+        balanced += char;
+
+        if (escaping) {
+            escaping = false;
+            continue;
+        }
+
+        if (char === '\\') {
+            escaping = true;
+            continue;
+        }
+
+        if (char === '"') {
+            inString = !inString;
+            continue;
+        }
+
+        if (inString) {
+            continue;
+        }
+
+        if (char === '{') {
+            stack.push('}');
+        } else if (char === '[') {
+            stack.push(']');
+        } else if ((char === '}' || char === ']') && stack[stack.length - 1] === char) {
+            stack.pop();
+        }
+    }
+
+    if (inString) {
+        balanced += '"';
+    }
+
+    balanced = balanced.replace(/,\s*$/, '');
+
+    while (stack.length > 0) {
+        balanced += stack.pop();
+    }
+
+    return balanced.replace(/,\s*([}\]])/g, '$1');
+}
+
+function extractArrayBlock(content: string, field: string) {
+    const fieldIndex = content.indexOf(`"${field}"`);
+    if (fieldIndex === -1) {
+        return null;
+    }
+
+    const startIndex = content.indexOf('[', fieldIndex);
+    if (startIndex === -1) {
+        return null;
+    }
+
+    let depth = 0;
+    let inString = false;
+    let escaping = false;
+
+    for (let index = startIndex; index < content.length; index += 1) {
+        const char = content[index];
+
+        if (escaping) {
+            escaping = false;
+            continue;
+        }
+
+        if (char === '\\') {
+            escaping = true;
+            continue;
+        }
+
+        if (char === '"') {
+            inString = !inString;
+            continue;
+        }
+
+        if (inString) {
+            continue;
+        }
+
+        if (char === '[') {
+            depth += 1;
+        } else if (char === ']') {
+            depth -= 1;
+            if (depth === 0) {
+                return content.slice(startIndex, index + 1);
+            }
+        }
+    }
+
+    return content.slice(startIndex);
+}
+
+function parseArrayField<T>(content: string, field: string) {
+    const block = extractArrayBlock(content, field);
+    if (!block) {
+        return [];
+    }
+
+    try {
+        return JSON.parse(balanceJsonDelimiters(block)) as T[];
+    } catch {
+        return [];
+    }
+}
+
+function extractStringField(content: string, field: string) {
+    const match = content.match(new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)"`));
+    return match?.[1]?.replace(/\\"/g, '"') ?? '';
+}
+
+function extractObjectField(content: string, field: string) {
+    const fieldIndex = content.indexOf(`"${field}"`);
+    if (fieldIndex === -1) {
+        return null;
+    }
+
+    const startIndex = content.indexOf('{', fieldIndex);
+    if (startIndex === -1) {
+        return null;
+    }
+
+    let depth = 0;
+    let inString = false;
+    let escaping = false;
+
+    for (let index = startIndex; index < content.length; index += 1) {
+        const char = content[index];
+
+        if (escaping) {
+            escaping = false;
+            continue;
+        }
+
+        if (char === '\\') {
+            escaping = true;
+            continue;
+        }
+
+        if (char === '"') {
+            inString = !inString;
+            continue;
+        }
+
+        if (inString) {
+            continue;
+        }
+
+        if (char === '{') {
+            depth += 1;
+        } else if (char === '}') {
+            depth -= 1;
+            if (depth === 0) {
+                return content.slice(startIndex, index + 1);
+            }
+        }
+    }
+
+    return content.slice(startIndex);
+}
+
+function salvageResumeDocument(
+    content: string,
+    fallbackProfile: any,
+): ResumeDocumentData {
+    const fallbackContact = fallbackProfile?.contactInfo || {};
+    const repairedContent = cleanupJsonCandidate(content);
+
+    let contactInfo = {
+        name: fallbackContact.name || 'Candidate',
+        email: fallbackContact.email || '',
+        phone: fallbackContact.phone || '',
+        location: fallbackContact.location || '',
+    };
+
+    const contactBlock = extractObjectField(repairedContent, 'contactInfo');
+    if (contactBlock) {
+        try {
+            contactInfo = {
+                ...contactInfo,
+                ...(JSON.parse(balanceJsonDelimiters(contactBlock)) as ResumeDocumentData['contactInfo']),
+            };
+        } catch {
+            contactInfo = {
+                name: extractStringField(contactBlock, 'name') || contactInfo.name,
+                email: extractStringField(contactBlock, 'email') || contactInfo.email,
+                phone: extractStringField(contactBlock, 'phone') || contactInfo.phone,
+                location: extractStringField(contactBlock, 'location') || contactInfo.location,
+            };
+        }
+    }
+
+    return {
+        contactInfo,
+        summary: extractStringField(repairedContent, 'summary') || '',
+        experience: parseArrayField<ResumeDocumentData['experience'][number]>(repairedContent, 'experience'),
+        education: parseArrayField<ResumeDocumentData['education'][number]>(repairedContent, 'education'),
+        skills: parseArrayField<string>(repairedContent, 'skills'),
+    };
+}
+
+function parseResumeJsonContent(
+    content: string,
+    fallbackProfile: any,
+): ResumeDocumentData {
+    const cleaned = cleanupJsonCandidate(stripMarkdownCodeBlocks(content));
+    const attempts = Array.from(
+        new Set([
+            cleaned,
+            balanceJsonDelimiters(cleaned),
+        ]),
+    ).filter(Boolean);
+
+    for (const candidate of attempts) {
+        try {
+            return JSON.parse(candidate) as ResumeDocumentData;
+        } catch {
+            continue;
+        }
+    }
+
+    console.error('Failed to parse LLM response as JSON:', cleaned);
+
+    const salvaged = salvageResumeDocument(cleaned, fallbackProfile);
+    const hasStructuredContent =
+        Boolean(salvaged.summary) ||
+        salvaged.experience.length > 0 ||
+        salvaged.education.length > 0 ||
+        salvaged.skills.length > 0;
+
+    if (hasStructuredContent) {
+        return salvaged;
+    }
+
+    return {
+        contactInfo: {
+            name: fallbackProfile?.contactInfo?.name || 'Candidate',
+            email: fallbackProfile?.contactInfo?.email || '',
+            phone: fallbackProfile?.contactInfo?.phone || '',
+            location: fallbackProfile?.contactInfo?.location || '',
+        },
+        summary: cleaned,
+        experience: [],
+        education: [],
+        skills: [],
+    };
 }
 
 /**
@@ -54,33 +329,7 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
             customInstructions: request.customInstructions,
         });
 
-        let content = response.content;
-
-        // Strip markdown code blocks if present
-        if (content.includes('```json')) {
-            content = content.replace(/```json\n?|\n?```/g, '');
-        } else if (content.includes('```')) {
-            content = content.replace(/```\n?|\n?```/g, '');
-        }
-
-        let parsedContent;
-        try {
-            parsedContent = JSON.parse(content);
-        } catch (e) {
-            console.error('Failed to parse LLM response as JSON:', content);
-            // Fallback to minimal valid structure if parsing fails
-            const contactInfo = request.profile.contactInfo as any || {};
-            parsedContent = {
-                contactInfo: {
-                    name: contactInfo.name || 'Candidate',
-                    email: contactInfo.email || ''
-                },
-                summary: content, // Put raw content in summary if parsing fails
-                experience: [],
-                education: [],
-                skills: []
-            };
-        }
+        const parsedContent = parseResumeJsonContent(response.content, request.profile);
 
         return {
             content: parsedContent,
