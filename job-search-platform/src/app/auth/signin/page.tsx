@@ -12,7 +12,7 @@ const CosmicLoginScene = dynamic(
   { ssr: false },
 )
 
-const dashboardRoute = '/dashboard-v2'
+const dashboardRoute = '/dashboard-wireframe'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
