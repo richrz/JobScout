@@ -1,17 +1,34 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { generateAndPreviewResume } from '@/lib/resume-generator';
+import { saveResume } from '@/app/resume/actions';
+import type { ResumeDocumentData } from '@/lib/resume-document';
+import {
+  STRATEGY_OPTIONS,
+  mapStrategyToExaggerationLevel,
+  type ResumeWritingStrategy,
+} from '@/lib/resume/voice-profile';
 import {
   ArrowRight,
   Briefcase,
+  CheckCircle2,
   ChevronRight,
   Clock3,
   Eye,
   FileText,
+  Loader2,
+  MessageSquareMore,
+  NotebookPen,
+  Save,
   Sparkles,
   Target,
+  Wand2,
   X,
 } from 'lucide-react';
 import type {
@@ -24,6 +41,7 @@ import type {
 export type CockpitPanelRecord = {
   id: string;
   kind: 'discovery' | 'managed';
+  jobId: string;
   title: string;
   company: string;
   location: string | null;
@@ -40,6 +58,13 @@ export type CockpitPanelRecord = {
     updatedAt: string;
   }>;
   compositeScore: number | null;
+  draftSeed: CockpitDraftSeed | null;
+};
+
+export type CockpitDraftSeed = {
+  source: 'career-data' | 'working-draft';
+  updatedAt: string | null;
+  content: ResumeDocumentData;
 };
 
 type StageVisual = {
@@ -116,6 +141,19 @@ const STAGE_ORDER: CockpitStage[] = [
   'INTERVIEW',
   'OFFER',
 ];
+
+const EMPTY_DRAFT: ResumeDocumentData = {
+  contactInfo: {
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+  },
+  summary: '',
+  experience: [],
+  education: [],
+  skills: [],
+};
 
 function formatLongDate(value: string) {
   return new Date(value).toLocaleDateString('en-US', {
@@ -238,6 +276,17 @@ function sectionIntro(stage: CockpitStage) {
     default:
       return 'Tracked inside the cockpit.';
   }
+}
+
+function formatDraftSource(source: CockpitDraftSeed['source']) {
+  return source === 'working-draft' ? 'Working draft' : 'Career Data seed';
+}
+
+function normalizeSkillInput(value: string) {
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function nextMove(stage: CockpitStage, resumeCount: number) {
@@ -619,6 +668,398 @@ function stageTrack(stage: CockpitStage) {
   return STAGE_ORDER.filter((_, index) => index <= activeIndex);
 }
 
+type WorkspaceNote = {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+function WorkspaceNotesDesk({
+  workspaceId,
+  title,
+  intro,
+  accent,
+}: {
+  workspaceId: string;
+  title: string;
+  intro: string;
+  accent: string;
+}) {
+  const [notes, setNotes] = useState<WorkspaceNote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [posting, setPosting] = useState(false);
+  const [draftNote, setDraftNote] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadNotes() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`/api/workspace/${workspaceId}/notes`);
+        const payload = await response.json();
+
+        if (!response.ok) {
+          throw new Error(payload?.error || 'Failed to load notes');
+        }
+
+        if (!cancelled) {
+          setNotes(payload.notes || []);
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(loadError instanceof Error ? loadError.message : 'Failed to load notes');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadNotes();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [workspaceId]);
+
+  async function handleCreateNote() {
+    if (!draftNote.trim()) {
+      return;
+    }
+
+    setPosting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/workspace/${workspaceId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: draftNote.trim() }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload?.error || 'Failed to create note');
+      }
+
+      setNotes((current) => [payload.note, ...current]);
+      setDraftNote('');
+    } catch (createError) {
+      setError(createError instanceof Error ? createError.message : 'Failed to create note');
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  return (
+    <section className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em]" style={{ color: accent }}>
+        <NotebookPen className="h-3.5 w-3.5" />
+        {title}
+      </div>
+      <p className="mt-3 text-sm leading-6 text-white/58">{intro}</p>
+
+      <div className="mt-4 rounded-[20px] border border-white/10 bg-black/25 p-3">
+        <Textarea
+          value={draftNote}
+          onChange={(event) => setDraftNote(event.target.value)}
+          placeholder="Capture fit notes, concerns, or why this role deserves attention."
+          className="min-h-[120px] border-0 bg-transparent px-0 text-white placeholder:text-white/26 focus-visible:ring-0"
+        />
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/8 pt-3">
+          <span className="text-xs text-white/36">Notes stay attached to this opportunity.</span>
+          <Button
+            type="button"
+            onClick={handleCreateNote}
+            disabled={posting || !draftNote.trim()}
+            className="gap-2 rounded-full"
+          >
+            {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquareMore className="h-4 w-4" />}
+            {posting ? 'Saving note...' : 'Add note'}
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {loading ? (
+          <div className="flex items-center gap-2 rounded-[18px] border border-white/10 bg-black/20 px-3 py-4 text-sm text-white/54">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading workspace notes...
+          </div>
+        ) : error ? (
+          <div className="rounded-[18px] border border-rose-400/30 bg-rose-500/10 px-3 py-4 text-sm text-rose-100">
+            {error}
+          </div>
+        ) : notes.length === 0 ? (
+          <div className="rounded-[18px] border border-dashed border-white/10 px-3 py-5 text-sm text-white/38">
+            No notes yet. Add the first reason this opportunity matters.
+          </div>
+        ) : (
+          notes.slice(0, 5).map((note) => (
+            <article key={note.id} className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/30">
+                {formatLongDate(note.updatedAt)}
+              </div>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-white/72">{note.content}</p>
+            </article>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: string }) {
+  const [strategy, setStrategy] = useState<ResumeWritingStrategy>('balanced');
+  const [draft, setDraft] = useState<ResumeDocumentData>(panel.draftSeed?.content ?? EMPTY_DRAFT);
+  const [skillInput, setSkillInput] = useState((panel.draftSeed?.content.skills || []).join(', '));
+  const [rewriting, setRewriting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('idle');
+
+  useEffect(() => {
+    const nextDraft = panel.draftSeed?.content ?? EMPTY_DRAFT;
+    setDraft(nextDraft);
+    setSkillInput(nextDraft.skills.join(', '));
+    setStrategy('balanced');
+    setStatusMessage(null);
+    setSaveState('idle');
+  }, [panel.id, panel.draftSeed]);
+
+  const normalizedDraft: ResumeDocumentData = {
+    ...draft,
+    skills: normalizeSkillInput(skillInput),
+  };
+
+  async function handleRewrite() {
+    setRewriting(true);
+    setStatusMessage(null);
+
+    try {
+      const result = await generateAndPreviewResume(
+        panel.jobId,
+        mapStrategyToExaggerationLevel(strategy),
+      );
+
+      if (!result.success || !result.content) {
+        throw new Error(result.error || 'Rewrite failed');
+      }
+
+      setDraft(result.content as ResumeDocumentData);
+      setSkillInput(((result.content as ResumeDocumentData).skills || []).join(', '));
+      setSaveState('idle');
+      setStatusMessage('Draft refreshed from your profile and the selected role.');
+    } catch (rewriteError) {
+      setStatusMessage(
+        rewriteError instanceof Error ? rewriteError.message : 'Rewrite failed',
+      );
+    } finally {
+      setRewriting(false);
+    }
+  }
+
+  async function handleSaveDraft() {
+    setSaving(true);
+    setStatusMessage(null);
+
+    try {
+      const result = await saveResume(panel.jobId, normalizedDraft);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Save failed');
+      }
+
+      setSaveState('saved');
+      setStatusMessage('Working draft saved to this workspace.');
+    } catch (saveError) {
+      setSaveState('error');
+      setStatusMessage(saveError instanceof Error ? saveError.message : 'Save failed');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em]" style={{ color: accent }}>
+        <FileText className="h-3.5 w-3.5" />
+        Resume desk
+      </div>
+
+      <div className="mt-3 grid gap-3 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/34">
+            <span className="rounded-full border border-white/10 px-2 py-1 text-white/55">
+              {panel.draftSeed ? formatDraftSource(panel.draftSeed.source) : 'No draft seed'}
+            </span>
+            {panel.draftSeed?.updatedAt ? (
+              <span className="rounded-full border border-white/10 px-2 py-1 text-white/55">
+                {formatLongDate(panel.draftSeed.updatedAt)}
+              </span>
+            ) : null}
+          </div>
+
+          <p className="mt-3 text-sm leading-6 text-white/62">
+            Rewrite from the live role, then save the working draft back to this workspace. This is the first real cockpit-owned drafting surface, not the old resume page shell.
+          </p>
+
+          <div className="mt-4 space-y-3">
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Rewrite strength</div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {STRATEGY_OPTIONS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setStrategy(option.id)}
+                    className={cn(
+                      'rounded-full border px-3 py-2 text-xs font-medium transition',
+                      strategy === option.id
+                        ? 'border-primary/50 bg-primary/15 text-primary'
+                        : 'border-white/10 bg-white/[0.03] text-white/56 hover:border-white/18 hover:text-white',
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Button
+                type="button"
+                onClick={handleRewrite}
+                disabled={rewriting}
+                className="gap-2 rounded-full"
+              >
+                {rewriting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                {rewriting ? 'Rewriting...' : 'Rewrite draft'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSaveDraft}
+                disabled={saving}
+                className="gap-2 rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : saveState === 'saved' ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {saving ? 'Saving...' : 'Save draft'}
+              </Button>
+            </div>
+
+            {statusMessage ? (
+              <div
+                className={cn(
+                  'rounded-[16px] border px-3 py-2 text-sm',
+                  saveState === 'error'
+                    ? 'border-rose-400/30 bg-rose-500/10 text-rose-100'
+                    : 'border-white/10 bg-white/[0.03] text-white/62',
+                )}
+              >
+                {statusMessage}
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
+          <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Live draft preview</div>
+          <div className="mt-3 rounded-[18px] border border-white/10 bg-[#0b0b0c] p-4">
+            <div className="text-lg font-semibold text-white">
+              {normalizedDraft.contactInfo.name || 'Unnamed draft'}
+            </div>
+            <div className="mt-1 text-xs text-white/45">
+              {[normalizedDraft.contactInfo.email, normalizedDraft.contactInfo.phone, normalizedDraft.contactInfo.location]
+                .filter(Boolean)
+                .join(' · ') || 'Contact details will appear here'}
+            </div>
+
+            <div className="mt-4 border-t border-white/8 pt-4">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Summary</div>
+              <p className="mt-2 text-sm leading-6 text-white/72">
+                {normalizedDraft.summary || 'No summary yet. Rewrite or write a concise opening pitch.'}
+              </p>
+            </div>
+
+            <div className="mt-4 border-t border-white/8 pt-4">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Experience focus</div>
+              <div className="mt-3 space-y-3">
+                {normalizedDraft.experience.slice(0, 3).map((role) => (
+                  <div key={role.id} className="rounded-[16px] border border-white/8 bg-white/[0.02] px-3 py-3">
+                    <div className="text-sm font-medium text-white">{role.title}</div>
+                    <div className="mt-1 text-xs text-white/45">
+                      {[role.company, role.location].filter(Boolean).join(' · ')}
+                    </div>
+                  </div>
+                ))}
+                {normalizedDraft.experience.length === 0 ? (
+                  <div className="rounded-[16px] border border-dashed border-white/10 px-3 py-4 text-sm text-white/38">
+                    No experience blocks yet.
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
+          <label className="text-[11px] uppercase tracking-[0.16em] text-white/34">Opening summary</label>
+          <Textarea
+            value={draft.summary}
+            onChange={(event) => setDraft((current) => ({ ...current, summary: event.target.value }))}
+            className="mt-3 min-h-[160px] border-white/10 bg-white/[0.02] text-white placeholder:text-white/26"
+            placeholder="Shape the opening pitch for this specific role."
+          />
+        </div>
+
+        <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
+          <label className="text-[11px] uppercase tracking-[0.16em] text-white/34">Visible skills</label>
+          <Input
+            value={skillInput}
+            onChange={(event) => setSkillInput(event.target.value)}
+            className="mt-3 border-white/10 bg-white/[0.02] text-white"
+            placeholder="AWS, Solution Selling, AI, Architecture"
+          />
+          <p className="mt-3 text-xs leading-5 text-white/42">
+            Comma-separated. Keep this tight so the draft stays readable.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {normalizedDraft.skills.length === 0 ? (
+              <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/32">
+                No visible skills yet
+              </span>
+            ) : (
+              normalizedDraft.skills.slice(0, 8).map((skill) => (
+                <span
+                  key={skill}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/62"
+                >
+                  {skill}
+                </span>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose: () => void }) {
   const visual = STAGE_VISUALS[panel.stage];
   const identity = companyIdentity(panel.company);
@@ -628,7 +1069,7 @@ function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose
   return (
     <aside className="hidden lg:flex lg:w-[42%] lg:min-w-[430px] lg:flex-col">
       <div
-        className="sticky top-4 overflow-hidden rounded-[32px] border bg-[#09090a] shadow-[0_26px_90px_rgba(0,0,0,0.44)]"
+        className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-hidden rounded-[32px] border bg-[#09090a] shadow-[0_26px_90px_rgba(0,0,0,0.44)]"
         style={{ borderColor: visual.tint }}
       >
         <div
@@ -636,7 +1077,7 @@ function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose
           style={{ background: `radial-gradient(circle at top right, ${visual.tint}, transparent 55%)` }}
         />
 
-        <div className="relative p-6">
+        <div className="relative max-h-[calc(100vh-2rem)] overflow-y-auto p-6">
           <div className="mb-5 flex items-start justify-between gap-4">
             <div className="flex items-start gap-4">
               <div
@@ -698,7 +1139,7 @@ function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose
             <p className="mt-3 text-sm leading-relaxed text-white/54">{sectionIntro(panel.stage)}</p>
           </div>
 
-          <div className="mb-5 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
+          <div className="mb-5 grid gap-3">
             <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
                 <Eye className="h-3.5 w-3.5" />
@@ -738,48 +1179,81 @@ function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose
             </div>
           </div>
 
-          <div className="mb-5 rounded-[24px] border border-white/10 bg-black/20 p-4">
-            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
-              <FileText className="h-3.5 w-3.5" />
-              Documents and fallback
+          {panel.stage === 'INTERESTED' && panel.workspaceId ? (
+            <div className="mb-5 space-y-4">
+              <WorkspaceNotesDesk
+                workspaceId={panel.workspaceId}
+                title="Why this role matters"
+                intro="Capture the real reason you saved this role before it turns into drafting work."
+                accent={visual.accent}
+              />
             </div>
-            {resumes.length === 0 ? (
-              <p className="mt-3 text-sm text-white/48">
-                No stored resume artifacts yet. This shell is still read-only, so deeper editing stays in the fallback surfaces for now.
-              </p>
-            ) : (
-              <div className="mt-3 space-y-2">
-                {resumes.map((resume) => (
-                  <div
-                    key={resume.id}
-                    className="flex items-center justify-between gap-3 rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-3"
-                  >
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-white">{resume.title}</div>
-                      <div className="mt-1 text-xs text-white/42">
-                        {resume.documentState} · {formatLongDate(resume.updatedAt)}
-                      </div>
-                    </div>
-                    <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-white/44">
-                      stored
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+          ) : null}
 
-            <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-white/8 pt-4 text-sm">
+          {panel.stage === 'CRAFTING' ? (
+            <div className="mb-5 space-y-4">
+              <CraftingDesk panel={panel} accent={visual.accent} />
               {panel.workspaceId ? (
-                <Link href={`/workspace/${panel.workspaceId}`} className="inline-flex items-center gap-1 text-primary transition hover:text-primary/80">
-                  Open legacy workspace <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              ) : (
-                <Link href="/jobs" className="inline-flex items-center gap-1 text-primary transition hover:text-primary/80">
-                  Open inbox fallback <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              )}
-              <span className="text-white/34">Fallback only until cockpit parity is real.</span>
+                <WorkspaceNotesDesk
+                  workspaceId={panel.workspaceId}
+                  title="War room notes"
+                  intro="Keep recruiter context, talking points, and concerns next to the draft."
+                  accent={visual.accent}
+                />
+              ) : null}
             </div>
+          ) : null}
+
+          {panel.stage !== 'INTERESTED' && panel.stage !== 'CRAFTING' ? (
+            <div className="mb-5 rounded-[24px] border border-white/10 bg-black/20 p-4">
+              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
+                <FileText className="h-3.5 w-3.5" />
+                Workspace assets
+              </div>
+              {resumes.length === 0 ? (
+                <p className="mt-3 text-sm text-white/48">
+                  No stored resume artifacts yet. Later stages will deepen here as cockpit parity grows.
+                </p>
+              ) : (
+                <div className="mt-3 space-y-2">
+                  {resumes.map((resume) => (
+                    <div
+                      key={resume.id}
+                      className="flex items-center justify-between gap-3 rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-3"
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-white">{resume.title}</div>
+                        <div className="mt-1 text-xs text-white/42">
+                          {resume.documentState} · {formatLongDate(resume.updatedAt)}
+                        </div>
+                      </div>
+                      <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-white/44">
+                        stored
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-white/8 pt-4 text-sm">
+            {panel.workspaceId ? (
+              <Link
+                href={`/workspace/${panel.workspaceId}`}
+                className="inline-flex items-center gap-1 text-primary transition hover:text-primary/80"
+              >
+                Open legacy workspace <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            ) : (
+              <Link
+                href="/jobs"
+                className="inline-flex items-center gap-1 text-primary transition hover:text-primary/80"
+              >
+                Open inbox fallback <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            )}
+            <span className="text-white/34">Fallback is still available while cockpit parity grows.</span>
           </div>
         </div>
       </div>

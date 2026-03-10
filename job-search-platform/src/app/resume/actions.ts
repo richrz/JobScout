@@ -43,6 +43,7 @@ export async function saveResume(jobId: string, content: unknown, applicationId?
         });
 
         revalidatePath('/dashboard');
+        revalidatePath('/dashboard-wireframe');
         revalidatePath('/resume');
         revalidatePath('/pipeline');
         if (resume.workspaceId) {

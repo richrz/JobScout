@@ -4,6 +4,50 @@
 
 ---
 
+## 2026-03-09 — Cockpit Workspace Became Real For INTERESTED And CRAFTING
+
+### Context
+The cockpit had already become the signed-in shell and regained its visual hierarchy, but the right panel was still only a Phase 1 placeholder.
+
+That meant the river could show live motion, but clicking a card still led to a mostly descriptive panel instead of real work.
+
+The next useful boundary was clear:
+- `INTERESTED` should become a real note-taking desk
+- `CRAFTING` should become a compact drafting desk
+- the old full Resume Builder page should remain fallback, not the only place work can happen
+
+### Decisions Made
+1. **The cockpit right panel is now stage-owned work, not a generic summary slab.**
+2. **`INTERESTED` now opens a real notes workspace.**
+   - live notes load from the workspace notes API
+   - the user can add notes directly inside the cockpit
+   - this turns `INTERESTED` into an actual holding and evaluation stage
+3. **`CRAFTING` now opens a compact drafting desk inside the cockpit.**
+   - rewrite strength is available directly in the workspace
+   - rewrite and save actions now live in the cockpit panel
+   - summary and visible skills can be edited there
+   - a live text-first draft preview shows the current shape of the draft
+4. **The old Resume Builder shell was not embedded wholesale.**
+   - the full page-era shell stays fallback
+   - the cockpit uses the smaller reusable pieces:
+     - workspace-owned draft data
+     - rewrite action
+     - save action
+     - compact draft editing
+5. **Cockpit save now revalidates `/dashboard-wireframe` too.**
+
+### Why This Matters
+This is the first step where the workspace stops being a promise and starts being the actual place work happens.
+
+The user can now:
+- click an `INTERESTED` card and capture why it matters
+- click a `CRAFTING` card and actually shape the draft there
+
+That is the correct direction for the cockpit model:
+- the card owns the workspace
+- the workspace owns the work
+- fallback pages remain only while deeper cockpit parity is still growing
+
 ## 2026-03-09 — Cockpit Migration Now Has A Phased Execution Plan
 
 ### Context

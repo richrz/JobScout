@@ -2,6 +2,8 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import type { ResumeDocumentData } from '@/lib/resume-document';
+import { buildContactName, normalizeContactInfo } from '@/lib/profile-utils';
 import {
   buildCockpitPhaseOneViewModel,
   deriveCockpitStage,
@@ -17,6 +19,97 @@ export const dynamic = 'force-dynamic';
 
 function toIsoString(value: Date | null | undefined) {
   return value ? value.toISOString() : new Date().toISOString();
+}
+
+function toDateInput(value: Date | null | undefined) {
+  return value ? value.toISOString().split('T')[0] : '';
+}
+
+function buildProfileDraftSeed(profile: {
+  updatedAt: Date;
+  contactInfo: unknown;
+  experiences: Array<{
+    id: string;
+    company: string;
+    position: string;
+    location: string | null;
+    startDate: Date;
+    endDate: Date | null;
+    description: string;
+  }>;
+  educations: Array<{
+    id: string;
+    school: string;
+    degree: string;
+    startDate: Date;
+    endDate: Date | null;
+  }>;
+  skills: string[];
+} | null): { updatedAt: string; content: ResumeDocumentData } | null {
+  if (!profile) {
+    return null;
+  }
+
+  const normalizedContact = normalizeContactInfo(
+    (typeof profile.contactInfo === 'object' && profile.contactInfo
+      ? profile.contactInfo
+      : {}) as Parameters<typeof normalizeContactInfo>[0],
+  );
+
+  return {
+    updatedAt: toIsoString(profile.updatedAt),
+    content: {
+      contactInfo: {
+        name: buildContactName(normalizedContact) || normalizedContact.name || '',
+        email: normalizedContact.email || '',
+        phone: normalizedContact.phone || '',
+        location: normalizedContact.location || '',
+      },
+      summary: normalizedContact.summary || '',
+      experience: profile.experiences.map((experience) => ({
+        id: experience.id,
+        title: experience.position,
+        company: experience.company,
+        location: experience.location || '',
+        startDate: toDateInput(experience.startDate),
+        endDate: toDateInput(experience.endDate),
+        description: experience.description || '',
+      })),
+      education: profile.educations.map((education) => ({
+        id: education.id,
+        school: education.school,
+        degree: education.degree,
+        location: '',
+        startDate: toDateInput(education.startDate),
+        endDate: toDateInput(education.endDate),
+      })),
+      skills: profile.skills || [],
+    },
+  };
+}
+
+function coerceDraftContent(value: unknown): ResumeDocumentData | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const candidate = value as Partial<ResumeDocumentData>;
+  if (!candidate.contactInfo || typeof candidate.contactInfo !== 'object') {
+    return null;
+  }
+
+  return {
+    contactInfo: {
+      name: candidate.contactInfo.name || '',
+      email: candidate.contactInfo.email || '',
+      phone: candidate.contactInfo.phone || '',
+      location: candidate.contactInfo.location || '',
+    },
+    summary: candidate.summary || '',
+    experience: Array.isArray(candidate.experience) ? candidate.experience : [],
+    education: Array.isArray(candidate.education) ? candidate.education : [],
+    skills: Array.isArray(candidate.skills) ? candidate.skills : [],
+  };
 }
 
 export default async function DashboardWireframePage() {
@@ -39,7 +132,7 @@ export default async function DashboardWireframePage() {
     redirect('/auth/signin');
   }
 
-  const [managedWorkspaces, discoveryJobs] = await Promise.all([
+  const [managedWorkspaces, discoveryJobs, profile] = await Promise.all([
     prisma.workspace.findMany({
       where: { userId: user.id },
       orderBy: { updatedAt: 'desc' },
@@ -65,8 +158,14 @@ export default async function DashboardWireframePage() {
             title: true,
             documentState: true,
             updatedAt: true,
+            content: true,
           },
           orderBy: { updatedAt: 'desc' },
+        },
+        _count: {
+          select: {
+            notes: true,
+          },
         },
       },
     }),
@@ -90,7 +189,39 @@ export default async function DashboardWireframePage() {
         compositeScore: true,
       },
     }),
+    prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: {
+        updatedAt: true,
+        contactInfo: true,
+        skills: true,
+        experiences: {
+          select: {
+            id: true,
+            company: true,
+            position: true,
+            location: true,
+            startDate: true,
+            endDate: true,
+            description: true,
+          },
+          orderBy: [{ current: 'desc' }, { startDate: 'desc' }],
+        },
+        educations: {
+          select: {
+            id: true,
+            school: true,
+            degree: true,
+            startDate: true,
+            endDate: true,
+          },
+          orderBy: { startDate: 'desc' },
+        },
+      },
+    }),
   ]);
+
+  const profileDraftSeed = buildProfileDraftSeed(profile);
 
   const managedOpportunities: CockpitManagedOpportunityInput[] = managedWorkspaces.map(
     (workspace) => ({
@@ -127,6 +258,7 @@ export default async function DashboardWireframePage() {
     ...discoveryJobs.map((job) => ({
       id: job.id,
       kind: 'discovery' as const,
+      jobId: job.id,
       title: job.title,
       company: job.company,
       location: job.location,
@@ -138,32 +270,55 @@ export default async function DashboardWireframePage() {
       legacyStatus: null,
       resumes: [],
       compositeScore: job.compositeScore ?? null,
+      draftSeed: null,
     })),
-    ...managedWorkspaces.map((workspace) => ({
-      id: workspace.id,
-      kind: 'managed' as const,
-      title: workspace.job.title,
-      company: workspace.job.company,
-      location: workspace.job.location,
-      description: workspace.job.description,
-      stage:
+    ...managedWorkspaces.map((workspace) => {
+      const stage =
         deriveCockpitStage({
           workspaceStatus: workspace.status,
           legacyStatus: workspace.application?.status ?? null,
           resumeStates: workspace.resumes.map((resume) => resume.documentState),
-        }) ?? 'INTERESTED',
-      updatedAt: toIsoString(workspace.updatedAt),
-      workspaceId: workspace.id,
-      workspaceStatus: workspace.status,
-      legacyStatus: workspace.application?.status ?? null,
-      resumes: workspace.resumes.map((resume) => ({
-        id: resume.id,
-        title: resume.title,
-        documentState: resume.documentState,
-        updatedAt: toIsoString(resume.updatedAt),
-      })),
-      compositeScore: workspace.job.compositeScore ?? null,
-    })),
+        }) ?? 'INTERESTED';
+      const workingDraft =
+        workspace.resumes.find((resume) => resume.documentState === 'WORKING_DRAFT') ||
+        workspace.resumes.find((resume) => resume.documentState === 'SAVED_VARIANT');
+      const workingDraftContent = coerceDraftContent(workingDraft?.content);
+
+      return {
+        id: workspace.id,
+        kind: 'managed' as const,
+        jobId: workspace.jobId,
+        title: workspace.job.title,
+        company: workspace.job.company,
+        location: workspace.job.location,
+        description: workspace.job.description,
+        stage,
+        updatedAt: toIsoString(workspace.updatedAt),
+        workspaceId: workspace.id,
+        workspaceStatus: workspace.status,
+        legacyStatus: workspace.application?.status ?? null,
+        resumes: workspace.resumes.map((resume) => ({
+          id: resume.id,
+          title: resume.title,
+          documentState: resume.documentState,
+          updatedAt: toIsoString(resume.updatedAt),
+        })),
+        compositeScore: workspace.job.compositeScore ?? null,
+        draftSeed: workingDraftContent
+          ? {
+              source: 'working-draft' as const,
+              updatedAt: toIsoString(workingDraft?.updatedAt),
+              content: workingDraftContent,
+            }
+          : profileDraftSeed
+            ? {
+                source: 'career-data' as const,
+                updatedAt: profileDraftSeed.updatedAt,
+                content: profileDraftSeed.content,
+              }
+            : null,
+      };
+    }),
   ];
 
   return (
