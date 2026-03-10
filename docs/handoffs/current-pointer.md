@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `906ae55` — adds the phased cockpit migration plan that governs the move from page-based routes to one cockpit, card-owned workspace expansion, and BlockNote Resume Studio inside CRAFTING
 - `5a686c5` — replaces the Resume Builder left-rail card stack with a lower-entropy control console: one segmented rewrite-strength control, three expandable voice groups, and a real below-fold scroll cue
 - `b0ca0ef` — redesigns the Resume Builder center into one drafting workspace instead of tabs plus a detached preview pane
 - `1557625` — simplified the Resume Builder drafting flow with plain-English rewrite controls and explicit draft-vs-Career-Data language
@@ -22,10 +23,12 @@
 1. [Docs Hub](/home/richard/code/jobs/docs/README.md)
 2. [Architect Operating Contract](/home/richard/code/jobs/docs/guides/architect-operating-contract.md)
 3. [Backlog Tracker](/home/richard/code/jobs/docs/project/backlog.md)
-4. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
-5. [Resume Document Truth Model Sprint Brief](/home/richard/code/jobs/docs/plans/resume-document-truth-model-sprint-brief.md)
-6. [Resume Document Truth Model ADR](/home/richard/code/jobs/docs/decisions/008-resume-document-truth-model.md)
-7. [Journal](/home/richard/code/jobs/JOURNAL.md)
+4. [Cockpit Interaction Spec](/home/richard/code/jobs/docs/product/cockpit-interaction-spec.md)
+5. [Cockpit Migration Plan](/home/richard/code/jobs/docs/plans/cockpit-migration-plan.md)
+6. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
+7. [Resume Document Truth Model Sprint Brief](/home/richard/code/jobs/docs/plans/resume-document-truth-model-sprint-brief.md)
+8. [Resume Document Truth Model ADR](/home/richard/code/jobs/docs/decisions/008-resume-document-truth-model.md)
+9. [Journal](/home/richard/code/jobs/JOURNAL.md)
 
 ## First 10 Minutes Contract
 
@@ -144,6 +147,18 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - The resume customization product spec now explicitly requires preview-confirm review before accepting a rewritten draft.
 - Keyword coverage is now positioned as an inspectable overlay tied to the target job instead of a black-box ATS score.
 - The backlog now tracks local/private model support as a later trust feature rather than a v1 blocker.
+- A dedicated cockpit migration plan now exists to phase the app from page-based routes into:
+  - cockpit shell
+  - river plus card-owned workspace expansion
+  - embedded Resume Studio using BlockNote only for the CRAFTING editor surface
+- The migration plan now makes the transitional rule explicit:
+  - old pages remain fallback surfaces until cockpit parity is real
+  - old pages are retired last, not first
+- BlockNote's role is now pinned down:
+  - editor surface only
+  - not the cockpit shell
+  - not the workspace chrome
+  - not the source-of-truth model
 
 ## What Remains
 
@@ -162,6 +177,12 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - keyword coverage overlay
   - human signal check
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
+- Implement Phase 1 of the cockpit migration plan:
+  - cockpit shell as the signed-in default
+  - read-only river
+  - Recent Activity
+  - While You Were Out
+  - keep old pages as fallbacks until parity is proven
 
 ## Verification
 
@@ -199,6 +220,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `tests/unit/components/profile/ProfileBuilder.test.tsx`
   - `tests/unit/lib/profile-import.test.ts`
   - `tests/unit/lib/profile-import-service.test.ts`
+- Planning-doc verification passed:
+  - read-through against `docs/product/cockpit-interaction-spec.md`
+  - BlockNote boundary checked against current official docs:
+    - React overview
+    - custom schemas
+    - shadcn integration
+  - plans index updated to include `docs/plans/cockpit-migration-plan.md`
 - Browser verification passed on `http://127.0.0.1:3173` for:
   - Inbox multi-select toolbar and batch actions surface
   - Passed Bin page load and restore/archive controls
@@ -268,7 +296,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
-- Then take the next resume-profiler layer:
-  - infer the 7-dimension voice profile from uploaded writing samples
-  - keep `Resume Writer Zero` as fallback when the signal is weak
-  - start wiring fact lock and preview-confirm into the rewrite flow
+- Then start cockpit implementation at Phase 1:
+  - make the cockpit the signed-in default shell
+  - render a read-only river from live opportunity/workspace state
+  - preserve old pages as fallback routes during the transition
