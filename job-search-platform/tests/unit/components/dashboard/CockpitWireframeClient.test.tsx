@@ -145,11 +145,15 @@ describe('CockpitWireframeClient workspace panel', () => {
       company: 'Acme',
       location: 'Remote',
       description: 'Help shape technical strategy for enterprise customers.',
+      sourceUrl: null,
+      salary: null,
       stage: 'INTERESTED',
+      createdAt: '2026-03-09T14:00:00.000Z',
       updatedAt: '2026-03-09T15:00:00.000Z',
       workspaceId: 'workspace-1',
       workspaceStatus: 'INTERESTED',
       legacyStatus: 'interested',
+      noteCount: 0,
       resumes: [],
       compositeScore: 0.88,
       draftSeed: {
@@ -180,11 +184,15 @@ describe('CockpitWireframeClient workspace panel', () => {
       company: 'Deloitte',
       location: 'Denver, CO',
       description: 'Own technical storytelling for GenAI client work.',
+      sourceUrl: 'https://example.com/deloitte-role',
+      salary: '$210,000',
       stage: 'CRAFTING',
+      createdAt: '2026-03-09T15:10:00.000Z',
       updatedAt: '2026-03-09T16:00:00.000Z',
       workspaceId: 'workspace-2',
       workspaceStatus: 'INTERESTED',
       legacyStatus: 'interested',
+      noteCount: 2,
       resumes: [
         {
           id: 'resume-1',
@@ -208,6 +216,100 @@ describe('CockpitWireframeClient workspace panel', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith('/api/workspace/workspace-2/notes');
+    });
+  });
+
+  it('turns APPLIED cards into a submission and follow-up workspace', async () => {
+    renderClient({
+      id: 'workspace-3',
+      kind: 'managed',
+      jobId: 'job-3',
+      title: 'Principal Architect',
+      company: 'Oracle',
+      location: 'Kansas City, MO',
+      description: 'Lead enterprise architecture conversations.',
+      sourceUrl: 'https://example.com/oracle-apply',
+      salary: '$240,000',
+      stage: 'APPLIED',
+      createdAt: '2026-03-08T12:00:00.000Z',
+      updatedAt: '2026-03-09T16:30:00.000Z',
+      workspaceId: 'workspace-3',
+      workspaceStatus: 'APPLIED',
+      legacyStatus: 'applied',
+      noteCount: 1,
+      resumes: [
+        {
+          id: 'resume-3',
+          title: 'Submitted Package',
+          documentState: 'SUBMITTED_SNAPSHOT',
+          updatedAt: '2026-03-08T12:00:00.000Z',
+        },
+      ],
+      compositeScore: 0.79,
+      draftSeed: {
+        source: 'working-draft',
+        updatedAt: '2026-03-08T11:30:00.000Z',
+        content: baseDraft,
+      },
+    });
+
+    expect(screen.getByText('Submission record')).toBeInTheDocument();
+    expect(screen.getByText('Follow-up log')).toBeInTheDocument();
+    expect(screen.getByText(/View application source/i)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/workspace/workspace-3/notes');
+    });
+  });
+
+  it.each([
+    {
+      stage: 'SCREENING' as const,
+      title: 'Screening desk',
+      notesTitle: 'Recruiter and screening notes',
+    },
+    {
+      stage: 'INTERVIEW' as const,
+      title: 'Interview prep board',
+      notesTitle: 'Interview prep notes',
+    },
+    {
+      stage: 'OFFER' as const,
+      title: 'Decision board',
+      notesTitle: 'Offer decision notes',
+    },
+  ])('renders a stage-owned %s workspace instead of a generic asset slab', async ({ stage, title, notesTitle }) => {
+    renderClient({
+      id: `workspace-${stage.toLowerCase()}`,
+      kind: 'managed',
+      jobId: `job-${stage.toLowerCase()}`,
+      title: 'Staff Engineer',
+      company: 'Acme',
+      location: 'Remote',
+      description: 'Own technical direction for a critical product area.',
+      sourceUrl: 'https://example.com/acme-role',
+      salary: '$200,000',
+      stage,
+      createdAt: '2026-03-08T12:00:00.000Z',
+      updatedAt: '2026-03-09T18:00:00.000Z',
+      workspaceId: `workspace-${stage.toLowerCase()}`,
+      workspaceStatus: 'FOLLOW_UP',
+      legacyStatus: stage.toLowerCase(),
+      noteCount: 0,
+      resumes: [],
+      compositeScore: 0.91,
+      draftSeed: {
+        source: 'working-draft',
+        updatedAt: '2026-03-09T17:15:00.000Z',
+        content: baseDraft,
+      },
+    });
+
+    expect(screen.getByText(title)).toBeInTheDocument();
+    expect(screen.getByText(notesTitle)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(`/api/workspace/workspace-${stage.toLowerCase()}/notes`);
     });
   });
 });

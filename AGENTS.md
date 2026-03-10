@@ -91,6 +91,22 @@ Welcome! Follow every step below before touching code. This repo now uses a docs
    - a real stop condition is hit
 8. For the canonical end-to-end architect flow, use `docs/guides/architect-operating-contract.md`.
 
+## Mem0 Rule
+
+Use Mem0 for durable cross-agent memory, not for noise.
+
+Before ending a turn, ask:
+- `Will another agent need to know this?`
+
+If the answer is yes, add it to Mem0 when it is one of:
+- a durable product decision
+- a stable user preference
+- an active workflow rule
+- a queued future request that would be easy to lose
+
+Do not skip this just because the same thing also exists in chat.
+Do not dump every temporary detail into Mem0.
+
 ## Explicit Execution Gate
 
 Planning/discussion is the default mode for this repo.
@@ -103,6 +119,10 @@ Public trust-building workflow:
 - `ARCH: <goal or question>` = planning and narrowing only
 - `READY` = safety card only, no edits
 - `GO` = execute the prepared move
+
+Do not ask the human to re-approve something they already approved.
+Do not ask for permission for routine actions that clearly fall inside the approved scope.
+If the instruction is already clear, execute it.
 
 The human does not need to decompose work into an implementation micro-task. The architect/orchestrator owns the internal narrowing into a safe micro-contract.
 
@@ -159,6 +179,8 @@ Stop and ask instead of pushing through when:
   - deploy
   - release
   - secret or account changes
+
+If none of the above is true, do the work instead of asking again.
 
 ## Dirty Tree Discipline
 

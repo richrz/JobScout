@@ -6,6 +6,46 @@
 
 ## 2026-03-09 — Cockpit Workspace Became Real For INTERESTED And CRAFTING
 
+## 2026-03-09 — Cockpit Workspace Expanded Across The Later Stages
+
+### Context
+The cockpit already handled `INTERESTED` and `CRAFTING` as real in-panel work, but the later stages were still falling back to generic summary content.
+
+That created a broken mental model:
+- the river implied each stage owned its work
+- the right panel only really delivered on that promise for the first two active stages
+
+The next boundary was to make the later stages stage-owned too, without dragging the old page-era shells back into the cockpit.
+
+### Decisions Made
+1. **The cockpit now treats `APPLIED`, `SCREENING`, `INTERVIEW`, and `OFFER` as stage-owned workspaces.**
+2. **`APPLIED` is now a submission and follow-up desk.**
+   - submission record
+   - source reveal link
+   - follow-up notes in-panel
+3. **`SCREENING` is now a screening desk instead of a generic asset slab.**
+   - draft summary and skills stay visible
+   - recruiter/screening notes live in-panel
+4. **`INTERVIEW` is now an interview prep board.**
+   - proof points from the draft are surfaced directly
+   - prep notes live in-panel
+5. **`OFFER` is now a decision board.**
+   - salary/source context stays visible
+   - offer decision notes live in-panel
+6. **The workflow rule was hardened too.**
+   - if something is already approved or clearly routine inside scope, do it
+   - only stop for actual ambiguity, overlap, or destructive boundaries
+
+### Why This Matters
+This closes the biggest remaining gap in the cockpit model short of full Resume Studio embedding.
+
+The river now maps to real stage-owned work much more honestly:
+- click a card
+- the stage-specific desk opens
+- the work stays with that opportunity inside the cockpit
+
+The remaining step is not “make the panel real.” It is to deepen the stage-owned desks and then embed the richer `CRAFTING` studio work there.
+
 ### Context
 The cockpit had already become the signed-in shell and regained its visual hierarchy, but the right panel was still only a Phase 1 placeholder.
 

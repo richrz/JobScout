@@ -144,12 +144,16 @@ export default async function DashboardWireframePage() {
             company: true,
             location: true,
             description: true,
+            salary: true,
+            sourceUrl: true,
             compositeScore: true,
           },
         },
         application: {
           select: {
             status: true,
+            createdAt: true,
+            appliedAt: true,
           },
         },
         resumes: {
@@ -185,6 +189,8 @@ export default async function DashboardWireframePage() {
         company: true,
         location: true,
         description: true,
+        salary: true,
+        sourceUrl: true,
         postedAt: true,
         compositeScore: true,
       },
@@ -263,11 +269,15 @@ export default async function DashboardWireframePage() {
       company: job.company,
       location: job.location,
       description: job.description,
+      sourceUrl: job.sourceUrl,
+      salary: job.salary,
       stage: 'NEW' as CockpitStage,
+      createdAt: toIsoString(job.postedAt),
       updatedAt: toIsoString(job.postedAt),
       workspaceId: null,
       workspaceStatus: null,
       legacyStatus: null,
+      noteCount: 0,
       resumes: [],
       compositeScore: job.compositeScore ?? null,
       draftSeed: null,
@@ -292,11 +302,19 @@ export default async function DashboardWireframePage() {
         company: workspace.job.company,
         location: workspace.job.location,
         description: workspace.job.description,
+        sourceUrl: workspace.job.sourceUrl,
+        salary: workspace.job.salary,
         stage,
+        createdAt: workspace.application?.appliedAt
+          ? toIsoString(workspace.application.appliedAt)
+          : workspace.application?.createdAt
+            ? toIsoString(workspace.application.createdAt)
+            : toIsoString(workspace.createdAt),
         updatedAt: toIsoString(workspace.updatedAt),
         workspaceId: workspace.id,
         workspaceStatus: workspace.status,
         legacyStatus: workspace.application?.status ?? null,
+        noteCount: workspace._count.notes,
         resumes: workspace.resumes.map((resume) => ({
           id: resume.id,
           title: resume.title,

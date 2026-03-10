@@ -46,11 +46,15 @@ export type CockpitPanelRecord = {
   company: string;
   location: string | null;
   description: string;
+  sourceUrl: string | null;
+  salary: string | null;
   stage: CockpitStage;
+  createdAt: string | null;
   updatedAt: string;
   workspaceId: string | null;
   workspaceStatus: string | null;
   legacyStatus: string | null;
+  noteCount: number;
   resumes: Array<{
     id: string;
     title: string;
@@ -287,6 +291,41 @@ function normalizeSkillInput(value: string) {
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function documentStateLabel(value: string) {
+  switch (value) {
+    case 'REFERENCE':
+      return 'Reference';
+    case 'WORKING_DRAFT':
+      return 'Working draft';
+    case 'SAVED_VARIANT':
+      return 'Saved variant';
+    case 'SUBMITTED_SNAPSHOT':
+      return 'Submitted snapshot';
+    default:
+      return value.toLowerCase().replace(/_/g, ' ');
+  }
+}
+
+function latestResumeByState(panel: CockpitPanelRecord, state: string) {
+  return panel.resumes.find((resume) => resume.documentState === state) || null;
+}
+
+function topProofPoints(panel: CockpitPanelRecord) {
+  const draft = panel.draftSeed?.content;
+  if (!draft) {
+    return [];
+  }
+
+  return draft.experience
+    .flatMap((role) =>
+      (role.description || '')
+        .split(/\n+/)
+        .map((line) => line.trim())
+        .filter(Boolean),
+    )
+    .slice(0, 4);
 }
 
 function nextMove(stage: CockpitStage, resumeCount: number) {
@@ -680,11 +719,15 @@ function WorkspaceNotesDesk({
   title,
   intro,
   accent,
+  placeholder,
+  emptyState,
 }: {
   workspaceId: string;
   title: string;
   intro: string;
   accent: string;
+  placeholder?: string;
+  emptyState?: string;
 }) {
   const [notes, setNotes] = useState<WorkspaceNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -769,7 +812,7 @@ function WorkspaceNotesDesk({
         <Textarea
           value={draftNote}
           onChange={(event) => setDraftNote(event.target.value)}
-          placeholder="Capture fit notes, concerns, or why this role deserves attention."
+          placeholder={placeholder || 'Capture fit notes, concerns, or why this role deserves attention.'}
           className="min-h-[120px] border-0 bg-transparent px-0 text-white placeholder:text-white/26 focus-visible:ring-0"
         />
         <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/8 pt-3">
@@ -798,7 +841,7 @@ function WorkspaceNotesDesk({
           </div>
         ) : notes.length === 0 ? (
           <div className="rounded-[18px] border border-dashed border-white/10 px-3 py-5 text-sm text-white/38">
-            No notes yet. Add the first reason this opportunity matters.
+            {emptyState || 'No notes yet. Add the first reason this opportunity matters.'}
           </div>
         ) : (
           notes.slice(0, 5).map((note) => (
@@ -1060,6 +1103,284 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
   );
 }
 
+function StageAssetStack({ panel }: { panel: CockpitPanelRecord }) {
+  const relevantResumes = panel.resumes.slice(0, 4);
+
+  return (
+    <section className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
+        <FileText className="h-3.5 w-3.5" />
+        Workspace assets
+      </div>
+      {relevantResumes.length === 0 ? (
+        <p className="mt-3 text-sm text-white/48">
+          No stored resume artifacts yet for this opportunity.
+        </p>
+      ) : (
+        <div className="mt-3 space-y-2">
+          {relevantResumes.map((resume) => (
+            <div
+              key={resume.id}
+              className="flex items-center justify-between gap-3 rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-3"
+            >
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium text-white">{resume.title}</div>
+                <div className="mt-1 text-xs text-white/42">
+                  {documentStateLabel(resume.documentState)} · {formatLongDate(resume.updatedAt)}
+                </div>
+              </div>
+              <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-white/44">
+                stored
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function AppliedDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: string }) {
+  const submittedSnapshot = latestResumeByState(panel, 'SUBMITTED_SNAPSHOT');
+  const sentAt = panel.createdAt || panel.updatedAt;
+
+  return (
+    <div className="space-y-4">
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em]" style={{ color: accent }}>
+          <Briefcase className="h-3.5 w-3.5" />
+          Submission record
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Status</div>
+            <div className="mt-2 text-base font-semibold text-white">Application sent</div>
+            <p className="mt-2 text-sm leading-6 text-white/56">
+              Sent {formatLongDate(sentAt)}. This is where follow-up timing and the exact package stay visible.
+            </p>
+          </div>
+          <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Source revealed</div>
+            {panel.sourceUrl ? (
+              <a
+                href={panel.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary transition hover:text-primary/80"
+              >
+                View application source <ArrowRight className="h-3.5 w-3.5" />
+              </a>
+            ) : (
+              <p className="mt-2 text-sm leading-6 text-white/56">
+                Source link is not available on this record yet.
+              </p>
+            )}
+            <p className="mt-2 text-xs text-white/38">
+              Source stays hidden earlier in the river and only becomes useful here.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-[18px] border border-white/10 bg-black/25 p-4">
+          <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Package sent</div>
+          <p className="mt-2 text-sm leading-6 text-white/56">
+            {submittedSnapshot
+              ? `Latest submitted snapshot: ${submittedSnapshot.title} (${formatLongDate(submittedSnapshot.updatedAt)}).`
+              : 'No explicit submitted snapshot is stored yet. The workspace still holds the current document trail.'}
+          </p>
+        </div>
+      </section>
+
+      <WorkspaceNotesDesk
+        workspaceId={panel.workspaceId!}
+        title="Follow-up log"
+        intro="Track recruiter responses, follow-up timing, and anything you learn after the application leaves your hands."
+        accent={accent}
+        placeholder="Add a follow-up note, submission detail, or response update."
+        emptyState="No follow-up notes yet. Capture the first post-submit update here."
+      />
+
+      <StageAssetStack panel={panel} />
+    </div>
+  );
+}
+
+function ScreeningDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: string }) {
+  const draft = panel.draftSeed?.content;
+  const proofPoints = topProofPoints(panel);
+
+  return (
+    <div className="space-y-4">
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em]" style={{ color: accent }}>
+          <Target className="h-3.5 w-3.5" />
+          Screening desk
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Conversation angle</div>
+            <p className="mt-2 text-sm leading-6 text-white/62">
+              Use this stage to turn the draft into talking points for the first human conversation.
+            </p>
+            {draft?.summary ? (
+              <p className="mt-3 text-sm leading-6 text-white/72">{draft.summary}</p>
+            ) : null}
+          </div>
+          <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Signal to keep close</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(draft?.skills || []).slice(0, 6).map((skill) => (
+                <span key={skill} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/62">
+                  {skill}
+                </span>
+              ))}
+              {(!draft?.skills || draft.skills.length === 0) && (
+                <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/32">
+                  No key skills surfaced yet
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {proofPoints.length > 0 ? (
+          <div className="mt-4 rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Proof points</div>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-white/68">
+              {proofPoints.slice(0, 3).map((point) => (
+                <li key={point} className="rounded-[14px] border border-white/8 bg-white/[0.02] px-3 py-2">
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </section>
+
+      <WorkspaceNotesDesk
+        workspaceId={panel.workspaceId!}
+        title="Recruiter and screening notes"
+        intro="Store names, conversation details, and what the other side seems to care about."
+        accent={accent}
+        placeholder="Add screening notes, recruiter details, or next-step commitments."
+        emptyState="No screening notes yet. Capture the first live contact here."
+      />
+    </div>
+  );
+}
+
+function InterviewDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: string }) {
+  const draft = panel.draftSeed?.content;
+  const proofPoints = topProofPoints(panel);
+
+  return (
+    <div className="space-y-4">
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em]" style={{ color: accent }}>
+          <Sparkles className="h-3.5 w-3.5" />
+          Interview prep board
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Story to hold</div>
+            <p className="mt-2 text-sm leading-6 text-white/62">
+              This is the stage where the written draft has to survive real questions and follow-up.
+            </p>
+            {draft?.summary ? (
+              <p className="mt-3 text-sm leading-6 text-white/72">{draft.summary}</p>
+            ) : null}
+          </div>
+          <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Signals you should be ready to defend</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(draft?.skills || []).slice(0, 6).map((skill) => (
+                <span key={skill} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/62">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-[18px] border border-white/10 bg-black/25 p-4">
+          <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Examples to bring</div>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-white/68">
+            {(proofPoints.length ? proofPoints : ['Add notes after the screen so the best examples stay visible here.']).slice(0, 4).map((point) => (
+              <li key={point} className="rounded-[14px] border border-white/8 bg-white/[0.02] px-3 py-2">
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <WorkspaceNotesDesk
+        workspaceId={panel.workspaceId!}
+        title="Interview prep notes"
+        intro="Collect likely questions, your strongest examples, and post-interview follow-ups in one place."
+        accent={accent}
+        placeholder="Add interview questions, answers, or post-call notes."
+        emptyState="No interview notes yet. Start capturing prep and debrief details here."
+      />
+    </div>
+  );
+}
+
+function OfferDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: string }) {
+  return (
+    <div className="space-y-4">
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em]" style={{ color: accent }}>
+          <Target className="h-3.5 w-3.5" />
+          Decision board
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Role context</div>
+            <div className="mt-2 text-base font-semibold text-white">{panel.company}</div>
+            <p className="mt-2 text-sm leading-6 text-white/56">
+              {[panel.title, panel.location].filter(Boolean).join(' · ') || 'Offer details will settle here.'}
+            </p>
+            {panel.salary ? (
+              <p className="mt-3 text-sm font-medium text-emerald-200">{panel.salary}</p>
+            ) : null}
+          </div>
+          <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Decision support</div>
+            <p className="mt-2 text-sm leading-6 text-white/56">
+              Track tradeoffs, negotiation notes, and what would make this a yes or a no.
+            </p>
+            {panel.sourceUrl ? (
+              <a
+                href={panel.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary transition hover:text-primary/80"
+              >
+                View original role <ArrowRight className="h-3.5 w-3.5" />
+              </a>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      <WorkspaceNotesDesk
+        workspaceId={panel.workspaceId!}
+        title="Offer decision notes"
+        intro="Keep the decision logic and negotiation thread visible so the last step does not fragment across tools."
+        accent={accent}
+        placeholder="Add offer terms, negotiation notes, or final decision factors."
+        emptyState="No decision notes yet. Start capturing tradeoffs and offer details here."
+      />
+
+      <StageAssetStack panel={panel} />
+    </div>
+  );
+}
+
 function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose: () => void }) {
   const visual = STAGE_VISUALS[panel.stage];
   const identity = companyIdentity(panel.company);
@@ -1174,7 +1495,7 @@ function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose
                 })}
               </div>
               <p className="mt-4 text-sm text-white/48">
-                Last touched {formatLongDate(panel.updatedAt)}. {panel.resumes.length} stored resume artifact{panel.resumes.length === 1 ? '' : 's'}.
+                Last touched {formatLongDate(panel.updatedAt)}. {panel.resumes.length} stored resume artifact{panel.resumes.length === 1 ? '' : 's'} and {panel.noteCount} note{panel.noteCount === 1 ? '' : 's'}.
               </p>
             </div>
           </div>
@@ -1199,41 +1520,34 @@ function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose
                   title="War room notes"
                   intro="Keep recruiter context, talking points, and concerns next to the draft."
                   accent={visual.accent}
+                  placeholder="Add recruiter context, a draft concern, or a tailoring note."
+                  emptyState="No drafting notes yet. Capture the first concern or talking point here."
                 />
               ) : null}
             </div>
           ) : null}
 
-          {panel.stage !== 'INTERESTED' && panel.stage !== 'CRAFTING' ? (
-            <div className="mb-5 rounded-[24px] border border-white/10 bg-black/20 p-4">
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
-                <FileText className="h-3.5 w-3.5" />
-                Workspace assets
-              </div>
-              {resumes.length === 0 ? (
-                <p className="mt-3 text-sm text-white/48">
-                  No stored resume artifacts yet. Later stages will deepen here as cockpit parity grows.
-                </p>
-              ) : (
-                <div className="mt-3 space-y-2">
-                  {resumes.map((resume) => (
-                    <div
-                      key={resume.id}
-                      className="flex items-center justify-between gap-3 rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-3"
-                    >
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-white">{resume.title}</div>
-                        <div className="mt-1 text-xs text-white/42">
-                          {resume.documentState} · {formatLongDate(resume.updatedAt)}
-                        </div>
-                      </div>
-                      <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-white/44">
-                        stored
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+          {panel.stage === 'APPLIED' && panel.workspaceId ? (
+            <div className="mb-5 space-y-4">
+              <AppliedDesk panel={panel} accent={visual.accent} />
+            </div>
+          ) : null}
+
+          {panel.stage === 'SCREENING' && panel.workspaceId ? (
+            <div className="mb-5 space-y-4">
+              <ScreeningDesk panel={panel} accent={visual.accent} />
+            </div>
+          ) : null}
+
+          {panel.stage === 'INTERVIEW' && panel.workspaceId ? (
+            <div className="mb-5 space-y-4">
+              <InterviewDesk panel={panel} accent={visual.accent} />
+            </div>
+          ) : null}
+
+          {panel.stage === 'OFFER' && panel.workspaceId ? (
+            <div className="mb-5 space-y-4">
+              <OfferDesk panel={panel} accent={visual.accent} />
             </div>
           ) : null}
 
