@@ -3,11 +3,12 @@
  */
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import CockpitWireframeClient, {
   type CockpitPanelRecord,
 } from '@/app/dashboard-wireframe/CockpitWireframeClient';
 import type { CockpitPhaseOneViewModel } from '@/lib/cockpit-phase1';
+import { generateAndPreviewResume } from '@/lib/resume-generator';
 
 jest.mock('next/link', () => {
   return function MockLink({
@@ -33,6 +34,12 @@ jest.mock('@/lib/resume-generator', () => ({
 jest.mock('@/app/resume/actions', () => ({
   saveResume: jest.fn(),
 }));
+
+jest.mock('@/components/resume/ResumePreview', () => ({
+  ResumePreview: () => <div data-testid="cockpit-resume-preview">Preview</div>,
+}));
+
+const mockGenerateAndPreviewResume = generateAndPreviewResume as jest.Mock;
 
 const baseViewModel: CockpitPhaseOneViewModel = {
   whileYouWereOut: {
@@ -209,13 +216,74 @@ describe('CockpitWireframeClient workspace panel', () => {
       },
     });
 
-    expect(screen.getByText('Resume desk')).toBeInTheDocument();
+    expect(screen.getByText('Drafting studio')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /rewrite draft/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save draft/i })).toBeInTheDocument();
     expect(screen.getByText('Live draft preview')).toBeInTheDocument();
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith('/api/workspace/workspace-2/notes');
+    });
+  });
+
+  it('keeps cockpit rewrites in preview-confirm until the user applies them', async () => {
+    mockGenerateAndPreviewResume.mockResolvedValue({
+      success: true,
+      content: {
+        ...baseDraft,
+        summary: 'Sharper summary for this exact role.',
+        contactInfo: {
+          ...baseDraft.contactInfo,
+          name: 'Changed By Rewrite',
+        },
+        skills: ['AWS', 'AI', 'Stakeholder Management'],
+      },
+    });
+
+    renderClient({
+      id: 'workspace-2b',
+      kind: 'managed',
+      jobId: 'job-2b',
+      title: 'AI Solutions Engineer',
+      company: 'Deloitte',
+      location: 'Denver, CO',
+      description: 'Own technical storytelling for GenAI client work and stakeholder management.',
+      sourceUrl: 'https://example.com/deloitte-role',
+      salary: '$210,000',
+      stage: 'CRAFTING',
+      createdAt: '2026-03-09T15:10:00.000Z',
+      updatedAt: '2026-03-09T16:00:00.000Z',
+      workspaceId: 'workspace-2b',
+      workspaceStatus: 'INTERESTED',
+      legacyStatus: 'interested',
+      noteCount: 2,
+      resumes: [],
+      compositeScore: 0.93,
+      draftSeed: {
+        source: 'working-draft',
+        updatedAt: '2026-03-09T15:30:00.000Z',
+        content: baseDraft,
+      },
+    });
+
+    expect(screen.getByText('Drafting studio')).toBeInTheDocument();
+    expect(screen.getByText('Fact lock')).toBeInTheDocument();
+    expect(screen.getByText('Keyword coverage')).toBeInTheDocument();
+    expect(screen.getByDisplayValue(baseDraft.summary)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /rewrite draft/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Review rewrite before replacing your draft/i)).toBeInTheDocument();
+    });
+
+    expect(screen.getByDisplayValue(baseDraft.summary)).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Sharper summary for this exact role.')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /apply suggested draft/i }));
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Sharper summary for this exact role.')).toBeInTheDocument();
     });
   });
 

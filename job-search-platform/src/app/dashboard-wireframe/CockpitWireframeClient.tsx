@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { ResumePreview } from '@/components/resume/ResumePreview';
 import { generateAndPreviewResume } from '@/lib/resume-generator';
 import { saveResume } from '@/app/resume/actions';
 import type { ResumeDocumentData } from '@/lib/resume-document';
@@ -14,6 +15,13 @@ import {
   mapStrategyToExaggerationLevel,
   type ResumeWritingStrategy,
 } from '@/lib/resume/voice-profile';
+import {
+  applyFactLocks,
+  buildKeywordCoverage,
+  summarizeDraftDiff,
+  type DraftDiffSummary,
+  type FactLockState,
+} from '@/lib/resume/cockpit-drafting';
 import {
   ArrowRight,
   Briefcase,
@@ -306,6 +314,20 @@ function documentStateLabel(value: string) {
     default:
       return value.toLowerCase().replace(/_/g, ' ');
   }
+}
+
+function humanizeRewriteError(error: unknown) {
+  const message = error instanceof Error ? error.message : 'Rewrite failed';
+
+  if (/429/.test(message) && /glm-5/i.test(message)) {
+    return 'Rewrite unavailable: this Z.AI plan does not currently include GLM-5 access.';
+  }
+
+  if (/unauthorized/i.test(message)) {
+    return 'Rewrite unavailable: sign in again before generating a new draft.';
+  }
+
+  return message;
 }
 
 function latestResumeByState(panel: CockpitPanelRecord, state: string) {
@@ -862,6 +884,15 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
   const [strategy, setStrategy] = useState<ResumeWritingStrategy>('balanced');
   const [draft, setDraft] = useState<ResumeDocumentData>(panel.draftSeed?.content ?? EMPTY_DRAFT);
   const [skillInput, setSkillInput] = useState((panel.draftSeed?.content.skills || []).join(', '));
+  const [factLocks, setFactLocks] = useState<FactLockState>({
+    contactInfo: true,
+    workHistoryFacts: true,
+    education: true,
+    skills: false,
+    metrics: true,
+  });
+  const [pendingDraft, setPendingDraft] = useState<ResumeDocumentData | null>(null);
+  const [diffSummary, setDiffSummary] = useState<DraftDiffSummary | null>(null);
   const [rewriting, setRewriting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -872,6 +903,15 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     setDraft(nextDraft);
     setSkillInput(nextDraft.skills.join(', '));
     setStrategy('balanced');
+    setFactLocks({
+      contactInfo: true,
+      workHistoryFacts: true,
+      education: true,
+      skills: false,
+      metrics: true,
+    });
+    setPendingDraft(null);
+    setDiffSummary(null);
     setStatusMessage(null);
     setSaveState('idle');
   }, [panel.id, panel.draftSeed]);
@@ -880,6 +920,33 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     ...draft,
     skills: normalizeSkillInput(skillInput),
   };
+  const currentCoverage = buildKeywordCoverage(panel.description, normalizedDraft);
+  const suggestedCoverage = pendingDraft
+    ? buildKeywordCoverage(panel.description, pendingDraft)
+    : null;
+  const previewDraft = pendingDraft ?? normalizedDraft;
+  const matchedKeywords = pendingDraft
+    ? suggestedCoverage?.matchedKeywords ?? []
+    : currentCoverage.matchedKeywords;
+  const missingKeywords = pendingDraft
+    ? suggestedCoverage?.missingKeywords ?? []
+    : currentCoverage.missingKeywords;
+
+  function updateExperienceDescription(index: number, value: string) {
+    setDraft((current) => ({
+      ...current,
+      experience: current.experience.map((role, roleIndex) =>
+        roleIndex === index ? { ...role, description: value } : role,
+      ),
+    }));
+  }
+
+  function toggleFactLock(key: keyof FactLockState) {
+    setFactLocks((current) => ({
+      ...current,
+      [key]: !current[key],
+    }));
+  }
 
   async function handleRewrite() {
     setRewriting(true);
@@ -895,17 +962,40 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
         throw new Error(result.error || 'Rewrite failed');
       }
 
-      setDraft(result.content as ResumeDocumentData);
-      setSkillInput(((result.content as ResumeDocumentData).skills || []).join(', '));
-      setSaveState('idle');
-      setStatusMessage('Draft refreshed from your profile and the selected role.');
-    } catch (rewriteError) {
-      setStatusMessage(
-        rewriteError instanceof Error ? rewriteError.message : 'Rewrite failed',
+      const protectedDraft = applyFactLocks(
+        normalizedDraft,
+        result.content as ResumeDocumentData,
+        factLocks,
       );
+
+      setPendingDraft(protectedDraft);
+      setDiffSummary(summarizeDraftDiff(normalizedDraft, protectedDraft));
+      setSaveState('idle');
+      setStatusMessage('Suggested rewrite is ready for review. Your working draft has not changed yet.');
+    } catch (rewriteError) {
+      setStatusMessage(humanizeRewriteError(rewriteError));
     } finally {
       setRewriting(false);
     }
+  }
+
+  function handleApplySuggestedDraft() {
+    if (!pendingDraft) {
+      return;
+    }
+
+    setDraft(pendingDraft);
+    setSkillInput((pendingDraft.skills || []).join(', '));
+    setPendingDraft(null);
+    setDiffSummary(null);
+    setSaveState('idle');
+    setStatusMessage('Suggested rewrite applied to the draft. Save when ready.');
+  }
+
+  function handleKeepCurrentDraft() {
+    setPendingDraft(null);
+    setDiffSummary(null);
+    setStatusMessage('Suggested rewrite discarded. Your current draft stays in place.');
   }
 
   async function handleSaveDraft() {
@@ -933,10 +1023,10 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     <section className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em]" style={{ color: accent }}>
         <FileText className="h-3.5 w-3.5" />
-        Resume desk
+        Drafting studio
       </div>
 
-      <div className="mt-3 grid gap-3 xl:grid-cols-[1.05fr_0.95fr]">
+      <div className="mt-3 grid gap-3 xl:grid-cols-[1.08fr_0.92fr]">
         <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
           <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/34">
             <span className="rounded-full border border-white/10 px-2 py-1 text-white/55">
@@ -950,7 +1040,7 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
           </div>
 
           <p className="mt-3 text-sm leading-6 text-white/62">
-            Rewrite from the live role, then save the working draft back to this workspace. This is the first real cockpit-owned drafting surface, not the old resume page shell.
+            This is the cockpit-owned drafting studio for this opportunity. Rewrite against the live role, inspect the changes, then confirm before anything replaces your working draft.
           </p>
 
           <div className="mt-4 space-y-3">
@@ -1003,6 +1093,10 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
               </Button>
             </div>
 
+            <div className="rounded-[16px] border border-white/10 bg-white/[0.03] px-3 py-3 text-xs leading-5 text-white/48">
+              Rewrites are staged for review first. They do not replace the current draft until you accept them.
+            </div>
+
             {statusMessage ? (
               <div
                 className={cn(
@@ -1019,47 +1113,29 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
         </div>
 
         <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
-          <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Live draft preview</div>
-          <div className="mt-3 rounded-[18px] border border-white/10 bg-[#0b0b0c] p-4">
-            <div className="text-lg font-semibold text-white">
-              {normalizedDraft.contactInfo.name || 'Unnamed draft'}
-            </div>
-            <div className="mt-1 text-xs text-white/45">
-              {[normalizedDraft.contactInfo.email, normalizedDraft.contactInfo.phone, normalizedDraft.contactInfo.location]
-                .filter(Boolean)
-                .join(' · ') || 'Contact details will appear here'}
-            </div>
-
-            <div className="mt-4 border-t border-white/8 pt-4">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Summary</div>
-              <p className="mt-2 text-sm leading-6 text-white/72">
-                {normalizedDraft.summary || 'No summary yet. Rewrite or write a concise opening pitch.'}
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">
+                {pendingDraft ? 'Suggested draft preview' : 'Live draft preview'}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-white/52">
+                {pendingDraft
+                  ? 'This preview is the staged rewrite. Confirm it before it replaces your working draft.'
+                  : 'This is the current draft that will save back to the workspace.'}
               </p>
             </div>
+            <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-white/46">
+              {pendingDraft ? 'review mode' : 'working draft'}
+            </span>
+          </div>
 
-            <div className="mt-4 border-t border-white/8 pt-4">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-white/32">Experience focus</div>
-              <div className="mt-3 space-y-3">
-                {normalizedDraft.experience.slice(0, 3).map((role) => (
-                  <div key={role.id} className="rounded-[16px] border border-white/8 bg-white/[0.02] px-3 py-3">
-                    <div className="text-sm font-medium text-white">{role.title}</div>
-                    <div className="mt-1 text-xs text-white/45">
-                      {[role.company, role.location].filter(Boolean).join(' · ')}
-                    </div>
-                  </div>
-                ))}
-                {normalizedDraft.experience.length === 0 ? (
-                  <div className="rounded-[16px] border border-dashed border-white/10 px-3 py-4 text-sm text-white/38">
-                    No experience blocks yet.
-                  </div>
-                ) : null}
-              </div>
-            </div>
+          <div className="mt-3 h-[520px] overflow-hidden rounded-[18px] border border-white/10 bg-[#0b0b0c]">
+            <ResumePreview data={previewDraft} mode="dark" />
           </div>
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 xl:grid-cols-[1.05fr_0.95fr]">
+      <div className="mt-4 grid gap-3 xl:grid-cols-[1.08fr_0.92fr]">
         <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
           <label className="text-[11px] uppercase tracking-[0.16em] text-white/34">Opening summary</label>
           <Textarea
@@ -1099,6 +1175,268 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
           </div>
         </div>
       </div>
+
+      <div className="mt-4 grid gap-3 xl:grid-cols-[1.08fr_0.92fr]">
+        <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
+          <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Experience focus</div>
+          <p className="mt-2 text-sm leading-6 text-white/52">
+            Tighten the proof and phrasing on the roles most likely to carry this application.
+          </p>
+          <div className="mt-4 space-y-3">
+            {draft.experience.slice(0, 3).map((role, index) => (
+              <div key={role.id} className="rounded-[18px] border border-white/10 bg-white/[0.03] p-4">
+                <div className="text-sm font-medium text-white">{role.title || 'Untitled role'}</div>
+                <div className="mt-1 text-xs text-white/45">
+                  {[role.company, role.location].filter(Boolean).join(' · ') || 'Role facts stay visible here'}
+                </div>
+                <Textarea
+                  value={role.description}
+                  onChange={(event) => updateExperienceDescription(index, event.target.value)}
+                  className="mt-3 min-h-[120px] border-white/10 bg-black/25 text-white placeholder:text-white/24"
+                  placeholder="Shape the evidence and story for this role."
+                />
+              </div>
+            ))}
+            {draft.experience.length === 0 ? (
+              <div className="rounded-[18px] border border-dashed border-white/10 px-4 py-5 text-sm text-white/38">
+                No experience blocks are available in this draft yet.
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <section className="rounded-[20px] border border-white/10 bg-black/25 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Fact lock</div>
+            <p className="mt-2 text-sm leading-6 text-white/52">
+              These controls protect the facts you do not want the rewrite pass to move or soften.
+            </p>
+            <div className="mt-4 space-y-2">
+              {[
+                {
+                  key: 'contactInfo' as const,
+                  label: 'Contact details',
+                  description: 'Name, email, phone, and location stay untouched.',
+                },
+                {
+                  key: 'workHistoryFacts' as const,
+                  label: 'Work history facts',
+                  description: 'Titles, companies, locations, and dates stay fixed.',
+                },
+                {
+                  key: 'metrics' as const,
+                  label: 'Metrics and numbers',
+                  description: 'Keep numeric proof lines from being dropped during rewrite.',
+                },
+                {
+                  key: 'skills' as const,
+                  label: 'Visible skills',
+                  description: 'Preserve the current skills list instead of letting rewrite replace it.',
+                },
+              ].map((lock) => {
+                const isOn = Boolean(factLocks[lock.key]);
+                return (
+                  <button
+                    key={lock.key}
+                    type="button"
+                    onClick={() => toggleFactLock(lock.key)}
+                    className={cn(
+                      'flex w-full items-start justify-between gap-3 rounded-[16px] border px-3 py-3 text-left transition',
+                      isOn
+                        ? 'border-primary/35 bg-primary/10'
+                        : 'border-white/10 bg-white/[0.03] hover:border-white/18',
+                    )}
+                  >
+                    <div>
+                      <div className="text-sm font-medium text-white">{lock.label}</div>
+                      <div className="mt-1 text-xs leading-5 text-white/46">{lock.description}</div>
+                    </div>
+                    <span
+                      className={cn(
+                        'rounded-full border px-2 py-1 text-[10px] uppercase tracking-[0.16em]',
+                        isOn
+                          ? 'border-primary/35 bg-primary/10 text-primary'
+                          : 'border-white/10 text-white/42',
+                      )}
+                    >
+                      {isOn ? 'locked' : 'editable'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="rounded-[20px] border border-white/10 bg-black/25 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Keyword coverage</div>
+                <p className="mt-2 text-sm leading-6 text-white/52">
+                  Coverage is visible, not hidden behind an opaque ATS score.
+                </p>
+              </div>
+              <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/62">
+                {pendingDraft ? `${suggestedCoverage?.coveragePercent ?? currentCoverage.coveragePercent}% staged` : `${currentCoverage.coveragePercent}% current`}
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3">
+              <div className="rounded-[16px] border border-white/10 bg-white/[0.03] p-3">
+                <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Covered now</div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {matchedKeywords.slice(0, 8).map((keyword) => (
+                    <span
+                      key={keyword}
+                      className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-100"
+                    >
+                      {keyword}
+                    </span>
+                  ))}
+                  {matchedKeywords.length === 0 ? (
+                    <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/30">
+                      No strong keyword overlap yet
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="rounded-[16px] border border-white/10 bg-white/[0.03] p-3">
+                <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Still missing</div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {missingKeywords.slice(0, 8).map((keyword) => (
+                    <span
+                      key={keyword}
+                      className="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-xs text-amber-100"
+                    >
+                      {keyword}
+                    </span>
+                  ))}
+                  {missingKeywords.length === 0 ? (
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/60">
+                      Core keywords are covered
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {pendingDraft && diffSummary ? (
+        <section className="mt-4 rounded-[20px] border border-primary/20 bg-[linear-gradient(180deg,rgba(53,227,117,0.08),rgba(255,255,255,0.02))] p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.16em] text-primary/80">
+                Review rewrite before replacing your draft
+              </div>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/66">
+                This is a staged rewrite only. Compare it, then choose whether to apply it to the working draft.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                onClick={handleApplySuggestedDraft}
+                className="gap-2 rounded-full"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Apply suggested draft
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleKeepCurrentDraft}
+                className="gap-2 rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
+              >
+                <X className="h-4 w-4" />
+                Keep current draft
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {diffSummary.changedSections.map((section) => (
+              <span
+                key={section}
+                className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs text-primary"
+              >
+                {section === 'contactInfo'
+                  ? 'contact'
+                  : section === 'experience'
+                    ? 'work history'
+                    : section}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-4 grid gap-3 xl:grid-cols-2">
+            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Current summary</div>
+              <p className="mt-3 text-sm leading-6 text-white/72">
+                {normalizedDraft.summary || 'No summary in the current draft.'}
+              </p>
+            </div>
+            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Suggested summary</div>
+              <p className="mt-3 text-sm leading-6 text-white/72">
+                {pendingDraft.summary || 'No summary in the suggested draft.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 xl:grid-cols-3">
+            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Skills added</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {diffSummary.skills.added.length > 0 ? (
+                  diffSummary.skills.added.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-100"
+                    >
+                      {skill}
+                    </span>
+                  ))
+                ) : (
+                  <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/30">
+                    No added skills
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Skills removed</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {diffSummary.skills.removed.length > 0 ? (
+                  diffSummary.skills.removed.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1 text-xs text-rose-100"
+                    >
+                      {skill}
+                    </span>
+                  ))
+                ) : (
+                  <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/30">
+                    No removed skills
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Work history impact</div>
+              <div className="mt-3 text-sm leading-6 text-white/68">
+                <div>Updated roles: {diffSummary.experience.updated}</div>
+                <div>Added roles: {diffSummary.experience.added}</div>
+                <div>Removed roles: {diffSummary.experience.removed}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
     </section>
   );
 }

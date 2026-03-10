@@ -4,6 +4,54 @@
 
 ---
 
+## 2026-03-10 — CRAFTING Became A Real Cockpit Drafting Studio
+
+### Context
+`CRAFTING` inside the cockpit was still a bridge desk:
+- rewrite
+- save
+- a thin text preview
+
+That was enough to prove stage ownership, but not enough to make the cockpit the real place where resume work happens.
+
+The missing trust layers were also obvious:
+- rewrites were replacing the live draft immediately
+- there was no visible fact lock
+- there was no honest keyword coverage view
+- there was no review gate before a rewrite touched the draft
+
+### Decisions Made
+1. **`CRAFTING` is now a real drafting studio inside the cockpit.**
+   - live preview
+   - editable summary
+   - editable visible skills
+   - editable experience-focus blocks
+2. **Rewrites are now staged, not auto-applied.**
+   - rewrite generates a suggested draft
+   - the user reviews it
+   - only explicit acceptance replaces the working draft
+3. **Fact lock is now visible and controllable in the cockpit.**
+   - contact details
+   - work history facts
+   - metrics / numbers
+   - visible skills
+4. **Keyword coverage is now visible as an overlay, not a black-box score.**
+   - covered keywords
+   - missing keywords
+   - staged rewrite coverage can be inspected before acceptance
+5. **The provider boundary is now explicit.**
+   - the studio shell is live and browser-verified
+   - the live rewrite round-trip is currently blocked by the configured `GLM-5` plan access on this account
+   - the product now reports that boundary cleanly instead of dumping raw provider noise
+
+### Why This Matters
+This is the first cockpit slice where `CRAFTING` behaves like a trustworthy workbench instead of a small shortcut into older page-era tooling.
+
+The remaining gap is not the studio shell anymore.
+It is:
+- live provider access for the rewrite round-trip
+- deeper Resume Studio editing later, including the planned BlockNote document surface
+
 ## 2026-03-09 — Cockpit Workspace Became Real For INTERESTED And CRAFTING
 
 ## 2026-03-09 — Cockpit Workspace Expanded Across The Later Stages
