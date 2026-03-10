@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `ac94517` — extends the cockpit workspace across the later stages: `APPLIED` is now a submission/follow-up desk, `SCREENING` is now a screening desk, `INTERVIEW` is now an interview prep board, `OFFER` is now a decision board, and `AGENTS.md` now explicitly says not to re-ask for already approved or routine in-scope work
 - `745a4bb` — makes the cockpit workspace stage-owned for the first two real stages: `INTERESTED` now has live in-cockpit notes, `CRAFTING` now has a compact draft desk with rewrite/save controls and a live text-first preview, and cockpit draft saves now revalidate `/dashboard-wireframe`
 - `1841a67` — restores the cockpit shell’s visual hierarchy on `/dashboard-wireframe`: compact telemetry strip, a stronger Jump Back In / While You Were Out top row, stage-colored river columns, company identity on cards, urgency signals, and a less debug-like workspace panel
 - `dcd8d71` — ships Phase 1 cockpit shell on `/dashboard-wireframe` as the signed-in default: live Recent Activity, live While You Were Out, read-only river from real state, right-side read-only workspace panel, and legacy page fallbacks
@@ -84,6 +85,26 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- The cockpit workspace is now stage-owned across the later managed stages too.
+- `APPLIED` cards now open a submission and follow-up desk inside the cockpit:
+  - submission record
+  - application source reveal
+  - in-panel follow-up notes
+- `SCREENING` cards now open a screening desk instead of falling back to a generic asset panel:
+  - current draft summary
+  - visible skills
+  - proof points
+  - recruiter and screening notes
+- `INTERVIEW` cards now open an interview prep board:
+  - current draft context
+  - proof points surfaced from the draft
+  - interview prep notes inside the cockpit
+- `OFFER` cards now open a decision board:
+  - title/company/location/salary/source context
+  - offer decision notes inside the cockpit
+- The workflow rule is now explicit in `AGENTS.md`:
+  - if the instruction is already approved or clearly routine inside scope, do the work
+  - only stop for actual ambiguity, same-file overlap, or destructive boundaries
 - The cockpit right panel is no longer just a descriptive placeholder for the first two working stages.
 - `INTERESTED` cards now open a live notes workspace inside the cockpit:
   - notes load from the real workspace notes API
@@ -223,12 +244,6 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 ## What Remains
 
 - The new plain-language backlog now lives in `/home/richard/code/jobs/docs/project/backlog.md`, and follow-up work should start there instead of being reconstructed from chat.
-- The cockpit workspace is only stage-owned for `INTERESTED` and `CRAFTING` so far.
-- The next cockpit workspace stages still need real in-panel work surfaces:
-  - `APPLIED`
-  - `SCREENING`
-  - `INTERVIEW`
-  - `OFFER`
 - `CRAFTING` is now real, but still intentionally compact:
   - full voice controls are not embedded there yet
   - BlockNote Resume Studio is still future work inside `CRAFTING`, not shipped in this slice
@@ -247,11 +262,10 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - keyword coverage overlay
   - human signal check
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
-- Implement Phase 1 of the cockpit migration plan:
-- Move from the Phase 1 read-only cockpit into Phase 2:
-  - richer card-owned workspace expansion
-  - stronger stage-owned workspace shells
-  - begin moving real work into `CRAFTING` instead of bouncing to legacy pages
+- Move from the Phase 1 shell into deeper Phase 2 cockpit work:
+  - strengthen the later-stage desks from status boards into richer working surfaces
+  - make `CRAFTING` the real in-cockpit drafting hub instead of a compact bridge desk
+  - continue shrinking dependence on legacy pages without removing them early
 - Embed BlockNote only inside the future `CRAFTING` Resume Studio surface, not in the broader cockpit shell.
 
 ## Verification
@@ -264,8 +278,16 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `INTERESTED` workspace screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-interested-workspace.png`
   - `CRAFTING` workspace screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-workspace.png`
   - browser proof summary: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-workspace-verification.json`
+- Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for the live `APPLIED` cockpit workspace:
+  - `Submission record` visible
+  - `Follow-up log` visible
+  - `View application source` visible
+  - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-applied-workspace.png`
+  - proof summary: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-applied-workspace-verification.json`
+- `SCREENING`, `INTERVIEW`, and `OFFER` are implemented and covered by focused component tests, but those stages were not present in the live March 9 dataset during browser verification.
 - New focused cockpit verification passed:
   - `tests/unit/lib/cockpit-phase1.test.ts`
+  - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx`
 - Focused stabilization suites passed:
   - `tests/lib/llm-testing.test.ts`
   - `tests/unit/llm-error-handling.test.ts`
@@ -385,12 +407,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - The new schema direction is now in place, so follow ADR 008 instead of re-introducing `application.resumePath` ownership patterns.
 - `tests/lib/llm-testing.test.ts` passes, but Jest still reports a forced worker exit from open timers / handles after that suite finishes.
 - PDF import proof currently uses a generated sample PDF artifact rather than a user-supplied real PDF resume.
+- Live browser proof for `SCREENING`, `INTERVIEW`, and `OFFER` still depends on having real opportunities in those stages; current March 9 live data only exposed `APPLIED` beyond the first two stages.
 
 ## Next Recommended Task
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
-- Then move the cockpit to Phase 2:
-  - deepen the right-side workspace panel so it becomes the real card-owned workspace
-  - start moving active work out of fallback pages and into stage-owned cockpit sections
-  - keep legacy pages until the cockpit flow has real parity
+- Then deepen the cockpit where the value is still compressed:
+  - turn `CRAFTING` into the real in-cockpit drafting workspace
+  - bring preview-confirm diff, fact lock, and keyword coverage into that cockpit flow
+  - keep legacy pages as fallback until the cockpit path has true parity
