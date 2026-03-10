@@ -218,4 +218,62 @@ describe('generateTailoredResume', () => {
         expect((result.content as any).experience[0].title).toBe('Solutions Engineer');
         expect((result.content as any).skills).toContain('Solution Selling');
     });
+
+    it('falls back to a profile-based draft when rewrite times out', async () => {
+        const originalTimeout = process.env.JOBSCOUT_REWRITE_TIMEOUT_MS;
+        process.env.JOBSCOUT_REWRITE_TIMEOUT_MS = '5';
+
+        mockResumeGeneratorGenerateTailoredResume.mockImplementation(
+            () => new Promise(() => {}),
+        );
+
+        const mockProfile = {
+            contactInfo: {
+                name: 'Timeout User',
+                email: 'timeout@example.com',
+                phone: '(555) 123-4567',
+                location: 'Denver, CO',
+            },
+            summary: 'Profile summary baseline.',
+            experiences: [
+                {
+                    id: 'exp-timeout-1',
+                    title: 'Solutions Engineer',
+                    company: 'Acme',
+                    location: 'Remote',
+                    startDate: '2024-01-01',
+                    endDate: '',
+                    description: 'Owned technical discovery and demos.',
+                },
+            ],
+            educations: [],
+            skills: ['AWS', 'Architecture'],
+        };
+
+        const result = await generateTailoredResume({
+            jobDescription: 'Solutions architect with cloud and stakeholder communication focus.',
+            profile: mockProfile,
+            exaggerationLevel: 'professional',
+        });
+
+        expect((result.content as any).contactInfo.name).toBe('Timeout User');
+        expect((result.content as any).summary).toContain(
+            'generated from your saved profile because live rewrite response was slow',
+        );
+        expect((result.content as any).experience).toHaveLength(1);
+        expect((result.content as any).skills).toEqual(
+            expect.arrayContaining(['AWS', 'Architecture']),
+        );
+        expect(result.usage).toEqual({
+            promptTokens: 0,
+            completionTokens: 0,
+            totalTokens: 0,
+        });
+
+        if (originalTimeout === undefined) {
+            delete process.env.JOBSCOUT_REWRITE_TIMEOUT_MS;
+        } else {
+            process.env.JOBSCOUT_REWRITE_TIMEOUT_MS = originalTimeout;
+        }
+    });
 });

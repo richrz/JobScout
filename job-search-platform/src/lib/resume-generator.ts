@@ -17,6 +17,8 @@ export interface ResumeGenerationRequest {
     customInstructions?: string;
 }
 
+const DEFAULT_REWRITE_TIMEOUT_MS = 15000;
+
 function stripMarkdownCodeBlocks(content: string) {
     if (content.includes('```json')) {
         return content.replace(/```json\n?|\n?```/g, '').trim();
@@ -291,6 +293,104 @@ function parseResumeJsonContent(
     };
 }
 
+function safeString(value: unknown) {
+    if (typeof value === 'string') {
+        return value.trim();
+    }
+    return '';
+}
+
+function normalizeProfileSkills(skills: unknown) {
+    if (!Array.isArray(skills)) {
+        return [];
+    }
+
+    return skills
+        .map((skill) => {
+            if (typeof skill === 'string') {
+                return skill.trim();
+            }
+            if (skill && typeof skill === 'object' && 'name' in skill) {
+                return safeString((skill as { name?: unknown }).name);
+            }
+            return '';
+        })
+        .filter(Boolean);
+}
+
+function buildTimeoutFallbackResume(
+    profile: any,
+    jobDescription: string,
+): ResumeDocumentData {
+    const contact = profile?.contactInfo || {};
+    const workHistory = Array.isArray(profile?.experiences)
+        ? profile.experiences
+        : Array.isArray(profile?.workHistory)
+            ? profile.workHistory
+            : [];
+    const education = Array.isArray(profile?.educations)
+        ? profile.educations
+        : Array.isArray(profile?.education)
+            ? profile.education
+            : [];
+
+    const topSkills = normalizeProfileSkills(profile?.skills).slice(0, 12);
+
+    const summaryParts = [
+        safeString(profile?.summary),
+        topSkills.length > 0
+            ? `Core strengths: ${topSkills.slice(0, 5).join(', ')}.`
+            : '',
+        'This tailored draft was generated from your saved profile because live rewrite response was slow.',
+    ].filter(Boolean);
+
+    return {
+        contactInfo: {
+            name: safeString(contact?.name) || 'Candidate',
+            email: safeString(contact?.email),
+            phone: safeString(contact?.phone),
+            location: safeString(contact?.location),
+        },
+        summary: summaryParts.join(' '),
+        experience: workHistory.slice(0, 6).map((role: any, index: number) => ({
+            id: safeString(role?.id) || `fallback-exp-${index + 1}`,
+            title: safeString(role?.title) || safeString(role?.role) || 'Untitled role',
+            company: safeString(role?.company),
+            location: safeString(role?.location),
+            startDate: safeString(role?.startDate),
+            endDate: safeString(role?.endDate),
+            description: safeString(role?.description) || 'No role details provided in profile.',
+        })),
+        education: education.slice(0, 4).map((item: any, index: number) => ({
+            id: safeString(item?.id) || `fallback-edu-${index + 1}`,
+            degree: safeString(item?.degree),
+            school: safeString(item?.school) || safeString(item?.institution),
+            location: safeString(item?.location),
+            startDate: safeString(item?.startDate),
+            endDate: safeString(item?.endDate),
+        })),
+        skills: topSkills,
+    };
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(() => {
+            reject(new Error(`REWRITE_TIMEOUT:${timeoutMs}`));
+        }, timeoutMs);
+
+        promise
+            .then((value) => {
+                clearTimeout(timer);
+                resolve(value);
+            })
+            .catch((error) => {
+                clearTimeout(timer);
+                reject(error);
+            });
+    });
+}
+
 /**
  * Generate a tailored resume for a specific job
  */
@@ -322,12 +422,52 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
         const llmClient = getLLMClient(llmConfig);
         const generator = new ResumeGenerator(llmClient);
 
-        const response = await generator.generateTailoredResume({
-            jobDescription: request.jobDescription,
-            userProfile: request.profile,
-            exaggerationLevel: request.exaggerationLevel,
-            customInstructions: request.customInstructions,
-        });
+        const configuredTimeout = Number.parseInt(
+            process.env.JOBSCOUT_REWRITE_TIMEOUT_MS || '',
+            10,
+        );
+        const timeoutMs =
+            Number.isFinite(configuredTimeout) && configuredTimeout > 0
+                ? configuredTimeout
+                : DEFAULT_REWRITE_TIMEOUT_MS;
+
+        let response;
+        try {
+            response = await withTimeout(
+                generator.generateTailoredResume({
+                    jobDescription: request.jobDescription,
+                    userProfile: request.profile,
+                    exaggerationLevel: request.exaggerationLevel,
+                    customInstructions: request.customInstructions,
+                }),
+                timeoutMs,
+            );
+        } catch (timeoutOrProviderError) {
+            const message =
+                timeoutOrProviderError instanceof Error
+                    ? timeoutOrProviderError.message
+                    : String(timeoutOrProviderError);
+
+            if (message.startsWith('REWRITE_TIMEOUT:')) {
+                console.warn(
+                    `Rewrite timed out after ${timeoutMs}ms; using profile fallback draft.`,
+                );
+                const fallback = buildTimeoutFallbackResume(
+                    request.profile,
+                    request.jobDescription,
+                );
+                return {
+                    content: fallback,
+                    usage: {
+                        promptTokens: 0,
+                        completionTokens: 0,
+                        totalTokens: 0,
+                    },
+                };
+            }
+
+            throw timeoutOrProviderError;
+        }
 
         const parsedContent = parseResumeJsonContent(response.content, request.profile);
 
