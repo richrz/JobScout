@@ -1249,6 +1249,32 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
 - Marked local/private model support as a later trust extension rather than a v1 blocker.
 - Added matching backlog items so future agents can pick these up from one plain-language source.
 
+# 2026-03-09 - Phase 1 cockpit shell shipped
+
+- Promoted `/dashboard-wireframe` from a static mock into the live signed-in cockpit shell.
+- Switched signed-in entry behavior so:
+  - `/` redirects authenticated users to `/dashboard-wireframe`
+  - `/auth/signin` now lands on `/dashboard-wireframe` after successful login
+- Added a dedicated `cockpit-phase1` view-model helper to make the transitional state mapping explicit:
+  - discovery jobs without workspaces render as `NEW`
+  - `INTERESTED` plus draft resumes becomes `CRAFTING`
+  - `FOLLOW_UP` / `DORMANT` split into `SCREENING`, `INTERVIEW`, or `OFFER` via legacy application status
+  - `PASSED` / `ARCHIVED` stay hidden from the cockpit river
+- The cockpit now renders live:
+  - `Recent Activity`
+  - `While You Were Out`
+  - read-only river columns from current discovery and workspace state
+  - a desktop right-side read-only workspace panel for the selected card
+- Legacy pages remain available as transition fallbacks instead of being retired early:
+  - `/jobs`
+  - `/pipeline`
+  - `/resume`
+  - `/triage`
+- Verified with:
+  - `tests/unit/lib/cockpit-phase1.test.ts`
+  - `npx tsc --noEmit`
+  - browser proof on `http://127.0.0.1:3173` including sign-in landing, cockpit render, live river, workspace panel, and fallback pipeline link
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.

@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `dcd8d71` — ships Phase 1 cockpit shell on `/dashboard-wireframe` as the signed-in default: live Recent Activity, live While You Were Out, read-only river from real state, right-side read-only workspace panel, and legacy page fallbacks
 - `906ae55` — adds the phased cockpit migration plan that governs the move from page-based routes to one cockpit, card-owned workspace expansion, and BlockNote Resume Studio inside CRAFTING
 - `5a686c5` — replaces the Resume Builder left-rail card stack with a lower-entropy control console: one segmented rewrite-strength control, three expandable voice groups, and a real below-fold scroll cue
 - `b0ca0ef` — redesigns the Resume Builder center into one drafting workspace instead of tabs plus a detached preview pane
@@ -68,7 +69,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## Current Sprint Goal
 
-- Finalize and implement the resume/document truth model so mass-tailored application flow becomes trustworthy end to end.
+- Move the signed-in experience onto the cockpit shell in phases, starting with a real live-data Phase 1 that keeps legacy pages available as fallbacks.
 
 ## Sprint Execution Mode
 
@@ -81,6 +82,31 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- Phase 1 of the cockpit migration plan is now implemented on the live app instead of only documented.
+- `/dashboard-wireframe` now reads from live authenticated state instead of mock arrays.
+- The signed-in default route now lands on the cockpit shell:
+  - `/` redirects signed-in users to `/dashboard-wireframe`
+  - `/auth/signin` now routes successful sign-in to `/dashboard-wireframe`
+- The cockpit shell now shows live `Recent Activity` from real workspaces instead of placeholder cards.
+- `While You Were Out` now computes live counts from discovery jobs not yet managed by the current user.
+- The river now renders real stage columns from live state:
+  - `NEW`
+  - `INTERESTED`
+  - `CRAFTING`
+  - `APPLIED`
+  - `SCREENING`
+  - `INTERVIEW`
+  - `OFFER`
+- A dedicated Phase 1 view-model helper now makes the transitional stage mapping explicit:
+  - `INTERESTED` + draft resumes becomes `CRAFTING`
+  - `FOLLOW_UP` / `DORMANT` split into `SCREENING`, `INTERVIEW`, or `OFFER` using legacy application status
+  - `PASSED` and `ARCHIVED` stay hidden from the river
+- The cockpit now opens a read-only right-side workspace panel on desktop for the selected card.
+- Legacy pages remain directly available during the transition through fallback links and unchanged routes:
+  - `/jobs`
+  - `/pipeline`
+  - `/resume`
+  - `/triage`
 - The repo-wide TypeScript baseline is now clean again after the resume ownership rollout.
 - Prisma config was aligned with the installed Prisma version instead of importing Prisma 6-only config helpers.
 - Resume ownership helper typing was cleaned up so workspace-backed JSON writes typecheck correctly.
@@ -178,15 +204,17 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - human signal check
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 - Implement Phase 1 of the cockpit migration plan:
-  - cockpit shell as the signed-in default
-  - read-only river
-  - Recent Activity
-  - While You Were Out
-  - keep old pages as fallbacks until parity is proven
+- Move from the Phase 1 read-only cockpit into Phase 2:
+  - richer card-owned workspace expansion
+  - stronger stage-owned workspace shells
+  - begin moving real work into `CRAFTING` instead of bouncing to legacy pages
+- Embed BlockNote only inside the future `CRAFTING` Resume Studio surface, not in the broader cockpit shell.
 
 ## Verification
 
 - `npx tsc --noEmit` now passes.
+- New focused cockpit verification passed:
+  - `tests/unit/lib/cockpit-phase1.test.ts`
 - Focused stabilization suites passed:
   - `tests/lib/llm-testing.test.ts`
   - `tests/unit/llm-error-handling.test.ts`
@@ -228,6 +256,12 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
     - shadcn integration
   - plans index updated to include `docs/plans/cockpit-migration-plan.md`
 - Browser verification passed on `http://127.0.0.1:3173` for:
+  - `/auth/signin` dev auto-login landing on `/dashboard-wireframe`
+  - `/dashboard-wireframe` rendering live `Recent Activity`
+  - `/dashboard-wireframe` rendering live `While You Were Out`
+  - `/dashboard-wireframe` rendering a live read-only river from real discovery/workspace state
+  - `/dashboard-wireframe` opening the right-side read-only workspace panel on desktop
+  - cockpit `Pipeline fallback` link loading `/pipeline`
   - Inbox multi-select toolbar and batch actions surface
   - Passed Bin page load and restore/archive controls
   - Workspace resume documents panel
@@ -280,6 +314,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-guided-redesign.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-workspace-shell.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-left-rail-redesign.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-phase1-live-shell.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-resume-stack.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-skills-tab.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-contact-cleanup.png`
@@ -288,6 +323,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## Known Risks
 
+- The sign-in page still logs `403` for `/api/auth/single-user` and unrelated WebGL warnings from the auth scene during browser checks. This slice did not change that behavior.
 - The new schema direction is now in place, so follow ADR 008 instead of re-introducing `application.resumePath` ownership patterns.
 - `tests/lib/llm-testing.test.ts` passes, but Jest still reports a forced worker exit from open timers / handles after that suite finishes.
 - PDF import proof currently uses a generated sample PDF artifact rather than a user-supplied real PDF resume.
@@ -296,7 +332,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
-- Then start cockpit implementation at Phase 1:
-  - make the cockpit the signed-in default shell
-  - render a read-only river from live opportunity/workspace state
-  - preserve old pages as fallback routes during the transition
+- Then move the cockpit to Phase 2:
+  - deepen the right-side workspace panel so it becomes the real card-owned workspace
+  - start moving active work out of fallback pages and into stage-owned cockpit sections
+  - keep legacy pages until the cockpit flow has real parity
