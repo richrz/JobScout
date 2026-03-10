@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-03-10 — CRAFTING Diff Review Got Granular + BlockNote Embedded
+
+### Context
+Section-level accept/reject was live, but review quality was still too coarse:
+- summary and experience were still mostly "current vs suggested" slabs
+- users could not see wording deltas inline
+- `CRAFTING` still lacked the deeper editor layer inside the cockpit
+
+### Decisions Made
+1. **Review now renders inline text diffs for summary wording.**
+   - insertions are highlighted
+   - removals are struck
+   - users no longer need to mentally compare two separate boxes
+2. **Experience review now renders bullet-level diffs.**
+   - added lines
+   - removed lines
+   - unchanged lines
+   - this makes role-level rewrite impact obvious before apply
+3. **BlockNote is now embedded directly in `CRAFTING` as the deep editor layer (summary-first).**
+   - `Open BlockNote editor` loads the current summary into BlockNote
+   - `Apply BlockNote summary` writes the edited result back into the draft
+   - this keeps deep editing inside cockpit flow instead of bouncing to a separate page
+4. **Coverage and save/rewrite behavior stayed on the same cockpit contract.**
+   - rewrite still stages first
+   - apply still requires explicit user action
+   - save still persists to workspace draft
+
+### Why This Matters
+This pushes `CRAFTING` from "staged rewrite control" into a more trustworthy drafting surface:
+- clearer review signal before acceptance
+- deeper editing where users already work
+- less context switching between cockpit and legacy pages
+
 ## 2026-03-10 — CRAFTING Now Reviews Rewrite Changes Section by Section
 
 ### Context
