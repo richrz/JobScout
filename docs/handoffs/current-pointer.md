@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `1841a67` — restores the cockpit shell’s visual hierarchy on `/dashboard-wireframe`: compact telemetry strip, a stronger Jump Back In / While You Were Out top row, stage-colored river columns, company identity on cards, urgency signals, and a less debug-like workspace panel
 - `dcd8d71` — ships Phase 1 cockpit shell on `/dashboard-wireframe` as the signed-in default: live Recent Activity, live While You Were Out, read-only river from real state, right-side read-only workspace panel, and legacy page fallbacks
 - `906ae55` — adds the phased cockpit migration plan that governs the move from page-based routes to one cockpit, card-owned workspace expansion, and BlockNote Resume Studio inside CRAFTING
 - `5a686c5` — replaces the Resume Builder left-rail card stack with a lower-entropy control console: one segmented rewrite-strength control, three expandable voice groups, and a real below-fold scroll cue
@@ -82,6 +83,22 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- The cockpit shell no longer looks like live data poured into a generic dashboard frame.
+- The top metrics were compressed into a compact telemetry strip instead of oversized summary cards.
+- `Jump Back In` and `While You Were Out` now read as the real top-row orientation surfaces instead of stacked generic slabs.
+- The river regained visual hierarchy:
+  - stage-colored columns
+  - visible column headers
+  - company identity circles on cards
+  - urgency / staleness signals
+  - stronger stage-specific column hints
+- The workspace panel was rewritten to stop presenting raw debug-ish labels as the primary experience.
+- Workspace presentation now emphasizes:
+  - what this needs now
+  - story snapshot
+  - stage track
+  - documents / fallback
+- The visual personality is now back in the cockpit shell without changing the live Phase 1 data/auth logic underneath it.
 - Phase 1 of the cockpit migration plan is now implemented on the live app instead of only documented.
 - `/dashboard-wireframe` now reads from live authenticated state instead of mock arrays.
 - The signed-in default route now lands on the cockpit shell:
@@ -261,6 +278,12 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/dashboard-wireframe` rendering live `While You Were Out`
   - `/dashboard-wireframe` rendering a live read-only river from real discovery/workspace state
   - `/dashboard-wireframe` opening the right-side read-only workspace panel on desktop
+  - `/dashboard-wireframe` after the visual redesign showing:
+    - compact telemetry strip instead of oversized summary cards
+    - stage-colored river columns
+    - company identity circles on cards
+    - urgency/staleness signals
+    - redesigned workspace panel language
   - cockpit `Pipeline fallback` link loading `/pipeline`
   - Inbox multi-select toolbar and batch actions surface
   - Passed Bin page load and restore/archive controls
@@ -315,6 +338,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-workspace-shell.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/resume-builder-left-rail-redesign.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-phase1-live-shell.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-phase1-visual-redesign.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-resume-stack.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-skills-tab.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/profile-builder-contact-cleanup.png`

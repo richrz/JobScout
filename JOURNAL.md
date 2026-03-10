@@ -1275,6 +1275,26 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
   - `npx tsc --noEmit`
   - browser proof on `http://127.0.0.1:3173` including sign-in landing, cockpit render, live river, workspace panel, and fallback pipeline link
 
+# 2026-03-09 - Cockpit visual hierarchy restored
+
+- Reworked the cockpit presentation layer in `CockpitWireframeClient.tsx` without changing the underlying Phase 1 data/auth wiring.
+- Compressed the oversized top metrics into a compact telemetry strip.
+- Restored the intended top-row flow so `Jump Back In` and `While You Were Out` feel like orientation surfaces instead of generic stacked boxes.
+- Brought visual life back into the river:
+  - stage-colored columns
+  - stronger headers
+  - company identity circles
+  - urgency and staleness signals
+- Reframed the right-side workspace panel away from raw debug-ish state labels and toward:
+  - what this needs now
+  - story snapshot
+  - stage track
+  - documents / fallback
+- Verified with:
+  - `npx tsc --noEmit`
+  - `tests/unit/lib/cockpit-phase1.test.ts`
+  - browser screenshot proof at `/dashboard-wireframe`
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.
