@@ -1,13 +1,15 @@
 import '@/lib/load-root-env';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getResolvedZAIConfig } from '@/lib/zai-config';
 
 function getDefaultLlmConfig() {
+    const zai = getResolvedZAIConfig();
     return {
         provider: 'custom',
-        model: process.env.ZAI_MODEL || 'glm-5',
-        apiKey: process.env.ZAI_API_KEY || '',
-        apiEndpoint: process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/',
+        model: zai.model,
+        apiKey: zai.apiKey,
+        apiEndpoint: zai.apiEndpoint,
         temperature: 0.7,
         maxTokens: 2000,
     };

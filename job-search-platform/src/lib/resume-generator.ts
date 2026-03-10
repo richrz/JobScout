@@ -7,6 +7,7 @@ import { ResumeGenerator } from '@/lib/llm';
 import { Profile } from '@prisma/client';
 import { isMockMode } from './env';
 import { ExaggerationLevel } from '@/types/llm';
+import { getResolvedZAIConfig } from '@/lib/zai-config';
 
 export interface ResumeGenerationRequest {
     jobDescription: string;
@@ -20,15 +21,16 @@ export interface ResumeGenerationRequest {
  */
 export async function generateTailoredResume(request: ResumeGenerationRequest) {
     try {
+        const zai = getResolvedZAIConfig();
         // Get user's LLM configuration from database
         // For now, use default OpenAI configuration
         const llmConfig = {
             provider: 'custom' as const,
-            model: process.env.ZAI_MODEL || 'glm-5',
+            model: zai.model,
             temperature: 0.7,
             maxTokens: 2000,
-            apiKey: process.env.ZAI_API_KEY,
-            apiEndpoint: process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/',
+            apiKey: zai.apiKey,
+            apiEndpoint: zai.apiEndpoint,
         };
 
         // Check for Mock Mode explicitly
@@ -38,8 +40,8 @@ export async function generateTailoredResume(request: ResumeGenerationRequest) {
         }
 
         // Verify API Key existence when not in Mock Mode
-        if (!process.env.ZAI_API_KEY) {
-            throw new Error('Configuration Error: ZAI_API_KEY is not set. Ensure secrets are configured or enable NEXT_PUBLIC_MOCK_MODE.');
+        if (!zai.apiKey) {
+            throw new Error('Configuration Error: no Z.AI API key is set. Ensure repo-local secrets are configured or enable NEXT_PUBLIC_MOCK_MODE.');
         }
 
         const llmClient = getLLMClient(llmConfig);

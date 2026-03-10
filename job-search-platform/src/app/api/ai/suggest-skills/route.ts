@@ -2,12 +2,14 @@ import '@/lib/load-root-env';
 import { NextResponse } from 'next/server';
 import { getLLMClient } from '@/lib/llm';
 import { LLMConfig } from '@/types/llm';
+import { getResolvedZAIConfig } from '@/lib/zai-config';
 
 export const maxDuration = 300; // 5 minutes timeout for LLMs
 
 export async function POST(request: Request) {
     try {
         const { profile } = await request.json();
+        const zai = getResolvedZAIConfig();
 
         if (!profile) {
             return NextResponse.json({ error: 'Profile data is required' }, { status: 400 });
@@ -30,20 +32,20 @@ export async function POST(request: Request) {
 
         let config: LLMConfig = {
             provider: 'custom',
-            apiKey: process.env.ZAI_API_KEY || '',
-            apiEndpoint: process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/',
-            model: process.env.ZAI_MODEL || 'glm-5',
+            apiKey: zai.apiKey,
+            apiEndpoint: zai.apiEndpoint,
+            model: zai.model,
             temperature: 0.7,
             maxTokens: 500
         };
 
         // Priority Selection
-        if (process.env.ZAI_API_KEY) {
+        if (zai.apiKey) {
             config = {
                 provider: 'custom',
-                apiKey: process.env.ZAI_API_KEY,
-                apiEndpoint: process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/',
-                model: process.env.ZAI_MODEL || 'glm-5',
+                apiKey: zai.apiKey,
+                apiEndpoint: zai.apiEndpoint,
+                model: zai.model,
                 temperature: 0.7,
                 maxTokens: 500
             };

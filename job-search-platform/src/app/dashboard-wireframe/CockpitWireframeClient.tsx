@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Component, useEffect, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -166,6 +166,115 @@ const EMPTY_DRAFT: ResumeDocumentData = {
   education: [],
   skills: [],
 };
+
+type DraftPreviewBoundaryProps = {
+  draft: ResumeDocumentData;
+  children: ReactNode;
+};
+
+type DraftPreviewBoundaryState = {
+  hasError: boolean;
+};
+
+class DraftPreviewBoundary extends Component<
+  DraftPreviewBoundaryProps,
+  DraftPreviewBoundaryState
+> {
+  state: DraftPreviewBoundaryState = {
+    hasError: false,
+  };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidUpdate(prevProps: DraftPreviewBoundaryProps) {
+    if (this.state.hasError && prevProps.draft !== this.props.draft) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <PlainResumePreview draft={this.props.draft} />;
+    }
+
+    return this.props.children;
+  }
+}
+
+function PlainResumePreview({ draft }: { draft: ResumeDocumentData }) {
+  return (
+    <div className="h-full overflow-y-auto px-5 py-5 text-sm text-white/78">
+      <div className="border-b border-white/10 pb-4">
+        <div className="text-2xl font-semibold text-white">
+          {draft.contactInfo.name || 'Candidate'}
+        </div>
+        <div className="mt-2 text-xs text-white/48">
+          {[draft.contactInfo.email, draft.contactInfo.phone, draft.contactInfo.location]
+            .filter(Boolean)
+            .join(' · ')}
+        </div>
+      </div>
+
+      <section className="mt-5">
+        <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">
+          Professional Summary
+        </div>
+        <p className="mt-3 whitespace-pre-wrap leading-6 text-white/72">
+          {draft.summary || 'No summary in this draft yet.'}
+        </p>
+      </section>
+
+      <section className="mt-5">
+        <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Experience</div>
+        <div className="mt-3 space-y-4">
+          {draft.experience.length > 0 ? (
+            draft.experience.map((role) => (
+              <div key={role.id} className="rounded-[16px] border border-white/10 bg-white/[0.03] p-3">
+                <div className="text-sm font-medium text-white">
+                  {role.title || 'Untitled role'}
+                </div>
+                <div className="mt-1 text-xs text-white/45">
+                  {[role.company, role.location, role.startDate, role.endDate]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </div>
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/68">
+                  {role.description || 'No role description yet.'}
+                </p>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-[16px] border border-dashed border-white/10 px-3 py-4 text-white/34">
+              No experience blocks in this draft yet.
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="mt-5">
+        <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Skills</div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {draft.skills.length > 0 ? (
+            draft.skills.map((skill) => (
+              <span
+                key={skill}
+                className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/62"
+              >
+                {skill}
+              </span>
+            ))
+          ) : (
+            <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/34">
+              No visible skills yet
+            </span>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
 
 function formatLongDate(value: string) {
   return new Date(value).toLocaleDateString('en-US', {
@@ -1130,7 +1239,9 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
           </div>
 
           <div className="mt-3 h-[520px] overflow-hidden rounded-[18px] border border-white/10 bg-[#0b0b0c]">
-            <ResumePreview data={previewDraft} mode="dark" />
+            <DraftPreviewBoundary draft={previewDraft}>
+              <ResumePreview data={previewDraft} mode="dark" />
+            </DraftPreviewBoundary>
           </div>
         </div>
       </div>

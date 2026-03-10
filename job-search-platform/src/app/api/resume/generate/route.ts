@@ -4,11 +4,13 @@ import { prisma } from '@/lib/prisma';
 import { getLLMClient, ResumeGenerator } from '@/lib/llm';
 import { getResumeMemoryContext } from '@/lib/mem0';
 import { normalizeResumeWriterStrategy } from '@/lib/resume/resume-writer-zero';
+import { getResolvedZAIConfig } from '@/lib/zai-config';
 
 export async function POST(request: Request) {
     try {
         const { jobId, exaggerationLevel } = await request.json();
         const normalizedExaggerationLevel = normalizeResumeWriterStrategy(exaggerationLevel);
+        const zai = getResolvedZAIConfig();
 
         if (!jobId) {
             return NextResponse.json(
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
 
         const llmConfig = {
             provider: llmSettings?.provider || 'custom',
-            model: llmSettings?.model || process.env.ZAI_MODEL || 'glm-5',
+            model: llmSettings?.model || zai.model,
             temperature: llmSettings?.temperature || 0.7,
             maxTokens: llmSettings?.maxTokens || 2000,
             apiKey:
@@ -70,15 +72,15 @@ export async function POST(request: Request) {
                 (llmSettings?.provider === 'anthropic'
                     ? process.env.ANTHROPIC_API_KEY
                     : llmSettings?.provider === 'custom'
-                      ? process.env.ZAI_API_KEY
-                      : process.env.ZAI_API_KEY),
+                      ? zai.apiKey
+                      : zai.apiKey),
             apiEndpoint:
                 llmSettings?.apiEndpoint ||
                 (llmSettings?.provider === 'anthropic'
                     ? process.env.ANTHROPIC_BASE_URL
                     : llmSettings?.provider === 'custom'
-                      ? (process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/')
-                      : (process.env.ZAI_API_ENDPOINT || 'https://api.z.ai/api/coding/paas/v4/')),
+                      ? zai.apiEndpoint
+                      : zai.apiEndpoint),
         };
 
         // Validate we have an API key

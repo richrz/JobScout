@@ -1427,6 +1427,31 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
   - `tests/unit/lib/cockpit-phase1.test.ts`
   - browser screenshot proof at `/dashboard-wireframe`
 
+# 2026-03-10 - Z.AI cockpit rewrite path fixed
+
+- Diagnosed the live `GLM-5` failure empirically instead of trusting the docs:
+  - the app-local `ZAI_API_KEY` path was failing
+  - the root repo `API_KEY` succeeds with `glm-5` on `https://api.z.ai/api/coding/paas/v4`
+- Added a shared Z.AI config resolver so JobScout now prefers the proven repo-local key order:
+  - `JOBSCOUT_ZAI_API_KEY`
+  - `API_KEY`
+  - `ZAI_API_KEY`
+- Wired that resolver through the live custom-provider paths:
+  - config defaults
+  - cockpit rewrite route
+  - resume generator
+  - skill suggestion route
+- Verified the live cockpit drafting loop on `/dashboard-wireframe`:
+  - rewrite request completes
+  - suggested rewrite is staged for review
+  - applying the suggestion works
+  - saving the draft writes back to the workspace
+- Fixed the cockpit drafting workspace so a PDF preview failure no longer crashes the whole page:
+  - the cockpit now falls back to a plain text/section preview if the embedded PDF preview throws
+- Remaining defect after the provider fix:
+  - Z.AI sometimes returns malformed JSON for the resume rewrite payload
+  - the app currently falls back by stuffing the raw response into the summary field when JSON parsing fails
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.

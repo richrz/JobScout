@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — fixes the custom Z.AI key resolution so JobScout now prefers `JOBSCOUT_ZAI_API_KEY / API_KEY / ZAI_API_KEY`, proves the live cockpit `CRAFTING` rewrite/apply/save loop on `/dashboard-wireframe`, and adds a safe plain preview fallback when the PDF preview throws; remaining defect is malformed model JSON, not provider access
 - `96e1906` — turns cockpit `CRAFTING` into a real drafting studio with a live preview, fact lock controls, keyword coverage overlay, and preview/confirm rewrite flow; the live rewrite shell is browser-verified and the current `GLM-5` provider boundary is now surfaced cleanly when plan access is unavailable
 - `ac94517` — extends the cockpit workspace across the later stages: `APPLIED` is now a submission/follow-up desk, `SCREENING` is now a screening desk, `INTERVIEW` is now an interview prep board, `OFFER` is now a decision board, and `AGENTS.md` now explicitly says not to re-ask for already approved or routine in-scope work
 - `745a4bb` — makes the cockpit workspace stage-owned for the first two real stages: `INTERESTED` now has live in-cockpit notes, `CRAFTING` now has a compact draft desk with rewrite/save controls and a live text-first preview, and cockpit draft saves now revalidate `/dashboard-wireframe`
@@ -86,6 +87,18 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- The custom Z.AI path now resolves through the proven working key order:
+  - `JOBSCOUT_ZAI_API_KEY`
+  - `API_KEY`
+  - `ZAI_API_KEY`
+- The live cockpit `CRAFTING` rewrite path now gets through `glm-5` on the coding endpoint instead of failing on the stale app-local key.
+- The live cockpit drafting loop is now browser-proven end to end:
+  - rewrite request completes
+  - suggested rewrite is staged for review
+  - applying the suggestion works
+  - saving the draft persists back to the workspace
+- The cockpit preview pane no longer crashes the entire workspace when the embedded PDF preview throws.
+  - The cockpit now falls back to a plain section/text preview inside the drafting studio.
 - `CRAFTING` is no longer just a compact bridge desk inside the cockpit.
 - The cockpit `CRAFTING` section is now a real drafting studio:
   - live document preview
@@ -278,6 +291,9 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - preview -> confirm diff flow
   - keyword coverage overlay
   - human signal check
+- The rewrite parser still needs hardening for malformed model output.
+  - Z.AI can return non-parseable JSON for the tailored resume payload.
+  - The current fallback keeps the flow alive, but it can collapse the raw response into the summary field.
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 - Move from the Phase 1 shell into deeper Phase 2 cockpit work:
   - strengthen the later-stage desks from status boards into richer working surfaces
@@ -307,9 +323,10 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-studio.png`
   - proof summary: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-studio-verification.json`
 - Live rewrite boundary is now verified honestly in the browser:
-  - the configured `GLM-5` provider path currently reports plan access unavailable
-  - rewrite review does not complete live until that provider access issue is resolved
-  - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-rewrite-state.png`
+  - the configured `GLM-5` provider path now completes live in the cockpit after the key-path fix
+  - rewrite review appears, can be applied, and can be saved back to the workspace
+  - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-zai-rewrite-review.png`
+  - proof summary: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-zai-rewrite-proof.json`
 - Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for the live `APPLIED` cockpit workspace:
   - `Submission record` visible
   - `Follow-up log` visible
@@ -441,12 +458,14 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - PDF import proof currently uses a generated sample PDF artifact rather than a user-supplied real PDF resume.
 - Live browser proof for `SCREENING`, `INTERVIEW`, and `OFFER` still depends on having real opportunities in those stages; current March 9 live data only exposed `APPLIED` beyond the first two stages.
 - Live browser proof for the full `CRAFTING` rewrite-review round-trip is currently blocked by provider access: the configured Z.AI `GLM-5` call returns a plan-access failure on this account.
+- The next live rewrite defect is output shape, not provider access.
+  - Z.AI can return malformed JSON for the tailored resume payload, and the current fallback parser degrades the draft quality when that happens.
 
 ## Next Recommended Task
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
 - Then deepen the cockpit where the value is still compressed:
-  - resolve live `GLM-5` access or choose an explicitly approved fallback model so the cockpit rewrite-review path can be fully browser-proven
+  - harden the tailored-resume parser so malformed model JSON becomes a structured staged draft instead of a summary-field dump
   - then continue into the deeper `CRAFTING` studio layer with embedded BlockNote editing
   - keep legacy pages as fallback until the cockpit path has true parity

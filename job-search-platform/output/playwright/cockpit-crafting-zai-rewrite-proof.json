@@ -1,0 +1,12 @@
+{
+  "route": "/dashboard-wireframe",
+  "stage": "CRAFTING",
+  "provider_fix": "custom Z.AI now resolves through JOBSCOUT_ZAI_API_KEY / API_KEY / ZAI_API_KEY, which allowed glm-5 on the coding endpoint",
+  "verified": [
+    "rewrite request completed in cockpit",
+    "suggested rewrite staged for review",
+    "apply suggested draft succeeded",
+    "save draft persisted to workspace"
+  ],
+  "known_issue": "LLM sometimes returns malformed JSON, so the fallback parser can collapse the response into the summary field"
+}
