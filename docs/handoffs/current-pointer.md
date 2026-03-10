@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `745a4bb` — makes the cockpit workspace stage-owned for the first two real stages: `INTERESTED` now has live in-cockpit notes, `CRAFTING` now has a compact draft desk with rewrite/save controls and a live text-first preview, and cockpit draft saves now revalidate `/dashboard-wireframe`
 - `1841a67` — restores the cockpit shell’s visual hierarchy on `/dashboard-wireframe`: compact telemetry strip, a stronger Jump Back In / While You Were Out top row, stage-colored river columns, company identity on cards, urgency signals, and a less debug-like workspace panel
 - `dcd8d71` — ships Phase 1 cockpit shell on `/dashboard-wireframe` as the signed-in default: live Recent Activity, live While You Were Out, read-only river from real state, right-side read-only workspace panel, and legacy page fallbacks
 - `906ae55` — adds the phased cockpit migration plan that governs the move from page-based routes to one cockpit, card-owned workspace expansion, and BlockNote Resume Studio inside CRAFTING
@@ -83,6 +84,22 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- The cockpit right panel is no longer just a descriptive placeholder for the first two working stages.
+- `INTERESTED` cards now open a live notes workspace inside the cockpit:
+  - notes load from the real workspace notes API
+  - new notes can be added without leaving the cockpit
+  - this stage now behaves like a real evaluation desk instead of a static status summary
+- `CRAFTING` cards now open a compact draft desk inside the cockpit:
+  - working draft seed comes from the workspace draft when it exists
+  - otherwise it falls back to Career Data as the initial seed
+  - rewrite strength is available directly in the panel
+  - rewrite and save actions now work from the cockpit
+  - summary and visible skills can be edited in the panel
+  - a live text-first preview shows the current draft shape without embedding the old full Resume Builder shell
+- Cockpit draft saves now explicitly revalidate `/dashboard-wireframe`, so saving from the workspace updates the live cockpit route instead of only the older resume/pipeline routes.
+- A focused cockpit component test now locks this stage-owned workspace behavior:
+  - `INTERESTED` must render real notes work instead of debug-ish state
+  - `CRAFTING` must render a real draft desk with rewrite/save controls
 - The cockpit shell no longer looks like live data poured into a generic dashboard frame.
 - The top metrics were compressed into a compact telemetry strip instead of oversized summary cards.
 - `Jump Back In` and `While You Were Out` now read as the real top-row orientation surfaces instead of stacked generic slabs.
@@ -206,6 +223,16 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 ## What Remains
 
 - The new plain-language backlog now lives in `/home/richard/code/jobs/docs/project/backlog.md`, and follow-up work should start there instead of being reconstructed from chat.
+- The cockpit workspace is only stage-owned for `INTERESTED` and `CRAFTING` so far.
+- The next cockpit workspace stages still need real in-panel work surfaces:
+  - `APPLIED`
+  - `SCREENING`
+  - `INTERVIEW`
+  - `OFFER`
+- `CRAFTING` is now real, but still intentionally compact:
+  - full voice controls are not embedded there yet
+  - BlockNote Resume Studio is still future work inside `CRAFTING`, not shipped in this slice
+  - preview-confirm diff, fact lock, and keyword overlay are still pending trust features
 - Real submitted artifact capture for apply flows is still pending after the resume I/O lane.
 - Richer import review controls are still pending:
   - field-level accept/reject before merge
@@ -230,6 +257,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 ## Verification
 
 - `npx tsc --noEmit` now passes.
+- Focused cockpit workspace verification passed:
+  - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx`
+  - `tests/unit/lib/cockpit-phase1.test.ts`
+- Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` with the dev auto-login flow:
+  - `INTERESTED` workspace screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-interested-workspace.png`
+  - `CRAFTING` workspace screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-workspace.png`
+  - browser proof summary: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-workspace-verification.json`
 - New focused cockpit verification passed:
   - `tests/unit/lib/cockpit-phase1.test.ts`
 - Focused stabilization suites passed:
