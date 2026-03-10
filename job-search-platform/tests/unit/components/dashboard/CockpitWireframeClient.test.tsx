@@ -279,6 +279,12 @@ describe('CockpitWireframeClient workspace panel', () => {
     expect(screen.getByRole('button', { name: /open blocknote editor/i })).toBeInTheDocument();
     expect(screen.getByDisplayValue(baseDraft.summary)).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole('button', { name: /open blocknote editor/i }));
+    expect(screen.getByText('BlockNote deep editor')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Summary' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Principal Solutions Architect/i })).toBeInTheDocument();
+    expect(screen.getByText(/Editing target: Opening summary/i)).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole('button', { name: /rewrite draft/i }));
 
     await waitFor(() => {
@@ -291,8 +297,8 @@ describe('CockpitWireframeClient workspace panel', () => {
     expect(screen.getByRole('button', { name: /keep current visible skills/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /use suggested experience focus/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /keep current experience focus/i })).toBeInTheDocument();
-    expect(screen.getByText('Inline wording diff')).toBeInTheDocument();
-    expect(screen.getByText('Bullet-level diff')).toBeInTheDocument();
+    expect(screen.getAllByText('Inline wording diff').length).toBeGreaterThan(0);
+    expect(screen.getByText('Narrative diff')).toBeInTheDocument();
     expect(screen.getByDisplayValue(baseDraft.summary)).toBeInTheDocument();
     expect(screen.queryByDisplayValue('Sharper summary for this exact role.')).not.toBeInTheDocument();
 

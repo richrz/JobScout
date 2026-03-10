@@ -1083,6 +1083,10 @@ function WorkspaceNotesDesk({
 }
 
 function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: string }) {
+  type DeepEditorTarget =
+    | { kind: 'summary' }
+    | { kind: 'experience'; roleIndex: number };
+
   const [strategy, setStrategy] = useState<ResumeWritingStrategy>('balanced');
   const [draft, setDraft] = useState<ResumeDocumentData>(panel.draftSeed?.content ?? EMPTY_DRAFT);
   const [skillInput, setSkillInput] = useState((panel.draftSeed?.content.skills || []).join(', '));
@@ -1104,6 +1108,9 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
   const [deepEditorSummary, setDeepEditorSummary] = useState(
     panel.draftSeed?.content.summary ?? '',
   );
+  const [deepEditorTarget, setDeepEditorTarget] = useState<DeepEditorTarget>({
+    kind: 'summary',
+  });
 
   useEffect(() => {
     const nextDraft = panel.draftSeed?.content ?? EMPTY_DRAFT;
@@ -1124,6 +1131,7 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     setSaveState('idle');
     setShowDeepEditor(false);
     setDeepEditorSummary(nextDraft.summary ?? '');
+    setDeepEditorTarget({ kind: 'summary' });
   }, [panel.id, panel.draftSeed]);
 
   const normalizedDraft: ResumeDocumentData = {
@@ -1158,15 +1166,51 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     }));
   }
 
-  function loadDeepEditorFromDraft() {
-    setDeepEditorSummary(draft.summary || '');
+  function deepEditorValueForTarget(target: DeepEditorTarget) {
+    if (target.kind === 'summary') {
+      return draft.summary || '';
+    }
+
+    const role = draft.experience[target.roleIndex];
+    return role?.description || '';
+  }
+
+  function deepEditorTargetLabel(target: DeepEditorTarget) {
+    if (target.kind === 'summary') {
+      return 'Opening summary';
+    }
+
+    const role = draft.experience[target.roleIndex];
+    const title = role?.title || `Role ${target.roleIndex + 1}`;
+    const company = role?.company ? ` · ${role.company}` : '';
+    return `${title}${company}`;
+  }
+
+  function loadDeepEditorFromDraft(target: DeepEditorTarget = deepEditorTarget) {
+    setDeepEditorTarget(target);
+    setDeepEditorSummary(deepEditorValueForTarget(target));
     setShowDeepEditor(true);
-    setStatusMessage('Deep editor loaded from the current opening summary.');
+    setStatusMessage(`Deep editor loaded from ${deepEditorTargetLabel(target)}.`);
   }
 
   function applyDeepEditorToDraft() {
-    setDraft((current) => ({ ...current, summary: deepEditorSummary.trim() }));
-    setStatusMessage('Deep editor summary applied to the draft.');
+    const nextValue = deepEditorSummary.trim();
+
+    if (deepEditorTarget.kind === 'summary') {
+      setDraft((current) => ({ ...current, summary: nextValue }));
+      setStatusMessage('BlockNote summary applied to the draft.');
+      return;
+    }
+
+    setDraft((current) => ({
+      ...current,
+      experience: current.experience.map((role, index) =>
+        index === deepEditorTarget.roleIndex
+          ? { ...role, description: nextValue }
+          : role,
+      ),
+    }));
+    setStatusMessage(`BlockNote narrative applied to ${deepEditorTargetLabel(deepEditorTarget)}.`);
   }
 
   function toggleFactLock(key: keyof FactLockState) {
@@ -1384,22 +1428,22 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
 
       <div className="mt-4 grid gap-3 xl:grid-cols-[1.08fr_0.92fr]">
         <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <label className="text-[11px] uppercase tracking-[0.16em] text-white/34">Opening summary</label>
-              <p className="mt-2 text-xs leading-5 text-white/44">
-                Quick edits live here. The deep editor is BlockNote for richer summary shaping.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={loadDeepEditorFromDraft}
-                className="rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
-              >
-                Open BlockNote editor
-              </Button>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-[0.16em] text-white/34">Opening summary</label>
+                <p className="mt-2 text-xs leading-5 text-white/44">
+                  Quick edits live here. BlockNote can edit the summary or any role narrative.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => loadDeepEditorFromDraft({ kind: 'summary' })}
+                  className="rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
+                >
+                  Open BlockNote editor
+                </Button>
               {showDeepEditor ? (
                 <Button
                   type="button"
@@ -1421,6 +1465,39 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
             <div className="mt-4 rounded-[16px] border border-white/10 bg-white/[0.02] p-3">
               <div className="mb-3 text-[11px] uppercase tracking-[0.16em] text-white/36">
                 BlockNote deep editor
+              </div>
+              <div className="mb-3 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={deepEditorTarget.kind === 'summary' ? 'default' : 'outline'}
+                  onClick={() => loadDeepEditorFromDraft({ kind: 'summary' })}
+                  className="rounded-full"
+                >
+                  Summary
+                </Button>
+                {draft.experience.slice(0, 4).map((role, roleIndex) => (
+                  <Button
+                    key={role.id}
+                    type="button"
+                    size="sm"
+                    variant={
+                      deepEditorTarget.kind === 'experience' &&
+                      deepEditorTarget.roleIndex === roleIndex
+                        ? 'default'
+                        : 'outline'
+                    }
+                    onClick={() =>
+                      loadDeepEditorFromDraft({ kind: 'experience', roleIndex })
+                    }
+                    className="rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
+                  >
+                    {role.title || `Role ${roleIndex + 1}`}
+                  </Button>
+                ))}
+              </div>
+              <div className="mb-3 rounded-[12px] border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/56">
+                Editing target: {deepEditorTargetLabel(deepEditorTarget)}
               </div>
               <CockpitBlockNoteEditor
                 value={deepEditorSummary}
@@ -1842,11 +1919,24 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
 
                       <div className="mt-4">
                         <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">
-                          Bullet-level diff
+                          Narrative diff
                         </div>
                         <p className="mt-2 text-xs text-white/46">
-                          Added and removed role bullets are shown inline so wording changes are obvious.
+                          Wording changes and bullet changes are both shown before apply.
                         </p>
+                        {entry.status === 'updated' ? (
+                          <div className="mt-3 rounded-[14px] border border-white/10 bg-black/25 p-3">
+                            <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">
+                              Inline wording diff
+                            </div>
+                            <div className="mt-3">
+                              <InlineWordDiff
+                                current={entry.currentDescription || ''}
+                                suggested={entry.suggestedDescription || ''}
+                              />
+                            </div>
+                          </div>
+                        ) : null}
                         <div className="mt-3">
                           <InlineLineDiff
                             current={entry.currentDescription || ''}
