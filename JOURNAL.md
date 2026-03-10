@@ -4,6 +4,38 @@
 
 ---
 
+## 2026-03-10 — CRAFTING Narrative Diff Depth + BlockNote Role Targeting
+
+### Context
+The previous slice added section-level review and summary-first BlockNote editing.
+
+Two gaps remained:
+- experience review still needed richer narrative-level visibility
+- BlockNote needed to target role narratives, not just the opening summary
+
+### Decisions Made
+1. **Experience review now has richer narrative diffs.**
+   - each changed role now shows a narrative diff section
+   - updated roles show inline wording diffs plus line-level bullet diffs
+   - added/removed roles still render line-level deltas
+2. **BlockNote deep editor now supports role targeting.**
+   - users can choose `Summary` or role targets from `Experience focus`
+   - loading a target pulls that content into BlockNote
+   - apply writes back only to the selected target
+3. **Write-back is controlled and explicit.**
+   - no automatic replacement from BlockNote edits
+   - apply action is required for summary or role narrative updates
+
+### Verification
+- unit tests cover:
+  - inline word diff helper
+  - inline line diff helper
+  - cockpit review and deep-editor controls
+- browser validation confirmed:
+  - BlockNote deep editor in cockpit
+  - target selection and explicit apply controls
+- live rewrite remained in long-running `Rewriting...` state during this checkpoint, so inline-diff browser proof is represented by test coverage in this slice rather than a completed live rewrite response.
+
 ## 2026-03-10 — CRAFTING Diff Review Got Granular + BlockNote Embedded
 
 ### Context

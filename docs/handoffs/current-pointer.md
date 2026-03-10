@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — deepens cockpit `CRAFTING` review into richer per-role narrative diffs and expands BlockNote from summary-only to targetable summary/role narrative editing with explicit write-back controls
 - `pending local checkpoint` — adds granular inline diff review in cockpit `CRAFTING` (summary wording diff + experience bullet-level diff) and embeds BlockNote as a deep in-cockpit summary editor with explicit load/apply controls
 - `1cbb710` — turns staged cockpit `CRAFTING` rewrites into a real section-by-section review flow so `summary`, `skills`, and `experience` can each keep current content or take the staged rewrite before apply; live browser proof now shows mixed acceptance inside `/dashboard-wireframe`
 - `pending local checkpoint` — hardens the cockpit `CRAFTING` rewrite parser so malformed model JSON is repaired into a structured staged draft instead of collapsing raw response text into the opening summary; browser proof now shows a previously polluted summary being replaced by a normal rewritten summary in-panel
@@ -91,6 +92,14 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- Experience review in `CRAFTING` now renders richer narrative diff context per role.
+  - updated roles show inline wording diff plus line-level bullet diff
+  - added/removed roles keep explicit line-level deltas
+- BlockNote deep editing in `CRAFTING` now supports target selection.
+  - `Summary` target
+  - role narrative targets from current `Experience focus` blocks
+  - apply writes back only to the selected target
+- Deep-editor status messaging now reports the selected target instead of summary-only text.
 - `CRAFTING` review now shows granular inline diffs instead of only side-by-side text slabs.
   - summary review now renders inline wording deltas
   - experience review now renders bullet-level line deltas
@@ -382,6 +391,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx --runInBand`
   - `tests/unit/lib/resume-generation.test.ts --runInBand`
   - `npx tsc --noEmit`
+- Narrative-depth + role-target BlockNote verification passed:
+  - `tests/unit/lib/cockpit-drafting.test.ts --runInBand`
+  - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx --runInBand`
+  - `tests/unit/lib/resume-generation.test.ts --runInBand`
+  - `npx tsc --noEmit`
 - Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for mixed section acceptance in cockpit `CRAFTING`:
   - staged rewrite review showed separate controls for `summary`, `skills`, and `experience`
   - the live run kept current visible skills while accepting the rewritten summary
@@ -393,6 +407,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - screenshots:
     - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-inline-summary-diff.png`
     - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-blocknote-editor.png`
+- Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for expanded BlockNote role-targeting controls:
+  - deep editor opened in cockpit `CRAFTING`
+  - target indicator and explicit apply control rendered in-panel
+  - screenshot:
+    - `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-blocknote-role-writeback.png`
 - Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for the live `APPLIED` cockpit workspace:
   - `Submission record` visible
   - `Follow-up log` visible
@@ -524,12 +543,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - PDF import proof currently uses a generated sample PDF artifact rather than a user-supplied real PDF resume.
 - Live browser proof for `SCREENING`, `INTERVIEW`, and `OFFER` still depends on having real opportunities in those stages; current March 9 live data only exposed `APPLIED` beyond the first two stages.
 - Section review is now trustful at the section level, but deeper inline wording diffs are still not visualized inside the cockpit.
+- During this checkpoint, the live rewrite request stayed in a long-running `Rewriting...` state on `/dashboard-wireframe`, so the newest narrative-diff UI was validated by tests and static cockpit rendering, not by a completed live provider round-trip.
 
 ## Next Recommended Task
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
 - Then deepen the cockpit where the value is still compressed:
-  - expand inline diff depth from summary/line-level into per-role rich text diff for long experience narratives
-  - extend BlockNote beyond summary-first mode into full role narrative editing with controlled write-back
+  - stabilize live rewrite response timing in cockpit `CRAFTING` so staged review can be browser-proven reliably
+  - after rewrite stability, extend BlockNote from role narrative targeting into richer multi-section drafting (experience + selected supporting sections) without leaving cockpit flow
   - keep legacy pages as fallback until the cockpit path has true parity
