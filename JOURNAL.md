@@ -4,6 +4,38 @@
 
 ---
 
+## 2026-03-09 — Cockpit Migration Now Has A Phased Execution Plan
+
+### Context
+The cockpit interaction spec is now the governing UX truth, but the repo still mostly behaves like a page-based app.
+
+That created a dangerous gap:
+- the product vision said `one cockpit`
+- the actual implementation path was still too implicit
+- BlockNote had been chosen for Resume Studio, but its role inside the system was not yet pinned down tightly enough
+
+### Decisions Made
+1. **A dedicated cockpit migration plan now exists at `docs/plans/cockpit-migration-plan.md`.**
+2. **The migration path is now explicitly phased from the current app to the cockpit end state.**
+   - cockpit shell
+   - cockpit triage and passed recovery
+   - card-owned workspace expansion
+   - embedded CRAFTING workbench
+   - BlockNote Resume Studio
+   - apply flow and submitted snapshots
+   - retirement of the old page model
+3. **BlockNote's boundary is now explicit.**
+   - BlockNote owns the editable Resume Studio document surface inside CRAFTING
+   - BlockNote does not own the cockpit shell, workspace expansion, diff, voice controls, keyword overlay, or submission logic
+4. **The plan now keeps the current page-based surfaces as transitional fallbacks instead of pretending they disappear all at once.**
+
+### Why This Matters
+This turns the cockpit spec from a strong vision into an executable migration path.
+
+It also protects the implementation from two common mistakes:
+- trying to rebuild the whole product in one jump
+- letting BlockNote silently become the system of record instead of staying an editor surface
+
 ## 2026-03-09 — Resume Builder Left Rail Dropped The Card Stack
 
 ### Context

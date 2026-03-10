@@ -6,6 +6,7 @@
 ## Current Canonical Roadmap
 
 - [current-implementation-roadmap.md](./current-implementation-roadmap.md)
+- [cockpit-migration-plan.md](./cockpit-migration-plan.md)
 - [sprint-brief-template.md](./sprint-brief-template.md)
 - [resume-document-truth-model-sprint-brief.md](./resume-document-truth-model-sprint-brief.md)
 
