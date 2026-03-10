@@ -4,6 +4,43 @@
 
 ---
 
+## 2026-03-10 — CRAFTING Now Reviews Rewrite Changes Section by Section
+
+### Context
+`CRAFTING` had already moved to a staged rewrite flow, but the review step was still too blunt:
+- the user could stage a rewrite
+- the preview updated
+- but acceptance was effectively all-or-nothing
+
+That was not enough control for a trust-first drafting surface.
+
+### Decisions Made
+1. **Staged rewrites now review `summary`, `skills`, and `experience` separately.**
+   - each section can keep current content
+   - or take the suggested rewrite
+2. **The staged preview now reflects the selected mix before apply.**
+   - review is no longer abstract
+   - the preview shows the actual accepted combination
+3. **Experience review now surfaces role-level change context.**
+   - added roles
+   - removed roles
+   - updated descriptions
+4. **Live browser proof had to show mixed acceptance, not just a happy-path full apply.**
+   - the staged rewrite was generated live in the cockpit
+   - visible skills were kept current
+   - the rewritten summary was accepted
+   - the resulting draft preserved that mixed state in-panel
+
+### Why This Matters
+This is the first real trustful rewrite-review layer inside the cockpit.
+
+The user can now see and control:
+- what changed
+- which sections to accept
+- which sections to leave alone
+
+That is the right bridge between raw generation and the deeper BlockNote editing layer that comes later.
+
 ## 2026-03-10 — CRAFTING Rewrite Parser Now Repairs Malformed Model Output
 
 ### Context

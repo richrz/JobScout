@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `1cbb710` — turns staged cockpit `CRAFTING` rewrites into a real section-by-section review flow so `summary`, `skills`, and `experience` can each keep current content or take the staged rewrite before apply; live browser proof now shows mixed acceptance inside `/dashboard-wireframe`
 - `pending local checkpoint` — hardens the cockpit `CRAFTING` rewrite parser so malformed model JSON is repaired into a structured staged draft instead of collapsing raw response text into the opening summary; browser proof now shows a previously polluted summary being replaced by a normal rewritten summary in-panel
 - `pending local checkpoint` — cleans redesign residue so the repo only keeps active cockpit-direction files, adds the active cockpit interaction spec, and checkpoints the intentional March 10 dashboard/app-shell/docs edits after sanity verification
 - `pending local checkpoint` — fixes the custom Z.AI key resolution so JobScout now prefers `JOBSCOUT_ZAI_API_KEY / API_KEY / ZAI_API_KEY`, proves the live cockpit `CRAFTING` rewrite/apply/save loop on `/dashboard-wireframe`, and adds a safe plain preview fallback when the PDF preview throws
@@ -89,6 +90,19 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- `CRAFTING` staged rewrites now support real section-by-section review before apply.
+  - `summary` can keep current text or take the staged rewrite
+  - `skills` can keep current text or take the staged rewrite
+  - `experience` can keep current role focus or take the staged rewrite
+- The staged preview now reflects the selected mix before the user applies it.
+- Experience review now shows role-level change context instead of one opaque replacement:
+  - added entries
+  - removed entries
+  - updated descriptions
+- The live cockpit rewrite flow is now browser-proven for mixed acceptance:
+  - the user can keep current skills
+  - accept the rewritten summary
+  - apply that combination back into the working draft
 - Redesign residue was cleaned out so repo status no longer carries mockup scratch by default.
 - The active cockpit interaction spec is now the kept design artifact instead of floating untracked residue.
 - The remaining tracked March 10 changes were treated as intentional active cockpit-direction work and sanity-verified before checkpointing.
@@ -302,6 +316,9 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - preview -> confirm review
   - keyword coverage overlay
   - human signal check is still pending
+- The staged review is now section-level, but deeper text diff presentation is still pending:
+  - inline wording diffs for summary changes
+  - richer role-by-role text diffs inside experience
 - Clean up the lingering open-handle / timer leak reported by Jest in `tests/lib/llm-testing.test.ts`.
 - Move from the Phase 1 shell into deeper Phase 2 cockpit work:
   - strengthen the later-stage desks from status boards into richer working surfaces
@@ -347,6 +364,16 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - applying the staged rewrite replaced the raw JSON with a normal summary
   - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-parser-hardening-clean-summary.png`
   - supporting screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-parser-hardening-proof.png`
+- Section-review verification passed:
+  - `tests/unit/lib/cockpit-drafting.test.ts --runInBand`
+  - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx --runInBand`
+  - `tests/unit/lib/resume-generation.test.ts --runInBand`
+  - `npx tsc --noEmit`
+- Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for mixed section acceptance in cockpit `CRAFTING`:
+  - staged rewrite review showed separate controls for `summary`, `skills`, and `experience`
+  - the live run kept current visible skills while accepting the rewritten summary
+  - the resulting draft preserved that mixed state after apply
+  - screenshot: `/home/richard/code/jobs/job-search-platform/output/playwright/cockpit-crafting-section-review-mixed-apply.png`
 - Browser verification passed on `http://127.0.0.1:3173/dashboard-wireframe` for the live `APPLIED` cockpit workspace:
   - `Submission record` visible
   - `Follow-up log` visible
@@ -477,15 +504,13 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - `tests/lib/llm-testing.test.ts` passes, but Jest still reports a forced worker exit from open timers / handles after that suite finishes.
 - PDF import proof currently uses a generated sample PDF artifact rather than a user-supplied real PDF resume.
 - Live browser proof for `SCREENING`, `INTERVIEW`, and `OFFER` still depends on having real opportunities in those stages; current March 9 live data only exposed `APPLIED` beyond the first two stages.
-- Live browser proof for the full `CRAFTING` rewrite-review round-trip is currently blocked by provider access: the configured Z.AI `GLM-5` call returns a plan-access failure on this account.
-- The next live rewrite defect is output shape, not provider access.
-  - Z.AI can return malformed JSON for the tailored resume payload, and the current fallback parser degrades the draft quality when that happens.
+- Section review is now trustful at the section level, but deeper inline wording diffs are still not visualized inside the cockpit.
 
 ## Next Recommended Task
 
 - Use the new backlog tracker as the first stop for follow-up work selection:
   - `/home/richard/code/jobs/docs/project/backlog.md`
 - Then deepen the cockpit where the value is still compressed:
-  - move from staged rewrite repair into true section-by-section diff review inside `CRAFTING`
+  - move from section-level review into richer inline text diffs inside `CRAFTING`
   - then continue into the deeper `CRAFTING` studio layer with embedded BlockNote editing
   - keep legacy pages as fallback until the cockpit path has true parity
