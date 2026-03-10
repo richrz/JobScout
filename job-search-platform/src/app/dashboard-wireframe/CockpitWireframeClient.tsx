@@ -17,10 +17,14 @@ import {
 } from '@/lib/resume/voice-profile';
 import {
   applyFactLocks,
+  applyDraftReviewSelection,
+  buildDraftReviewSelection,
+  buildExperienceReviewEntries,
   buildKeywordCoverage,
   summarizeDraftDiff,
   type DraftDiffSummary,
   type FactLockState,
+  type DraftReviewSelection,
 } from '@/lib/resume/cockpit-drafting';
 import {
   ArrowRight,
@@ -1002,6 +1006,7 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
   });
   const [pendingDraft, setPendingDraft] = useState<ResumeDocumentData | null>(null);
   const [diffSummary, setDiffSummary] = useState<DraftDiffSummary | null>(null);
+  const [reviewSelection, setReviewSelection] = useState<DraftReviewSelection | null>(null);
   const [rewriting, setRewriting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -1021,6 +1026,7 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     });
     setPendingDraft(null);
     setDiffSummary(null);
+    setReviewSelection(null);
     setStatusMessage(null);
     setSaveState('idle');
   }, [panel.id, panel.draftSeed]);
@@ -1030,16 +1036,23 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     skills: normalizeSkillInput(skillInput),
   };
   const currentCoverage = buildKeywordCoverage(panel.description, normalizedDraft);
-  const suggestedCoverage = pendingDraft
-    ? buildKeywordCoverage(panel.description, pendingDraft)
+  const reviewedDraft =
+    pendingDraft && reviewSelection
+      ? applyDraftReviewSelection(normalizedDraft, pendingDraft, reviewSelection)
+      : pendingDraft;
+  const stagedCoverage = pendingDraft
+    ? buildKeywordCoverage(panel.description, reviewedDraft ?? pendingDraft)
     : null;
-  const previewDraft = pendingDraft ?? normalizedDraft;
+  const previewDraft = reviewedDraft ?? normalizedDraft;
   const matchedKeywords = pendingDraft
-    ? suggestedCoverage?.matchedKeywords ?? []
+    ? stagedCoverage?.matchedKeywords ?? []
     : currentCoverage.matchedKeywords;
   const missingKeywords = pendingDraft
-    ? suggestedCoverage?.missingKeywords ?? []
+    ? stagedCoverage?.missingKeywords ?? []
     : currentCoverage.missingKeywords;
+  const experienceReviewEntries = pendingDraft
+    ? buildExperienceReviewEntries(normalizedDraft, pendingDraft)
+    : [];
 
   function updateExperienceDescription(index: number, value: string) {
     setDraft((current) => ({
@@ -1054,6 +1067,15 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     setFactLocks((current) => ({
       ...current,
       [key]: !current[key],
+    }));
+  }
+
+  function setSectionReview(section: keyof DraftReviewSelection, mode: 'current' | 'suggested') {
+    setReviewSelection((current) => ({
+      summary: current?.summary ?? 'current',
+      skills: current?.skills ?? 'current',
+      experience: current?.experience ?? 'current',
+      [section]: mode,
     }));
   }
 
@@ -1077,8 +1099,10 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
         factLocks,
       );
 
+      const nextDiff = summarizeDraftDiff(normalizedDraft, protectedDraft);
       setPendingDraft(protectedDraft);
-      setDiffSummary(summarizeDraftDiff(normalizedDraft, protectedDraft));
+      setDiffSummary(nextDiff);
+      setReviewSelection(buildDraftReviewSelection(nextDiff));
       setSaveState('idle');
       setStatusMessage('Suggested rewrite is ready for review. Your working draft has not changed yet.');
     } catch (rewriteError) {
@@ -1093,17 +1117,23 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
       return;
     }
 
-    setDraft(pendingDraft);
-    setSkillInput((pendingDraft.skills || []).join(', '));
+    const reviewed = reviewSelection
+      ? applyDraftReviewSelection(normalizedDraft, pendingDraft, reviewSelection)
+      : pendingDraft;
+
+    setDraft(reviewed);
+    setSkillInput((reviewed.skills || []).join(', '));
     setPendingDraft(null);
     setDiffSummary(null);
+    setReviewSelection(null);
     setSaveState('idle');
-    setStatusMessage('Suggested rewrite applied to the draft. Save when ready.');
+    setStatusMessage('Selected rewrite changes applied to the draft. Save when ready.');
   }
 
   function handleKeepCurrentDraft() {
     setPendingDraft(null);
     setDiffSummary(null);
+    setReviewSelection(null);
     setStatusMessage('Suggested rewrite discarded. Your current draft stays in place.');
   }
 
@@ -1387,7 +1417,7 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
                 </p>
               </div>
               <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/62">
-                {pendingDraft ? `${suggestedCoverage?.coveragePercent ?? currentCoverage.coveragePercent}% staged` : `${currentCoverage.coveragePercent}% current`}
+                {pendingDraft ? `${stagedCoverage?.coveragePercent ?? currentCoverage.coveragePercent}% staged` : `${currentCoverage.coveragePercent}% current`}
               </div>
             </div>
 
@@ -1452,7 +1482,7 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
                 className="gap-2 rounded-full"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Apply suggested draft
+                Apply selected changes
               </Button>
               <Button
                 type="button"
@@ -1481,70 +1511,211 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
             ))}
           </div>
 
-          <div className="mt-4 grid gap-3 xl:grid-cols-2">
-            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Current summary</div>
-              <p className="mt-3 text-sm leading-6 text-white/72">
-                {normalizedDraft.summary || 'No summary in the current draft.'}
-              </p>
-            </div>
-            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Suggested summary</div>
-              <p className="mt-3 text-sm leading-6 text-white/72">
-                {pendingDraft.summary || 'No summary in the suggested draft.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 grid gap-3 xl:grid-cols-3">
-            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Skills added</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {diffSummary.skills.added.length > 0 ? (
-                  diffSummary.skills.added.map((skill) => (
-                    <span
-                      key={skill}
-                      className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-100"
+          <div className="mt-4 space-y-3">
+            {diffSummary.summaryChanged ? (
+              <section className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="text-sm font-medium text-white">Summary review</div>
+                    <p className="mt-2 text-sm leading-6 text-white/58">
+                      Choose whether the rewrite should replace the opening summary for this draft.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant={reviewSelection?.summary === 'suggested' ? 'default' : 'outline'}
+                      onClick={() => setSectionReview('summary', 'suggested')}
+                      className="rounded-full"
                     >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/30">
-                    No added skills
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Skills removed</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {diffSummary.skills.removed.length > 0 ? (
-                  diffSummary.skills.removed.map((skill) => (
-                    <span
-                      key={skill}
-                      className="rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1 text-xs text-rose-100"
+                      Use suggested opening summary
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={reviewSelection?.summary === 'current' ? 'default' : 'outline'}
+                      onClick={() => setSectionReview('summary', 'current')}
+                      className="rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
                     >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/30">
-                    No removed skills
-                  </span>
-                )}
-              </div>
-            </div>
+                      Keep current opening summary
+                    </Button>
+                  </div>
+                </div>
 
-            <div className="rounded-[18px] border border-white/10 bg-black/25 p-4">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Work history impact</div>
-              <div className="mt-3 text-sm leading-6 text-white/68">
-                <div>Updated roles: {diffSummary.experience.updated}</div>
-                <div>Added roles: {diffSummary.experience.added}</div>
-                <div>Removed roles: {diffSummary.experience.removed}</div>
-              </div>
-            </div>
+                <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                  <div className="rounded-[16px] border border-white/10 bg-white/[0.03] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Current summary</div>
+                    <p className="mt-3 text-sm leading-6 text-white/72">
+                      {normalizedDraft.summary || 'No summary in the current draft.'}
+                    </p>
+                  </div>
+                  <div className="rounded-[16px] border border-primary/20 bg-primary/[0.06] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-primary/75">Suggested summary</div>
+                    <p className="mt-3 text-sm leading-6 text-white/82">
+                      {pendingDraft.summary || 'No summary in the suggested draft.'}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            ) : null}
+
+            {(diffSummary.skills.added.length > 0 || diffSummary.skills.removed.length > 0) ? (
+              <section className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="text-sm font-medium text-white">Skills review</div>
+                    <p className="mt-2 text-sm leading-6 text-white/58">
+                      Decide whether the visible skills list should stay current or take the staged rewrite.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant={reviewSelection?.skills === 'suggested' ? 'default' : 'outline'}
+                      onClick={() => setSectionReview('skills', 'suggested')}
+                      className="rounded-full"
+                    >
+                      Use suggested visible skills
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={reviewSelection?.skills === 'current' ? 'default' : 'outline'}
+                      onClick={() => setSectionReview('skills', 'current')}
+                      className="rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
+                    >
+                      Keep current visible skills
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 xl:grid-cols-3">
+                  <div className="rounded-[16px] border border-white/10 bg-white/[0.03] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Current list</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {normalizedDraft.skills.length > 0 ? (
+                        normalizedDraft.skills.map((skill) => (
+                          <span key={skill} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/64">
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/30">
+                          No current skills
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-[16px] border border-primary/20 bg-primary/[0.06] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-primary/75">Suggested list</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {pendingDraft.skills.length > 0 ? (
+                        pendingDraft.skills.map((skill) => (
+                          <span key={skill} className="rounded-full border border-primary/20 px-3 py-1 text-xs text-primary">
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/30">
+                          No suggested skills
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-[16px] border border-white/10 bg-white/[0.03] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Delta</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {diffSummary.skills.added.map((skill) => (
+                        <span key={`add-${skill}`} className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-100">
+                          + {skill}
+                        </span>
+                      ))}
+                      {diffSummary.skills.removed.map((skill) => (
+                        <span key={`remove-${skill}`} className="rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1 text-xs text-rose-100">
+                          - {skill}
+                        </span>
+                      ))}
+                      {diffSummary.skills.added.length === 0 && diffSummary.skills.removed.length === 0 ? (
+                        <span className="rounded-full border border-dashed border-white/10 px-3 py-1 text-xs text-white/30">
+                          No skills changed
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            ) : null}
+
+            {experienceReviewEntries.length > 0 ? (
+              <section className="rounded-[18px] border border-white/10 bg-black/25 p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="text-sm font-medium text-white">Experience review</div>
+                    <p className="mt-2 text-sm leading-6 text-white/58">
+                      Review role-by-role changes before the rewrite touches your working history blocks.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant={reviewSelection?.experience === 'suggested' ? 'default' : 'outline'}
+                      onClick={() => setSectionReview('experience', 'suggested')}
+                      className="rounded-full"
+                    >
+                      Use suggested experience focus
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={reviewSelection?.experience === 'current' ? 'default' : 'outline'}
+                      onClick={() => setSectionReview('experience', 'current')}
+                      className="rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
+                    >
+                      Keep current experience focus
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {experienceReviewEntries.slice(0, 3).map((entry) => (
+                    <div key={entry.id} className="rounded-[16px] border border-white/10 bg-white/[0.03] p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <div className="text-sm font-medium text-white">{entry.title || 'Untitled role'}</div>
+                          <div className="mt-1 text-xs text-white/45">{entry.company || 'Unknown company'}</div>
+                        </div>
+                        <span
+                          className={cn(
+                            'rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.16em]',
+                            entry.status === 'added'
+                              ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-100'
+                              : entry.status === 'removed'
+                                ? 'border-rose-400/20 bg-rose-400/10 text-rose-100'
+                                : 'border-primary/20 bg-primary/10 text-primary',
+                          )}
+                        >
+                          {entry.status}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                        <div className="rounded-[14px] border border-white/10 bg-black/25 p-3">
+                          <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Current</div>
+                          <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/68">
+                            {entry.currentDescription || 'No current description.'}
+                          </p>
+                        </div>
+                        <div className="rounded-[14px] border border-primary/20 bg-primary/[0.06] p-3">
+                          <div className="text-[11px] uppercase tracking-[0.16em] text-primary/75">Suggested</div>
+                          <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/82">
+                            {entry.suggestedDescription || 'No suggested description.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </div>
         </section>
       ) : null}

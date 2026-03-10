@@ -36,6 +36,19 @@ export type DraftDiffSummary = {
   };
 };
 
+export type DraftReviewSection = 'summary' | 'skills' | 'experience';
+
+export type DraftReviewSelection = Record<DraftReviewSection, 'current' | 'suggested'>;
+
+export type ExperienceReviewEntry = {
+  id: string;
+  title: string;
+  company: string;
+  status: 'added' | 'removed' | 'updated';
+  currentDescription: string;
+  suggestedDescription: string;
+};
+
 const STOP_WORDS = new Set([
   'a',
   'an',
@@ -304,4 +317,98 @@ export function summarizeDraftDiff(
       removed: removedSkills,
     },
   };
+}
+
+export function buildDraftReviewSelection(
+  diff: DraftDiffSummary,
+): DraftReviewSelection {
+  return {
+    summary: diff.summaryChanged ? 'suggested' : 'current',
+    skills:
+      diff.skills.added.length > 0 || diff.skills.removed.length > 0
+        ? 'suggested'
+        : 'current',
+    experience:
+      diff.experience.added > 0 ||
+      diff.experience.removed > 0 ||
+      diff.experience.updated > 0
+        ? 'suggested'
+        : 'current',
+  };
+}
+
+export function applyDraftReviewSelection(
+  current: ResumeDocumentData,
+  suggested: ResumeDocumentData,
+  selection: DraftReviewSelection,
+): ResumeDocumentData {
+  return {
+    contactInfo: current.contactInfo,
+    education: current.education,
+    summary: selection.summary === 'suggested' ? suggested.summary : current.summary,
+    skills: selection.skills === 'suggested' ? suggested.skills : current.skills,
+    experience:
+      selection.experience === 'suggested'
+        ? suggested.experience
+        : current.experience,
+  };
+}
+
+export function buildExperienceReviewEntries(
+  current: ResumeDocumentData,
+  suggested: ResumeDocumentData,
+): ExperienceReviewEntry[] {
+  const currentById = new Map(current.experience.map((role) => [role.id, role]));
+  const suggestedById = new Map(suggested.experience.map((role) => [role.id, role]));
+  const orderedIds = uniq([
+    ...suggested.experience.map((role) => role.id),
+    ...current.experience.map((role) => role.id),
+  ]);
+
+  return orderedIds.reduce<ExperienceReviewEntry[]>((entries, id) => {
+    const currentRole = currentById.get(id);
+    const suggestedRole = suggestedById.get(id);
+
+    if (!currentRole && !suggestedRole) {
+      return entries;
+    }
+
+    if (!currentRole && suggestedRole) {
+      entries.push({
+        id,
+        title: suggestedRole.title,
+        company: suggestedRole.company,
+        status: 'added',
+        currentDescription: '',
+        suggestedDescription: suggestedRole.description,
+      });
+      return entries;
+    }
+
+    if (currentRole && !suggestedRole) {
+      entries.push({
+        id,
+        title: currentRole.title,
+        company: currentRole.company,
+        status: 'removed',
+        currentDescription: currentRole.description,
+        suggestedDescription: '',
+      });
+      return entries;
+    }
+
+    if (currentRole && suggestedRole && JSON.stringify(currentRole) !== JSON.stringify(suggestedRole)) {
+      entries.push({
+        id,
+        title: suggestedRole.title,
+        company: suggestedRole.company,
+        status: 'updated',
+        currentDescription: currentRole.description,
+        suggestedDescription: suggestedRole.description,
+      });
+      return entries;
+    }
+
+    return entries;
+  }, []);
 }

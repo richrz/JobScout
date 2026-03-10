@@ -237,6 +237,13 @@ describe('CockpitWireframeClient workspace panel', () => {
           name: 'Changed By Rewrite',
         },
         skills: ['AWS', 'AI', 'Stakeholder Management'],
+        experience: [
+          {
+            ...baseDraft.experience[0],
+            description:
+              'Built technical sales plays, supported strategic deals, and gave leadership a clearer buying case.',
+          },
+        ],
       },
     });
 
@@ -277,14 +284,30 @@ describe('CockpitWireframeClient workspace panel', () => {
       expect(screen.getByText(/Review rewrite before replacing your draft/i)).toBeInTheDocument();
     });
 
+    expect(screen.getByRole('button', { name: /use suggested opening summary/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /keep current opening summary/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /use suggested visible skills/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /keep current visible skills/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /use suggested experience focus/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /keep current experience focus/i })).toBeInTheDocument();
     expect(screen.getByDisplayValue(baseDraft.summary)).toBeInTheDocument();
     expect(screen.queryByDisplayValue('Sharper summary for this exact role.')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /apply suggested draft/i }));
+    fireEvent.click(screen.getByRole('button', { name: /keep current opening summary/i }));
+    fireEvent.click(screen.getByRole('button', { name: /apply selected changes/i }));
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue('Sharper summary for this exact role.')).toBeInTheDocument();
+      expect(screen.getByDisplayValue(baseDraft.summary)).toBeInTheDocument();
     });
+
+    expect(
+      screen.getByDisplayValue('AWS, AI, Stakeholder Management'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(
+        'Built technical sales plays, supported strategic deals, and gave leadership a clearer buying case.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('turns APPLIED cards into a submission and follow-up workspace', async () => {
