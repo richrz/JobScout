@@ -276,6 +276,7 @@ describe('CockpitWireframeClient workspace panel', () => {
     expect(screen.getByText('Drafting studio')).toBeInTheDocument();
     expect(screen.getByText('Fact lock')).toBeInTheDocument();
     expect(screen.getByText('Keyword coverage')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /open blocknote editor/i })).toBeInTheDocument();
     expect(screen.getByDisplayValue(baseDraft.summary)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /rewrite draft/i }));
@@ -290,6 +291,8 @@ describe('CockpitWireframeClient workspace panel', () => {
     expect(screen.getByRole('button', { name: /keep current visible skills/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /use suggested experience focus/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /keep current experience focus/i })).toBeInTheDocument();
+    expect(screen.getByText('Inline wording diff')).toBeInTheDocument();
+    expect(screen.getByText('Bullet-level diff')).toBeInTheDocument();
     expect(screen.getByDisplayValue(baseDraft.summary)).toBeInTheDocument();
     expect(screen.queryByDisplayValue('Sharper summary for this exact role.')).not.toBeInTheDocument();
 

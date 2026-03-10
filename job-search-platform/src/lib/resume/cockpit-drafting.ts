@@ -49,6 +49,11 @@ export type ExperienceReviewEntry = {
   suggestedDescription: string;
 };
 
+export type TextDiffChunk = {
+  value: string;
+  type: 'same' | 'added' | 'removed';
+};
+
 const STOP_WORDS = new Set([
   'a',
   'an',
@@ -411,4 +416,118 @@ export function buildExperienceReviewEntries(
 
     return entries;
   }, []);
+}
+
+function tokenizeWords(value: string) {
+  return value
+    .split(/(\s+|[,.!?;:()\-])/g)
+    .filter((token) => token.length > 0);
+}
+
+function longestCommonSubsequence(
+  currentTokens: string[],
+  suggestedTokens: string[],
+) {
+  const matrix: number[][] = Array.from({ length: currentTokens.length + 1 }, () =>
+    Array(suggestedTokens.length + 1).fill(0),
+  );
+
+  for (let i = 1; i <= currentTokens.length; i += 1) {
+    for (let j = 1; j <= suggestedTokens.length; j += 1) {
+      if (currentTokens[i - 1] === suggestedTokens[j - 1]) {
+        matrix[i][j] = matrix[i - 1][j - 1] + 1;
+      } else {
+        matrix[i][j] = Math.max(matrix[i - 1][j], matrix[i][j - 1]);
+      }
+    }
+  }
+
+  const chunks: TextDiffChunk[] = [];
+  let i = currentTokens.length;
+  let j = suggestedTokens.length;
+
+  while (i > 0 && j > 0) {
+    if (currentTokens[i - 1] === suggestedTokens[j - 1]) {
+      chunks.push({ value: currentTokens[i - 1], type: 'same' });
+      i -= 1;
+      j -= 1;
+      continue;
+    }
+
+    if (matrix[i - 1][j] >= matrix[i][j - 1]) {
+      chunks.push({ value: currentTokens[i - 1], type: 'removed' });
+      i -= 1;
+      continue;
+    }
+
+    chunks.push({ value: suggestedTokens[j - 1], type: 'added' });
+    j -= 1;
+  }
+
+  while (i > 0) {
+    chunks.push({ value: currentTokens[i - 1], type: 'removed' });
+    i -= 1;
+  }
+
+  while (j > 0) {
+    chunks.push({ value: suggestedTokens[j - 1], type: 'added' });
+    j -= 1;
+  }
+
+  return chunks.reverse();
+}
+
+function collapseDiffChunks(chunks: TextDiffChunk[]) {
+  return chunks.reduce<TextDiffChunk[]>((collapsed, chunk) => {
+    const previous = collapsed[collapsed.length - 1];
+    if (previous && previous.type === chunk.type) {
+      previous.value += chunk.value;
+      return collapsed;
+    }
+
+    collapsed.push({ ...chunk });
+    return collapsed;
+  }, []);
+}
+
+export function buildInlineWordDiff(
+  current: string,
+  suggested: string,
+): TextDiffChunk[] {
+  const currentTokens = tokenizeWords(current);
+  const suggestedTokens = tokenizeWords(suggested);
+
+  const chunks = longestCommonSubsequence(currentTokens, suggestedTokens);
+  return collapseDiffChunks(chunks);
+}
+
+export function buildInlineLineDiff(
+  current: string,
+  suggested: string,
+): Array<{ line: string; type: 'same' | 'added' | 'removed' }> {
+  const currentLines = current
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const suggestedLines = suggested
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const currentSet = new Set(currentLines.map(normalizeLine));
+  const suggestedSet = new Set(suggestedLines.map(normalizeLine));
+
+  const removed = currentLines
+    .filter((line) => !suggestedSet.has(normalizeLine(line)))
+    .map((line) => ({ line, type: 'removed' as const }));
+
+  const added = suggestedLines
+    .filter((line) => !currentSet.has(normalizeLine(line)))
+    .map((line) => ({ line, type: 'added' as const }));
+
+  const same = suggestedLines
+    .filter((line) => currentSet.has(normalizeLine(line)))
+    .map((line) => ({ line, type: 'same' as const }));
+
+  return [...removed, ...added, ...same];
 }

@@ -4,6 +4,8 @@ import {
   applyDraftReviewSelection,
   buildDraftReviewSelection,
   buildExperienceReviewEntries,
+  buildInlineLineDiff,
+  buildInlineWordDiff,
   buildKeywordCoverage,
   flattenResumeDraftText,
   summarizeDraftDiff,
@@ -247,5 +249,35 @@ describe('cockpit drafting helpers', () => {
         suggestedDescription: 'Supported enterprise pursuits across data and AI programs.',
       }),
     ]);
+  });
+
+  it('builds inline word diffs for summary wording changes', () => {
+    const chunks = buildInlineWordDiff(
+      'Technical seller for enterprise cloud programs.',
+      'Technical seller and architect for enterprise cloud programs.',
+    );
+
+    expect(chunks.some((chunk) => chunk.type === 'added' && chunk.value.includes('and architect'))).toBe(true);
+    expect(chunks.some((chunk) => chunk.type === 'same' && chunk.value.includes('Technical seller'))).toBe(true);
+  });
+
+  it('builds inline line diffs for experience bullet changes', () => {
+    const lines = buildInlineLineDiff(
+      'Led cloud adoption.\nSaved $650k annually.',
+      'Led cloud adoption.\nSaved $650k annually.\nBuilt an executive-ready proof narrative.',
+    );
+
+    expect(lines).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'added',
+          line: 'Built an executive-ready proof narrative.',
+        }),
+        expect.objectContaining({
+          type: 'same',
+          line: 'Led cloud adoption.',
+        }),
+      ]),
+    );
   });
 });

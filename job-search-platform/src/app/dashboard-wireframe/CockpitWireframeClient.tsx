@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Component, useEffect, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,8 @@ import {
   applyDraftReviewSelection,
   buildDraftReviewSelection,
   buildExperienceReviewEntries,
+  buildInlineLineDiff,
+  buildInlineWordDiff,
   buildKeywordCoverage,
   summarizeDraftDiff,
   type DraftDiffSummary,
@@ -49,6 +52,21 @@ import type {
   CockpitRiverColumn,
   CockpitStage,
 } from '@/lib/cockpit-phase1';
+
+const CockpitBlockNoteEditor = dynamic(
+  () =>
+    import('@/components/resume/CockpitBlockNoteEditor').then(
+      (module) => module.CockpitBlockNoteEditor,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="rounded-[16px] border border-white/10 bg-white/[0.03] px-4 py-5 text-sm text-white/48">
+        Loading deep editor...
+      </div>
+    ),
+  },
+);
 
 export type CockpitPanelRecord = {
   id: string;
@@ -412,6 +430,77 @@ function normalizeSkillInput(value: string) {
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function InlineWordDiff({
+  current,
+  suggested,
+}: {
+  current: string;
+  suggested: string;
+}) {
+  const chunks = buildInlineWordDiff(current, suggested);
+
+  if (chunks.length === 0) {
+    return (
+      <span className="text-sm text-white/58">No wording differences were detected.</span>
+    );
+  }
+
+  return (
+    <p className="whitespace-pre-wrap text-sm leading-6 text-white/80">
+      {chunks.map((chunk, index) => (
+        <span
+          key={`${chunk.type}-${index}`}
+          className={cn(
+            chunk.type === 'added' && 'rounded bg-emerald-400/18 px-0.5 text-emerald-100',
+            chunk.type === 'removed' && 'rounded bg-rose-400/16 px-0.5 text-rose-100 line-through',
+          )}
+        >
+          {chunk.value}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+function InlineLineDiff({
+  current,
+  suggested,
+}: {
+  current: string;
+  suggested: string;
+}) {
+  const lines = buildInlineLineDiff(current, suggested);
+
+  if (lines.length === 0) {
+    return (
+      <div className="rounded-[12px] border border-dashed border-white/10 px-3 py-3 text-xs text-white/34">
+        No line-level bullet changes detected.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {lines.map((line, index) => (
+        <div
+          key={`${line.type}-${index}-${line.line}`}
+          className={cn(
+            'rounded-[12px] border px-3 py-2 text-xs leading-5',
+            line.type === 'added' && 'border-emerald-400/24 bg-emerald-400/10 text-emerald-100',
+            line.type === 'removed' && 'border-rose-400/24 bg-rose-400/10 text-rose-100',
+            line.type === 'same' && 'border-white/10 bg-white/[0.03] text-white/62',
+          )}
+        >
+          <span className="mr-2 inline-block min-w-[10px] font-semibold">
+            {line.type === 'added' ? '+' : line.type === 'removed' ? '-' : '•'}
+          </span>
+          <span>{line.line}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function documentStateLabel(value: string) {
@@ -1011,6 +1100,10 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('idle');
+  const [showDeepEditor, setShowDeepEditor] = useState(false);
+  const [deepEditorSummary, setDeepEditorSummary] = useState(
+    panel.draftSeed?.content.summary ?? '',
+  );
 
   useEffect(() => {
     const nextDraft = panel.draftSeed?.content ?? EMPTY_DRAFT;
@@ -1029,6 +1122,8 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
     setReviewSelection(null);
     setStatusMessage(null);
     setSaveState('idle');
+    setShowDeepEditor(false);
+    setDeepEditorSummary(nextDraft.summary ?? '');
   }, [panel.id, panel.draftSeed]);
 
   const normalizedDraft: ResumeDocumentData = {
@@ -1061,6 +1156,17 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
         roleIndex === index ? { ...role, description: value } : role,
       ),
     }));
+  }
+
+  function loadDeepEditorFromDraft() {
+    setDeepEditorSummary(draft.summary || '');
+    setShowDeepEditor(true);
+    setStatusMessage('Deep editor loaded from the current opening summary.');
+  }
+
+  function applyDeepEditorToDraft() {
+    setDraft((current) => ({ ...current, summary: deepEditorSummary.trim() }));
+    setStatusMessage('Deep editor summary applied to the draft.');
   }
 
   function toggleFactLock(key: keyof FactLockState) {
@@ -1278,13 +1384,50 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
 
       <div className="mt-4 grid gap-3 xl:grid-cols-[1.08fr_0.92fr]">
         <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
-          <label className="text-[11px] uppercase tracking-[0.16em] text-white/34">Opening summary</label>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <label className="text-[11px] uppercase tracking-[0.16em] text-white/34">Opening summary</label>
+              <p className="mt-2 text-xs leading-5 text-white/44">
+                Quick edits live here. The deep editor is BlockNote for richer summary shaping.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={loadDeepEditorFromDraft}
+                className="rounded-full border-white/14 bg-white/[0.03] text-white hover:bg-white/[0.06]"
+              >
+                Open BlockNote editor
+              </Button>
+              {showDeepEditor ? (
+                <Button
+                  type="button"
+                  onClick={applyDeepEditorToDraft}
+                  className="rounded-full"
+                >
+                  Apply BlockNote summary
+                </Button>
+              ) : null}
+            </div>
+          </div>
           <Textarea
             value={draft.summary}
             onChange={(event) => setDraft((current) => ({ ...current, summary: event.target.value }))}
             className="mt-3 min-h-[160px] border-white/10 bg-white/[0.02] text-white placeholder:text-white/26"
             placeholder="Shape the opening pitch for this specific role."
           />
+          {showDeepEditor ? (
+            <div className="mt-4 rounded-[16px] border border-white/10 bg-white/[0.02] p-3">
+              <div className="mb-3 text-[11px] uppercase tracking-[0.16em] text-white/36">
+                BlockNote deep editor
+              </div>
+              <CockpitBlockNoteEditor
+                value={deepEditorSummary}
+                onChange={setDeepEditorSummary}
+              />
+            </div>
+          ) : null}
         </div>
 
         <div className="rounded-[20px] border border-white/10 bg-black/25 p-4">
@@ -1541,18 +1684,18 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-3 xl:grid-cols-2">
-                  <div className="rounded-[16px] border border-white/10 bg-white/[0.03] p-4">
-                    <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Current summary</div>
-                    <p className="mt-3 text-sm leading-6 text-white/72">
-                      {normalizedDraft.summary || 'No summary in the current draft.'}
-                    </p>
+                <div className="mt-4 rounded-[16px] border border-white/10 bg-white/[0.03] p-4">
+                  <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">
+                    Inline wording diff
                   </div>
-                  <div className="rounded-[16px] border border-primary/20 bg-primary/[0.06] p-4">
-                    <div className="text-[11px] uppercase tracking-[0.16em] text-primary/75">Suggested summary</div>
-                    <p className="mt-3 text-sm leading-6 text-white/82">
-                      {pendingDraft.summary || 'No summary in the suggested draft.'}
-                    </p>
+                  <p className="mt-2 text-xs text-white/46">
+                    Added phrasing is highlighted in green. Removed phrasing is struck in red.
+                  </p>
+                  <div className="mt-3">
+                    <InlineWordDiff
+                      current={normalizedDraft.summary || ''}
+                      suggested={pendingDraft.summary || ''}
+                    />
                   </div>
                 </div>
               </section>
@@ -1697,18 +1840,18 @@ function CraftingDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: st
                         </span>
                       </div>
 
-                      <div className="mt-4 grid gap-3 xl:grid-cols-2">
-                        <div className="rounded-[14px] border border-white/10 bg-black/25 p-3">
-                          <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">Current</div>
-                          <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/68">
-                            {entry.currentDescription || 'No current description.'}
-                          </p>
+                      <div className="mt-4">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-white/34">
+                          Bullet-level diff
                         </div>
-                        <div className="rounded-[14px] border border-primary/20 bg-primary/[0.06] p-3">
-                          <div className="text-[11px] uppercase tracking-[0.16em] text-primary/75">Suggested</div>
-                          <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/82">
-                            {entry.suggestedDescription || 'No suggested description.'}
-                          </p>
+                        <p className="mt-2 text-xs text-white/46">
+                          Added and removed role bullets are shown inline so wording changes are obvious.
+                        </p>
+                        <div className="mt-3">
+                          <InlineLineDiff
+                            current={entry.currentDescription || ''}
+                            suggested={entry.suggestedDescription || ''}
+                          />
                         </div>
                       </div>
                     </div>
