@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — cleans redesign residue so the repo only keeps active cockpit-direction files, adds the active cockpit interaction spec, and checkpoints the intentional March 10 dashboard/app-shell/docs edits after sanity verification
 - `pending local checkpoint` — fixes the custom Z.AI key resolution so JobScout now prefers `JOBSCOUT_ZAI_API_KEY / API_KEY / ZAI_API_KEY`, proves the live cockpit `CRAFTING` rewrite/apply/save loop on `/dashboard-wireframe`, and adds a safe plain preview fallback when the PDF preview throws; remaining defect is malformed model JSON, not provider access
 - `96e1906` — turns cockpit `CRAFTING` into a real drafting studio with a live preview, fact lock controls, keyword coverage overlay, and preview/confirm rewrite flow; the live rewrite shell is browser-verified and the current `GLM-5` provider boundary is now surfaced cleanly when plan access is unavailable
 - `ac94517` — extends the cockpit workspace across the later stages: `APPLIED` is now a submission/follow-up desk, `SCREENING` is now a screening desk, `INTERVIEW` is now an interview prep board, `OFFER` is now a decision board, and `AGENTS.md` now explicitly says not to re-ask for already approved or routine in-scope work
@@ -87,6 +88,9 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- Redesign residue was cleaned out so repo status no longer carries mockup scratch by default.
+- The active cockpit interaction spec is now the kept design artifact instead of floating untracked residue.
+- The remaining tracked March 10 changes were treated as intentional active cockpit-direction work and sanity-verified before checkpointing.
 - The custom Z.AI path now resolves through the proven working key order:
   - `JOBSCOUT_ZAI_API_KEY`
   - `API_KEY`
@@ -274,6 +278,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Remains
 
+- The remaining non-clean state should now only come from future intentional edits, not redesign residue.
 - The new plain-language backlog now lives in `/home/richard/code/jobs/docs/project/backlog.md`, and follow-up work should start there instead of being reconstructed from chat.
 - `CRAFTING` is now a real cockpit drafting studio, but the deeper studio layers are still pending:
   - full voice controls are not embedded there yet
@@ -303,7 +308,9 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## Verification
 
+- `npx jest tests/unit/components/ConfigActions.test.tsx --runInBand`
 - `npx tsc --noEmit` now passes.
+- Browser load passed on `http://127.0.0.1:3173/dashboard-v2`
 - Focused cockpit workspace verification passed:
   - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx`
   - `tests/unit/lib/cockpit-phase1.test.ts`

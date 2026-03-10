@@ -38,3 +38,4 @@ sample-resumes/
 
 # Auto Claude data directory
 .auto-claude/
+.playwright-cli/

@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { GlassCard } from "@/components/ui/glass-card";
 
@@ -15,11 +14,6 @@ const data = [
 ];
 
 export function TrendChart() {
-  const { theme } = useTheme();
-  
-  // These should match the CSS variables, but Recharts needs hex strings usually or ID references
-  // We'll use CSS variable references via `url(#id)` for gradients
-  
   return (
     <GlassCard className="h-full w-full p-6 flex flex-col" variant="default">
       <div className="mb-2 shrink-0">
@@ -33,11 +27,11 @@ export function TrendChart() {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
-              <linearGradient id="colorApps" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="trendColorApps" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.5}/>
                 <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
               </linearGradient>
-              <linearGradient id="colorMatches" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="trendColorMatches" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--chart-4))" stopOpacity={0.5}/>
                 <stop offset="95%" stopColor="hsl(var(--chart-4))" stopOpacity={0}/>
               </linearGradient>
@@ -74,7 +68,7 @@ export function TrendChart() {
               name="Applications"
               stroke="hsl(var(--chart-2))" 
               fillOpacity={1} 
-              fill="url(#colorApps)" 
+              fill="url(#trendColorApps)" 
               strokeWidth={3}
             />
             <Area 
@@ -83,7 +77,7 @@ export function TrendChart() {
               name="High Matches"
               stroke="hsl(var(--chart-4))" 
               fillOpacity={1} 
-              fill="url(#colorMatches)" 
+              fill="url(#trendColorMatches)" 
               strokeWidth={3}
             />
           </AreaChart>

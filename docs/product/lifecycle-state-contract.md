@@ -1,19 +1,22 @@
 # Opportunity Lifecycle State Contract
 
 **Status:** Accepted  
-**Date:** 2026-03-06
+**Date:** 2026-03-09 (updated for Cockpit model)  
+**Supersedes:** 2026-03-06 version
+
+See also: [Cockpit Interaction Spec](./cockpit-interaction-spec.md)
 
 ## Purpose
 
-This document defines the official lifecycle for an `Opportunity` and the rules that connect:
+This document defines the official lifecycle for an `Opportunity` and the rules that connect the cockpit's unified surfaces:
 
-- Inbox
-- JobSwipe
-- Pipeline
-- Resume Builder
-- Workspace
+- Cockpit Discovery Feed (replaces Inbox)
+- Swipe Mode (replaces JobSwipe as a page)
+- The River / Pipeline (persistent cockpit lane)
+- Workspace (shared-element expansion, replaces separate workspace page)
+- Resume Studio (replaces Resume Builder page)
 
-The goal is to stop each surface from behaving like its own mini-app.
+The goal is one living system — not a collection of pages that share some data.
 
 ## Canonical Model
 
@@ -26,7 +29,7 @@ The goal is to stop each surface from behaving like its own mini-app.
 ## Core Rules
 
 1. Every opportunity has one workspace.
-2. Inbox, JobSwipe, Pipeline, and Resume Builder are views into the same opportunity state.
+2. The cockpit's discovery feed, swipe mode, pipeline river, workspace, and resume studio are all views into the same opportunity state.
 3. A card is presentation only. It is not the source of truth.
 4. Passing an opportunity is always recoverable for a defined period.
 5. Documents belong to the workspace, not to a tab.
@@ -41,10 +44,10 @@ The goal is to stop each surface from behaving like its own mini-app.
   - Primary surfaces: Inbox and JobSwipe
 - `INTERESTED`
   - Meaning: user wants to pursue the opportunity
-  - Primary surfaces: Pipeline and Workspace
-- `PREP`
-  - Meaning: user is actively preparing materials or research before applying
-  - Primary surfaces: Pipeline and Workspace
+  - Primary surfaces: Cockpit pipeline and Workspace
+- `CRAFTING`
+  - Meaning: user is actively building the application package (resume, cover letter, keyword tuning, voice adjustments)
+  - Primary surfaces: Cockpit pipeline and Workspace (Resume Studio breakout)
 
 ### Active Pursuit
 
@@ -59,7 +62,14 @@ The goal is to stop each surface from behaving like its own mini-app.
   - Primary surfaces: Pipeline and Workspace
 - `OFFER`
   - Meaning: an offer or offer-like outcome is active
-  - Primary surfaces: Pipeline and Workspace
+  - Primary surfaces: Cockpit pipeline and Workspace
+- `ACCEPTED`
+  - Meaning: user accepted the offer (terminal state with celebration)
+  - Trigger: confirmation dialog from OFFER stage
+  - Primary surfaces: Cockpit pipeline (confetti + campaign wind-down prompt)
+- `DECLINED`
+  - Meaning: user passed on the offer; workspace preserved
+  - Primary surfaces: Cockpit pipeline and Workspace
 
 ### Recoverable / Closed
 
@@ -76,35 +86,46 @@ The goal is to stop each surface from behaving like its own mini-app.
   - Meaning: opportunity is retained for history and search, but no longer active in default views
   - Primary surfaces: archive views and Workspace
 
-## View Contract
+## View Contract (Cockpit Model)
 
-### Inbox
+As of the [Cockpit Interaction Spec](./cockpit-interaction-spec.md), the app no longer uses separate pages for Inbox, Pipeline, JobSwipe, or Resume. These are sections and modes within one living cockpit screen.
 
-- Inbox is the active discovery view for `NEW` opportunities.
-- Inbox may expose `PASSED` through an explicit bin/filter, but passed items do not vanish from history.
-- Batch actions belong here because this is where users manage volume.
+### Cockpit — Discovery Feed ("While You Were Out")
 
-### JobSwipe
+- Shows `NEW` opportunities matched against saved filters since the user's last session.
+- Surfaces match confidence scoring.
+- Passed Bin is a filter toggle on the pipeline view, not a separate page.
+- Batch actions are available here for volume management.
 
-- JobSwipe is a rapid interaction mode over the same active opportunity set as Inbox.
-- JobSwipe is not a separate feed or independent state system.
-- Notes captured during a save action in JobSwipe must carry into the workspace history and remain visible after the opportunity moves to `INTERESTED`.
+### Cockpit — Swipe Mode (breakout)
 
-### Pipeline
+- Full-screen immersive triage, entered from the cockpit.
+- Operates on the same active opportunity set as the discovery feed.
+- Notes captured during save carry into the workspace.
+- Returns to cockpit when complete; decisions ripple visibly into the pipeline.
+- Primary mobile interaction.
 
-- Pipeline begins at `INTERESTED`.
-- Pipeline does not create its own state. It reflects the same lifecycle state held by the opportunity.
-- Only stages from `INTERESTED` forward appear as pipeline columns.
+### Cockpit — The River (persistent pipeline)
 
-### Workspace
+- Horizontal lane always visible on the cockpit.
+- Shows all stages from `INTERESTED` → `OFFER` with card counts and active items.
+- Cards animate between columns when opportunities change stage.
+- Does not create its own state; reflects the canonical lifecycle.
 
-- Workspace is available from any lifecycle state.
-- Workspace is the canonical home for notes, journals, documents, checklists, contacts, and history.
+### Workspace (shared-element expansion)
 
-### Resume Builder
+- Available from any lifecycle state.
+- Opened by clicking a pipeline card → card physically expands into the workspace panel (shared element transition).
+- Canonical home for notes, journals, documents, checklists, contacts, and history.
+- Each stage has its own section template within the workspace.
+- Closing the workspace → panel contracts back into the card.
 
-- Resume Builder is a workspace tool.
-- It reads and writes workspace artifacts for a selected opportunity.
+### Resume Studio (breakout from CRAFTING)
+
+- Deep Notion-like editing workspace.
+- Entered by expanding a workspace's CRAFTING section, not from a menu.
+- Always remembers which opportunity brought the user here.
+- Contains: resume draft editor, cover letter, generate button, keyword coverage overlay, voice tuning, transparent diff.
 - A generated draft is not a submission record until it is snapshotted into an `Application Event`.
 
 ## Allowed Transitions
@@ -113,15 +134,15 @@ The goal is to stop each surface from behaving like its own mini-app.
   - Manual action from Inbox or JobSwipe
 - `NEW -> PASSED`
   - Manual single or batch action from Inbox or JobSwipe
-- `INTERESTED -> PREP`
-  - Manual move when the user begins active preparation
+- `INTERESTED -> CRAFTING`
+  - Manual move when the user begins building the application package
 - `INTERESTED -> PASSED`
   - Manual pass, preserving workspace history
-- `PREP -> INTERESTED`
-  - Manual move when the user wants to keep the opportunity warm without active prep
-- `PREP -> APPLIED`
-  - Explicit apply action only after blockers are cleared
-- `PREP -> PASSED`
+- `CRAFTING -> INTERESTED`
+  - Manual move when the user wants to keep the opportunity warm without active work
+- `CRAFTING -> APPLIED`
+  - Explicit apply action; creates immutable submission snapshot; source link revealed
+- `CRAFTING -> PASSED`
   - Manual pass, preserving workspace history
 - `APPLIED -> SCREENING`
   - Manual or assisted update based on recruiter contact
@@ -143,8 +164,16 @@ The goal is to stop each surface from behaving like its own mini-app.
   - Manual update with outcome note
 - `INTERVIEW -> WITHDRAWN`
   - Manual update with withdrawal note
+- `OFFER -> ACCEPTED`
+  - Explicit confirmation dialog → celebration animation → campaign wind-down prompt
+- `OFFER -> DECLINED`
+  - Manual decline; workspace preserved; opportunity stays visible
 - `OFFER -> ARCHIVED`
   - Manual close-out when the decision is complete
+- `ACCEPTED -> ARCHIVED`
+  - Manual or automated after the user settles in
+- `DECLINED -> ARCHIVED`
+  - Manual or automated after retention threshold
 - `REJECTED -> ARCHIVED`
   - Manual or automated after retention threshold
 - `WITHDRAWN -> ARCHIVED`
@@ -160,14 +189,16 @@ The goal is to stop each surface from behaving like its own mini-app.
 
 Allowed for lightweight planning movement only:
 
-- `INTERESTED <-> PREP`
+- `INTERESTED <-> CRAFTING`
 
 ### Explicit Actions Instead of Drag-and-Drop
 
 Required when the move represents a real-world event:
 
-- `PREP -> APPLIED`
+- `CRAFTING -> APPLIED` (creates immutable submission snapshot)
 - any move after `APPLIED`
+- `OFFER -> ACCEPTED` (confirmation dialog required)
+- `OFFER -> DECLINED`
 - any restore from `PASSED`
 
 ### Blocked Moves

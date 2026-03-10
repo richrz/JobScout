@@ -7,6 +7,7 @@ This is the canonical navigation page for project documentation.
 
 ## Start Here
 
+- **Cockpit interaction spec (unified UX vision): [product/cockpit-interaction-spec.md](./product/cockpit-interaction-spec.md)**
 - Product direction: [PRD Open Source](./PRD-OPEN-SOURCE.md)
 - Development journal: [`/JOURNAL.md`](/home/richard/code/jobs/JOURNAL.md)
 - Backlog tracker: [project/backlog.md](./project/backlog.md)

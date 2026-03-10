@@ -7,6 +7,7 @@ This folder holds active product strategy and operating concepts.
 
 ## Core Product Specs
 
+- **Cockpit interaction spec: [cockpit-interaction-spec.md](./cockpit-interaction-spec.md)** ← start here for the unified UX vision
 - Lifecycle state contract: [lifecycle-state-contract.md](./lifecycle-state-contract.md)
 - Lifecycle concept: [workspace-lifecycle-concept.md](./workspace-lifecycle-concept.md)
 - Normalization contract: [normalization-contract.md](./normalization-contract.md)

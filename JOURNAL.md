@@ -1452,6 +1452,23 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
   - Z.AI sometimes returns malformed JSON for the resume rewrite payload
   - the app currently falls back by stuffing the raw response into the summary field when JSON parsing fails
 
+# 2026-03-10 - Redesign residue cleaned and cockpit direction checkpointed
+
+- Removed redesign scratch residue that was polluting repo status:
+  - `.playwright-cli/`
+  - ad hoc redesign skill scratch
+  - temporary research files
+  - `dashboard-v3` scratch route
+  - untracked mockup/proof screenshots that were not part of the chosen path
+- Kept the active cockpit-direction files:
+  - `docs/product/cockpit-interaction-spec.md`
+  - the current dashboard/app-shell/dashboard-metrics tracked edits
+  - roadmap and product docs that now reference the cockpit direction
+- Verified the kept active set with:
+  - `tests/unit/components/ConfigActions.test.tsx`
+  - `npx tsc --noEmit`
+  - browser load on `/dashboard-v2`
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.

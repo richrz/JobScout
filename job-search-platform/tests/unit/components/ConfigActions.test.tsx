@@ -30,7 +30,11 @@ describe('ConfigActions', () => {
       return;
     }
 
-    delete (URL as typeof URL & { createObjectURL?: typeof URL.createObjectURL }).createObjectURL;
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      writable: true,
+      value: undefined,
+    });
   });
 
   test('renders export and import buttons', () => {

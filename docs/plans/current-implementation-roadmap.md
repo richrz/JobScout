@@ -29,14 +29,23 @@ This roadmap is the active implementation plan for the product overhaul now in f
 
 ## Product Goal
 
-Turn JobScout into one coherent opportunity management product where:
+Turn JobScout into one coherent opportunity management product — a single living cockpit — where:
 
 - all inbound jobs become normalized `Opportunities`
-- Inbox and JobSwipe operate on the same state
+- Discovery feed, Swipe Mode, and the Pipeline river all operate on the same state
 - `PASSED` is recoverable, searchable, and safe
 - Pipeline reflects real lifecycle rules instead of loose board movement
-- every opportunity owns one `Workspace`
+- every opportunity owns one `Workspace` accessible via shared-element expansion from any pipeline card
 - artifacts, notes, and application events stay attached to that opportunity across the full journey
+- the menu-based navigation is replaced by the cockpit model (see [Cockpit Interaction Spec](../product/cockpit-interaction-spec.md))
+
+### Accepted Pipeline (as of 2026-03-09)
+
+```
+NEW → INTERESTED → CRAFTING → APPLIED → SCREENING → INTERVIEW → OFFER
+```
+
+PREP is removed. CRAFTING replaces it. OFFER gains ACCEPTED and DECLINED terminal states.
 
 ## Cross-Cutting Decision Gate
 
@@ -83,8 +92,9 @@ Key outcomes:
 - ensure the same user action means the same thing everywhere
 
 Done when:
-- save, pass, restore, prepare, and apply all map to one lifecycle model
+- save, pass, restore, craft, and apply all map to one lifecycle model
 - no major surface invents its own disconnected status logic
+- PREP is fully replaced by CRAFTING in code and UI
 
 ### Phase 2 — Tighten Discovery And Triage
 
@@ -118,10 +128,11 @@ Key outcomes:
 - stage journals preserve historical context as the opportunity moves
 - the workspace becomes the home for notes, blockers, contacts, and artifacts
 
-Recommended UX shape:
-- lightweight cards in list/board views
-- detail depth in a right-side panel on desktop
-- sheet or focused full-screen view on mobile
+UX shape (per cockpit spec):
+- pipeline cards in the cockpit river
+- workspace expands in-place via shared-element transition when a card is clicked
+- no separate workspace page — depth lives inside the expansion
+- Resume Studio is a breakout entered from the CRAFTING workspace section
 
 Done when:
 - an opportunity can move through stages without losing notes or context
@@ -139,9 +150,10 @@ Key outcomes:
 - blocked moves show clear requirements
 
 Required behaviors:
-- `INTERESTED <-> PREP` can stay lightweight
-- `PREP -> APPLIED` requires a submission package
+- `INTERESTED <-> CRAFTING` can stay lightweight (free drag)
+- `CRAFTING -> APPLIED` requires a submission package (explicit action, creates immutable snapshot, reveals source)
 - later-stage reversions require explicit correction flow, not silent board dragging
+- `OFFER -> ACCEPTED` requires confirmation dialog; triggers confetti + campaign wind-down prompt
 
 Done when:
 - the board visually reflects the lifecycle contract

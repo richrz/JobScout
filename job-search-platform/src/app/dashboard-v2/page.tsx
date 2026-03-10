@@ -2,6 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
+import { PowerCharts } from "@/components/dashboard/PowerCharts";
+import { TrendChart } from "@/components/charts/TrendChart";
 import Link from "next/link";
 import type { Route } from "next";
 import {
@@ -21,17 +24,17 @@ import {
 
 // Stitch Design Colors
 const colors = {
-    primary: "#35e375",
-    bgDark: "#122017",
-    surfaceDark: "#1c2e24",
-    surfaceHover: "#263c30",
-    textSecondary: "rgba(255,255,255,0.5)",
-    border: "rgba(255,255,255,0.05)",
+    primary: "#4ade80",
+    bgDark: "#0b1220",
+    surfaceDark: "#111827",
+    surfaceHover: "#1f2937",
+    textSecondary: "rgba(255,255,255,0.56)",
+    border: "rgba(255,255,255,0.08)",
 };
 
 export default function DashboardV2() {
     return (
-        <div className="min-h-screen w-full p-6 lg:p-8" style={{ backgroundColor: colors.bgDark }}>
+        <div className="min-h-screen w-full p-6 lg:p-8">
             <div className="max-w-[1200px] mx-auto flex flex-col gap-6">
 
                 {/* Header */}
@@ -46,20 +49,26 @@ export default function DashboardV2() {
                                 <Search className="w-5 h-5 text-white/40 group-focus-within:text-[#35e375] transition-colors" />
                             </div>
                             <Input
-                                className="w-full bg-[#1c2e24] border-none rounded-full py-6 pl-12 pr-4 text-white placeholder-white/30 focus:ring-2 focus:ring-[#35e375]/50 transition-all shadow-lg shadow-black/20"
+                                className="w-full bg-card border-border rounded-full py-6 pl-12 pr-4 text-white placeholder-white/30 focus:ring-2 focus:ring-primary/50 transition-all shadow-lg shadow-black/20"
                                 placeholder="Search jobs, companies, or keywords..."
                             />
                         </div>
                     </div>
                 </header>
 
+                {/* Old-v1 style quick snapshot cards with live API metrics */}
+                <section className="space-y-2">
+                    <div className="px-1">
+                        <h3 className="text-white text-lg font-bold">Performance Snapshot</h3>
+                        <p className="text-white/50 text-sm">Live activity metrics from your dashboard API</p>
+                    </div>
+                    <DashboardMetrics />
+                </section>
+
                 {/* Metrics Row */}
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Metric 1: Jobs Found */}
-                    <div
-                        className="p-6 rounded-xl border hover:border-[#35e375]/30 transition-all group relative overflow-hidden"
-                        style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                    >
+                    <div className="p-6 rounded-xl border border-border hover:border-primary/30 transition-all group relative overflow-hidden bg-card">
                         <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <Briefcase className="w-16 h-16 text-[#35e375]" />
                         </div>
@@ -71,10 +80,7 @@ export default function DashboardV2() {
                     </div>
 
                     {/* Metric 2: Applications Sent */}
-                    <div
-                        className="p-6 rounded-xl border hover:border-[#35e375]/30 transition-all group relative overflow-hidden"
-                        style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                    >
+                    <div className="p-6 rounded-xl border border-border hover:border-primary/30 transition-all group relative overflow-hidden bg-card">
                         <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <Send className="w-16 h-16 text-[#35e375]" />
                         </div>
@@ -86,10 +92,7 @@ export default function DashboardV2() {
                     </div>
 
                     {/* Metric 3: Interviews */}
-                    <div
-                        className="p-6 rounded-xl border hover:border-[#35e375]/30 transition-all group relative overflow-hidden"
-                        style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                    >
+                    <div className="p-6 rounded-xl border border-border hover:border-primary/30 transition-all group relative overflow-hidden bg-card">
                         <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <Calendar className="w-16 h-16 text-[#35e375]" />
                         </div>
@@ -101,10 +104,7 @@ export default function DashboardV2() {
                     </div>
 
                     {/* Metric 4: Profile Match */}
-                    <div
-                        className="p-6 rounded-xl border flex flex-col justify-between"
-                        style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                    >
+                    <div className="p-6 rounded-xl border border-border flex flex-col justify-between bg-card">
                         <div className="flex justify-between items-center mb-3">
                             <p className="text-white/60 text-sm font-medium">Profile Match</p>
                             <span className="text-white font-bold text-sm">85%</span>
@@ -128,7 +128,7 @@ export default function DashboardV2() {
                                 <h3 className="text-white text-lg font-bold">Recommended For You</h3>
                                 <Link href={"/jobs" as Route} className="text-[#35e375] text-sm font-medium hover:underline">View All</Link>
                             </div>
-                            <div className="rounded-xl border p-1" style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}>
+                            <div className="rounded-xl border border-border p-1 bg-card">
 
                                 {/* Job Item 1 */}
                                 <div className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 hover:bg-white/5 rounded-lg transition-colors cursor-pointer border-b border-white/5">
@@ -164,7 +164,7 @@ export default function DashboardV2() {
                                     </div>
                                     <div className="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
                                         <span className="hidden sm:block text-xs text-white/40 bg-white/5 px-2 py-1 rounded">5h ago</span>
-                                        <Button variant="outline" className="bg-[#263c30] hover:bg-white/20 text-white font-medium px-5 py-2 rounded-full text-sm border-white/10 w-full sm:w-auto">Save</Button>
+                                        <Button variant="outline" className="bg-white/5 hover:bg-white/10 text-white font-medium px-5 py-2 rounded-full text-sm border-white/10 w-full sm:w-auto">Save</Button>
                                     </div>
                                 </div>
 
@@ -183,7 +183,7 @@ export default function DashboardV2() {
                                     </div>
                                     <div className="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
                                         <span className="hidden sm:block text-xs text-white/40 bg-white/5 px-2 py-1 rounded">1d ago</span>
-                                        <Button variant="outline" className="bg-[#263c30] hover:bg-white/20 text-white font-medium px-5 py-2 rounded-full text-sm border-white/10 w-full sm:w-auto">Save</Button>
+                                        <Button variant="outline" className="bg-white/5 hover:bg-white/10 text-white font-medium px-5 py-2 rounded-full text-sm border-white/10 w-full sm:w-auto">Save</Button>
                                     </div>
                                 </div>
                             </div>
@@ -192,12 +192,12 @@ export default function DashboardV2() {
                         {/* Activity Stream */}
                         <div className="flex flex-col gap-4">
                             <h3 className="text-white text-lg font-bold px-1">Activity Stream</h3>
-                            <div className="rounded-xl border p-6" style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}>
+                            <div className="rounded-xl border border-border p-6 bg-card">
                                 <div className="relative pl-6 border-l border-white/10 space-y-8">
 
                                     {/* Timeline Item 1 */}
                                     <div className="relative">
-                                        <div className="absolute -left-[31px] bg-[#1c2e24] p-1">
+                                        <div className="absolute -left-[31px] bg-card p-1">
                                             <div className="bg-blue-500/20 text-blue-400 rounded-full p-1 h-8 w-8 flex items-center justify-center border border-blue-500/30">
                                                 <Eye className="w-4 h-4" />
                                             </div>
@@ -210,8 +210,8 @@ export default function DashboardV2() {
 
                                     {/* Timeline Item 2 */}
                                     <div className="relative">
-                                        <div className="absolute -left-[31px] bg-[#1c2e24] p-1">
-                                            <div className="bg-[#35e375]/20 text-[#35e375] rounded-full p-1 h-8 w-8 flex items-center justify-center border border-[#35e375]/30">
+                                        <div className="absolute -left-[31px] bg-card p-1">
+                                            <div className="bg-primary/20 text-primary rounded-full p-1 h-8 w-8 flex items-center justify-center border border-primary/30">
                                                 <Bell className="w-4 h-4" />
                                             </div>
                                         </div>
@@ -223,7 +223,7 @@ export default function DashboardV2() {
 
                                     {/* Timeline Item 3 */}
                                     <div className="relative">
-                                        <div className="absolute -left-[31px] bg-[#1c2e24] p-1">
+                                        <div className="absolute -left-[31px] bg-card p-1">
                                             <div className="bg-purple-500/20 text-purple-400 rounded-full p-1 h-8 w-8 flex items-center justify-center border border-purple-500/30">
                                                 <CheckCircle className="w-4 h-4" />
                                             </div>
@@ -242,7 +242,7 @@ export default function DashboardV2() {
                     <div className="flex flex-col gap-6">
 
                         {/* Quick Actions */}
-                        <div className="rounded-xl border p-6" style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}>
+                        <div className="rounded-xl border border-border p-6 bg-card">
                             <h3 className="text-white text-base font-bold mb-4">Quick Actions</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 <button className="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-colors group border border-transparent hover:border-[#35e375]/20">
@@ -265,14 +265,7 @@ export default function DashboardV2() {
                         </div>
 
                         {/* Upcoming Interview */}
-                        <div
-                            className="rounded-xl border p-6 relative overflow-hidden"
-                            style={{
-                                backgroundColor: colors.surfaceDark,
-                                borderColor: colors.border,
-                                background: `linear-gradient(to bottom, ${colors.surfaceDark}, #16251e)`
-                            }}
-                        >
+                        <div className="rounded-xl border border-border p-6 relative overflow-hidden bg-card">
                             <div className="absolute top-0 right-0 p-4 opacity-5">
                                 <Calendar className="w-20 h-20 text-white" />
                             </div>
@@ -301,16 +294,25 @@ export default function DashboardV2() {
                         </div>
 
                         {/* Motivational Quote */}
-                        <div
-                            className="rounded-xl border p-6 flex flex-col items-center text-center"
-                            style={{ backgroundColor: colors.surfaceDark, borderColor: colors.border }}
-                        >
+                        <div className="rounded-xl border border-border p-6 flex flex-col items-center text-center bg-card">
                             <Quote className="w-6 h-6 text-[#35e375] mb-2" />
                             <p className="text-white text-sm italic mb-2">&quot;Opportunities don&apos;t happen, you create them.&quot;</p>
                             <p className="text-white/30 text-xs uppercase tracking-widest">- Chris Grosser</p>
                         </div>
                     </div>
                 </div>
+
+                {/* Bring back old board analytics and charts */}
+                <section className="grid grid-cols-1 xl:grid-cols-3 gap-6 pb-6">
+                    <div className="xl:col-span-1 rounded-2xl border border-border p-4 bg-card">
+                        <div className="h-[320px]">
+                            <TrendChart />
+                        </div>
+                    </div>
+                    <div className="xl:col-span-2">
+                        <PowerCharts />
+                    </div>
+                </section>
             </div>
         </div>
     );

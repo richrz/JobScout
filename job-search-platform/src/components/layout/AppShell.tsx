@@ -16,7 +16,8 @@ import Image from 'next/image';
 export function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAuthPage = pathname?.startsWith('/auth') || pathname?.startsWith('/login');
-    if (isAuthPage) return <>{children}</>;
+    const isFullscreen = pathname?.startsWith('/dashboard-wireframe') || pathname?.startsWith('/dashboard-v3');
+    if (isAuthPage || isFullscreen) return <>{children}</>;
 
     return (
         <div className="min-h-screen bg-background text-foreground flex relative overflow-hidden font-sans">

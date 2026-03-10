@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Briefcase, Send, Calendar, CheckCircle, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Briefcase, Send, Calendar } from 'lucide-react';
 
 export function DashboardMetrics() {
     const [data, setData] = useState<any>(null);
