@@ -4,6 +4,45 @@
 
 ---
 
+## 2026-03-10 — Isolated Cockpit Motion Prototype Route Added
+
+### Context
+The active cockpit route is already wired to live state and stage-owned workspaces.
+
+We needed a safe place to design and validate the new spatial interaction model without destabilizing production cockpit behavior:
+- full-width river
+- stage-owned workspace motion
+- leftward progression feeling as stages advance
+- layering and z-index behavior under animation
+
+### Decisions Made
+1. **Added an isolated prototype route for motion/layout work.**
+   - new route: `/dashboard-cockpit-prototype`
+   - fake/stub content only
+   - no DB/API reads
+2. **Encoded the spatial model directly in the prototype.**
+   - river spans the main canvas
+   - stage selection drives active workspace emphasis
+   - workspace rail repositions with smooth motion so stage progression feels physical
+   - non-active stage workspaces remain visible as background context
+3. **Used animation as information architecture, not decoration.**
+   - stage-select transition
+   - workspace position transition
+   - active-stage emphasis
+   - subtle telemetry pulse
+4. **Kept this work isolated from live cockpit behavior.**
+   - no behavior changes to `/dashboard-wireframe`
+
+### Verification
+- Typecheck passed (`npx tsc --noEmit`)
+- Browser route check passed (`/dashboard-cockpit-prototype`)
+- Screenshots captured for base and later-stage selection states
+
+### Why This Matters
+This creates a safe design lab for the cockpit interaction model.
+
+We can iterate on layout, motion, and layering quickly without breaking the live cockpit route while redesign work is in progress.
+
 ## 2026-03-10 — CRAFTING Rewrite Timing Stabilized With Timeout Fallback
 
 ### Context
