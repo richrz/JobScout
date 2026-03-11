@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — rebuilds `/dashboard-cockpit-prototype` as a full-bleed river-first cockpit surface with stronger left-shift stage workspace motion, and updates `AppShell` fullscreen bypass so the prototype is not constrained by sidebar chrome
 - `pending local checkpoint` — reorders `/dashboard-cockpit-prototype` to match the wireframe hierarchy: river/workspace directly under header, with `Jump Back In` and `While You Were Out` moved below as the lower row
 - `pending local checkpoint` — adds an isolated cockpit motion prototype route at `/dashboard-cockpit-prototype` using fake data only, so layout/motion/z-index can be redesigned safely without destabilizing live `/dashboard-wireframe` behavior
 - `pending local checkpoint` — stabilizes cockpit `CRAFTING` rewrite completion timing with a hard timeout and profile-based fallback draft path so rewrites no longer hang indefinitely; browser proof now includes a completed staged rewrite with narrative diffs visible

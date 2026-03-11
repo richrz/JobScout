@@ -16,7 +16,10 @@ import Image from 'next/image';
 export function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAuthPage = pathname?.startsWith('/auth') || pathname?.startsWith('/login');
-    const isFullscreen = pathname?.startsWith('/dashboard-wireframe') || pathname?.startsWith('/dashboard-v3');
+    const isFullscreen =
+        pathname?.startsWith('/dashboard-wireframe') ||
+        pathname?.startsWith('/dashboard-v3') ||
+        pathname?.startsWith('/dashboard-cockpit-prototype');
     if (isAuthPage || isFullscreen) return <>{children}</>;
 
     return (

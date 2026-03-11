@@ -4,6 +4,42 @@
 
 ---
 
+## 2026-03-10 — Cockpit Prototype Rebuilt As Full-Bleed River-First Surface
+
+### Context
+The previous prototype still looked and behaved like a dashboard panel:
+- it was still wrapped by the app shell/sidebar
+- workspace motion was not forceful enough
+- the overall composition still felt boxed and static
+
+### Decisions Made
+1. **Prototype route now bypasses app shell chrome.**
+   - `AppShell` fullscreen logic now includes `/dashboard-cockpit-prototype`
+2. **Rebuilt prototype layout around the correct hierarchy.**
+   - header row
+   - full-width river row directly beneath header
+   - stage workspace motion rail as the central drafting surface
+   - utility row (`Jump Back In`, `While You Were Out`) at the bottom
+3. **Implemented stronger spatial progression.**
+   - workspace panels are positioned on a fixed track
+   - selecting later stages shifts the whole workspace track left aggressively
+   - non-active panels remain visible as contextual neighbors
+4. **Kept the route isolated and fake-data only.**
+   - no DB/API dependency added
+   - no behavior changes to live cockpit route
+
+### Verification
+- typecheck passed (`npx tsc --noEmit`)
+- browser proof captured:
+  - `cockpit-prototype-fullbleed-main.png`
+  - `cockpit-prototype-fullbleed-offer.png`
+
+### Why This Matters
+The prototype now behaves like a pipeline cockpit instead of a static dashboard:
+- river is primary
+- stage progression is spatial and visible
+- motion encodes movement through the pipeline
+
 ## 2026-03-10 — Prototype Layout Updated To River-First Order
 
 ### Context
