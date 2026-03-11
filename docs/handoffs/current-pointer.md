@@ -9,9 +9,7 @@
 
 ## Latest Product Checkpoint
 
-- `pending local checkpoint` — rebuilds `/dashboard-cockpit-prototype` as a full-bleed river-first cockpit surface with stronger left-shift stage workspace motion, and updates `AppShell` fullscreen bypass so the prototype is not constrained by sidebar chrome
-- `pending local checkpoint` — reorders `/dashboard-cockpit-prototype` to match the wireframe hierarchy: river/workspace directly under header, with `Jump Back In` and `While You Were Out` moved below as the lower row
-- `pending local checkpoint` — adds an isolated cockpit motion prototype route at `/dashboard-cockpit-prototype` using fake data only, so layout/motion/z-index can be redesigned safely without destabilizing live `/dashboard-wireframe` behavior
+- `pending local checkpoint` — rebuilds `/dashboard-cockpit-prototype` around the clarified cockpit model: river as the full cross-stage kanban, individually selectable opportunities, and one persistent workspace below where past/current/next/future stage sections all belong to the same opportunity
 - `pending local checkpoint` — stabilizes cockpit `CRAFTING` rewrite completion timing with a hard timeout and profile-based fallback draft path so rewrites no longer hang indefinitely; browser proof now includes a completed staged rewrite with narrative diffs visible
 - `pending local checkpoint` — deepens cockpit `CRAFTING` review into richer per-role narrative diffs and expands BlockNote from summary-only to targetable summary/role narrative editing with explicit write-back controls
 - `pending local checkpoint` — adds granular inline diff review in cockpit `CRAFTING` (summary wording diff + experience bullet-level diff) and embeds BlockNote as a deep in-cockpit summary editor with explicit load/apply controls
@@ -96,6 +94,21 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- `/dashboard-cockpit-prototype` was rebuilt around the clarified product model instead of the earlier abstract motion concept.
+- The prototype now treats the river as the primary full kanban across all stages.
+- Each opportunity in the river is individually selectable.
+- Selecting an opportunity now opens one persistent workspace below the river for that same opportunity.
+- The workspace now contains stage sections for the same opportunity:
+  - past stages render as history
+  - the current stage is active
+  - the next stage is visible but not yet active
+  - later stages stay blank until reached
+- The prototype was verified for both:
+  - an `Interested` opportunity
+  - an `Applied` opportunity
+- Proof artifacts for the prototype now live at:
+  - `job-search-platform/output/playwright/cockpit-prototype-jobot-workspace.png`
+  - `job-search-platform/output/playwright/cockpit-prototype-cloudflare-workspace.png`
 - Cockpit rewrite timing is now stabilized.
   - live rewrite calls now run with an explicit timeout
   - timeout path returns a deterministic profile-based fallback draft

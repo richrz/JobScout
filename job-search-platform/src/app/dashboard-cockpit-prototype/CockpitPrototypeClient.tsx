@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowRight, Clock3, Sparkles } from 'lucide-react';
+import { Clock3, FileText, Mail, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type StageId =
@@ -13,131 +13,291 @@ type StageId =
   | 'INTERVIEW'
   | 'OFFER';
 
-type StageSpec = {
-  id: StageId;
-  label: string;
-  accent: string;
-  badge: string;
-  hint: string;
-  cards: Array<{
-    company: string;
-    role: string;
-    urgency: 'calm' | 'watch' | 'urgent';
-    stale: string;
-  }>;
-  tools: string[];
+type SectionData = {
   notes: string[];
+  artifacts?: string[];
 };
 
-const STAGES: StageSpec[] = [
-  {
-    id: 'NEW',
+type Opportunity = {
+  id: string;
+  company: string;
+  role: string;
+  location: string;
+  currentStage: StageId;
+  stale: string;
+  summary: string;
+  sections: Partial<Record<Exclude<StageId, 'NEW'>, SectionData>>;
+};
+
+const STAGE_ORDER: StageId[] = ['NEW', 'INTERESTED', 'CRAFTING', 'APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER'];
+
+const STAGE_META: Record<StageId, { label: string; accent: string; hint: string }> = {
+  NEW: {
     label: 'New',
     accent: '#f4b74d',
-    badge: 'inflow',
-    hint: 'Triage fresh signal quickly.',
-    cards: [
-      { company: 'Stripe', role: 'Senior Solutions Engineer', urgency: 'watch', stale: '18m' },
-      { company: 'Datadog', role: 'Field Architect', urgency: 'calm', stale: '42m' },
-    ],
-    tools: ['Quick score', 'Skill gaps', 'Pass / Save'],
-    notes: ['Signal spikes at midday', 'Location fit trending high'],
+    hint: 'Fresh discovery worth triage.',
   },
-  {
-    id: 'INTERESTED',
+  INTERESTED: {
     label: 'Interested',
     accent: '#57a6ff',
-    badge: 'saved',
-    hint: 'Capture why this pursuit matters.',
-    cards: [
-      { company: 'OpenAI', role: 'Solutions Architect', urgency: 'urgent', stale: '2h' },
-      { company: 'Snowflake', role: 'Principal SE', urgency: 'watch', stale: '1h' },
-    ],
-    tools: ['Fit notes', 'Risk notes', 'Move to crafting'],
-    notes: ['Need deeper governance proof', 'Comp band worth pursuing'],
+    hint: 'Capture why this is worth chasing.',
   },
-  {
-    id: 'CRAFTING',
+  CRAFTING: {
     label: 'Crafting',
     accent: '#ffb45a',
-    badge: 'active',
-    hint: 'Build and tune the package.',
-    cards: [
-      { company: 'Deloitte', role: 'GenAI Architect', urgency: 'urgent', stale: '7m' },
-      { company: 'Jobot', role: 'Sales Engineer', urgency: 'watch', stale: '29m' },
-    ],
-    tools: ['Rewrite', 'Fact lock', 'Keyword coverage'],
-    notes: ['Summary version B is stronger', 'Role #2 needs one measurable outcome'],
+    hint: 'Draft and tailor the package.',
   },
-  {
-    id: 'APPLIED',
+  APPLIED: {
     label: 'Applied',
     accent: '#8b82ff',
-    badge: 'sent',
-    hint: 'Track submitted artifacts and follow-up.',
-    cards: [
-      { company: 'Cloudflare', role: 'Enterprise Architect', urgency: 'watch', stale: '5h' },
-      { company: 'Confluent', role: 'Strategic SE', urgency: 'calm', stale: '1d' },
-    ],
-    tools: ['Submission snapshot', 'Follow-up note', 'Reveal source'],
-    notes: ['Follow-up due tomorrow 09:00', 'Submitted with resume v14'],
+    hint: 'Track what was sent and what happened.',
   },
-  {
-    id: 'SCREENING',
+  SCREENING: {
     label: 'Screening',
     accent: '#53d5ff',
-    badge: 'moving',
-    hint: 'Prep first human conversation.',
-    cards: [{ company: 'Nvidia', role: 'AI Platform Architect', urgency: 'urgent', stale: '38m' }],
-    tools: ['Call notes', 'Contact panel', 'Next step log'],
-    notes: ['Recruiter asks for distributed systems examples'],
+    hint: 'Record recruiter and early-call context.',
   },
-  {
-    id: 'INTERVIEW',
+  INTERVIEW: {
     label: 'Interview',
     accent: '#c58fff',
-    badge: 'high focus',
-    hint: 'Pressure-test your narrative.',
-    cards: [{ company: 'Anthropic', role: 'Partner Engineer', urgency: 'urgent', stale: '11m' }],
-    tools: ['Prep board', 'STAR answers', 'Follow-up draft'],
-    notes: ['Panel likes GTM + architecture blend'],
+    hint: 'Prep and debrief real conversations.',
   },
-  {
-    id: 'OFFER',
+  OFFER: {
     label: 'Offer',
     accent: '#45df7d',
-    badge: 'decision',
-    hint: 'Evaluate and decide.',
-    cards: [{ company: 'Acme AI', role: 'Principal Solutions Architect', urgency: 'watch', stale: '3h' }],
-    tools: ['Decision board', 'Negotiation notes', 'Accept / Decline'],
-    notes: ['Need equity clarity', 'Remote clause under review'],
+    hint: 'Evaluate terms and make the call.',
+  },
+};
+
+const OPPORTUNITIES: Opportunity[] = [
+  {
+    id: 'opp-jobot',
+    company: 'Jobot',
+    role: 'Sales Engineer - Security Integration',
+    location: 'Kansas City, Missouri',
+    currentStage: 'INTERESTED',
+    stale: '2d idle',
+    summary: 'Saved because the role fits technical selling and security integration depth, but it still needs a real fit judgment before drafting starts.',
+    sections: {
+      INTERESTED: {
+        notes: [
+          'Strong domain fit for security systems and client-facing architecture.',
+          'Need to confirm comp and travel burden before investing in draft work.',
+        ],
+      },
+    },
+  },
+  {
+    id: 'opp-deloitte',
+    company: 'Deloitte',
+    role: 'GenAI Architect',
+    location: 'Denver, Colorado',
+    currentStage: 'CRAFTING',
+    stale: '7m',
+    summary: 'This one is already in motion. Workspace needs tailored resume artifacts and drafting notes in one place.',
+    sections: {
+      INTERESTED: {
+        notes: [
+          'Worth pursuing because AI architecture + customer-facing translation is a strong match.',
+          'Concerns were mainly large-firm politics, not role fit.',
+        ],
+      },
+      CRAFTING: {
+        notes: [
+          'Resume version B is the strongest baseline.',
+          'Need one more measurable leadership bullet in the second role.',
+        ],
+        artifacts: ['Tailored resume v4', 'Keyword capture', 'Call prep outline'],
+      },
+    },
+  },
+  {
+    id: 'opp-cloudflare',
+    company: 'Cloudflare',
+    role: 'Enterprise Architect',
+    location: 'Remote',
+    currentStage: 'APPLIED',
+    stale: '5h',
+    summary: 'Application was sent manually. Workspace now needs applied-state notes, confirmation trail, and follow-up tracking.',
+    sections: {
+      INTERESTED: {
+        notes: ['Saved for architecture scope and strong platform story.'],
+      },
+      CRAFTING: {
+        notes: ['Resume tuned toward enterprise and edge platform language.'],
+        artifacts: ['Submitted resume v14'],
+      },
+      APPLIED: {
+        notes: [
+          'Applied over recruiter phone intake; no portal screenshot exists.',
+          'Follow-up scheduled for tomorrow morning.',
+        ],
+        artifacts: ['Follow-up draft email'],
+      },
+    },
+  },
+  {
+    id: 'opp-nvidia',
+    company: 'Nvidia',
+    role: 'AI Platform Architect',
+    location: 'Santa Clara, California',
+    currentStage: 'SCREENING',
+    stale: '38m',
+    summary: 'Workspace has moved beyond apply. Screening notes, recruiter context, and next-step prep belong here now.',
+    sections: {
+      INTERESTED: {
+        notes: ['Saved because this is a true stretch but credible reach role.'],
+      },
+      CRAFTING: {
+        notes: ['Draft positioned platform scale and cross-functional influence.'],
+        artifacts: ['Resume v6', 'Platform proof bullets'],
+      },
+      APPLIED: {
+        notes: ['Applied through recruiter channel with direct intro.'],
+      },
+      SCREENING: {
+        notes: ['Recruiter wants distributed systems examples and AI platform depth.'],
+        artifacts: ['Recruiter email paste'],
+      },
+    },
+  },
+  {
+    id: 'opp-anthropic',
+    company: 'Anthropic',
+    role: 'Partner Engineer',
+    location: 'San Francisco, California',
+    currentStage: 'INTERVIEW',
+    stale: '11m',
+    summary: 'At interview stage, the workspace turns into prep and debrief history, not just application tracking.',
+    sections: {
+      INTERESTED: {
+        notes: ['Compelling because partner-facing technical communication is central.'],
+      },
+      CRAFTING: {
+        notes: ['Tailored toward LLM platform partnerships and solution design.'],
+        artifacts: ['Resume v9', 'Intro note'],
+      },
+      APPLIED: {
+        notes: ['Applied with partner-focused resume draft.'],
+      },
+      SCREENING: {
+        notes: ['Recruiter liked GTM plus deep technical mix.'],
+      },
+      INTERVIEW: {
+        notes: ['Need stronger stories on ambiguity and ecosystem influence.'],
+        artifacts: ['Panel prep sheet', 'STAR answer draft'],
+      },
+    },
+  },
+  {
+    id: 'opp-acme',
+    company: 'Acme AI',
+    role: 'Principal Solutions Architect',
+    location: 'Remote',
+    currentStage: 'OFFER',
+    stale: '3h',
+    summary: 'Offer stage should open the same workspace, with all earlier history intact and the decision section now active.',
+    sections: {
+      INTERESTED: {
+        notes: ['Strong fit and clean story from the start.'],
+      },
+      CRAFTING: {
+        notes: ['Resume leaned hard into leadership and architectural depth.'],
+        artifacts: ['Resume final', 'Email draft'],
+      },
+      APPLIED: {
+        notes: ['Applied directly to hiring manager referral.'],
+      },
+      SCREENING: {
+        notes: ['Screen passed cleanly; team wanted more solution-selling examples.'],
+      },
+      INTERVIEW: {
+        notes: ['Interview feedback was positive; comp discussion opened early.'],
+      },
+      OFFER: {
+        notes: ['Need clarity on equity and remote support.'],
+        artifacts: ['Offer summary', 'Negotiation notes'],
+      },
+    },
   },
 ];
 
-const PANEL_WIDTH = 560;
-const PANEL_GAP = 64;
+function itemsForStage(stage: StageId) {
+  return OPPORTUNITIES.filter((opportunity) => opportunity.currentStage === stage);
+}
 
-function urgencyClass(urgency: 'calm' | 'watch' | 'urgent') {
-  if (urgency === 'urgent') return 'bg-[#ff6d6d] text-[#ffd9d9]';
-  if (urgency === 'watch') return 'bg-[#f8c56a] text-[#2a1d08]';
-  return 'bg-[#53d6a1] text-[#062417]';
+function stageStatus(opportunity: Opportunity, stage: StageId) {
+  const currentIndex = STAGE_ORDER.indexOf(opportunity.currentStage);
+  const stageIndex = STAGE_ORDER.indexOf(stage);
+
+  if (stage === 'NEW') {
+    return opportunity.currentStage === 'NEW' ? 'active' : 'hidden';
+  }
+  if (opportunity.currentStage === 'NEW') {
+    return stage === 'INTERESTED' ? 'next' : 'future';
+  }
+  if (stageIndex < currentIndex) return 'complete';
+  if (stageIndex === currentIndex) return 'active';
+  if (stageIndex === currentIndex + 1) return 'next';
+  return 'future';
+}
+
+function sectionTone(status: ReturnType<typeof stageStatus>, stage: StageId) {
+  const accent = STAGE_META[stage].accent;
+
+  if (status === 'active') {
+    return {
+      border: `${accent}66`,
+      background: `${accent}14`,
+      badge: 'current',
+      badgeStyle: { color: accent, background: `${accent}22` },
+    };
+  }
+
+  if (status === 'complete') {
+    return {
+      border: 'rgba(255,255,255,0.12)',
+      background: 'rgba(255,255,255,0.03)',
+      badge: 'history',
+      badgeStyle: { color: '#d8dde7', background: 'rgba(255,255,255,0.06)' },
+    };
+  }
+
+  if (status === 'next') {
+    return {
+      border: 'rgba(255,255,255,0.12)',
+      background: 'rgba(255,255,255,0.02)',
+      badge: 'next',
+      badgeStyle: { color: '#f3d59b', background: 'rgba(248,197,106,0.15)' },
+    };
+  }
+
+  return {
+    border: 'rgba(255,255,255,0.08)',
+    background: 'rgba(255,255,255,0.015)',
+    badge: 'future',
+    badgeStyle: { color: '#8a93a5', background: 'rgba(255,255,255,0.04)' },
+  };
+}
+
+function initials(company: string) {
+  return company
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
 }
 
 export default function CockpitPrototypeClient() {
-  const [activeStage, setActiveStage] = useState<StageId>('CRAFTING');
+  const [selectedOpportunityId, setSelectedOpportunityId] = useState('opp-deloitte');
+  const selectedOpportunity =
+    OPPORTUNITIES.find((opportunity) => opportunity.id === selectedOpportunityId) ?? OPPORTUNITIES[0];
 
-  const activeIndex = useMemo(() => STAGES.findIndex((s) => s.id === activeStage), [activeStage]);
-  const activeSpec = STAGES[activeIndex] ?? STAGES[0];
-
-  const trackShift = useMemo(() => {
-    const stageCenter = activeIndex * (PANEL_WIDTH + PANEL_GAP) + PANEL_WIDTH / 2;
-    const targetCenter = 360;
-    return targetCenter - stageCenter;
-  }, [activeIndex]);
+  const currentSectionStage = selectedOpportunity.currentStage === 'NEW' ? 'INTERESTED' : selectedOpportunity.currentStage;
 
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-[#03060a] text-white">
-      <style jsx>{`
+      <style>{`
         @keyframes telemetryPulse {
           0% {
             opacity: 0.4;
@@ -152,23 +312,25 @@ export default function CockpitPrototypeClient() {
             transform: scaleY(0.45);
           }
         }
-        @keyframes rowGlow {
+
+        @keyframes workspaceSwap {
           0% {
-            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-          }
-          50% {
-            box-shadow: 0 0 36px rgba(255, 255, 255, 0.1);
+            opacity: 0.52;
+            transform: translateY(18px) scale(0.985);
           }
           100% {
-            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+            opacity: 1;
+            transform: translateY(0) scale(1);
           }
         }
+
         .telemetry-bar {
           animation: telemetryPulse 2.3s ease-in-out infinite;
           transform-origin: bottom;
         }
-        .row-glow {
-          animation: rowGlow 500ms ease-out;
+
+        .workspace-swap {
+          animation: workspaceSwap 420ms ease-out;
         }
       `}</style>
 
@@ -182,7 +344,7 @@ export default function CockpitPrototypeClient() {
             <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">JobScout cockpit</div>
             <h1 className="mt-2 font-['Sora',_sans-serif] text-3xl font-semibold leading-tight">Good morning, Richard</h1>
             <p className="mt-2 max-w-xl text-sm text-white/64">
-              Prototype mode. This route is fake-data only so we can validate spatial layout and motion before touching live cockpit behavior.
+              River stays primary. Click any opportunity and the matching workspace below opens with the current stage ready to work.
             </p>
           </section>
 
@@ -209,181 +371,247 @@ export default function CockpitPrototypeClient() {
         </header>
 
         <section className="mt-5 rounded-[28px] border border-white/14 bg-[#080d14]/90 px-4 py-5 sm:px-5">
-          <div className="text-[11px] uppercase tracking-[0.2em] text-white/42">River</div>
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] uppercase tracking-[0.2em] text-white/42">The river</div>
+            <div className="text-xs text-white/55">Select one opportunity. The workspace below switches 1:1.</div>
+          </div>
+
           <div className="mt-3 overflow-x-auto pb-2">
-            <div className="flex min-w-[1280px] gap-3">
-              {STAGES.map((stage, index) => {
-                const selected = stage.id === activeStage;
+            <div className="flex min-w-[1320px] gap-3">
+              {STAGE_ORDER.map((stage) => {
+                const stageItems = itemsForStage(stage);
+                const stageMeta = STAGE_META[stage];
+
                 return (
-                  <button
-                    key={stage.id}
-                    type="button"
-                    onClick={() => setActiveStage(stage.id)}
-                    className={cn(
-                      'group relative h-[214px] flex-1 overflow-hidden rounded-[18px] border border-white/10 px-3 py-3 text-left transition-all duration-500 ease-out',
-                      selected ? 'row-glow -translate-y-0.5 border-white/30 bg-white/[0.06]' : 'bg-white/[0.02] hover:border-white/20',
-                    )}
-                    style={{
-                      boxShadow: selected ? `0 0 0 1px ${stage.accent}66 inset` : undefined,
-                    }}
+                  <section
+                    key={stage}
+                    className="min-h-[286px] flex-1 rounded-[20px] border border-white/10 bg-white/[0.02] px-3 py-3"
+                    style={{ boxShadow: `0 0 0 1px ${stageMeta.accent}22 inset` }}
                   >
-                    <div className="absolute inset-x-0 top-0 h-1.5" style={{ backgroundColor: stage.accent, opacity: selected ? 1 : 0.45 }} />
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-sm font-semibold">{stage.label}</div>
-                          <div className="text-[11px] text-white/52">{stage.cards.length} active cards</div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-semibold" style={{ color: stageMeta.accent }}>
+                          {stageMeta.label}
                         </div>
-                        <span
-                          className="rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em]"
-                          style={{ color: '#0b0d10', background: stage.accent }}
-                        >
-                          {stage.badge}
-                        </span>
+                        <div className="text-[11px] text-white/50">{stageItems.length} opportunities</div>
                       </div>
-                      <div className="mt-2 h-px bg-white/10" />
-                      <div className="mt-3 space-y-2">
-                        {stage.cards.slice(0, 2).map((card) => (
-                          <div key={`${stage.id}-${card.company}`} className="rounded-[11px] border border-white/10 bg-black/25 px-2.5 py-2">
-                            <div className="text-xs font-medium">{card.company}</div>
-                            <div className="mt-0.5 line-clamp-1 text-[11px] text-white/68">{card.role}</div>
-                            <div className="mt-2 flex items-center justify-between text-[10px]">
-                              <span className={cn('rounded-full px-1.5 py-0.5 uppercase', urgencyClass(card.urgency))}>{card.urgency}</span>
-                              <span className="text-white/45">{card.stale}</span>
-                            </div>
-                          </div>
-                        ))}
+                      <div
+                        className="rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em]"
+                        style={{ background: `${stageMeta.accent}22`, color: stageMeta.accent }}
+                      >
+                        beach
                       </div>
                     </div>
-                    {index < STAGES.length - 1 && <ArrowRight className="absolute -right-1 top-1/2 h-4 w-4 -translate-y-1/2 text-white/18" />}
-                  </button>
+
+                    <div className="mt-2 h-px bg-white/10" />
+
+                    <div className="mt-3 space-y-2.5">
+                      {stageItems.map((opportunity) => {
+                        const selected = opportunity.id === selectedOpportunity.id;
+                        return (
+                          <button
+                            key={opportunity.id}
+                            type="button"
+                            aria-label={`Open ${opportunity.company} ${opportunity.role} workspace`}
+                            onClick={() => setSelectedOpportunityId(opportunity.id)}
+                            className={cn(
+                              'w-full rounded-[14px] border px-3 py-3 text-left transition-all duration-300 ease-out',
+                              selected ? 'border-white/28 bg-white/[0.08] shadow-[0_0_0_1px_rgba(255,255,255,0.08)_inset]' : 'border-white/10 bg-black/24 hover:border-white/20 hover:bg-white/[0.04]',
+                            )}
+                            style={{
+                              boxShadow: selected ? `0 0 0 1px ${stageMeta.accent}66 inset, 0 18px 32px -24px ${stageMeta.accent}aa` : undefined,
+                            }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div
+                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-xs font-semibold"
+                                style={{ borderColor: `${stageMeta.accent}66`, color: stageMeta.accent, background: `${stageMeta.accent}18` }}
+                              >
+                                {initials(opportunity.company)}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="truncate text-sm font-semibold text-white">{opportunity.company}</div>
+                                <div className="truncate text-[12px] text-white/74">{opportunity.role}</div>
+                                <div className="mt-2 flex items-center justify-between text-[10px] text-white/44">
+                                  <span className="truncate">{opportunity.location}</span>
+                                  <span>{opportunity.stale}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+
+                      {stageItems.length === 0 ? (
+                        <div className="rounded-[14px] border border-dashed border-white/8 px-3 py-6 text-center text-xs text-white/35">
+                          Empty beach for now
+                        </div>
+                      ) : null}
+                    </div>
+                  </section>
                 );
               })}
             </div>
           </div>
         </section>
 
-        <section className="relative mt-4 rounded-[28px] border border-white/14 bg-[#060b12]/92 px-4 py-5 sm:px-5">
-          <div className="mb-3 flex items-center justify-between px-1">
-            <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Stage workspace motion rail</div>
-            <div className="text-xs text-white/55">
-              Active stage: <span className="font-semibold text-white">{activeSpec.label}</span>
+        <section className="mt-4 rounded-[28px] border border-white/14 bg-[#060b12]/92 px-4 py-5 sm:px-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Opportunity workspace</div>
+              <h2 className="mt-2 font-['Sora',_sans-serif] text-2xl font-semibold">
+                {selectedOpportunity.role}
+              </h2>
+              <p className="mt-1 text-sm text-white/58">
+                {selectedOpportunity.company} · {selectedOpportunity.location}
+              </p>
             </div>
-          </div>
-
-          <div className="relative h-[430px] overflow-hidden rounded-[20px] border border-white/10 bg-[#04080f]">
             <div
-              className="absolute left-0 top-6 h-[390px] transition-transform duration-700 ease-out"
+              className="rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em]"
               style={{
-                width: `${STAGES.length * (PANEL_WIDTH + PANEL_GAP)}px`,
-                transform: `translateX(${trackShift}px)`,
+                color: STAGE_META[selectedOpportunity.currentStage].accent,
+                background: `${STAGE_META[selectedOpportunity.currentStage].accent}22`,
               }}
             >
-              {STAGES.map((stage, index) => {
-                const selected = stage.id === activeStage;
-                const distance = Math.abs(index - activeIndex);
-                return (
-                  <article
-                    key={`workspace-${stage.id}`}
-                    className={cn(
-                      'absolute top-0 rounded-[20px] border p-5 transition-all duration-700 ease-out md:p-6',
-                      selected ? 'border-white/28 opacity-100' : 'border-white/10',
-                    )}
-                    style={{
-                      left: `${index * (PANEL_WIDTH + PANEL_GAP)}px`,
-                      width: `${PANEL_WIDTH}px`,
-                      background: selected ? 'rgba(14,20,31,0.96)' : 'rgba(11,16,24,0.78)',
-                      transform: `scale(${selected ? 1 : Math.max(0.88, 1 - distance * 0.08)}) translateY(${selected ? 0 : 12}px)`,
-                      zIndex: selected ? 40 : Math.max(10, 30 - distance),
-                      boxShadow: selected
-                        ? `0 28px 70px -26px ${stage.accent}88, inset 0 0 0 1px ${stage.accent}55`
-                        : '0 14px 34px -22px rgba(0,0,0,0.75)',
-                    }}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <div>
-                        <div className="text-[11px] uppercase tracking-[0.18em] text-white/48">{stage.label} workspace</div>
-                        <h2 className="mt-1 font-['Sora',_sans-serif] text-2xl font-semibold">{stage.label} operating panel</h2>
-                      </div>
-                      <span
-                        className="rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em]"
-                        style={{ color: stage.accent, background: `${stage.accent}33` }}
-                      >
-                        {selected ? 'in focus' : 'context'}
-                      </span>
-                    </div>
-
-                    <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_1.1fr]">
-                      <div className="rounded-[14px] border border-white/10 bg-white/[0.03] p-4">
-                        <div className="text-[11px] uppercase tracking-[0.15em] text-white/45">Tools</div>
-                        <ul className="mt-3 space-y-2 text-sm text-white/84">
-                          {stage.tools.map((tool) => (
-                            <li key={`${stage.id}-${tool}`} className="flex items-center gap-2">
-                              <span className="h-1.5 w-1.5 rounded-full" style={{ background: stage.accent }} />
-                              {tool}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="rounded-[14px] border border-white/10 bg-white/[0.03] p-4">
-                        <div className="text-[11px] uppercase tracking-[0.15em] text-white/45">Stage notes</div>
-                        <div className="mt-3 space-y-2.5 text-sm text-white/84">
-                          {stage.notes.map((note) => (
-                            <div key={`${stage.id}-${note}`} className="rounded-[10px] border border-white/10 bg-black/20 px-3 py-2">
-                              {note}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
+              Current stage: {STAGE_META[selectedOpportunity.currentStage].label}
             </div>
-
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-50 w-20 bg-gradient-to-r from-[#060b12] to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-50 w-28 bg-gradient-to-l from-[#060b12] to-transparent" />
           </div>
-        </section>
 
-        <section className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_1fr]">
-          <div className="rounded-[18px] border border-white/12 bg-[#0b1016]/92 p-4">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">Jump back in</div>
-              <Clock3 className="h-4 w-4 text-white/55" />
-            </div>
-            <div className="mt-3 space-y-2.5">
-              {[
-                'Deloitte rewrite review pending',
-                'Nvidia screening notes due in 20m',
-                'OpenAI fit note not finalized',
-              ].map((item) => (
-                <div key={item} className="rounded-[12px] border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/80">
-                  {item}
+          <div key={selectedOpportunity.id} className="workspace-swap grid gap-4 lg:grid-cols-[1.35fr_0.75fr]">
+            <section className="rounded-[20px] border border-white/10 bg-white/[0.025] p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Workspace logic</div>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-white/72">{selectedOpportunity.summary}</p>
                 </div>
-              ))}
-            </div>
-          </div>
+                <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] text-white/55">
+                  1 opportunity = 1 workspace
+                </span>
+              </div>
 
-          <div className="rounded-[18px] border border-white/12 bg-[#0b1116]/92 p-4">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">While you were out</div>
-              <Sparkles className="h-4 w-4 text-[#8ad7ff]" />
-            </div>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                <div className="text-xs text-white/50">New jobs</div>
-                <div className="mt-1 text-lg font-semibold">4,327</div>
+              <div className="mt-5 space-y-3">
+                {STAGE_ORDER.filter((stage) => stage !== 'NEW').map((stage) => {
+                  const status = stageStatus(selectedOpportunity, stage);
+                  const tone = sectionTone(status, stage);
+                  const section = selectedOpportunity.sections[stage];
+                  const isCurrent = stage === currentSectionStage;
+
+                  return (
+                    <article
+                      key={`${selectedOpportunity.id}-${stage}`}
+                      className={cn(
+                        'rounded-[18px] border px-4 py-4 transition-all duration-300 ease-out',
+                        isCurrent ? 'shadow-[0_22px_60px_-32px_rgba(0,0,0,0.8)]' : '',
+                      )}
+                      style={{ borderColor: tone.border, background: tone.background }}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <div className="text-sm font-semibold" style={{ color: STAGE_META[stage].accent }}>
+                            {STAGE_META[stage].label}
+                          </div>
+                          <div className="mt-1 text-[12px] text-white/48">{STAGE_META[stage].hint}</div>
+                        </div>
+                        <span className="rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.12em]" style={tone.badgeStyle}>
+                          {tone.badge}
+                        </span>
+                      </div>
+
+                      {status === 'future' ? (
+                        <div className="mt-4 rounded-[14px] border border-dashed border-white/10 px-4 py-4 text-sm text-white/38">
+                          Blank until this opportunity reaches {STAGE_META[stage].label.toLowerCase()}.
+                        </div>
+                      ) : null}
+
+                      {status === 'next' ? (
+                        <div className="mt-4 rounded-[14px] border border-white/10 bg-black/18 px-4 py-4 text-sm text-white/54">
+                          This section becomes active immediately after the opportunity moves here.
+                        </div>
+                      ) : null}
+
+                      {status !== 'future' && status !== 'next' && section ? (
+                        <div className="mt-4 grid gap-3 lg:grid-cols-[1.25fr_0.9fr]">
+                          <div className="rounded-[14px] border border-white/10 bg-black/18 p-4">
+                            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
+                              <FileText className="h-3.5 w-3.5" />
+                              Notes
+                            </div>
+                            <div className="mt-3 space-y-2.5 text-sm text-white/82">
+                              {section.notes.map((note) => (
+                                <div key={note} className="rounded-[10px] border border-white/10 bg-white/[0.02] px-3 py-2">
+                                  {note}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="rounded-[14px] border border-white/10 bg-black/18 p-4">
+                            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
+                              <Mail className="h-3.5 w-3.5" />
+                              Attachments + meta
+                            </div>
+                            <div className="mt-3 space-y-2 text-sm text-white/78">
+                              {section.artifacts && section.artifacts.length > 0 ? (
+                                section.artifacts.map((artifact) => (
+                                  <div key={artifact} className="rounded-[10px] border border-white/10 bg-white/[0.02] px-3 py-2">
+                                    {artifact}
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="rounded-[10px] border border-dashed border-white/10 px-3 py-3 text-white/40">
+                                  No artifacts attached in this stage yet.
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </article>
+                  );
+                })}
               </div>
-              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                <div className="text-xs text-white/50">Profile fit</div>
-                <div className="mt-1 text-lg font-semibold">18</div>
-              </div>
-              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                <div className="text-xs text-white/50">90%+</div>
-                <div className="mt-1 text-lg font-semibold">3</div>
-              </div>
-            </div>
+            </section>
+
+            <aside className="space-y-4">
+              <section className="rounded-[18px] border border-white/12 bg-[#0b1016]/92 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">Jump back in</div>
+                  <Clock3 className="h-4 w-4 text-white/55" />
+                </div>
+                <div className="mt-3 space-y-2.5">
+                  {[
+                    'Deloitte rewrite review pending',
+                    'Nvidia screening notes due in 20m',
+                    'Anthropic prep notes need examples',
+                  ].map((item) => (
+                    <div key={item} className="rounded-[12px] border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/80">
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-[18px] border border-white/12 bg-[#0b1116]/92 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">While you were out</div>
+                  <Sparkles className="h-4 w-4 text-[#8ad7ff]" />
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
+                    <div className="text-xs text-white/50">New jobs</div>
+                    <div className="mt-1 text-lg font-semibold">4,327</div>
+                  </div>
+                  <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
+                    <div className="text-xs text-white/50">Profile fit</div>
+                    <div className="mt-1 text-lg font-semibold">18</div>
+                  </div>
+                  <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
+                    <div className="text-xs text-white/50">90%+</div>
+                    <div className="mt-1 text-lg font-semibold">3</div>
+                  </div>
+                </div>
+              </section>
+            </aside>
           </div>
         </section>
       </div>

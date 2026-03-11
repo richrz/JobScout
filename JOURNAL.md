@@ -1734,6 +1734,25 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
   - `npx tsc --noEmit`
   - browser load on `/dashboard-v2`
 
+# 2026-03-11 - Cockpit prototype rebuilt around 1:1 opportunity workspaces
+
+- Reworked `/dashboard-cockpit-prototype` away from the earlier abstract workspace-motion idea.
+- The prototype now matches the clarified product model:
+  - river = full kanban across all stages
+  - each opportunity in the river is individually selectable
+  - opportunity : workspace = `1 : 1`
+  - the selected opportunity opens one persistent workspace below the river
+  - the workspace contains stage sections for that same opportunity
+  - past sections show history
+  - current section is active
+  - next section is visible but not yet active
+  - future sections stay blank until the opportunity reaches them
+- Verified with:
+  - `tests/unit/components/dashboard/CockpitPrototypeClient.test.tsx`
+  - `npx tsc --noEmit`
+  - browser checks on `/dashboard-cockpit-prototype`
+  - screenshots for `Interested` and `Applied` workspace states
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.
