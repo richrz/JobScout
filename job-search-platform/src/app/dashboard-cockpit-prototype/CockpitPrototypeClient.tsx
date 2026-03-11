@@ -220,50 +220,6 @@ export default function CockpitPrototypeClient() {
           </section>
         </header>
 
-        <section className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_1fr]">
-          <div className="rounded-[18px] border border-white/12 bg-[#0b1016]/92 p-4">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">Jump back in</div>
-              <Clock3 className="h-4 w-4 text-white/55" />
-            </div>
-            <div className="mt-3 space-y-2.5">
-              {[
-                'Deloitte rewrite review pending',
-                'Nvidia screening notes due in 20m',
-                'OpenAI fit note not finalized',
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="rounded-[12px] border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/80"
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[18px] border border-white/12 bg-[#0b1116]/92 p-4">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">While you were out</div>
-              <Sparkles className="h-4 w-4 text-[#8ad7ff]" />
-            </div>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                <div className="text-xs text-white/50">New jobs</div>
-                <div className="mt-1 text-lg font-semibold">4,327</div>
-              </div>
-              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                <div className="text-xs text-white/50">Profile fit</div>
-                <div className="mt-1 text-lg font-semibold">18</div>
-              </div>
-              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                <div className="text-xs text-white/50">90%+</div>
-                <div className="mt-1 text-lg font-semibold">3</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className="relative mt-5 rounded-[26px] border border-white/12 bg-gradient-to-b from-[#0b0f16] to-[#06080d] px-4 py-5 sm:px-5">
           <div className="text-[11px] uppercase tracking-[0.2em] text-white/40">River</div>
           <div className="mt-3 overflow-x-auto pb-3">
@@ -421,6 +377,50 @@ export default function CockpitPrototypeClient() {
                     </section>
                   );
                 })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_1fr]">
+          <div className="rounded-[18px] border border-white/12 bg-[#0b1016]/92 p-4">
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">Jump back in</div>
+              <Clock3 className="h-4 w-4 text-white/55" />
+            </div>
+            <div className="mt-3 space-y-2.5">
+              {[
+                'Deloitte rewrite review pending',
+                'Nvidia screening notes due in 20m',
+                'OpenAI fit note not finalized',
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-[12px] border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/80"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[18px] border border-white/12 bg-[#0b1116]/92 p-4">
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">While you were out</div>
+              <Sparkles className="h-4 w-4 text-[#8ad7ff]" />
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
+                <div className="text-xs text-white/50">New jobs</div>
+                <div className="mt-1 text-lg font-semibold">4,327</div>
+              </div>
+              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
+                <div className="text-xs text-white/50">Profile fit</div>
+                <div className="mt-1 text-lg font-semibold">18</div>
+              </div>
+              <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
+                <div className="text-xs text-white/50">90%+</div>
+                <div className="mt-1 text-lg font-semibold">3</div>
               </div>
             </div>
           </div>

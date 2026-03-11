@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-03-10 — Prototype Layout Updated To River-First Order
+
+### Context
+The cockpit prototype needed to match the wireframe interaction hierarchy:
+- header first
+- river immediately under header
+- utility panels (`Jump Back In`, `While You Were Out`) below the river/workspace area
+
+### Decisions Made
+1. **Moved river block to first row under header.**
+2. **Moved `Jump Back In` and `While You Were Out` to the lower row.**
+3. **Kept motion, data stubs, and stage-rail behavior unchanged.**
+
+### Verification
+- typecheck passed (`npx tsc --noEmit`)
+- browser screenshot confirms ordering on `/dashboard-cockpit-prototype`
+
+### Why This Matters
+This puts the pipeline back in the primary visual position so the prototype reflects the intended cockpit model: river is the center of the surface, not secondary telemetry.
+
 ## 2026-03-10 — Isolated Cockpit Motion Prototype Route Added
 
 ### Context

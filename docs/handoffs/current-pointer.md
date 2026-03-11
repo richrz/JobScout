@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — reorders `/dashboard-cockpit-prototype` to match the wireframe hierarchy: river/workspace directly under header, with `Jump Back In` and `While You Were Out` moved below as the lower row
 - `pending local checkpoint` — adds an isolated cockpit motion prototype route at `/dashboard-cockpit-prototype` using fake data only, so layout/motion/z-index can be redesigned safely without destabilizing live `/dashboard-wireframe` behavior
 - `pending local checkpoint` — stabilizes cockpit `CRAFTING` rewrite completion timing with a hard timeout and profile-based fallback draft path so rewrites no longer hang indefinitely; browser proof now includes a completed staged rewrite with narrative diffs visible
 - `pending local checkpoint` — deepens cockpit `CRAFTING` review into richer per-role narrative diffs and expands BlockNote from summary-only to targetable summary/role narrative editing with explicit write-back controls
