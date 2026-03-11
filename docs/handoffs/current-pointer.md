@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `abe654e` — redesigns `/dashboard-cockpit-prototype` into the approved two-surface mock: stable river on top, a dual-purpose lower surface that switches between selected-opportunity workspace and full-width stage browser, direct river-card workspace opens, stage-header browser opens, `Close`/`Esc` browser exit, and shared-element identity motion between stage -> browser -> workspace
 - `pending local checkpoint` — rebuilds `/dashboard-cockpit-prototype` around the clarified cockpit model: river as the full cross-stage kanban, individually selectable opportunities, and one persistent workspace below where past/current/next/future stage sections all belong to the same opportunity
 - `pending local checkpoint` — stabilizes cockpit `CRAFTING` rewrite completion timing with a hard timeout and profile-based fallback draft path so rewrites no longer hang indefinitely; browser proof now includes a completed staged rewrite with narrative diffs visible
 - `pending local checkpoint` — deepens cockpit `CRAFTING` review into richer per-role narrative diffs and expands BlockNote from summary-only to targetable summary/role narrative editing with explicit write-back controls
@@ -94,6 +95,31 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- `/dashboard-cockpit-prototype` now follows the approved mock-only two-surface cockpit design instead of the earlier workspace-first prototype shell.
+- The top strip is now intentionally thin:
+  - small `Good morning, Richard`
+  - fallback icons only
+- The river is now the first and dominant surface under the top strip.
+  - stage headers are their own interaction target
+  - river cards stay directly clickable for workspace open
+  - denser preview cards make large `Interested` counts more plausible
+- The lower surface is now dual-purpose:
+  - default = selected opportunity workspace
+  - stage click = full-width stage browser
+- Stage browser mode now includes:
+  - explicit `Close`
+  - `Esc` support
+  - dense mini-card grid instead of a vertical list
+  - shared-element identity link from the clicked stage heading
+- Clicking a mini-card in stage browser mode now swaps the lower surface back into that opportunity’s workspace.
+- Shared-element motion is now used only for identity-preserving mock transitions:
+  - stage heading -> stage-browser header
+  - selected mini-card -> workspace identity block
+- Utility content is now pushed to the bottom and visually demoted so the river and work surface stay primary.
+- Proof artifacts for this slice now live at:
+  - `job-search-platform/output/playwright/cockpit-prototype-default-workspace.png`
+  - `job-search-platform/output/playwright/cockpit-prototype-interested-browser.png`
+  - `job-search-platform/output/playwright/cockpit-prototype-browser-to-workspace.png`
 - `/dashboard-cockpit-prototype` was rebuilt around the clarified product model instead of the earlier abstract motion concept.
 - The prototype now treats the river as the primary full kanban across all stages.
 - Each opportunity in the river is individually selectable.
