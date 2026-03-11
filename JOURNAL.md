@@ -1753,6 +1753,40 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
   - browser checks on `/dashboard-cockpit-prototype`
   - screenshots for `Interested` and `Applied` workspace states
 
+# 2026-03-11 - Cockpit prototype redesigned into river + stage browser + workspace
+
+- Reworked `/dashboard-cockpit-prototype` into a two-surface cockpit:
+  - stable river/kanban on top
+  - dual-purpose lower surface below
+- Collapsed the prototype header into a thin strip:
+  - small `Good morning, Richard`
+  - fallback icons only
+- Made the river the first dominant surface:
+  - taller overall lane area
+  - denser preview cards
+  - stage headers separated from opportunity-card clicks
+- The lower surface now behaves in two modes:
+  - default = selected opportunity workspace
+  - stage click = full-width stage browser for that lane
+- Added dense mini-card browser mode for stage browsing:
+  - intended to scale better for high-volume stages like `Interested`
+  - explicit `Close` button
+  - `Esc` closes the browser
+- Kept direct river-card behavior:
+  - clicking a river opportunity still opens its workspace directly
+- Added identity-preserving motion for the mock:
+  - stage heading morphs into the lower stage-browser header
+  - selected mini-card morphs into the lower workspace identity block
+- Moved utility content to the bottom and demoted it so the river and lower work surface stay primary.
+- Verified with:
+  - `tests/unit/components/dashboard/CockpitPrototypeClient.test.tsx --runInBand`
+  - `npx tsc --noEmit`
+  - browser proof on `/dashboard-cockpit-prototype`
+  - screenshots:
+    - `job-search-platform/output/playwright/cockpit-prototype-default-workspace.png`
+    - `job-search-platform/output/playwright/cockpit-prototype-interested-browser.png`
+    - `job-search-platform/output/playwright/cockpit-prototype-browser-to-workspace.png`
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.

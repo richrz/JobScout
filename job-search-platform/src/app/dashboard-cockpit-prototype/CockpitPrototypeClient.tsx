@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Clock3, FileText, Mail, Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { LayoutGroup, motion } from 'framer-motion';
+import { Clock3, FileText, Inbox, KanbanSquare, Mail, PanelRight, Sparkles, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type StageId =
@@ -25,11 +26,20 @@ type Opportunity = {
   location: string;
   currentStage: StageId;
   stale: string;
+  signal: string;
+  chip?: string;
   summary: string;
   sections: Partial<Record<Exclude<StageId, 'NEW'>, SectionData>>;
 };
 
 const STAGE_ORDER: StageId[] = ['NEW', 'INTERESTED', 'CRAFTING', 'APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER'];
+const RIVER_PREVIEW_LIMIT = 4;
+
+const SHARED_TRANSITION = {
+  type: 'spring' as const,
+  stiffness: 260,
+  damping: 28,
+};
 
 const STAGE_META: Record<StageId, { label: string; accent: string; hint: string }> = {
   NEW: {
@@ -40,53 +50,251 @@ const STAGE_META: Record<StageId, { label: string; accent: string; hint: string 
   INTERESTED: {
     label: 'Interested',
     accent: '#57a6ff',
-    hint: 'Capture why this is worth chasing.',
+    hint: 'Worth a closer look. Decide if it deserves real drafting time.',
   },
   CRAFTING: {
     label: 'Crafting',
     accent: '#ffb45a',
-    hint: 'Draft and tailor the package.',
+    hint: 'Drafting, tailoring, and artifact generation are in motion.',
   },
   APPLIED: {
     label: 'Applied',
     accent: '#8b82ff',
-    hint: 'Track what was sent and what happened.',
+    hint: 'Track what was sent and what needs follow-up.',
   },
   SCREENING: {
     label: 'Screening',
     accent: '#53d5ff',
-    hint: 'Record recruiter and early-call context.',
+    hint: 'Recruiter and early-call context belongs here.',
   },
   INTERVIEW: {
     label: 'Interview',
     accent: '#c58fff',
-    hint: 'Prep and debrief real conversations.',
+    hint: 'Prep, debriefs, and proof points for real conversations.',
   },
   OFFER: {
     label: 'Offer',
     accent: '#45df7d',
-    hint: 'Evaluate terms and make the call.',
+    hint: 'Decision math, negotiation notes, and offer terms.',
   },
 };
 
-const OPPORTUNITIES: Opportunity[] = [
+const INTERESTED_OPPORTUNITY_SEEDS = [
   {
     id: 'opp-jobot',
     company: 'Jobot',
     role: 'Sales Engineer - Security Integration',
     location: 'Kansas City, Missouri',
-    currentStage: 'INTERESTED',
     stale: '2d idle',
+    signal: 'Security-heavy consultative fit',
+    chip: 'needs fit call',
     summary: 'Saved because the role fits technical selling and security integration depth, but it still needs a real fit judgment before drafting starts.',
+    notes: [
+      'Strong domain fit for security systems and client-facing architecture.',
+      'Need to confirm comp and travel burden before investing in draft work.',
+    ],
+  },
+  {
+    id: 'opp-tuttle',
+    company: 'Tuttle AAG, LLC',
+    role: 'Sales Engineer',
+    location: 'Denver, Colorado',
+    stale: '4h',
+    signal: 'Fast path if comp is clean',
+    chip: 'new signal',
+    summary: 'Good consultative selling fit with lower complexity. This likely needs a quick yes/no before it soaks drafting time.',
+    notes: [
+      'Looks like a faster-moving commercial cycle.',
+      'Need to verify whether solution depth is enough to stay interesting.',
+    ],
+  },
+  {
+    id: 'opp-reply',
+    company: 'Reply',
+    role: 'Principal Solutions Consultant',
+    location: 'Remote',
+    stale: '7h',
+    signal: 'Enterprise story fit',
+    chip: 'worth a look',
+    summary: 'Saved for the mix of architecture depth and client-facing communication.',
+    notes: [
+      'Potentially strong fit for complex stakeholder translation.',
+      'Need better clarity on travel expectations.',
+    ],
+  },
+  {
+    id: 'opp-splunk',
+    company: 'Splunk',
+    role: 'Senior Field Architect',
+    location: 'Chicago, Illinois',
+    stale: '1d',
+    signal: 'High-value security narrative',
+    chip: 'cooling',
+    summary: 'Could be a compelling security-platform story if the role still has enough solution ownership.',
+    notes: [
+      'Strong story overlap with platform + customer leadership.',
+      'May require clearer recent observability proof.',
+    ],
+  },
+  {
+    id: 'opp-datadog',
+    company: 'Datadog',
+    role: 'Enterprise Solutions Architect',
+    location: 'Remote',
+    stale: '3h',
+    signal: 'Platform fit, needs sharper proof',
+    chip: 'hot',
+    summary: 'Worth pursuing if the draft can quickly foreground scale and platform influence.',
+    notes: [
+      'Draft would need stronger observability/system-scale framing.',
+      'Comp seems promising enough to keep warm.',
+    ],
+  },
+  {
+    id: 'opp-wiz',
+    company: 'Wiz',
+    role: 'Cloud Security Architect',
+    location: 'Austin, Texas',
+    stale: '38m',
+    signal: 'Very strong domain fit',
+    chip: 'hot',
+    summary: 'This is a strong technical and domain fit. Main question is whether to move to drafting immediately.',
+    notes: [
+      'Security cloud narrative is credible here.',
+      'Could move to crafting quickly if interest remains strong.',
+    ],
+  },
+  {
+    id: 'opp-okta',
+    company: 'Okta',
+    role: 'Advisory Solutions Engineer',
+    location: 'Remote',
+    stale: '6h',
+    signal: 'IAM story could land well',
+    chip: 'good fit',
+    summary: 'Worth keeping warm because identity/security plus enterprise selling is a natural story.',
+    notes: [
+      'Likely easy to tailor for recruiter readability.',
+      'Need to decide if the role is senior enough.',
+    ],
+  },
+  {
+    id: 'opp-palo',
+    company: 'Palo Alto Networks',
+    role: 'Principal Customer Architect',
+    location: 'Dallas, Texas',
+    stale: '8h',
+    signal: 'Prestige + domain credibility',
+    chip: 'high upside',
+    summary: 'High-upside opportunity if the resume can sharpen security leadership quickly.',
+    notes: [
+      'Could be one of the stronger top-end targets in Interested.',
+      'Would need a more aggressive positioning pass.',
+    ],
+  },
+  {
+    id: 'opp-verkada',
+    company: 'Verkada',
+    role: 'Senior Solutions Architect',
+    location: 'San Mateo, California',
+    stale: '11h',
+    signal: 'Physical security relevance',
+    chip: 'specific fit',
+    summary: 'Saved for physical security overlap and customer-facing architecture story.',
+    notes: [
+      'Direct product/domain overlap is unusually clean.',
+      'Need to test whether the team/comp tradeoffs are worth it.',
+    ],
+  },
+  {
+    id: 'opp-crowdstrike',
+    company: 'CrowdStrike',
+    role: 'Field CTO Advisor',
+    location: 'Remote',
+    stale: '13m',
+    signal: 'Stretch but credible',
+    chip: 'stretch',
+    summary: 'Higher-risk role, but the narrative is compelling enough to keep in view.',
+    notes: [
+      'Would need sharper executive and market-facing framing.',
+      'Still a meaningful possibility if the story is elevated.',
+    ],
+  },
+  {
+    id: 'opp-zscaler',
+    company: 'Zscaler',
+    role: 'Principal Advisory Architect',
+    location: 'Remote',
+    stale: '1d',
+    signal: 'Good enterprise-security mix',
+    chip: 'watch',
+    summary: 'Looks promising but not urgent yet. Needs more signal before drafting.',
+    notes: [
+      'Resume angle would be clean if it gets promoted.',
+      'Not enough urgency yet to consume crafting time.',
+    ],
+  },
+  {
+    id: 'opp-ibm',
+    company: 'IBM',
+    role: 'Client Engineering Lead',
+    location: 'New York, New York',
+    stale: '19h',
+    signal: 'AI + client engineering overlap',
+    chip: 'interesting',
+    summary: 'Worth tracking because AI plus client engineering is directionally strong.',
+    notes: [
+      'Potential story overlap is good, but still needs hard fit judgment.',
+      'Would need a more tailored leadership emphasis.',
+    ],
+  },
+  {
+    id: 'opp-snowflake',
+    company: 'Snowflake',
+    role: 'Industry Principal Architect',
+    location: 'Remote',
+    stale: '5h',
+    signal: 'Architecture story is strong',
+    chip: 'review',
+    summary: 'Interesting if the market-facing architecture story can be made more explicit.',
+    notes: [
+      'Could benefit from a more solution-led positioning pass.',
+      'Not yet urgent enough to displace hotter roles.',
+    ],
+  },
+  {
+    id: 'opp-servicenow',
+    company: 'ServiceNow',
+    role: 'Advisory Solution Consultant',
+    location: 'Remote',
+    stale: '9h',
+    signal: 'Readable recruiter narrative',
+    chip: 'easy tailor',
+    summary: 'Potentially easy to tailor because the recruiter-facing story is straightforward.',
+    notes: [
+      'Could move quickly if the role feels senior enough.',
+      'Would likely be a lighter lift than deeper architecture roles.',
+    ],
+  },
+];
+
+const OPPORTUNITIES: Opportunity[] = [
+  ...INTERESTED_OPPORTUNITY_SEEDS.map((seed) => ({
+    id: seed.id,
+    company: seed.company,
+    role: seed.role,
+    location: seed.location,
+    currentStage: 'INTERESTED' as const,
+    stale: seed.stale,
+    signal: seed.signal,
+    chip: seed.chip,
+    summary: seed.summary,
     sections: {
       INTERESTED: {
-        notes: [
-          'Strong domain fit for security systems and client-facing architecture.',
-          'Need to confirm comp and travel burden before investing in draft work.',
-        ],
+        notes: seed.notes,
       },
     },
-  },
+  })),
   {
     id: 'opp-deloitte',
     company: 'Deloitte',
@@ -94,6 +302,8 @@ const OPPORTUNITIES: Opportunity[] = [
     location: 'Denver, Colorado',
     currentStage: 'CRAFTING',
     stale: '7m',
+    signal: 'Drafting now with active artifacts',
+    chip: 'active draft',
     summary: 'This one is already in motion. Workspace needs tailored resume artifacts and drafting notes in one place.',
     sections: {
       INTERESTED: {
@@ -118,6 +328,8 @@ const OPPORTUNITIES: Opportunity[] = [
     location: 'Remote',
     currentStage: 'APPLIED',
     stale: '5h',
+    signal: 'Applied manually, follow-up pending',
+    chip: 'follow up',
     summary: 'Application was sent manually. Workspace now needs applied-state notes, confirmation trail, and follow-up tracking.',
     sections: {
       INTERESTED: {
@@ -143,6 +355,8 @@ const OPPORTUNITIES: Opportunity[] = [
     location: 'Santa Clara, California',
     currentStage: 'SCREENING',
     stale: '38m',
+    signal: 'Recruiter context needs capture',
+    chip: 'screening',
     summary: 'Workspace has moved beyond apply. Screening notes, recruiter context, and next-step prep belong here now.',
     sections: {
       INTERESTED: {
@@ -168,6 +382,8 @@ const OPPORTUNITIES: Opportunity[] = [
     location: 'San Francisco, California',
     currentStage: 'INTERVIEW',
     stale: '11m',
+    signal: 'Prep stories need tightening',
+    chip: 'interview',
     summary: 'At interview stage, the workspace turns into prep and debrief history, not just application tracking.',
     sections: {
       INTERESTED: {
@@ -196,6 +412,8 @@ const OPPORTUNITIES: Opportunity[] = [
     location: 'Remote',
     currentStage: 'OFFER',
     stale: '3h',
+    signal: 'Decision stage with offer notes',
+    chip: 'offer',
     summary: 'Offer stage should open the same workspace, with all earlier history intact and the decision section now active.',
     sections: {
       INTERESTED: {
@@ -230,12 +448,8 @@ function stageStatus(opportunity: Opportunity, stage: StageId) {
   const currentIndex = STAGE_ORDER.indexOf(opportunity.currentStage);
   const stageIndex = STAGE_ORDER.indexOf(stage);
 
-  if (stage === 'NEW') {
-    return opportunity.currentStage === 'NEW' ? 'active' : 'hidden';
-  }
-  if (opportunity.currentStage === 'NEW') {
-    return stage === 'INTERESTED' ? 'next' : 'future';
-  }
+  if (stage === 'NEW') return opportunity.currentStage === 'NEW' ? 'active' : 'hidden';
+  if (opportunity.currentStage === 'NEW') return stage === 'INTERESTED' ? 'next' : 'future';
   if (stageIndex < currentIndex) return 'complete';
   if (stageIndex === currentIndex) return 'active';
   if (stageIndex === currentIndex + 1) return 'next';
@@ -247,8 +461,8 @@ function sectionTone(status: ReturnType<typeof stageStatus>, stage: StageId) {
 
   if (status === 'active') {
     return {
-      border: `${accent}66`,
-      background: `${accent}14`,
+      border: `${accent}75`,
+      background: `${accent}15`,
       badge: 'current',
       badgeStyle: { color: accent, background: `${accent}22` },
     };
@@ -257,9 +471,9 @@ function sectionTone(status: ReturnType<typeof stageStatus>, stage: StageId) {
   if (status === 'complete') {
     return {
       border: 'rgba(255,255,255,0.12)',
-      background: 'rgba(255,255,255,0.03)',
+      background: 'rgba(255,255,255,0.028)',
       badge: 'history',
-      badgeStyle: { color: '#d8dde7', background: 'rgba(255,255,255,0.06)' },
+      badgeStyle: { color: '#dbe2ef', background: 'rgba(255,255,255,0.06)' },
     };
   }
 
@@ -268,7 +482,7 @@ function sectionTone(status: ReturnType<typeof stageStatus>, stage: StageId) {
       border: 'rgba(255,255,255,0.12)',
       background: 'rgba(255,255,255,0.02)',
       badge: 'next',
-      badgeStyle: { color: '#f3d59b', background: 'rgba(248,197,106,0.15)' },
+      badgeStyle: { color: '#f3d59b', background: 'rgba(248,197,106,0.14)' },
     };
   }
 
@@ -288,333 +502,450 @@ function initials(company: string) {
     .join('');
 }
 
-export default function CockpitPrototypeClient() {
-  const [selectedOpportunityId, setSelectedOpportunityId] = useState('opp-deloitte');
-  const selectedOpportunity =
-    OPPORTUNITIES.find((opportunity) => opportunity.id === selectedOpportunityId) ?? OPPORTUNITIES[0];
-
-  const currentSectionStage = selectedOpportunity.currentStage === 'NEW' ? 'INTERESTED' : selectedOpportunity.currentStage;
+function OpportunityIdentity({
+  opportunity,
+  compact = false,
+}: {
+  opportunity: Opportunity;
+  compact?: boolean;
+}) {
+  const accent = STAGE_META[opportunity.currentStage].accent;
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[#03060a] text-white">
-      <style>{`
-        @keyframes telemetryPulse {
-          0% {
-            opacity: 0.4;
-            transform: scaleY(0.45);
-          }
-          50% {
-            opacity: 1;
-            transform: scaleY(1);
-          }
-          100% {
-            opacity: 0.4;
-            transform: scaleY(0.45);
-          }
-        }
-
-        @keyframes workspaceSwap {
-          0% {
-            opacity: 0.52;
-            transform: translateY(18px) scale(0.985);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        .telemetry-bar {
-          animation: telemetryPulse 2.3s ease-in-out infinite;
-          transform-origin: bottom;
-        }
-
-        .workspace-swap {
-          animation: workspaceSwap 420ms ease-out;
-        }
-      `}</style>
-
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_20%,rgba(90,180,255,0.13),transparent_35%),radial-gradient(circle_at_86%_12%,rgba(68,230,140,0.12),transparent_28%),linear-gradient(180deg,#05080d_0%,#03060a_55%,#020408_100%)]" />
+    <motion.div
+      layoutId={`opportunity-identity-${opportunity.id}`}
+      transition={SHARED_TRANSITION}
+      className={cn('flex min-w-0 items-center gap-3', compact ? 'gap-2.5' : 'gap-3.5')}
+    >
+      <div
+        className={cn(
+          'flex shrink-0 items-center justify-center rounded-2xl border font-semibold',
+          compact ? 'h-9 w-9 text-[11px]' : 'h-11 w-11 text-xs',
+        )}
+        style={{ borderColor: `${accent}66`, color: accent, background: `${accent}18` }}
+      >
+        {initials(opportunity.company)}
       </div>
+      <div className="min-w-0">
+        <div className={cn('truncate font-semibold text-white', compact ? 'text-[12px]' : 'text-sm')}>{opportunity.company}</div>
+        <div className={cn('truncate text-white/72', compact ? 'text-[11px]' : 'text-[13px]')}>{opportunity.role}</div>
+      </div>
+    </motion.div>
+  );
+}
 
-      <div className="relative z-10 w-full px-4 pb-8 pt-6 sm:px-6 lg:px-8">
-        <header className="grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_2fr]">
-          <section className="rounded-[24px] border border-white/12 bg-gradient-to-br from-[#101825] to-[#0b121c] p-6">
-            <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">JobScout cockpit</div>
-            <h1 className="mt-2 font-['Sora',_sans-serif] text-3xl font-semibold leading-tight">Good morning, Richard</h1>
-            <p className="mt-2 max-w-xl text-sm text-white/64">
-              River stays primary. Click any opportunity and the matching workspace below opens with the current stage ready to work.
-            </p>
-          </section>
+export default function CockpitPrototypeClient() {
+  const [selectedOpportunityId, setSelectedOpportunityId] = useState('opp-deloitte');
+  const [browsingStage, setBrowsingStage] = useState<StageId | null>(null);
 
-          <section className="rounded-[24px] border border-white/12 bg-gradient-to-br from-[#0e1f28] via-[#0b131b] to-[#081018] p-6">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] uppercase tracking-[0.18em] text-white/44">Live telemetry</div>
-              <span className="rounded-full border border-emerald-300/30 bg-emerald-300/12 px-3 py-1 text-[11px] text-emerald-100">
-                Ambient motion
-              </span>
-            </div>
-            <div className="mt-4 flex h-16 items-end gap-2">
-              {new Array(24).fill(0).map((_, index) => (
-                <div
-                  key={`telemetry-${index}`}
-                  className="telemetry-bar w-2 rounded-t-sm bg-gradient-to-t from-[#3de56f]/30 to-[#62c8ff]"
-                  style={{
-                    height: `${14 + ((index * 13) % 44)}px`,
-                    animationDelay: `${index * 70}ms`,
-                  }}
-                />
+  const selectedOpportunity = OPPORTUNITIES.find((opportunity) => opportunity.id === selectedOpportunityId) ?? OPPORTUNITIES[0];
+
+  const stageItemsMap = useMemo(
+    () =>
+      Object.fromEntries(STAGE_ORDER.map((stage) => [stage, itemsForStage(stage)])) as Record<StageId, Opportunity[]>,
+    [],
+  );
+
+  const browserItems = browsingStage ? stageItemsMap[browsingStage] : [];
+  const currentSectionStage = selectedOpportunity.currentStage === 'NEW' ? 'INTERESTED' : selectedOpportunity.currentStage;
+
+  useEffect(() => {
+    if (!browsingStage) return;
+
+    function handleKeydown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setBrowsingStage(null);
+    }
+
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
+  }, [browsingStage]);
+
+  return (
+    <LayoutGroup id="cockpit-prototype">
+      <main className="min-h-screen bg-[#03060a] text-white">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,rgba(90,180,255,0.12),transparent_32%),radial-gradient(circle_at_82%_8%,rgba(68,230,140,0.10),transparent_24%),linear-gradient(180deg,#05080d_0%,#03060a_48%,#020408_100%)]" />
+
+        <div className="relative z-10 w-full px-4 pb-10 pt-4 sm:px-6 lg:px-8">
+          <header className="flex items-center justify-between gap-4 border-b border-white/8 pb-3">
+            <div className="text-sm font-medium tracking-[0.02em] text-white/88">Good morning, Richard</div>
+            <div className="flex items-center gap-2 text-white/56">
+              {[
+                { label: 'Inbox fallback', icon: Inbox },
+                { label: 'Pipeline fallback', icon: KanbanSquare },
+                { label: 'Resume fallback', icon: FileText },
+                { label: 'Workspace fallback', icon: PanelRight },
+              ].map(({ label, icon: Icon }) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-label={`Open ${label}`}
+                  className="rounded-full border border-white/10 bg-white/[0.03] p-2.5 transition hover:border-white/20 hover:bg-white/[0.06]"
+                >
+                  <Icon className="h-4 w-4" />
+                </button>
               ))}
             </div>
-          </section>
-        </header>
+          </header>
 
-        <section className="mt-5 rounded-[28px] border border-white/14 bg-[#080d14]/90 px-4 py-5 sm:px-5">
-          <div className="flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-white/42">The river</div>
-            <div className="text-xs text-white/55">Select one opportunity. The workspace below switches 1:1.</div>
-          </div>
-
-          <div className="mt-3 overflow-x-auto pb-2">
-            <div className="flex min-w-[1320px] gap-3">
-              {STAGE_ORDER.map((stage) => {
-                const stageItems = itemsForStage(stage);
-                const stageMeta = STAGE_META[stage];
-
-                return (
-                  <section
-                    key={stage}
-                    className="min-h-[286px] flex-1 rounded-[20px] border border-white/10 bg-white/[0.02] px-3 py-3"
-                    style={{ boxShadow: `0 0 0 1px ${stageMeta.accent}22 inset` }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-semibold" style={{ color: stageMeta.accent }}>
-                          {stageMeta.label}
-                        </div>
-                        <div className="text-[11px] text-white/50">{stageItems.length} opportunities</div>
-                      </div>
-                      <div
-                        className="rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em]"
-                        style={{ background: `${stageMeta.accent}22`, color: stageMeta.accent }}
-                      >
-                        beach
-                      </div>
-                    </div>
-
-                    <div className="mt-2 h-px bg-white/10" />
-
-                    <div className="mt-3 space-y-2.5">
-                      {stageItems.map((opportunity) => {
-                        const selected = opportunity.id === selectedOpportunity.id;
-                        return (
-                          <button
-                            key={opportunity.id}
-                            type="button"
-                            aria-label={`Open ${opportunity.company} ${opportunity.role} workspace`}
-                            onClick={() => setSelectedOpportunityId(opportunity.id)}
-                            className={cn(
-                              'w-full rounded-[14px] border px-3 py-3 text-left transition-all duration-300 ease-out',
-                              selected ? 'border-white/28 bg-white/[0.08] shadow-[0_0_0_1px_rgba(255,255,255,0.08)_inset]' : 'border-white/10 bg-black/24 hover:border-white/20 hover:bg-white/[0.04]',
-                            )}
-                            style={{
-                              boxShadow: selected ? `0 0 0 1px ${stageMeta.accent}66 inset, 0 18px 32px -24px ${stageMeta.accent}aa` : undefined,
-                            }}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div
-                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-xs font-semibold"
-                                style={{ borderColor: `${stageMeta.accent}66`, color: stageMeta.accent, background: `${stageMeta.accent}18` }}
-                              >
-                                {initials(opportunity.company)}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="truncate text-sm font-semibold text-white">{opportunity.company}</div>
-                                <div className="truncate text-[12px] text-white/74">{opportunity.role}</div>
-                                <div className="mt-2 flex items-center justify-between text-[10px] text-white/44">
-                                  <span className="truncate">{opportunity.location}</span>
-                                  <span>{opportunity.stale}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
-
-                      {stageItems.length === 0 ? (
-                        <div className="rounded-[14px] border border-dashed border-white/8 px-3 py-6 text-center text-xs text-white/35">
-                          Empty beach for now
-                        </div>
-                      ) : null}
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-4 rounded-[28px] border border-white/14 bg-[#060b12]/92 px-4 py-5 sm:px-5">
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Opportunity workspace</div>
-              <h2 className="mt-2 font-['Sora',_sans-serif] text-2xl font-semibold">
-                {selectedOpportunity.role}
-              </h2>
-              <p className="mt-1 text-sm text-white/58">
-                {selectedOpportunity.company} · {selectedOpportunity.location}
-              </p>
-            </div>
-            <div
-              className="rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em]"
-              style={{
-                color: STAGE_META[selectedOpportunity.currentStage].accent,
-                background: `${STAGE_META[selectedOpportunity.currentStage].accent}22`,
-              }}
-            >
-              Current stage: {STAGE_META[selectedOpportunity.currentStage].label}
-            </div>
-          </div>
-
-          <div key={selectedOpportunity.id} className="workspace-swap grid gap-4 lg:grid-cols-[1.35fr_0.75fr]">
-            <section className="rounded-[20px] border border-white/10 bg-white/[0.025] p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Workspace logic</div>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-white/72">{selectedOpportunity.summary}</p>
-                </div>
-                <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] text-white/55">
-                  1 opportunity = 1 workspace
-                </span>
+          <section className="mt-4 rounded-[28px] border border-white/12 bg-[#070c13]/88 px-4 py-5 sm:px-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.2em] text-white/40">The river</div>
+                <p className="mt-2 text-sm text-white/58">Stable kanban on top. Click a stage to browse. Click a card to open the workspace below.</p>
               </div>
+              <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-white/56">
+                River-first cockpit
+              </div>
+            </div>
 
-              <div className="mt-5 space-y-3">
-                {STAGE_ORDER.filter((stage) => stage !== 'NEW').map((stage) => {
-                  const status = stageStatus(selectedOpportunity, stage);
-                  const tone = sectionTone(status, stage);
-                  const section = selectedOpportunity.sections[stage];
-                  const isCurrent = stage === currentSectionStage;
+            <div className="mt-4 overflow-x-auto pb-2">
+              <div className="grid min-w-[1420px] grid-cols-7 gap-3">
+                {STAGE_ORDER.map((stage) => {
+                  const stageItems = stageItemsMap[stage];
+                  const stageMeta = STAGE_META[stage];
+                  const previewItems = stageItems.slice(0, RIVER_PREVIEW_LIMIT);
+                  const hiddenCount = Math.max(stageItems.length - previewItems.length, 0);
+                  const stageFocused = browsingStage === stage;
 
                   return (
-                    <article
-                      key={`${selectedOpportunity.id}-${stage}`}
-                      className={cn(
-                        'rounded-[18px] border px-4 py-4 transition-all duration-300 ease-out',
-                        isCurrent ? 'shadow-[0_22px_60px_-32px_rgba(0,0,0,0.8)]' : '',
-                      )}
-                      style={{ borderColor: tone.border, background: tone.background }}
+                    <motion.section
+                      key={stage}
+                      layout
+                      className="rounded-[22px] border border-white/10 bg-white/[0.018] px-3 py-3"
+                      style={{ boxShadow: `0 0 0 1px ${stageMeta.accent}24 inset` }}
                     >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div className="text-sm font-semibold" style={{ color: STAGE_META[stage].accent }}>
-                            {STAGE_META[stage].label}
+                      <button
+                        type="button"
+                        aria-label={`Browse ${stageMeta.label} opportunities`}
+                        onClick={() => setBrowsingStage(stage)}
+                        className={cn(
+                          'w-full rounded-[16px] border px-3 py-3 text-left transition',
+                          stageFocused ? 'border-white/20 bg-white/[0.05]' : 'border-transparent hover:border-white/12 hover:bg-white/[0.03]',
+                        )}
+                      >
+                        <motion.div layoutId={`stage-bridge-${stage}`} transition={SHARED_TRANSITION}>
+                          <div className="flex items-center justify-between gap-2">
+                            <div>
+                              <div className="text-sm font-semibold" style={{ color: stageMeta.accent }}>
+                                {stageMeta.label}
+                              </div>
+                              <div className="mt-1 text-[11px] text-white/48">{stageItems.length} opportunities</div>
+                            </div>
+                            <div
+                              className="rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.12em]"
+                              style={{ color: stageMeta.accent, background: `${stageMeta.accent}20` }}
+                            >
+                              browse
+                            </div>
                           </div>
-                          <div className="mt-1 text-[12px] text-white/48">{STAGE_META[stage].hint}</div>
-                        </div>
-                        <span className="rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.12em]" style={tone.badgeStyle}>
-                          {tone.badge}
-                        </span>
+                        </motion.div>
+                      </button>
+
+                      <div className="mt-3 space-y-2">
+                        {previewItems.length > 0 ? (
+                          previewItems.map((opportunity) => {
+                            const selected = selectedOpportunity.id === opportunity.id && browsingStage === null;
+                            return (
+                              <motion.button
+                                key={opportunity.id}
+                                layout
+                                type="button"
+                                aria-label={`Open river workspace for ${opportunity.company} ${opportunity.role}`}
+                                onClick={() => {
+                                  setSelectedOpportunityId(opportunity.id);
+                                  setBrowsingStage(null);
+                                }}
+                                className={cn(
+                                  'w-full rounded-[14px] border px-3 py-2.5 text-left transition',
+                                  selected ? 'border-white/24 bg-white/[0.08]' : 'border-white/8 bg-black/22 hover:border-white/16 hover:bg-white/[0.04]',
+                                )}
+                                style={{
+                                  boxShadow: selected ? `0 0 0 1px ${stageMeta.accent}66 inset, 0 14px 28px -22px ${stageMeta.accent}aa` : undefined,
+                                }}
+                              >
+                                <OpportunityIdentity opportunity={opportunity} compact />
+                                <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-white/44">
+                                  <span className="truncate">{opportunity.signal}</span>
+                                  <span>{opportunity.stale}</span>
+                                </div>
+                              </motion.button>
+                            );
+                          })
+                        ) : (
+                          <div className="rounded-[14px] border border-dashed border-white/8 px-3 py-10 text-center text-xs text-white/34">
+                            Empty beach
+                          </div>
+                        )}
+
+                        {hiddenCount > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => setBrowsingStage(stage)}
+                            aria-label={`Browse ${hiddenCount} more ${stageMeta.label.toLowerCase()} opportunities`}
+                            className="w-full rounded-[14px] border border-dashed border-white/10 px-3 py-3 text-left text-xs text-white/58 transition hover:border-white/18 hover:text-white/74"
+                          >
+                            +{hiddenCount} more in {stageMeta.label.toLowerCase()}
+                          </button>
+                        ) : null}
                       </div>
-
-                      {status === 'future' ? (
-                        <div className="mt-4 rounded-[14px] border border-dashed border-white/10 px-4 py-4 text-sm text-white/38">
-                          Blank until this opportunity reaches {STAGE_META[stage].label.toLowerCase()}.
-                        </div>
-                      ) : null}
-
-                      {status === 'next' ? (
-                        <div className="mt-4 rounded-[14px] border border-white/10 bg-black/18 px-4 py-4 text-sm text-white/54">
-                          This section becomes active immediately after the opportunity moves here.
-                        </div>
-                      ) : null}
-
-                      {status !== 'future' && status !== 'next' && section ? (
-                        <div className="mt-4 grid gap-3 lg:grid-cols-[1.25fr_0.9fr]">
-                          <div className="rounded-[14px] border border-white/10 bg-black/18 p-4">
-                            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
-                              <FileText className="h-3.5 w-3.5" />
-                              Notes
-                            </div>
-                            <div className="mt-3 space-y-2.5 text-sm text-white/82">
-                              {section.notes.map((note) => (
-                                <div key={note} className="rounded-[10px] border border-white/10 bg-white/[0.02] px-3 py-2">
-                                  {note}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="rounded-[14px] border border-white/10 bg-black/18 p-4">
-                            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
-                              <Mail className="h-3.5 w-3.5" />
-                              Attachments + meta
-                            </div>
-                            <div className="mt-3 space-y-2 text-sm text-white/78">
-                              {section.artifacts && section.artifacts.length > 0 ? (
-                                section.artifacts.map((artifact) => (
-                                  <div key={artifact} className="rounded-[10px] border border-white/10 bg-white/[0.02] px-3 py-2">
-                                    {artifact}
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="rounded-[10px] border border-dashed border-white/10 px-3 py-3 text-white/40">
-                                  No artifacts attached in this stage yet.
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
-                    </article>
+                    </motion.section>
                   );
                 })}
               </div>
-            </section>
+            </div>
+          </section>
 
-            <aside className="space-y-4">
-              <section className="rounded-[18px] border border-white/12 bg-[#0b1016]/92 p-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">Jump back in</div>
-                  <Clock3 className="h-4 w-4 text-white/55" />
+          {browsingStage ? (
+            <motion.section
+              key={`browser-${browsingStage}`}
+              layout
+              transition={SHARED_TRANSITION}
+              className="mt-5 rounded-[28px] border border-white/12 bg-[#060b12]/92 px-4 py-5 sm:px-5"
+            >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <motion.div
+                      layoutId={`stage-bridge-${browsingStage}`}
+                      transition={SHARED_TRANSITION}
+                      className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2"
+                    >
+                      <span
+                        className="rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.12em]"
+                        style={{
+                          color: STAGE_META[browsingStage].accent,
+                          background: `${STAGE_META[browsingStage].accent}20`,
+                        }}
+                      >
+                        {STAGE_META[browsingStage].label}
+                      </span>
+                      <span className="text-[11px] text-white/58">{browserItems.length} opportunities</span>
+                    </motion.div>
+                    <h2 className="mt-4 font-['Sora',_sans-serif] text-2xl font-semibold">
+                      {STAGE_META[browsingStage].label} opportunities
+                    </h2>
+                    <p className="mt-2 max-w-3xl text-sm text-white/58">
+                      Dense browser mode for this beach. Pick one opportunity to turn this surface into its workspace. Press <span className="text-white/82">Esc</span> or close it.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    aria-label="Close stage browser"
+                    onClick={() => setBrowsingStage(null)}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/70 transition hover:border-white/18 hover:bg-white/[0.07]"
+                  >
+                    <X className="h-4 w-4" />
+                    Close
+                  </button>
                 </div>
-                <div className="mt-3 space-y-2.5">
-                  {[
-                    'Deloitte rewrite review pending',
-                    'Nvidia screening notes due in 20m',
-                    'Anthropic prep notes need examples',
-                  ].map((item) => (
-                    <div key={item} className="rounded-[12px] border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/80">
-                      {item}
+
+                <motion.div layout className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
+                  {browserItems.map((opportunity) => {
+                    const accent = STAGE_META[opportunity.currentStage].accent;
+                    return (
+                      <motion.button
+                        key={opportunity.id}
+                        layout
+                        type="button"
+                        aria-label={`Open browser workspace for ${opportunity.company} ${opportunity.role}`}
+                        onClick={() => {
+                          setSelectedOpportunityId(opportunity.id);
+                          setBrowsingStage(null);
+                        }}
+                        className="rounded-[18px] border border-white/10 bg-black/22 px-3 py-3 text-left transition hover:border-white/18 hover:bg-white/[0.05]"
+                      >
+                        <OpportunityIdentity opportunity={opportunity} compact />
+                        <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-white/46">
+                          <span className="truncate">{opportunity.signal}</span>
+                          <span>{opportunity.stale}</span>
+                        </div>
+                        <div className="mt-3 flex items-center justify-between gap-2">
+                          <span
+                            className="rounded-full px-2.5 py-1 text-[10px]"
+                            style={{ color: accent, background: `${accent}18` }}
+                          >
+                            {opportunity.chip ?? 'live'}
+                          </span>
+                          <span className="text-[10px] text-white/34">{opportunity.location}</span>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+                </motion.div>
+            </motion.section>
+          ) : (
+            <motion.section
+              key={`workspace-${selectedOpportunity.id}`}
+              layout
+              transition={SHARED_TRANSITION}
+              className="mt-5 rounded-[28px] border border-white/12 bg-[#060b12]/92 px-4 py-5 sm:px-5"
+            >
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Opportunity workspace</div>
+                    <div className="mt-3 inline-flex max-w-full rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-3">
+                      <OpportunityIdentity opportunity={selectedOpportunity} />
                     </div>
-                  ))}
-                </div>
-              </section>
+                    <h2 className="sr-only">{selectedOpportunity.role}</h2>
+                    <p className="mt-3 max-w-4xl text-sm leading-6 text-white/66">{selectedOpportunity.summary}</p>
+                  </div>
 
-              <section className="rounded-[18px] border border-white/12 bg-[#0b1116]/92 p-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">While you were out</div>
-                  <Sparkles className="h-4 w-4 text-[#8ad7ff]" />
-                </div>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                    <div className="text-xs text-white/50">New jobs</div>
-                    <div className="mt-1 text-lg font-semibold">4,327</div>
-                  </div>
-                  <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                    <div className="text-xs text-white/50">Profile fit</div>
-                    <div className="mt-1 text-lg font-semibold">18</div>
-                  </div>
-                  <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-2.5 text-center">
-                    <div className="text-xs text-white/50">90%+</div>
-                    <div className="mt-1 text-lg font-semibold">3</div>
+                  <div className="flex items-center gap-2 self-start">
+                    <span
+                      aria-label={`Current stage: ${STAGE_META[selectedOpportunity.currentStage].label}`}
+                      className="rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em]"
+                      style={{
+                        color: STAGE_META[selectedOpportunity.currentStage].accent,
+                        background: `${STAGE_META[selectedOpportunity.currentStage].accent}22`,
+                      }}
+                    >
+                      {`Current stage: ${STAGE_META[selectedOpportunity.currentStage].label}`}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] text-white/54">
+                      1 opportunity = 1 workspace
+                    </span>
                   </div>
                 </div>
-              </section>
-            </aside>
-          </div>
-        </section>
-      </div>
-    </main>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {STAGE_ORDER.filter((stage) => stage !== 'NEW').map((stage) => {
+                    const status = stageStatus(selectedOpportunity, stage);
+                    return (
+                      <span
+                        key={`${selectedOpportunity.id}-track-${stage}`}
+                        className="rounded-full border px-3 py-1 text-[11px]"
+                        style={{
+                          borderColor: status === 'active' ? `${STAGE_META[stage].accent}66` : 'rgba(255,255,255,0.1)',
+                          color: status === 'active' ? STAGE_META[stage].accent : 'rgba(255,255,255,0.55)',
+                          background: status === 'active' ? `${STAGE_META[stage].accent}18` : 'rgba(255,255,255,0.025)',
+                        }}
+                      >
+                        {STAGE_META[stage].label}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  {STAGE_ORDER.filter((stage) => stage !== 'NEW').map((stage) => {
+                    const status = stageStatus(selectedOpportunity, stage);
+                    const tone = sectionTone(status, stage);
+                    const section = selectedOpportunity.sections[stage];
+                    const isCurrent = stage === currentSectionStage;
+
+                    return (
+                      <article
+                        key={`${selectedOpportunity.id}-${stage}`}
+                        className={cn(
+                          'rounded-[18px] border px-4 py-4 transition-all duration-300 ease-out',
+                          isCurrent ? 'shadow-[0_24px_70px_-38px_rgba(0,0,0,0.88)]' : '',
+                        )}
+                        style={{ borderColor: tone.border, background: tone.background }}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-semibold" style={{ color: STAGE_META[stage].accent }}>
+                              {STAGE_META[stage].label}
+                            </div>
+                            <div className="mt-1 text-[12px] text-white/48">{STAGE_META[stage].hint}</div>
+                          </div>
+                          <span className="rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.12em]" style={tone.badgeStyle}>
+                            {tone.badge}
+                          </span>
+                        </div>
+
+                        {status === 'future' ? (
+                          <div className="mt-4 rounded-[14px] border border-dashed border-white/10 px-4 py-4 text-sm text-white/38">
+                            Blank until this opportunity reaches {STAGE_META[stage].label.toLowerCase()}.
+                          </div>
+                        ) : null}
+
+                        {status === 'next' ? (
+                          <div className="mt-4 rounded-[14px] border border-white/10 bg-black/18 px-4 py-4 text-sm text-white/54">
+                            This section becomes active immediately after the opportunity moves here.
+                          </div>
+                        ) : null}
+
+                        {status !== 'future' && status !== 'next' && section ? (
+                          <div className="mt-4 grid gap-3 lg:grid-cols-[1.25fr_0.9fr]">
+                            <div className="rounded-[14px] border border-white/10 bg-black/18 p-4">
+                              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
+                                <FileText className="h-3.5 w-3.5" />
+                                Notes
+                              </div>
+                              <div className="mt-3 space-y-2.5 text-sm text-white/82">
+                                {section.notes.map((note) => (
+                                  <div key={note} className="rounded-[10px] border border-white/10 bg-white/[0.02] px-3 py-2">
+                                    {note}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="rounded-[14px] border border-white/10 bg-black/18 p-4">
+                              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
+                                <Mail className="h-3.5 w-3.5" />
+                                Attachments + meta
+                              </div>
+                              <div className="mt-3 space-y-2 text-sm text-white/78">
+                                {section.artifacts && section.artifacts.length > 0 ? (
+                                  section.artifacts.map((artifact) => (
+                                    <div key={artifact} className="rounded-[10px] border border-white/10 bg-white/[0.02] px-3 py-2">
+                                      {artifact}
+                                    </div>
+                                  ))
+                                ) : (
+                                  <div className="rounded-[10px] border border-dashed border-white/10 px-3 py-3 text-white/40">
+                                    No artifacts attached in this stage yet.
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
+            </motion.section>
+          )}
+
+          <section className="mt-6 grid gap-3 text-white/72 lg:grid-cols-[1fr_1.25fr]">
+            <div className="rounded-[18px] border border-white/8 bg-white/[0.02] p-4">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-white/38">Jump back in</div>
+                <Clock3 className="h-4 w-4 text-white/42" />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                {['Deloitte rewrite review pending', 'Nvidia screening notes due in 20m', 'Anthropic prep notes need examples'].map((item) => (
+                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-white/66">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[18px] border border-white/8 bg-white/[0.02] p-4">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-white/38">While you were out</div>
+                <Sparkles className="h-4 w-4 text-[#8ad7ff]" />
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                {[
+                  { label: 'New jobs', value: '4,327' },
+                  { label: 'Profile fit', value: '18' },
+                  { label: '90%+', value: '3' },
+                ].map((stat) => (
+                  <div key={stat.label} className="rounded-[14px] border border-white/8 bg-white/[0.02] px-3 py-3">
+                    <div className="text-xs text-white/42">{stat.label}</div>
+                    <div className="mt-1 text-xl font-semibold text-white/84">{stat.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </LayoutGroup>
   );
 }
