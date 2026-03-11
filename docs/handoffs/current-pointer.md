@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — applies cockpit prototype pass 2 surface differentiation on `/dashboard-cockpit-prototype`: river stays light and map-like, stage browser becomes a filled selector tray, workspace becomes a solid dossier surface, and the shared identity blocks now use real fills instead of outline-only differentiation
 - `abe654e` — redesigns `/dashboard-cockpit-prototype` into the approved two-surface mock: stable river on top, a dual-purpose lower surface that switches between selected-opportunity workspace and full-width stage browser, direct river-card workspace opens, stage-header browser opens, `Close`/`Esc` browser exit, and shared-element identity motion between stage -> browser -> workspace
 - `pending local checkpoint` — rebuilds `/dashboard-cockpit-prototype` around the clarified cockpit model: river as the full cross-stage kanban, individually selectable opportunities, and one persistent workspace below where past/current/next/future stage sections all belong to the same opportunity
 - `pending local checkpoint` — stabilizes cockpit `CRAFTING` rewrite completion timing with a hard timeout and profile-based fallback draft path so rewrites no longer hang indefinitely; browser proof now includes a completed staged rewrite with narrative diffs visible
@@ -95,6 +96,20 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## What Was Finished
 
+- `/dashboard-cockpit-prototype` now has a second visual pass focused on surface differentiation instead of new behavior.
+- The interaction model did not change:
+  - river cards still open workspace directly
+  - stage headers still open the lower stage browser
+  - browser mini-cards still open the selected opportunity workspace
+- The visual grammar is now intentionally split across three surfaces:
+  - river = lighter map-like lanes and denser preview objects
+  - stage browser = filled selector tray
+  - workspace = solid dossier/workbench surface
+- This pass replaces outline-only state changes with real background fills.
+- Shared identity blocks now morph between visibly different filled surfaces instead of appearing as hollow boxes in every context.
+- Proof artifacts for this pass now live at:
+  - `job-search-platform/output/playwright/cockpit-prototype-pass2-default.png`
+  - `job-search-platform/output/playwright/cockpit-prototype-pass2-browser.png`
 - `/dashboard-cockpit-prototype` now follows the approved mock-only two-surface cockpit design instead of the earlier workspace-first prototype shell.
 - The top strip is now intentionally thin:
   - small `Good morning, Richard`

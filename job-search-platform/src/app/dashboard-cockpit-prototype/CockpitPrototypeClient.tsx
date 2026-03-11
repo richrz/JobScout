@@ -502,20 +502,48 @@ function initials(company: string) {
     .join('');
 }
 
+function withAlpha(color: string, alpha: string) {
+  return `${color}${alpha}`;
+}
+
 function OpportunityIdentity({
   opportunity,
   compact = false,
+  variant = 'river',
 }: {
   opportunity: Opportunity;
   compact?: boolean;
+  variant?: 'river' | 'browser' | 'workspace';
 }) {
   const accent = STAGE_META[opportunity.currentStage].accent;
+  const variantClasses =
+    variant === 'workspace'
+      ? 'rounded-[22px] border px-4 py-3.5 shadow-[0_24px_60px_-42px_rgba(0,0,0,0.95)]'
+      : variant === 'browser'
+        ? 'rounded-[18px] border px-3 py-2.5'
+        : 'rounded-[14px] border px-2.5 py-2';
+  const variantStyle =
+    variant === 'workspace'
+      ? {
+          borderColor: withAlpha(accent, '4f'),
+          background: `linear-gradient(135deg, ${withAlpha(accent, '24')} 0%, rgba(18,24,33,0.96) 68%)`,
+        }
+      : variant === 'browser'
+        ? {
+            borderColor: withAlpha(accent, '3d'),
+            background: `linear-gradient(180deg, ${withAlpha(accent, '18')} 0%, rgba(10,14,20,0.92) 100%)`,
+          }
+        : {
+            borderColor: 'rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.025)',
+          };
 
   return (
     <motion.div
       layoutId={`opportunity-identity-${opportunity.id}`}
       transition={SHARED_TRANSITION}
-      className={cn('flex min-w-0 items-center gap-3', compact ? 'gap-2.5' : 'gap-3.5')}
+      className={cn('flex min-w-0 items-center gap-3', compact ? 'gap-2.5' : 'gap-3.5', variantClasses)}
+      style={variantStyle}
     >
       <div
         className={cn(
@@ -548,6 +576,8 @@ export default function CockpitPrototypeClient() {
 
   const browserItems = browsingStage ? stageItemsMap[browsingStage] : [];
   const currentSectionStage = selectedOpportunity.currentStage === 'NEW' ? 'INTERESTED' : selectedOpportunity.currentStage;
+  const browserAccent = browsingStage ? STAGE_META[browsingStage].accent : null;
+  const workspaceAccent = STAGE_META[selectedOpportunity.currentStage].accent;
 
   useEffect(() => {
     if (!browsingStage) return;
@@ -587,13 +617,13 @@ export default function CockpitPrototypeClient() {
             </div>
           </header>
 
-          <section className="mt-4 rounded-[28px] border border-white/12 bg-[#070c13]/88 px-4 py-5 sm:px-5">
+          <section className="mt-4 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,13,18,0.92)_0%,rgba(4,7,12,0.78)_100%)] px-4 py-5 sm:px-5">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[11px] uppercase tracking-[0.2em] text-white/40">The river</div>
                 <p className="mt-2 text-sm text-white/58">Stable kanban on top. Click a stage to browse. Click a card to open the workspace below.</p>
               </div>
-              <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-white/56">
+              <div className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] text-white/56">
                 River-first cockpit
               </div>
             </div>
@@ -611,8 +641,12 @@ export default function CockpitPrototypeClient() {
                     <motion.section
                       key={stage}
                       layout
-                      className="rounded-[22px] border border-white/10 bg-white/[0.018] px-3 py-3"
-                      style={{ boxShadow: `0 0 0 1px ${stageMeta.accent}24 inset` }}
+                      className="rounded-[24px] border px-3 py-3 backdrop-blur-[2px]"
+                      style={{
+                        borderColor: withAlpha(stageMeta.accent, '1f'),
+                        background: `linear-gradient(180deg, ${withAlpha(stageMeta.accent, '08')} 0%, rgba(5,9,14,0.58) 18%, rgba(3,6,10,0.22) 100%)`,
+                        boxShadow: `0 0 0 1px ${withAlpha(stageMeta.accent, '18')} inset`,
+                      }}
                     >
                       <button
                         type="button"
@@ -655,15 +689,16 @@ export default function CockpitPrototypeClient() {
                                   setSelectedOpportunityId(opportunity.id);
                                   setBrowsingStage(null);
                                 }}
-                                className={cn(
-                                  'w-full rounded-[14px] border px-3 py-2.5 text-left transition',
-                                  selected ? 'border-white/24 bg-white/[0.08]' : 'border-white/8 bg-black/22 hover:border-white/16 hover:bg-white/[0.04]',
-                                )}
+                                className={cn('w-full rounded-[16px] border px-3 py-2.5 text-left transition')}
                                 style={{
-                                  boxShadow: selected ? `0 0 0 1px ${stageMeta.accent}66 inset, 0 14px 28px -22px ${stageMeta.accent}aa` : undefined,
+                                  borderColor: selected ? withAlpha(stageMeta.accent, '66') : 'rgba(255,255,255,0.08)',
+                                  background: selected
+                                    ? `linear-gradient(180deg, ${withAlpha(stageMeta.accent, '18')} 0%, rgba(28,34,43,0.82) 100%)`
+                                    : 'linear-gradient(180deg, rgba(17,21,28,0.92) 0%, rgba(10,13,18,0.78) 100%)',
+                                  boxShadow: selected ? `0 0 0 1px ${stageMeta.accent}52 inset, 0 18px 34px -24px ${stageMeta.accent}88` : `0 10px 24px -28px ${stageMeta.accent}66`,
                                 }}
                               >
-                                <OpportunityIdentity opportunity={opportunity} compact />
+                                <OpportunityIdentity opportunity={opportunity} compact variant="river" />
                                 <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-white/44">
                                   <span className="truncate">{opportunity.signal}</span>
                                   <span>{opportunity.stale}</span>
@@ -700,14 +735,23 @@ export default function CockpitPrototypeClient() {
               key={`browser-${browsingStage}`}
               layout
               transition={SHARED_TRANSITION}
-              className="mt-5 rounded-[28px] border border-white/12 bg-[#060b12]/92 px-4 py-5 sm:px-5"
+              className="mt-5 rounded-[30px] border px-5 py-5 sm:px-6"
+              style={{
+                borderColor: withAlpha(browserAccent ?? '#ffffff', '28'),
+                background: `linear-gradient(180deg, ${withAlpha(browserAccent ?? '#ffffff', '14')} 0%, rgba(16,22,30,0.96) 18%, rgba(11,15,21,0.94) 100%)`,
+                boxShadow: `0 34px 80px -54px ${withAlpha(browserAccent ?? '#000000', '7a')}`,
+              }}
             >
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <motion.div
                       layoutId={`stage-bridge-${browsingStage}`}
                       transition={SHARED_TRANSITION}
-                      className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2"
+                      className="inline-flex items-center gap-3 rounded-[18px] border px-3 py-2"
+                      style={{
+                        borderColor: withAlpha(browserAccent ?? '#ffffff', '36'),
+                        background: `linear-gradient(135deg, ${withAlpha(browserAccent ?? '#ffffff', '24')} 0%, rgba(14,19,26,0.96) 100%)`,
+                      }}
                     >
                       <span
                         className="rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.12em]"
@@ -739,7 +783,8 @@ export default function CockpitPrototypeClient() {
                   </button>
                 </div>
 
-                <motion.div layout className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
+                <motion.div layout className="mt-5 rounded-[24px] border border-white/8 bg-black/18 p-3 sm:p-4">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
                   {browserItems.map((opportunity) => {
                     const accent = STAGE_META[opportunity.currentStage].accent;
                     return (
@@ -752,9 +797,14 @@ export default function CockpitPrototypeClient() {
                           setSelectedOpportunityId(opportunity.id);
                           setBrowsingStage(null);
                         }}
-                        className="rounded-[18px] border border-white/10 bg-black/22 px-3 py-3 text-left transition hover:border-white/18 hover:bg-white/[0.05]"
+                        className="rounded-[18px] border px-3 py-3 text-left transition"
+                        style={{
+                          borderColor: withAlpha(accent, '24'),
+                          background: `linear-gradient(180deg, ${withAlpha(accent, '12')} 0%, rgba(18,23,31,0.94) 100%)`,
+                          boxShadow: `0 16px 34px -28px ${withAlpha(accent, '66')}`,
+                        }}
                       >
-                        <OpportunityIdentity opportunity={opportunity} compact />
+                        <OpportunityIdentity opportunity={opportunity} compact variant="browser" />
                         <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-white/46">
                           <span className="truncate">{opportunity.signal}</span>
                           <span>{opportunity.stale}</span>
@@ -771,6 +821,7 @@ export default function CockpitPrototypeClient() {
                       </motion.button>
                     );
                   })}
+                  </div>
                 </motion.div>
             </motion.section>
           ) : (
@@ -778,13 +829,18 @@ export default function CockpitPrototypeClient() {
               key={`workspace-${selectedOpportunity.id}`}
               layout
               transition={SHARED_TRANSITION}
-              className="mt-5 rounded-[28px] border border-white/12 bg-[#060b12]/92 px-4 py-5 sm:px-5"
+              className="mt-5 rounded-[30px] border px-5 py-5 sm:px-6"
+              style={{
+                borderColor: withAlpha(workspaceAccent, '2f'),
+                background: `linear-gradient(180deg, ${withAlpha(workspaceAccent, '14')} 0%, rgba(18,24,31,0.97) 16%, rgba(14,19,25,0.98) 100%)`,
+                boxShadow: `0 44px 96px -64px ${withAlpha(workspaceAccent, '88')}`,
+              }}
             >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Opportunity workspace</div>
-                    <div className="mt-3 inline-flex max-w-full rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-3">
-                      <OpportunityIdentity opportunity={selectedOpportunity} />
+                    <div className="mt-3 inline-flex max-w-full">
+                      <OpportunityIdentity opportunity={selectedOpportunity} variant="workspace" />
                     </div>
                     <h2 className="sr-only">{selectedOpportunity.role}</h2>
                     <p className="mt-3 max-w-4xl text-sm leading-6 text-white/66">{selectedOpportunity.summary}</p>
@@ -868,21 +924,21 @@ export default function CockpitPrototypeClient() {
 
                         {status !== 'future' && status !== 'next' && section ? (
                           <div className="mt-4 grid gap-3 lg:grid-cols-[1.25fr_0.9fr]">
-                            <div className="rounded-[14px] border border-white/10 bg-black/18 p-4">
+                            <div className="rounded-[14px] border border-white/10 bg-black/16 p-4">
                               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
                                 <FileText className="h-3.5 w-3.5" />
                                 Notes
                               </div>
                               <div className="mt-3 space-y-2.5 text-sm text-white/82">
                                 {section.notes.map((note) => (
-                                  <div key={note} className="rounded-[10px] border border-white/10 bg-white/[0.02] px-3 py-2">
-                                    {note}
-                                  </div>
-                                ))}
-                              </div>
+                                    <div key={note} className="rounded-[10px] border border-white/10 bg-white/[0.035] px-3 py-2">
+                                      {note}
+                                    </div>
+                                  ))}
+                                </div>
                             </div>
 
-                            <div className="rounded-[14px] border border-white/10 bg-black/18 p-4">
+                            <div className="rounded-[14px] border border-white/10 bg-black/16 p-4">
                               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
                                 <Mail className="h-3.5 w-3.5" />
                                 Attachments + meta
@@ -890,7 +946,7 @@ export default function CockpitPrototypeClient() {
                               <div className="mt-3 space-y-2 text-sm text-white/78">
                                 {section.artifacts && section.artifacts.length > 0 ? (
                                   section.artifacts.map((artifact) => (
-                                    <div key={artifact} className="rounded-[10px] border border-white/10 bg-white/[0.02] px-3 py-2">
+                                    <div key={artifact} className="rounded-[10px] border border-white/10 bg-white/[0.035] px-3 py-2">
                                       {artifact}
                                     </div>
                                   ))
@@ -911,7 +967,7 @@ export default function CockpitPrototypeClient() {
           )}
 
           <section className="mt-6 grid gap-3 text-white/72 lg:grid-cols-[1fr_1.25fr]">
-            <div className="rounded-[18px] border border-white/8 bg-white/[0.02] p-4">
+            <div className="rounded-[18px] border border-white/8 bg-white/[0.018] p-4">
               <div className="flex items-center justify-between">
                 <div className="text-[11px] uppercase tracking-[0.18em] text-white/38">Jump back in</div>
                 <Clock3 className="h-4 w-4 text-white/42" />
@@ -925,7 +981,7 @@ export default function CockpitPrototypeClient() {
               </div>
             </div>
 
-            <div className="rounded-[18px] border border-white/8 bg-white/[0.02] p-4">
+            <div className="rounded-[18px] border border-white/8 bg-white/[0.018] p-4">
               <div className="flex items-center justify-between">
                 <div className="text-[11px] uppercase tracking-[0.18em] text-white/38">While you were out</div>
                 <Sparkles className="h-4 w-4 text-[#8ad7ff]" />

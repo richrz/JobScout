@@ -1787,6 +1787,26 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
     - `job-search-platform/output/playwright/cockpit-prototype-interested-browser.png`
     - `job-search-platform/output/playwright/cockpit-prototype-browser-to-workspace.png`
 
+# 2026-03-11 - Cockpit prototype pass 2: surface differentiation
+
+- Kept the same mock interaction model on `/dashboard-cockpit-prototype`:
+  - river cards still open workspace directly
+  - stage headers still open the lower stage browser
+  - stage-browser cards still open the selected opportunity workspace
+- Changed the visual grammar so the three surfaces no longer read like one family of hollow boxes:
+  - river = lighter map-like lanes and denser preview cards
+  - stage browser = filled selector tray
+  - workspace = solid dossier/workbench surface
+- Added real background fills instead of relying on outline-color changes.
+- Made the shared identity blocks more visible by giving them distinct filled treatments in river, browser, and workspace contexts.
+- Verified with:
+  - `tests/unit/components/dashboard/CockpitPrototypeClient.test.tsx --runInBand`
+  - `npx tsc --noEmit`
+  - browser screenshots on `/dashboard-cockpit-prototype`
+  - proof artifacts:
+    - `job-search-platform/output/playwright/cockpit-prototype-pass2-default.png`
+    - `job-search-platform/output/playwright/cockpit-prototype-pass2-browser.png`
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.
