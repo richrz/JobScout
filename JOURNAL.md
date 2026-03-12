@@ -1807,6 +1807,31 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
     - `job-search-platform/output/playwright/cockpit-prototype-pass2-default.png`
     - `job-search-platform/output/playwright/cockpit-prototype-pass2-browser.png`
 
+# 2026-03-11 - Cockpit prototype pass 3: stage glow + collapsible workspace
+
+- Kept the same prototype interaction model and focused on visual/state clarity.
+- Added stage-coupled browsing mode:
+  - selecting a stage now gives that lane a stronger beach glow
+  - stage browser tint now matches the active stage at the same time
+- Removed return-flight confusion:
+  - river cards no longer use shared-layout identity
+  - selected opportunities no longer "fly back" into river position when exiting browser mode
+- Increased workspace distinction from stage browser:
+  - browser remains a translucent selector tray
+  - workspace now uses a solid dossier/workbench fill with a stage accent rail
+- Reworked workspace sections for density and focus:
+  - stage sections are collapsible with centered down-arrow controls
+  - non-active sections start collapsed
+  - active stage now opens into a large rich-text work area (Notion-style drafting surface)
+- Updated prototype tests for the new collapsed-default behavior.
+- Verified with:
+  - `tests/unit/components/dashboard/CockpitPrototypeClient.test.tsx --runInBand`
+  - `npx tsc --noEmit`
+  - browser proof screenshots:
+    - `job-search-platform/output/playwright/cockpit-prototype-pass3-default.png`
+    - `job-search-platform/output/playwright/cockpit-prototype-pass3-stage-browser-glow.png`
+    - `job-search-platform/output/playwright/cockpit-prototype-pass3-workspace-large-editor.png`
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.

@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `463b7d9` — cockpit prototype pass 3 on `/dashboard-cockpit-prototype`: strong stage-lane glow while browsing, browser/workspace fill separation, no river return-flight animation, collapsible stage sections, and a much larger active rich-text workspace area
 - `pending local checkpoint` — applies cockpit prototype pass 2 surface differentiation on `/dashboard-cockpit-prototype`: river stays light and map-like, stage browser becomes a filled selector tray, workspace becomes a solid dossier surface, and the shared identity blocks now use real fills instead of outline-only differentiation
 - `abe654e` — redesigns `/dashboard-cockpit-prototype` into the approved two-surface mock: stable river on top, a dual-purpose lower surface that switches between selected-opportunity workspace and full-width stage browser, direct river-card workspace opens, stage-header browser opens, `Close`/`Esc` browser exit, and shared-element identity motion between stage -> browser -> workspace
 - `pending local checkpoint` — rebuilds `/dashboard-cockpit-prototype` around the clarified cockpit model: river as the full cross-stage kanban, individually selectable opportunities, and one persistent workspace below where past/current/next/future stage sections all belong to the same opportunity
