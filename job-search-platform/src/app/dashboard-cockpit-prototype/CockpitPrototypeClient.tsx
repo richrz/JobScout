@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { LayoutGroup, motion } from 'framer-motion';
-import { Clock3, FileText, Inbox, KanbanSquare, Mail, PanelRight, Sparkles, X } from 'lucide-react';
+import { ChevronDown, Clock3, FileText, Inbox, KanbanSquare, Mail, PanelRight, Sparkles, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type StageId =
@@ -510,10 +510,12 @@ function OpportunityIdentity({
   opportunity,
   compact = false,
   variant = 'river',
+  shared = true,
 }: {
   opportunity: Opportunity;
   compact?: boolean;
   variant?: 'river' | 'browser' | 'workspace';
+  shared?: boolean;
 }) {
   const accent = STAGE_META[opportunity.currentStage].accent;
   const variantClasses =
@@ -540,7 +542,7 @@ function OpportunityIdentity({
 
   return (
     <motion.div
-      layoutId={`opportunity-identity-${opportunity.id}`}
+      layoutId={shared ? `opportunity-identity-${opportunity.id}` : undefined}
       transition={SHARED_TRANSITION}
       className={cn('flex min-w-0 items-center gap-3', compact ? 'gap-2.5' : 'gap-3.5', variantClasses)}
       style={variantStyle}
@@ -565,6 +567,8 @@ function OpportunityIdentity({
 export default function CockpitPrototypeClient() {
   const [selectedOpportunityId, setSelectedOpportunityId] = useState('opp-deloitte');
   const [browsingStage, setBrowsingStage] = useState<StageId | null>(null);
+  const [collapsedByStage, setCollapsedByStage] = useState<Record<string, boolean>>({});
+  const [draftTextByStage, setDraftTextByStage] = useState<Record<string, string>>({});
 
   const selectedOpportunity = OPPORTUNITIES.find((opportunity) => opportunity.id === selectedOpportunityId) ?? OPPORTUNITIES[0];
 
@@ -589,6 +593,16 @@ export default function CockpitPrototypeClient() {
     window.addEventListener('keydown', handleKeydown);
     return () => window.removeEventListener('keydown', handleKeydown);
   }, [browsingStage]);
+
+  useEffect(() => {
+    const nextDraft: Record<string, string> = {};
+    STAGE_ORDER.filter((stage): stage is Exclude<StageId, 'NEW'> => stage !== 'NEW').forEach((stage) => {
+      const notes = selectedOpportunity.sections[stage]?.notes ?? [];
+      nextDraft[stage] = notes.join('\n\n');
+    });
+    setDraftTextByStage(nextDraft);
+    setCollapsedByStage({});
+  }, [selectedOpportunity.id]);
 
   return (
     <LayoutGroup id="cockpit-prototype">
@@ -617,7 +631,7 @@ export default function CockpitPrototypeClient() {
             </div>
           </header>
 
-          <section className="mt-4 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,13,18,0.92)_0%,rgba(4,7,12,0.78)_100%)] px-4 py-5 sm:px-5">
+          <section className="mt-4 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,14,21,0.96)_0%,rgba(5,8,14,0.9)_100%)] px-4 py-5 sm:px-5">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[11px] uppercase tracking-[0.2em] text-white/40">The river</div>
@@ -643,9 +657,13 @@ export default function CockpitPrototypeClient() {
                       layout
                       className="rounded-[24px] border px-3 py-3 backdrop-blur-[2px]"
                       style={{
-                        borderColor: withAlpha(stageMeta.accent, '1f'),
-                        background: `linear-gradient(180deg, ${withAlpha(stageMeta.accent, '08')} 0%, rgba(5,9,14,0.58) 18%, rgba(3,6,10,0.22) 100%)`,
-                        boxShadow: `0 0 0 1px ${withAlpha(stageMeta.accent, '18')} inset`,
+                        borderColor: withAlpha(stageMeta.accent, stageFocused ? '75' : '28'),
+                        background: stageFocused
+                          ? `linear-gradient(180deg, ${withAlpha(stageMeta.accent, '34')} 0%, ${withAlpha(stageMeta.accent, '18')} 32%, rgba(7,10,14,0.92) 100%)`
+                          : `linear-gradient(180deg, ${withAlpha(stageMeta.accent, '0a')} 0%, rgba(7,10,14,0.7) 24%, rgba(4,7,12,0.24) 100%)`,
+                        boxShadow: stageFocused
+                          ? `0 0 0 1px ${withAlpha(stageMeta.accent, '66')} inset, 0 26px 48px -34px ${withAlpha(stageMeta.accent, 'aa')}`
+                          : `0 0 0 1px ${withAlpha(stageMeta.accent, '1a')} inset`,
                       }}
                     >
                       <button
@@ -698,7 +716,7 @@ export default function CockpitPrototypeClient() {
                                   boxShadow: selected ? `0 0 0 1px ${stageMeta.accent}52 inset, 0 18px 34px -24px ${stageMeta.accent}88` : `0 10px 24px -28px ${stageMeta.accent}66`,
                                 }}
                               >
-                                <OpportunityIdentity opportunity={opportunity} compact variant="river" />
+                                <OpportunityIdentity opportunity={opportunity} compact variant="river" shared={false} />
                                 <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-white/44">
                                   <span className="truncate">{opportunity.signal}</span>
                                   <span>{opportunity.stale}</span>
@@ -737,8 +755,11 @@ export default function CockpitPrototypeClient() {
               transition={SHARED_TRANSITION}
               className="mt-5 rounded-[30px] border px-5 py-5 sm:px-6"
               style={{
-                borderColor: withAlpha(browserAccent ?? '#ffffff', '28'),
-                background: `linear-gradient(180deg, ${withAlpha(browserAccent ?? '#ffffff', '14')} 0%, rgba(16,22,30,0.96) 18%, rgba(11,15,21,0.94) 100%)`,
+                borderColor: withAlpha(browserAccent ?? '#ffffff', '55'),
+                background: `linear-gradient(180deg, ${withAlpha(browserAccent ?? '#ffffff', '2c')} 0%, ${withAlpha(
+                  browserAccent ?? '#ffffff',
+                  '16',
+                )} 26%, rgba(18,24,31,0.94) 100%)`,
                 boxShadow: `0 34px 80px -54px ${withAlpha(browserAccent ?? '#000000', '7a')}`,
               }}
             >
@@ -783,7 +804,7 @@ export default function CockpitPrototypeClient() {
                   </button>
                 </div>
 
-                <motion.div layout className="mt-5 rounded-[24px] border border-white/8 bg-black/18 p-3 sm:p-4">
+                <motion.div layout className="mt-5 rounded-[24px] border p-3 sm:p-4" style={{ borderColor: withAlpha(browserAccent ?? '#ffffff', '40'), background: 'rgba(14,20,28,0.72)' }}>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
                   {browserItems.map((opportunity) => {
                     const accent = STAGE_META[opportunity.currentStage].accent;
@@ -831,11 +852,12 @@ export default function CockpitPrototypeClient() {
               transition={SHARED_TRANSITION}
               className="mt-5 rounded-[30px] border px-5 py-5 sm:px-6"
               style={{
-                borderColor: withAlpha(workspaceAccent, '2f'),
-                background: `linear-gradient(180deg, ${withAlpha(workspaceAccent, '14')} 0%, rgba(18,24,31,0.97) 16%, rgba(14,19,25,0.98) 100%)`,
-                boxShadow: `0 44px 96px -64px ${withAlpha(workspaceAccent, '88')}`,
+                borderColor: withAlpha(workspaceAccent, '5f'),
+                background: `linear-gradient(180deg, rgba(30,36,45,0.98) 0%, rgba(24,29,36,0.99) 100%)`,
+                boxShadow: `0 44px 96px -64px rgba(0,0,0,0.7)`,
               }}
             >
+                <div className="mb-4 h-1.5 rounded-full" style={{ background: `linear-gradient(90deg, ${withAlpha(workspaceAccent, 'b2')} 0%, ${withAlpha(workspaceAccent, '35')} 60%, transparent 100%)` }} />
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Opportunity workspace</div>
@@ -888,6 +910,8 @@ export default function CockpitPrototypeClient() {
                     const tone = sectionTone(status, stage);
                     const section = selectedOpportunity.sections[stage];
                     const isCurrent = stage === currentSectionStage;
+                    const key = `${selectedOpportunity.id}-${stage}`;
+                    const isCollapsed = collapsedByStage[key] ?? !isCurrent;
 
                     return (
                       <article
@@ -909,34 +933,71 @@ export default function CockpitPrototypeClient() {
                             {tone.badge}
                           </span>
                         </div>
+                        <div className="mt-3 flex justify-center">
+                          <button
+                            type="button"
+                            aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} ${STAGE_META[stage].label} section`}
+                            onClick={() =>
+                              setCollapsedByStage((previous) => ({
+                                ...previous,
+                                [key]: !isCollapsed,
+                              }))
+                            }
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/14 bg-white/[0.04] text-white/70 transition hover:border-white/26 hover:bg-white/[0.08]"
+                          >
+                            <ChevronDown className={cn('h-4 w-4 transition-transform', isCollapsed ? 'rotate-[-90deg]' : 'rotate-0')} />
+                          </button>
+                        </div>
 
-                        {status === 'future' ? (
+                        {!isCollapsed && status === 'future' ? (
                           <div className="mt-4 rounded-[14px] border border-dashed border-white/10 px-4 py-4 text-sm text-white/38">
                             Blank until this opportunity reaches {STAGE_META[stage].label.toLowerCase()}.
                           </div>
                         ) : null}
 
-                        {status === 'next' ? (
+                        {!isCollapsed && status === 'next' ? (
                           <div className="mt-4 rounded-[14px] border border-white/10 bg-black/18 px-4 py-4 text-sm text-white/54">
                             This section becomes active immediately after the opportunity moves here.
                           </div>
                         ) : null}
 
-                        {status !== 'future' && status !== 'next' && section ? (
-                          <div className="mt-4 grid gap-3 lg:grid-cols-[1.25fr_0.9fr]">
-                            <div className="rounded-[14px] border border-white/10 bg-black/16 p-4">
-                              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
-                                <FileText className="h-3.5 w-3.5" />
-                                Notes
+                        {!isCollapsed && status !== 'future' && status !== 'next' && section ? (
+                          <div className="mt-4 space-y-3">
+                            {isCurrent ? (
+                              <div className="rounded-[16px] border border-white/16 bg-[#f6f0e4] p-4 text-[#2c2418]">
+                                <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a5d30]">
+                                  <FileText className="h-3.5 w-3.5" />
+                                  Active work area
+                                </div>
+                                <div
+                                  contentEditable
+                                  suppressContentEditableWarning
+                                  onInput={(event) =>
+                                    setDraftTextByStage((previous) => ({
+                                      ...previous,
+                                      [stage]: event.currentTarget.textContent ?? '',
+                                    }))
+                                  }
+                                  className="min-h-[300px] rounded-[12px] border border-[#dcc9a3] bg-white px-4 py-3 text-[15px] leading-7 text-[#2e2517] outline-none"
+                                >
+                                  {draftTextByStage[stage] ?? ''}
+                                </div>
                               </div>
-                              <div className="mt-3 space-y-2.5 text-sm text-white/82">
-                                {section.notes.map((note) => (
+                            ) : (
+                              <div className="rounded-[14px] border border-white/10 bg-black/16 p-4">
+                                <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
+                                  <FileText className="h-3.5 w-3.5" />
+                                  Notes
+                                </div>
+                                <div className="mt-3 space-y-2.5 text-sm text-white/82">
+                                  {section.notes.map((note) => (
                                     <div key={note} className="rounded-[10px] border border-white/10 bg-white/[0.035] px-3 py-2">
                                       {note}
                                     </div>
                                   ))}
                                 </div>
-                            </div>
+                              </div>
+                            )}
 
                             <div className="rounded-[14px] border border-white/10 bg-black/16 p-4">
                               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">

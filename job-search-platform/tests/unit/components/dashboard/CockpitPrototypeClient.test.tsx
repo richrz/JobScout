@@ -46,7 +46,9 @@ describe('CockpitPrototypeClient', () => {
     });
     expect((await screen.findAllByText(hasExactText('Sales Engineer - Security Integration'))).length).toBeGreaterThan(0);
     expect(await screen.findByText(hasExactText('Current stage: Interested'))).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /expand crafting section/i }));
     expect(await screen.findByText('This section becomes active immediately after the opportunity moves here.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /expand applied section/i }));
     expect(await screen.findByText('Blank until this opportunity reaches applied.')).toBeInTheDocument();
   });
 
