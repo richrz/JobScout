@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `752d142` — cockpit prototype pass 4 on `/dashboard-cockpit-prototype`: removed light editor tones, enforced dark-mode workspace, promoted selected-opportunity header prominence (company + large role title), and made browser mode explicit with "Select an opportunity below" guidance
 - `463b7d9` — cockpit prototype pass 3 on `/dashboard-cockpit-prototype`: strong stage-lane glow while browsing, browser/workspace fill separation, no river return-flight animation, collapsible stage sections, and a much larger active rich-text workspace area
 - `pending local checkpoint` — applies cockpit prototype pass 2 surface differentiation on `/dashboard-cockpit-prototype`: river stays light and map-like, stage browser becomes a filled selector tray, workspace becomes a solid dossier surface, and the shared identity blocks now use real fills instead of outline-only differentiation
 - `abe654e` — redesigns `/dashboard-cockpit-prototype` into the approved two-surface mock: stable river on top, a dual-purpose lower surface that switches between selected-opportunity workspace and full-width stage browser, direct river-card workspace opens, stage-header browser opens, `Close`/`Esc` browser exit, and shared-element identity motion between stage -> browser -> workspace

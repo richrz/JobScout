@@ -1832,6 +1832,24 @@ We kept pushing on monetization and landed on a better direction: make the Pro t
     - `job-search-platform/output/playwright/cockpit-prototype-pass3-stage-browser-glow.png`
     - `job-search-platform/output/playwright/cockpit-prototype-pass3-workspace-large-editor.png`
 
+# 2026-03-11 - Cockpit prototype pass 4: dark workspace + explicit browser mode
+
+- Removed the light/beige active editor treatment and kept the workspace fully dark-mode.
+- Promoted selected-opportunity identity in workspace:
+  - prominent company row
+  - large role title
+  - location and summary directly under the identity header
+- Added explicit browser-mode guidance text:
+  - `Select an opportunity below to open its workspace`
+  - clear mode framing for stage browsing
+- Kept pass-3 interaction model and only tightened visual/state readability.
+- Verified with:
+  - `tests/unit/components/dashboard/CockpitPrototypeClient.test.tsx --runInBand`
+  - `npx tsc --noEmit`
+  - browser proof screenshots:
+    - `job-search-platform/output/playwright/cockpit-prototype-pass4-dark-header-workspace.png`
+    - `job-search-platform/output/playwright/cockpit-prototype-pass4-browser-label.png`
+
 # 2026-03-07 - Ralph loop workflow added
 
 - Added a repo-native Ralph loop workflow for deterministic agent execution.
