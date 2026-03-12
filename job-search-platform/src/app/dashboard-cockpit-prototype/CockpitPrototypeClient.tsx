@@ -789,7 +789,8 @@ export default function CockpitPrototypeClient() {
                       {STAGE_META[browsingStage].label} opportunities
                     </h2>
                     <p className="mt-2 max-w-3xl text-sm text-white/58">
-                      Dense browser mode for this beach. Pick one opportunity to turn this surface into its workspace. Press <span className="text-white/82">Esc</span> or close it.
+                      Select an opportunity below to open its workspace. This surface is in browser mode for{' '}
+                      <span className="text-white/82">{STAGE_META[browsingStage].label}</span>. Press <span className="text-white/82">Esc</span> or close it.
                     </p>
                   </div>
 
@@ -859,13 +860,26 @@ export default function CockpitPrototypeClient() {
             >
                 <div className="mb-4 h-1.5 rounded-full" style={{ background: `linear-gradient(90deg, ${withAlpha(workspaceAccent, 'b2')} 0%, ${withAlpha(workspaceAccent, '35')} 60%, transparent 100%)` }} />
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-white/42">Opportunity workspace</div>
-                    <div className="mt-3 inline-flex max-w-full">
-                      <OpportunityIdentity opportunity={selectedOpportunity} variant="workspace" />
+                    <div className="mt-3 rounded-[20px] border p-4" style={{ borderColor: withAlpha(workspaceAccent, '44'), background: `linear-gradient(180deg, ${withAlpha(workspaceAccent, '1f')} 0%, rgba(16,20,26,0.94) 100%)` }}>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border text-xs font-semibold"
+                          style={{ borderColor: `${workspaceAccent}66`, color: workspaceAccent, background: `${workspaceAccent}18` }}
+                        >
+                          {initials(selectedOpportunity.company)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-base font-semibold text-white">{selectedOpportunity.company}</div>
+                          <div className="truncate text-[13px] text-white/62">{selectedOpportunity.location}</div>
+                        </div>
+                      </div>
+                      <h2 className="mt-4 font-['Sora',_sans-serif] text-[30px] font-semibold leading-tight text-white">
+                        {selectedOpportunity.role}
+                      </h2>
+                      <p className="mt-3 max-w-4xl text-sm leading-6 text-white/66">{selectedOpportunity.summary}</p>
                     </div>
-                    <h2 className="sr-only">{selectedOpportunity.role}</h2>
-                    <p className="mt-3 max-w-4xl text-sm leading-6 text-white/66">{selectedOpportunity.summary}</p>
                   </div>
 
                   <div className="flex items-center gap-2 self-start">
@@ -964,8 +978,8 @@ export default function CockpitPrototypeClient() {
                         {!isCollapsed && status !== 'future' && status !== 'next' && section ? (
                           <div className="mt-4 space-y-3">
                             {isCurrent ? (
-                              <div className="rounded-[16px] border border-white/16 bg-[#f6f0e4] p-4 text-[#2c2418]">
-                                <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a5d30]">
+                              <div className="rounded-[16px] border p-4" style={{ borderColor: withAlpha(STAGE_META[stage].accent, '4f'), background: `linear-gradient(180deg, ${withAlpha(STAGE_META[stage].accent, '14')} 0%, rgba(12,16,21,0.96) 100%)` }}>
+                                <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/56">
                                   <FileText className="h-3.5 w-3.5" />
                                   Active work area
                                 </div>
@@ -978,7 +992,7 @@ export default function CockpitPrototypeClient() {
                                       [stage]: event.currentTarget.textContent ?? '',
                                     }))
                                   }
-                                  className="min-h-[300px] rounded-[12px] border border-[#dcc9a3] bg-white px-4 py-3 text-[15px] leading-7 text-[#2e2517] outline-none"
+                                  className="min-h-[320px] rounded-[12px] border border-white/14 bg-black/36 px-4 py-3 text-[15px] leading-7 text-white/86 outline-none"
                                 >
                                   {draftTextByStage[stage] ?? ''}
                                 </div>
