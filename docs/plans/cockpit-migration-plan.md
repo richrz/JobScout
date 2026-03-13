@@ -80,7 +80,7 @@ Important gap:
 ### BlockNote Does Not Own
 
 - the cockpit shell
-- the river / pipeline lane
+- the pipeline lane
 - workspace expansion and collapse
 - voice tuning controls
 - keyword coverage overlay
@@ -126,7 +126,7 @@ These surfaces should remain temporarily while the cockpit grows:
 | `dashboard-v2` | launch point while cockpit matures | cockpit becomes default signed-in start |
 | `jobs` / `triage` | fallback discovery and volume triage | `While You Were Out` + cockpit triage are trustworthy |
 | `passed` | fallback recovery surface | passed filter/toggle is fully usable in the cockpit |
-| `pipeline` | fallback pipeline page | the river and workspace expansion cover the same workflows |
+| `pipeline` | fallback pipeline page | the kanban and workspace expansion cover the same workflows |
 | `resume` | fallback Resume Studio route | CRAFTING workspace editor is trustworthy |
 | `workspace/[id]` | fallback deep workspace route | card-owned expansion covers the real job-to-work flow |
 
@@ -138,7 +138,7 @@ The rule is simple:
 
 ## Phased Migration
 
-### Phase 1 — Cockpit Shell And Read-Only River
+### Phase 1 — Cockpit Shell And Read-Only Pipeline
 
 **Goal**
 
@@ -150,7 +150,7 @@ Ship the cockpit route and shell without breaking current pages.
 - add the three top-level cockpit zones:
   - Recent Activity
   - While You Were Out
-  - The River
+  - Pipeline
 - populate them from existing opportunity/workspace state
 - keep navigation fallback available during transition
 
@@ -158,7 +158,7 @@ Ship the cockpit route and shell without breaking current pages.
 
 - no workspace expansion yet
 - old pages remain the way users complete work
-- river cards can still deep-link to old pages during the first pass if needed
+- kanban cards can still deep-link to old pages during the first pass if needed
 
 **Dependencies**
 
@@ -169,7 +169,7 @@ Ship the cockpit route and shell without breaking current pages.
 **Proof points**
 
 - signed-in user lands on the cockpit route
-- the river reflects the same opportunities visible in existing pipeline surfaces
+- the pipeline kanban reflects the same opportunities visible in existing pipeline surfaces
 - Recent Activity correctly links the user back into live work
 - While You Were Out shows real counts, not mock framing only
 
@@ -184,7 +184,7 @@ Move the user's top-of-funnel control into the cockpit without forcing a full pa
 - make While You Were Out the real discovery summary
 - wire the swipe CTA into the breakout triage mode
 - add passed toggle / reveal behavior inside the cockpit
-- reflect save/pass decisions back into the river immediately
+- reflect save/pass decisions back into the pipeline immediately
 
 **What stays transitional**
 
@@ -193,7 +193,7 @@ Move the user's top-of-funnel control into the cockpit without forcing a full pa
 
 **Dependencies**
 
-- shared state between swipe, discovery, passed recovery, and river
+- shared state between swipe, discovery, passed recovery, and pipeline
 - safe restore behavior
 - mobile-safe triage controls
 
@@ -211,7 +211,7 @@ Replace generic page navigation with card-owned depth.
 
 **Move first**
 
-- click a river card to expand the workspace in place
+- click a kanban card to expand the workspace in place
 - preserve spatial continuity between card and workspace
 - show stage-specific workspace content for:
   - `INTERESTED`
@@ -236,7 +236,7 @@ Replace generic page navigation with card-owned depth.
 **Proof points**
 
 - clicking a card opens the workspace without feeling like a new app
-- closing the workspace returns the user to the same river context
+- closing the workspace returns the user to the same pipeline context
 - notes and artifacts remain visible as the opportunity changes stage
 
 ### Phase 4 — Embedded CRAFTING Workbench
@@ -324,7 +324,7 @@ Finish the cockpit loop from crafting to real submission.
 - require variant selection before submission
 - create immutable submitted snapshots
 - reveal source link only at submission time
-- move the card to `APPLIED` in the river
+- move the card to `APPLIED` in the pipeline
 
 **What stays transitional**
 
@@ -423,7 +423,7 @@ Mitigation:
 Build in this order:
 
 1. cockpit shell
-2. read-only river + recent activity + while-you-were-out
+2. read-only pipeline kanban + recent activity + while-you-were-out
 3. cockpit triage and passed recovery
 4. card-owned workspace expansion
 5. embedded CRAFTING workbench using current draft tooling

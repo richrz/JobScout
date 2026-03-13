@@ -49,7 +49,7 @@ import {
 import type {
   CockpitCard,
   CockpitPhaseOneViewModel,
-  CockpitRiverColumn,
+  CockpitKanbanColumn,
   CockpitStage,
 } from '@/lib/cockpit-phase1';
 
@@ -766,7 +766,7 @@ function WhileYouWereOutPanel({
   );
 }
 
-function RiverCard({
+function KanbanCard({
   card,
   active,
   onClick,
@@ -856,12 +856,12 @@ function RiverCard({
   );
 }
 
-function RiverColumn({
+function KanbanColumn({
   column,
   activeCardId,
   onOpenCard,
 }: {
-  column: CockpitRiverColumn;
+  column: CockpitKanbanColumn;
   activeCardId: string | null;
   onOpenCard: (id: string) => void;
 }) {
@@ -905,7 +905,7 @@ function RiverColumn({
           </div>
         ) : (
           column.cards.map((card) => (
-            <RiverCard
+            <KanbanCard
               key={card.id}
               card={card}
               active={activeCardId === card.id}
@@ -2029,7 +2029,7 @@ function AppliedDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: str
               </p>
             )}
             <p className="mt-2 text-xs text-white/38">
-              Source stays hidden earlier in the river and only becomes useful here.
+              Source stays hidden earlier in the pipeline and only becomes useful here.
             </p>
           </div>
         </div>
@@ -2442,12 +2442,12 @@ export default function CockpitWireframeClient({
   const panelLookup = new Map(panelRecords.map((record) => [record.id, record]));
   const activePanel = activeCardId ? panelLookup.get(activeCardId) ?? null : null;
 
-  const craftingCount = viewModel.riverColumns.find((column) => column.stage === 'CRAFTING')?.total ?? 0;
+  const craftingCount = viewModel.kanbanColumns.find((column) => column.stage === 'CRAFTING')?.total ?? 0;
   const lateStageCount =
-    (viewModel.riverColumns.find((column) => column.stage === 'SCREENING')?.total ?? 0) +
-    (viewModel.riverColumns.find((column) => column.stage === 'INTERVIEW')?.total ?? 0) +
-    (viewModel.riverColumns.find((column) => column.stage === 'OFFER')?.total ?? 0);
-  const activeManagedCount = viewModel.riverColumns
+    (viewModel.kanbanColumns.find((column) => column.stage === 'SCREENING')?.total ?? 0) +
+    (viewModel.kanbanColumns.find((column) => column.stage === 'INTERVIEW')?.total ?? 0) +
+    (viewModel.kanbanColumns.find((column) => column.stage === 'OFFER')?.total ?? 0);
+  const activeManagedCount = viewModel.kanbanColumns
     .filter((column) => column.stage !== 'NEW')
     .reduce((total, column) => total + column.total, 0);
 
@@ -2462,7 +2462,7 @@ export default function CockpitWireframeClient({
                 Good morning, {userName.split(' ')[0] || userName}
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/54">
-                The market moved. The river tells you what matters now.
+                The market moved. Your pipeline tells you what matters now.
               </p>
             </div>
 
@@ -2503,7 +2503,7 @@ export default function CockpitWireframeClient({
             <section className="mt-4 overflow-hidden rounded-[32px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] shadow-[0_28px_90px_rgba(0,0,0,0.34)]">
               <div className="flex flex-col gap-2 border-b border-white/8 px-5 py-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-white/34">The River</div>
+                  <div className="text-[11px] uppercase tracking-[0.24em] text-white/34">Pipeline</div>
                   <p className="mt-1 text-sm text-white/56">
                     Real state. Visible stage identity. Cards that signal what actually needs attention.
                   </p>
@@ -2520,8 +2520,8 @@ export default function CockpitWireframeClient({
 
               <div className="overflow-x-auto px-4 py-4">
                 <div className="flex gap-4 pb-2">
-                  {viewModel.riverColumns.map((column) => (
-                    <RiverColumn
+                  {viewModel.kanbanColumns.map((column) => (
+                    <KanbanColumn
                       key={column.stage}
                       column={column}
                       activeCardId={activeCardId}

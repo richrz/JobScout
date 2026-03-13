@@ -634,11 +634,11 @@ export default function CockpitPrototypeClient() {
           <section className="mt-4 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,14,21,0.96)_0%,rgba(5,8,14,0.9)_100%)] px-4 py-5 sm:px-5">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-[11px] uppercase tracking-[0.2em] text-white/40">The river</div>
+                <div className="text-[11px] uppercase tracking-[0.2em] text-white/40">Pipeline</div>
                 <p className="mt-2 text-sm text-white/58">Stable kanban on top. Click a stage to browse. Click a card to open the workspace below.</p>
               </div>
               <div className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] text-white/56">
-                River-first cockpit
+                Kanban cockpit
               </div>
             </div>
 

@@ -12,7 +12,7 @@ This document defines the official lifecycle for an `Opportunity` and the rules 
 
 - Cockpit Discovery Feed (replaces Inbox)
 - Swipe Mode (replaces JobSwipe as a page)
-- The River / Pipeline (persistent cockpit lane)
+- Pipeline (persistent cockpit kanban)
 - Workspace (shared-element expansion, replaces separate workspace page)
 - Resume Studio (replaces Resume Builder page)
 
@@ -29,7 +29,7 @@ The goal is one living system — not a collection of pages that share some data
 ## Core Rules
 
 1. Every opportunity has one workspace.
-2. The cockpit's discovery feed, swipe mode, pipeline river, workspace, and resume studio are all views into the same opportunity state.
+2. The cockpit's discovery feed, swipe mode, pipeline, workspace, and resume studio are all views into the same opportunity state.
 3. A card is presentation only. It is not the source of truth.
 4. Passing an opportunity is always recoverable for a defined period.
 5. Documents belong to the workspace, not to a tab.
@@ -105,9 +105,9 @@ As of the [Cockpit Interaction Spec](./cockpit-interaction-spec.md), the app no 
 - Returns to cockpit when complete; decisions ripple visibly into the pipeline.
 - Primary mobile interaction.
 
-### Cockpit — The River (persistent pipeline)
+### Cockpit — Pipeline
 
-- Horizontal lane always visible on the cockpit.
+- Horizontal kanban always visible on the cockpit.
 - Shows all stages from `INTERESTED` → `OFFER` with card counts and active items.
 - Cards animate between columns when opportunities change stage.
 - Does not create its own state; reflects the canonical lifecycle.

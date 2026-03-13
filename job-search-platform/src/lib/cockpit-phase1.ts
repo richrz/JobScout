@@ -57,7 +57,7 @@ export type CockpitCard = {
   updatedAt: string;
 };
 
-export type CockpitRiverColumn = {
+export type CockpitKanbanColumn = {
   stage: CockpitStage;
   label: string;
   total: number;
@@ -82,7 +82,7 @@ export type WhileYouWereOutStats = {
 export type CockpitPhaseOneViewModel = {
   whileYouWereOut: WhileYouWereOutStats;
   recentActivity: CockpitRecentActivityItem[];
-  riverColumns: CockpitRiverColumn[];
+  kanbanColumns: CockpitKanbanColumn[];
 };
 
 export const COCKPIT_STAGE_ORDER: CockpitStage[] = [
@@ -228,12 +228,12 @@ export function buildCockpitPhaseOneViewModel({
   managedOpportunities,
   discoveryJobs,
   recentActivityLimit = 4,
-  riverLimit = 4,
+  kanbanLimit = 4,
 }: {
   managedOpportunities: CockpitManagedOpportunityInput[];
   discoveryJobs: CockpitDiscoveryJobInput[];
   recentActivityLimit?: number;
-  riverLimit?: number;
+  kanbanLimit?: number;
 }): CockpitPhaseOneViewModel {
   const groupedCards = new Map<CockpitStage, CockpitCard[]>(
     COCKPIT_STAGE_ORDER.map((stage) => [stage, []]),
@@ -290,7 +290,7 @@ export function buildCockpitPhaseOneViewModel({
     groupedCards.get(item.stage)?.push(item.card);
   }
 
-  const riverColumns = COCKPIT_STAGE_ORDER.map((stage) => {
+  const kanbanColumns = COCKPIT_STAGE_ORDER.map((stage) => {
     const cards = groupedCards.get(stage) ?? [];
     const sortedCards = sortByRecent(cards);
 
@@ -298,7 +298,7 @@ export function buildCockpitPhaseOneViewModel({
       stage,
       label: STAGE_LABELS[stage],
       total: sortedCards.length,
-      cards: sortedCards.slice(0, riverLimit),
+      cards: sortedCards.slice(0, kanbanLimit),
     };
   });
 
@@ -316,6 +316,6 @@ export function buildCockpitPhaseOneViewModel({
   return {
     whileYouWereOut: buildWhileYouWereOutStats(sortedDiscovery),
     recentActivity,
-    riverColumns,
+    kanbanColumns,
   };
 }

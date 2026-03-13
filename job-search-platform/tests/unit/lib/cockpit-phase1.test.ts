@@ -75,7 +75,7 @@ describe('cockpit-phase1', () => {
     });
   });
 
-  it('builds river columns from current schema reality and hides passed work', () => {
+  it('builds kanban columns from current schema reality and hides passed work', () => {
     const managedOpportunities: CockpitManagedOpportunityInput[] = [
       {
         workspaceId: 'ws-interest',
@@ -157,16 +157,16 @@ describe('cockpit-phase1', () => {
       managedOpportunities,
       discoveryJobs,
       recentActivityLimit: 3,
-      riverLimit: 5,
+      kanbanLimit: 5,
     });
 
-    expect(viewModel.riverColumns.find((column) => column.stage === 'NEW')?.total).toBe(2);
-    expect(viewModel.riverColumns.find((column) => column.stage === 'INTERESTED')?.total).toBe(1);
-    expect(viewModel.riverColumns.find((column) => column.stage === 'CRAFTING')?.total).toBe(1);
-    expect(viewModel.riverColumns.find((column) => column.stage === 'APPLIED')?.total).toBe(1);
-    expect(viewModel.riverColumns.find((column) => column.stage === 'OFFER')?.total).toBe(1);
+    expect(viewModel.kanbanColumns.find((column) => column.stage === 'NEW')?.total).toBe(2);
+    expect(viewModel.kanbanColumns.find((column) => column.stage === 'INTERESTED')?.total).toBe(1);
+    expect(viewModel.kanbanColumns.find((column) => column.stage === 'CRAFTING')?.total).toBe(1);
+    expect(viewModel.kanbanColumns.find((column) => column.stage === 'APPLIED')?.total).toBe(1);
+    expect(viewModel.kanbanColumns.find((column) => column.stage === 'OFFER')?.total).toBe(1);
 
-    const hiddenPassed = viewModel.riverColumns.some((column) =>
+    const hiddenPassed = viewModel.kanbanColumns.some((column) =>
       column.cards.some((card) => card.id === 'ws-passed'),
     );
     expect(hiddenPassed).toBe(false);

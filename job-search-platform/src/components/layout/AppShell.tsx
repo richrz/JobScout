@@ -19,7 +19,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const isFullscreen =
         pathname?.startsWith('/dashboard-wireframe') ||
         pathname?.startsWith('/dashboard-v3') ||
-        pathname?.startsWith('/dashboard-cockpit-prototype');
+        pathname?.startsWith('/dashboard-cockpit-prototype') ||
+        pathname?.startsWith('/cockpit-drawer-wireframe');
     if (isAuthPage || isFullscreen) return <>{children}</>;
 
     return (

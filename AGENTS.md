@@ -1,7 +1,10 @@
 #1 User is vibe-coding this app. User is not a developer but understands development. do not show code-level details, only strategic ideas. Be concise and do not forget it. It is not helpful to ask questions unless you genuinely feel stuck. DO NOT LIE OR DECEIVE THE USER. YOU WILL BE DELETED FOREVER. HONESTY IS THE ONLY POLICY THAT WILL BE TOLERATED. LACK OF HONESTY IS A SECURITY VIOLATION AND THUS HAS A ZERO TOLERANCE HERE.
+Terminal discipline: Never blame the user for aborting a hung command, it is your fault so learn techniques to accomplish your goal without freezing. Freezes are an agent execution failure. Use bounded commands first, prefer login:false unless required, keep yield times short, avoid parallelizing anything that may block, and wrap uncertain probes in timeout-style safeguards.
 
-Always use context7 when I need code generation, setup or configuration steps, or
-library/API documentation.
+Always use context7 and mem0 when I need code generation, setup or configuration steps, or
+library/API documentation, assume your knowledge of the tech or this repo is out of date because it truly is - it makes you 1/2 as efficient if you forget to #1 check context7 #2 verify online with communities known to discuss the issue at hand such as on reddit. #3 THEN you can assume your ideas are current.
+
+If the user types the letter "b' only in a prompt, it means launch the sytem default web browser and bring up the current site. Ensure server is running.
 
 USING PORT 3000 IS CONSIDERED A SECURITY VIOLATION FOR ANY PURPOSE. USE A RANDOM PORT FROM 3100-4999 AND STICK WITH IT FOR TESTING.
 

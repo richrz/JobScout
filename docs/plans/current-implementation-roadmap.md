@@ -32,7 +32,7 @@ This roadmap is the active implementation plan for the product overhaul now in f
 Turn JobScout into one coherent opportunity management product — a single living cockpit — where:
 
 - all inbound jobs become normalized `Opportunities`
-- Discovery feed, Swipe Mode, and the Pipeline river all operate on the same state
+- Discovery feed, Swipe Mode, and the Pipeline kanban all operate on the same state
 - `PASSED` is recoverable, searchable, and safe
 - Pipeline reflects real lifecycle rules instead of loose board movement
 - every opportunity owns one `Workspace` accessible via shared-element expansion from any pipeline card
@@ -129,7 +129,7 @@ Key outcomes:
 - the workspace becomes the home for notes, blockers, contacts, and artifacts
 
 UX shape (per cockpit spec):
-- pipeline cards in the cockpit river
+- pipeline cards in the cockpit kanban
 - workspace expands in-place via shared-element transition when a card is clicked
 - no separate workspace page — depth lives inside the expansion
 - Resume Studio is a breakout entered from the CRAFTING workspace section

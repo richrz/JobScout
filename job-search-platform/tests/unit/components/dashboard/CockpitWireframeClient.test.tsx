@@ -48,7 +48,7 @@ const baseViewModel: CockpitPhaseOneViewModel = {
     highFitCount: 2,
   },
   recentActivity: [],
-  riverColumns: [
+  kanbanColumns: [
     { stage: 'NEW', label: 'new', total: 0, cards: [] },
     { stage: 'INTERESTED', label: 'interested', total: 0, cards: [] },
     { stage: 'CRAFTING', label: 'crafting', total: 0, cards: [] },
@@ -95,7 +95,7 @@ function buildViewModel(panel: CockpitPanelRecord): CockpitPhaseOneViewModel {
         meta: 'active now',
       },
     ],
-    riverColumns: baseViewModel.riverColumns.map((column) =>
+    kanbanColumns: baseViewModel.kanbanColumns.map((column) =>
       column.stage === panel.stage
         ? {
             ...column,

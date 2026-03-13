@@ -257,7 +257,7 @@ export default async function DashboardWireframePage() {
     managedOpportunities,
     discoveryJobs: discoveryInputs,
     recentActivityLimit: 4,
-    riverLimit: 4,
+    kanbanLimit: 4,
   });
 
   const panelRecords: CockpitPanelRecord[] = [

@@ -6,7 +6,7 @@
 
 ## Design Sentence
 
-A mission control room where your career is happening live — opportunities arriving, applications moving through stages, your momentum visible as actual motion, not frozen numbers in rectangles. The page breathes: pipeline items physically travel between stages, and when you click something it doesn't "open a new page" — it expands and transforms in place like you're zooming into a deeper layer of the same living system. There is no menu — the dashboard IS the app; every surface is a live lens into the same flowing river of jobs, and acting on anything (filtering, swiping, applying) ripples visibly across every other surface because they all share one living state, not separate dead pages.
+A mission control room where your career is happening live — opportunities arriving, applications moving through stages, your momentum visible as actual motion, not frozen numbers in rectangles. The page breathes: pipeline items physically travel between stages, and when you click something it doesn't "open a new page" — it expands and transforms in place like you're zooming into a deeper layer of the same living system. There is no menu — the dashboard IS the app; every surface is a live lens into the same opportunity state, and acting on anything (filtering, swiping, applying) ripples visibly across every other surface because they all share one living state, not separate dead pages.
 
 ## Emotional Contract
 
@@ -86,9 +86,9 @@ Below the hero. Shows what changed since the user's last session:
   - "Want to swipe the top ones?"
 - Tapping the swipe prompt enters Swipe Mode (see breakout #1)
 
-#### 3. The River (persistent pipeline)
+#### 3. Pipeline (kanban)
 
-A horizontal lane always visible on the cockpit. Jobs flow left to right through stages:
+A horizontal kanban always visible on the cockpit. Jobs flow left to right through stages:
 - **NEW** count + top matches
 - **INTERESTED** cards
 - **CRAFTING** cards (active workbenches)
@@ -105,7 +105,7 @@ Pipeline health, response rates, and momentum visualizations live directly in th
 
 #### 5. Passed Bin
 
-Not a separate page. A filter toggle on the pipeline view that reveals passed opportunities inline. Restore action snaps them back into the river.
+Not a separate page. A filter toggle on the pipeline view that reveals passed opportunities inline. Restore action returns them to the pipeline.
 
 ### Breakout #1: Swipe Mode
 
@@ -240,7 +240,7 @@ Motion is how the cockpit communicates that the system is alive. These are not a
 |----------|----------------|
 | **Swipe Mode** | Full-featured. Primary mobile interaction. |
 | **Quick generate** | Tap to generate a resume draft for a saved opportunity |
-| **Pipeline overview** | View-only horizontal scroll of the river |
+| **Pipeline overview** | View-only horizontal scroll of the pipeline |
 | **Notifications** | New matches, interview reminders, screening updates |
 
 ### Desktop-only workflows
@@ -263,7 +263,7 @@ Workflows that can render but aren't optimized. The UI should gracefully hide co
 
 ### One living state
 
-All surfaces — the cockpit, swipe mode, resume studio, workspace panels — read from and write to the same opportunity state. There is no "Inbox state" vs "Pipeline state" vs "Swipe state." One river, many lenses.
+All surfaces — the cockpit, swipe mode, resume studio, workspace panels — read from and write to the same opportunity state. There is no "Inbox state" vs "Pipeline state" vs "Swipe state." One state, many lenses.
 
 ### Action ripples
 
