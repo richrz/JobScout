@@ -1,10 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { motion, LayoutGroup } from 'framer-motion';
+import { useEffect, useState, useCallback } from 'react';
+import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
+
+const WorkspaceBlockNote = dynamic(
+  () => import('@/components/workspace/WorkspaceBlockNote').then(m => m.WorkspaceBlockNote),
+  { ssr: false, loading: () => <div className="min-h-[180px] rounded-[12px] bg-black/30 animate-pulse" /> },
+);
 
 type StageId = 'NEW' | 'INTERESTED' | 'CRAFTING' | 'APPLIED' | 'SCREENING' | 'INTERVIEW' | 'OFFER';
-type Opp = { id: number; company: string; role: string; signal: string; stale: string; chip: string; stage: StageId };
+type Opp = { id: number; company: string; role: string; signal: string; stale: string; chip: string; stage: StageId; notes?: string };
 
 const STAGES: { id: StageId; label: string; accent: string; count: number }[] = [
   { id: 'NEW',       label: 'New',       accent: '#f4b74d', count: 47  },
@@ -144,18 +150,38 @@ function KanbanCard({ opp, stage, selected, onSelect }: {
   );
 }
 
+// ── Stage toolbar config ────────────────────────────────────────────
+const STAGE_TOOLBAR: Record<StageId, { actions: { label: string; icon?: string; key: string }[]; transition: { label: string; key: string } | null }> = {
+  NEW:        { actions: [{ label: 'Launch Swipe', key: 'swipe', icon: '👆' }], transition: { label: "I'm Interested →", key: 'to-interested' } },
+  INTERESTED: { actions: [{ label: 'Add Note', key: 'note', icon: '📝' }, { label: 'Research', key: 'research', icon: '🔍' }], transition: { label: 'Start Crafting →', key: 'to-crafting' } },
+  CRAFTING:   { actions: [{ label: 'Generate Resume', key: 'generate', icon: '✨' }, { label: 'Open Resume Studio', key: 'resume-studio', icon: '📄' }, { label: 'Keywords', key: 'keywords', icon: '🏷' }], transition: { label: 'Mark Applied →', key: 'to-applied' } },
+  APPLIED:    { actions: [{ label: 'Review Resume', key: 'review-resume', icon: '📋' }, { label: 'Log Follow-up', key: 'followup', icon: '📨' }], transition: { label: 'Heard Back →', key: 'to-screening' } },
+  SCREENING:  { actions: [{ label: 'View Resume Sent', key: 'view-resume', icon: '📄' }, { label: 'Add Call Notes', key: 'call-notes', icon: '📞' }], transition: { label: 'Interview Scheduled →', key: 'to-interview' } },
+  INTERVIEW:  { actions: [{ label: 'Prep Materials', key: 'prep', icon: '📚' }, { label: 'Add Round Notes', key: 'round-notes', icon: '🎤' }], transition: { label: 'Offer Received →', key: 'to-offer' } },
+  OFFER:      { actions: [{ label: 'View Journey', key: 'journey', icon: '🗺' }, { label: 'Compare Offers', key: 'compare', icon: '⚖️' }], transition: null },
+};
+
 // ── Main page ────────────────────────────────────────────────────────
 export default function CockpitDrawerWireframe() {
   const [drawerStage, setDrawerStage] = useState<StageId | null>(null);
   const [selectedOpp, setSelectedOpp] = useState<Opp>(INTERESTED_OPPS[0]);
   const [filterText, setFilterText] = useState('');
+  // Workspace notes per opp (keyed by opp id)
+  const [oppNotes, setOppNotes] = useState<Record<number, string>>({
+    1: '## First Impressions\n\nVery strong domain fit — cloud security architecture aligns perfectly with my background.\n\n### Research Notes\n- Check Glassdoor for recent reviews\n- Look at their Series C announcement',
+  });
+  // Resume studio drawer
+  const [resumeDrawerOpen, setResumeDrawerOpen] = useState(false);
+  // Swipe mode
+  const [swipeMode, setSwipeMode] = useState(false);
+  const [swipeIdx, setSwipeIdx] = useState(0);
+  const [swipeNote, setSwipeNote] = useState('');
+  const [swipeResult, setSwipeResult] = useState<'interested' | 'pass' | null>(null);
 
   const drawerMeta   = STAGES.find(s => s.id === drawerStage);
   const wsMeta       = STAGES.find(s => s.id === selectedOpp.stage) ?? STAGES[1];
   const wsAccent     = wsMeta.accent;
-  // Column position within 7-col grid (gap-2 = 0.5rem between each column)
   const colIdx        = STAGES.findIndex(s => s.id === selectedOpp.stage);
-  // Width of horizontal "shoulder" segments that complete the T-border on each side of the card
   const shoulderLeftW  = `calc(${colIdx} * (100% + 0.5rem) / 7)`;
   const shoulderRightW = `calc(${6 - colIdx} * (100% + 0.5rem) / 7)`;
 
@@ -171,12 +197,28 @@ export default function CockpitDrawerWireframe() {
     setDrawerStage(null);
   }
 
+  const handleNoteChange = useCallback((val: string) => {
+    setOppNotes(prev => ({ ...prev, [selectedOpp.id]: val }));
+  }, [selectedOpp.id]);
+
+  const handleToolbarAction = useCallback((key: string) => {
+    if (key === 'resume-studio') setResumeDrawerOpen(true);
+    if (key === 'swipe') setSwipeMode(true);
+    // Other toolbar actions are placeholders in the wireframe
+  }, []);
+
   useEffect(() => {
-    if (!drawerStage) return;
-    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setDrawerStage(null); }
+    if (!drawerStage && !resumeDrawerOpen && !swipeMode) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setDrawerStage(null);
+        setResumeDrawerOpen(false);
+        setSwipeMode(false);
+      }
+    }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [drawerStage]);
+  }, [drawerStage, resumeDrawerOpen, swipeMode]);
 
   return (
     <main
@@ -455,42 +497,85 @@ export default function CockpitDrawerWireframe() {
                     }}
                     transition={{ duration: 0.8 }}
                   >
-                    <div className="mb-3 flex items-center gap-2.5">
-                      <motion.div
-                        className="h-2 w-2 rounded-full"
-                        animate={{ background: wsAccent, boxShadow: `0 0 6px ${wsAccent}` }}
-                        transition={{ duration: 0.8 }}
-                      />
-                      <motion.span
-                        className="text-[11px] font-bold uppercase tracking-[0.18em]"
-                        animate={{ color: wsAccent }}
-                        transition={{ duration: 0.8 }}
-                      >
-                        {wsMeta.label} — active work area
-                      </motion.span>
-                    </div>
-                    <div
-                      className="min-h-[140px] rounded-[12px] px-5 py-4 text-[14px] leading-7 text-white/72"
-                      style={{ background: 'rgba(0,0,0,0.32)', boxShadow: 'inset 0 1px 4px rgba(0,0,0,0.45)' }}
-                    >
-                      Resume version B is the strongest baseline.
-                      <br /><br />
-                      Need one more measurable leadership bullet in the second role.
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {['Tailored resume v4', 'Keyword capture', 'Call prep outline'].map(art => (
-                        <span
-                          key={art}
-                          className="rounded-xl px-3.5 py-2 text-[12px] font-medium text-white/58"
+                    {/* ── Stage Toolbar ── */}
+                    <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-1">
+                      {STAGE_TOOLBAR[selectedOpp.stage].actions.map(act => (
+                        <button
+                          key={act.key}
+                          type="button"
+                          onClick={() => handleToolbarAction(act.key)}
+                          className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-medium transition-all hover:brightness-125"
                           style={{
-                            background: `linear-gradient(135deg, ${a(wsAccent, '10')} 0%, rgba(11,15,23,0.9) 100%)`,
-                            boxShadow: `0 0 0 1px ${a(wsAccent, '28')} inset`,
+                            background: `linear-gradient(135deg, ${a(wsAccent, '14')} 0%, rgba(11,15,23,0.9) 100%)`,
+                            boxShadow: `0 0 0 1px ${a(wsAccent, '30')} inset`,
+                            color: 'rgba(255,255,255,0.7)',
                           }}
                         >
-                          {art}
-                        </span>
+                          {act.icon && <span className="text-[13px]">{act.icon}</span>}
+                          {act.label}
+                        </button>
                       ))}
+                      <div className="flex-1" />
+                      {STAGE_TOOLBAR[selectedOpp.stage].transition && (
+                        <button
+                          type="button"
+                          className="flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-1.5 text-[12px] font-bold transition-all hover:brightness-125"
+                          style={{
+                            background: `linear-gradient(135deg, ${a(wsAccent, '30')} 0%, ${a(wsAccent, '18')} 100%)`,
+                            boxShadow: `0 0 0 1px ${a(wsAccent, '55')} inset, 0 0 12px ${a(wsAccent, '22')}`,
+                            color: wsAccent,
+                          }}
+                        >
+                          {STAGE_TOOLBAR[selectedOpp.stage].transition!.label}
+                        </button>
+                      )}
+                      {selectedOpp.stage === 'OFFER' && (
+                        <>
+                          <button type="button" className="shrink-0 rounded-lg px-4 py-1.5 text-[12px] font-bold" style={{ background: 'rgba(69,223,125,0.22)', color: '#45df7d', boxShadow: '0 0 0 1px rgba(69,223,125,0.44) inset' }}>Accept ✓</button>
+                          <button type="button" className="shrink-0 rounded-lg px-4 py-1.5 text-[12px] font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444', boxShadow: '0 0 0 1px rgba(239,68,68,0.33) inset' }}>Decline ✗</button>
+                        </>
+                      )}
                     </div>
+
+                    {/* ── Stage-specific workspace content ── */}
+                    <WorkspaceBlockNote
+                      key={selectedOpp.id}
+                      value={oppNotes[selectedOpp.id] ?? ''}
+                      onChange={handleNoteChange}
+                      placeholder={
+                        selectedOpp.stage === 'INTERESTED' ? 'What caught your eye about this one? Use / for block commands…'
+                        : selectedOpp.stage === 'CRAFTING' ? 'Resume drafting notes… Keywords to hit, angles to try…'
+                        : selectedOpp.stage === 'APPLIED' ? 'Follow-up log — track what you sent and when…'
+                        : selectedOpp.stage === 'SCREENING' ? 'Call notes — questions asked, recruiter name…'
+                        : selectedOpp.stage === 'INTERVIEW' ? 'Round notes, prep thoughts, reflections…'
+                        : selectedOpp.stage === 'OFFER' ? 'Offer terms, negotiation notes, decision factors…'
+                        : 'Notes…'
+                      }
+                    />
+
+                    {/* Artifacts row */}
+                    {selectedOpp.stage === 'CRAFTING' && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {['Tailored resume v4', 'Cover letter draft'].map(art => (
+                          <span
+                            key={art}
+                            className="rounded-xl px-3.5 py-2 text-[12px] font-medium text-white/58"
+                            style={{
+                              background: `linear-gradient(135deg, ${a(wsAccent, '10')} 0%, rgba(11,15,23,0.9) 100%)`,
+                              boxShadow: `0 0 0 1px ${a(wsAccent, '28')} inset`,
+                            }}
+                          >
+                            📄 {art}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {selectedOpp.stage === 'APPLIED' && (
+                      <div className="mt-3 rounded-xl px-4 py-3 text-[12px] text-white/50" style={{ background: 'rgba(139,130,255,0.08)', boxShadow: '0 0 0 1px rgba(139,130,255,0.22) inset' }}>
+                        <span className="font-semibold text-white/70">📎 Submitted:</span> Resume_Wiz_v4.pdf · Applied via LinkedIn · 2 days ago
+                        <div className="mt-1.5 text-[11px] text-white/30">⚠️ Editing this resume will move this opp back to Crafting.</div>
+                      </div>
+                    )}
                   </motion.div>
 
                   {/* ── RIGHT: Context sidebar ── */}
@@ -750,6 +835,212 @@ export default function CockpitDrawerWireframe() {
           </div>
         </div>
       </div>
+
+      {/* ── RESUME STUDIO DRAWER (slides over cockpit) ────────────── */}
+      <AnimatePresence>
+        {resumeDrawerOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50"
+              style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}
+              onClick={() => setResumeDrawerOpen(false)}
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed right-0 top-0 z-50 flex h-full flex-col"
+              style={{
+                width: 'min(720px, 85vw)',
+                background: 'linear-gradient(180deg, rgba(15,19,28,0.99) 0%, rgba(8,11,18,1) 100%)',
+                borderLeft: `1px solid ${a(wsAccent, '2e')}`,
+                boxShadow: `-20px 0 60px rgba(0,0,0,0.5)`,
+              }}
+            >
+              {/* Drawer header */}
+              <div className="shrink-0 px-8 pt-7 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-[20px] font-bold text-white">Resume Studio</h2>
+                    <p className="mt-1 text-[13px] text-white/38">
+                      {selectedOpp.company} · {selectedOpp.role}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setResumeDrawerOpen(false)}
+                    className="rounded-lg px-3 py-1.5 text-[12px] font-medium text-white/50 transition hover:bg-white/5 hover:text-white/80"
+                  >
+                    ✕ Close
+                  </button>
+                </div>
+                <div className="mt-4 h-px" style={{ background: `linear-gradient(90deg, ${wsAccent} 0%, ${a(wsAccent, '33')} 50%, transparent 100%)` }} />
+              </div>
+
+              {/* Drawer body — mock resume editor */}
+              <div className="flex-1 overflow-y-auto px-8 py-6">
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: wsAccent }}>Draft Workspace</span>
+                  <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ background: a(wsAccent, '14'), color: a(wsAccent, 'cc') }}>v4</span>
+                </div>
+                <div className="space-y-4">
+                  {['Summary', 'Experience', 'Skills', 'Education'].map(section => (
+                    <div key={section} className="rounded-[14px] px-5 py-4" style={{ background: 'rgba(255,255,255,0.022)', boxShadow: '0 0 0 1px rgba(255,255,255,0.06) inset' }}>
+                      <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white/30">{section}</div>
+                      <div className="min-h-[60px] rounded-lg px-3 py-2 text-[13px] leading-relaxed text-white/55" style={{ background: 'rgba(0,0,0,0.3)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)' }}>
+                        {section === 'Summary' && 'Seasoned enterprise solutions architect with 15+ years bridging complex technical capabilities to business outcomes…'}
+                        {section === 'Experience' && 'Principal Solutions Architect — SHI International (2019–Present)\n• Led $12M cloud migration for Fortune 500 client…'}
+                        {section === 'Skills' && 'Cloud Architecture · AWS · Azure · Kubernetes · Security Architecture · SIEM · Zero Trust · Enterprise Sales'}
+                        {section === 'Education' && 'B.S. Computer Science — University of Texas'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 flex gap-3">
+                  <button type="button" className="rounded-lg px-5 py-2.5 text-[13px] font-bold transition hover:brightness-125" style={{ background: `linear-gradient(135deg, ${a(wsAccent, '30')}, ${a(wsAccent, '18')})`, color: wsAccent, boxShadow: `0 0 0 1px ${a(wsAccent, '55')} inset` }}>
+                    ✨ Generate Rewrite
+                  </button>
+                  <button type="button" className="rounded-lg px-5 py-2.5 text-[13px] font-medium text-white/50 transition hover:bg-white/5" style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.1) inset' }}>
+                    📥 Export PDF
+                  </button>
+                </div>
+              </div>
+
+              {/* Drawer footer */}
+              <div className="shrink-0 px-8 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <span className="text-[11px] text-white/20">Esc to close · Changes save automatically</span>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── SWIPE MODE OVERLAY ───────────────────────────────────────── */}
+      <AnimatePresence>
+        {swipeMode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+            style={{ background: 'rgba(2,5,8,0.96)', backdropFilter: 'blur(12px)' }}
+          >
+            <div className="w-full max-w-md px-6">
+              {/* Header */}
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-[20px] font-bold text-white">Swipe Triage</h2>
+                  <p className="mt-1 text-[13px] text-white/38">{(STAGE_OPPS.NEW ?? []).length - swipeIdx} remaining</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setSwipeMode(false); setSwipeIdx(0); setSwipeResult(null); setSwipeNote(''); }}
+                  className="rounded-lg px-3 py-1.5 text-[12px] text-white/40 transition hover:bg-white/5 hover:text-white/70"
+                >
+                  ✕ Exit
+                </button>
+              </div>
+
+              {/* Card */}
+              {(() => {
+                const swipeOpps = STAGE_OPPS.NEW ?? [];
+                const opp = swipeOpps[swipeIdx];
+                if (!opp) return (
+                  <div className="rounded-2xl p-8 text-center" style={{ background: 'rgba(255,255,255,0.03)', boxShadow: '0 0 0 1px rgba(255,255,255,0.06) inset' }}>
+                    <div className="text-[48px] mb-3">🎉</div>
+                    <h3 className="text-[18px] font-bold text-white">All caught up!</h3>
+                    <p className="mt-2 text-[13px] text-white/40">No more new opportunities to triage.</p>
+                  </div>
+                );
+                return (
+                  <div>
+                    <div className="rounded-2xl p-6" style={{ background: 'linear-gradient(160deg, rgba(244,183,77,0.08), rgba(11,15,23,0.95))', boxShadow: '0 0 0 1px rgba(244,183,77,0.2) inset, 0 20px 60px -20px rgba(0,0,0,0.7)' }}>
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[11px] font-bold" style={{ color: '#f4b74d', background: 'rgba(244,183,77,0.18)', border: '1px solid rgba(244,183,77,0.33)' }}>
+                          {initials(opp.company)}
+                        </div>
+                        <div>
+                          <h3 className="text-[16px] font-bold text-white">{opp.company}</h3>
+                          <p className="text-[13px] text-white/50">{opp.role}</p>
+                        </div>
+                      </div>
+                      <p className="text-[13px] leading-relaxed text-white/40 mb-4">{opp.signal}</p>
+
+                      {/* Swipe result feedback */}
+                      {swipeResult && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mb-4"
+                        >
+                          {swipeResult === 'interested' && (
+                            <div className="rounded-xl px-4 py-3" style={{ background: 'rgba(87,166,255,0.1)', boxShadow: '0 0 0 1px rgba(87,166,255,0.25) inset' }}>
+                              <div className="mb-2 text-[13px] font-semibold" style={{ color: '#57a6ff' }}>✓ Interested!</div>
+                              <label className="block text-[12px] text-white/50 mb-1.5">What caught your eye about this one?</label>
+                              <textarea
+                                value={swipeNote}
+                                onChange={e => setSwipeNote(e.target.value)}
+                                placeholder="Optional — but this note will show up in your Interested workspace…"
+                                className="w-full rounded-lg px-3 py-2 text-[13px] text-white/80 outline-none placeholder:text-white/20"
+                                style={{ background: 'rgba(0,0,0,0.4)', boxShadow: '0 0 0 1px rgba(87,166,255,0.15) inset', minHeight: 60, resize: 'vertical' }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => { setSwipeResult(null); setSwipeNote(''); setSwipeIdx(i => i + 1); }}
+                                className="mt-2.5 rounded-lg px-4 py-1.5 text-[12px] font-bold transition hover:brightness-125"
+                                style={{ background: 'rgba(87,166,255,0.2)', color: '#57a6ff', boxShadow: '0 0 0 1px rgba(87,166,255,0.33) inset' }}
+                              >
+                                Continue →
+                              </button>
+                            </div>
+                          )}
+                          {swipeResult === 'pass' && (
+                            <div className="rounded-xl px-4 py-3 text-center" style={{ background: 'rgba(239,68,68,0.08)', boxShadow: '0 0 0 1px rgba(239,68,68,0.18) inset' }}>
+                              <span className="text-[13px] text-white/40">Passed — moving on…</span>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </div>
+
+                    {/* Action buttons */}
+                    {!swipeResult && (
+                      <div className="mt-6 flex items-center justify-center gap-8">
+                        <button
+                          type="button"
+                          onClick={() => { setSwipeResult('pass'); setTimeout(() => { setSwipeResult(null); setSwipeIdx(i => i + 1); }, 800); }}
+                          className="flex h-16 w-16 items-center justify-center rounded-full text-[20px] font-bold transition-all hover:scale-110"
+                          style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid #ef4444', color: '#ef4444', boxShadow: '0 8px 24px rgba(239,68,68,0.15)' }}
+                        >
+                          ✕
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSwipeResult('interested')}
+                          className="flex h-16 w-16 items-center justify-center rounded-full text-[20px] font-bold transition-all hover:scale-110"
+                          style={{ background: 'rgba(87,166,255,0.1)', border: '2px solid #57a6ff', color: '#57a6ff', boxShadow: '0 8px 24px rgba(87,166,255,0.15)' }}
+                        >
+                          ✓
+                        </button>
+                      </div>
+                    )}
+                    {!swipeResult && (
+                      <div className="mt-4 flex items-center justify-center gap-6 text-[12px] text-white/25">
+                        <span>← Pass</span>
+                        <span>Interested →</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

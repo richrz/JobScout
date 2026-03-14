@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — formalized the cockpit stage contract at `docs/product/cockpit-stage-contract.md`: all 7 stages now have explicit inbound/work/outbound definitions, stage toolbars, BlockNote as universal notes engine, cross-stage "warn and move" editing rules, drawer pattern for heavy editors (Resume Studio etc.), and artifact lifecycle (creation, visibility, immutability, versioning). Docs hub and product index updated to point to the new spec.
 - `752d142` — cockpit prototype pass 4 on `/dashboard-cockpit-prototype`: removed light editor tones, enforced dark-mode workspace, promoted selected-opportunity header prominence (company + large role title), and made browser mode explicit with "Select an opportunity below" guidance
 - `463b7d9` — cockpit prototype pass 3 on `/dashboard-cockpit-prototype`: strong stage-lane glow while browsing, browser/workspace fill separation, no river return-flight animation, collapsible stage sections, and a much larger active rich-text workspace area
 - `pending local checkpoint` — applies cockpit prototype pass 2 surface differentiation on `/dashboard-cockpit-prototype`: river stays light and map-like, stage browser becomes a filled selector tray, workspace becomes a solid dossier surface, and the shared identity blocks now use real fills instead of outline-only differentiation
@@ -38,14 +39,15 @@
 ## Read First
 
 1. [Docs Hub](/home/richard/code/jobs/docs/README.md)
-2. [Architect Operating Contract](/home/richard/code/jobs/docs/guides/architect-operating-contract.md)
-3. [Backlog Tracker](/home/richard/code/jobs/docs/project/backlog.md)
-4. [Cockpit Interaction Spec](/home/richard/code/jobs/docs/product/cockpit-interaction-spec.md)
-5. [Cockpit Migration Plan](/home/richard/code/jobs/docs/plans/cockpit-migration-plan.md)
-6. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
-7. [Resume Document Truth Model Sprint Brief](/home/richard/code/jobs/docs/plans/resume-document-truth-model-sprint-brief.md)
-8. [Resume Document Truth Model ADR](/home/richard/code/jobs/docs/decisions/008-resume-document-truth-model.md)
-9. [Journal](/home/richard/code/jobs/JOURNAL.md)
+2. [Cockpit Stage Contract](/home/richard/code/jobs/docs/product/cockpit-stage-contract.md) ← NEW: inbound/work/outbound per stage, toolbar, drawer pattern
+3. [Architect Operating Contract](/home/richard/code/jobs/docs/guides/architect-operating-contract.md)
+4. [Backlog Tracker](/home/richard/code/jobs/docs/project/backlog.md)
+5. [Cockpit Interaction Spec](/home/richard/code/jobs/docs/product/cockpit-interaction-spec.md)
+6. [Cockpit Migration Plan](/home/richard/code/jobs/docs/plans/cockpit-migration-plan.md)
+7. [Current Implementation Roadmap](/home/richard/code/jobs/docs/plans/current-implementation-roadmap.md)
+8. [Resume Document Truth Model Sprint Brief](/home/richard/code/jobs/docs/plans/resume-document-truth-model-sprint-brief.md)
+9. [Resume Document Truth Model ADR](/home/richard/code/jobs/docs/decisions/008-resume-document-truth-model.md)
+10. [Journal](/home/richard/code/jobs/JOURNAL.md)
 
 ## First 10 Minutes Contract
 
@@ -86,6 +88,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 ## Current Sprint Goal
 
 - Move the signed-in experience onto the cockpit shell in phases, starting with a real live-data Phase 1 that keeps legacy pages available as fallbacks.
+- The cockpit stage contract is now formalized. The next implementation work should follow its stage toolbar, drawer, and notes engine patterns.
 
 ## Sprint Execution Mode
 
@@ -622,9 +625,11 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## Next Recommended Task
 
-- Use the new backlog tracker as the first stop for follow-up work selection:
+- The cockpit stage contract is now the governing spec for workspace behavior. Start implementation from the contract:
+  1. **INTERESTED stage notes with BlockNote** — replace the current plain textarea with the BlockNote block editor; this proves the universal notes engine pattern across all stages
+  2. **Stage toolbar implementation** — wire up the per-stage toolbar as defined in the stage contract (each stage gets its own slim action bar with forward-transition verb on the right)
+  3. **Drawer pattern for Resume Studio** — implement the slide-over drawer so `Open Resume Studio` from CRAFTING toolbar opens the full editor without navigating away from the cockpit
+  4. **Swipe Mode "Interested" label + first-impression note capture** — rename "Save" to "Interested" in swipe, add the "What caught your eye?" prompt, and carry that note into the INTERESTED workspace
+- Use the backlog tracker for bug/debt work:
   - `/home/richard/code/jobs/docs/project/backlog.md`
-- Then deepen the cockpit where the value is still compressed:
-  - improve fallback draft quality so timeout-path rewrites stay closer to job targeting intent
-  - extend BlockNote from role narrative targeting into richer multi-section drafting (experience + selected supporting sections) without leaving cockpit flow
-  - keep legacy pages as fallback until the cockpit path has true parity
+- Keep legacy pages as fallback until the cockpit path has true parity

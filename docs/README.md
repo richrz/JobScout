@@ -56,6 +56,7 @@ Historical records:
 
 ## Current Core Specs
 
+- **Cockpit stage contract: [cockpit-stage-contract.md](./product/cockpit-stage-contract.md)** ← inbound/work/outbound per stage, toolbar, drawer pattern, cross-stage editing rules
 - Opportunity lifecycle state contract: [lifecycle-state-contract.md](./product/lifecycle-state-contract.md)
 - Recovery and plan levers: [recovery-and-plan-levers.md](./product/recovery-and-plan-levers.md)
 - Resume input and voice strategy: [resume-input-and-voice-strategy.md](./product/resume-input-and-voice-strategy.md)

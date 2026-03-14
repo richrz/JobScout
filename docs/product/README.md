@@ -8,6 +8,7 @@ This folder holds active product strategy and operating concepts.
 ## Core Product Specs
 
 - **Cockpit interaction spec: [cockpit-interaction-spec.md](./cockpit-interaction-spec.md)** ← start here for the unified UX vision
+- **Cockpit stage contract: [cockpit-stage-contract.md](./cockpit-stage-contract.md)** ← inbound/work/outbound per stage, toolbar, drawer pattern
 - Lifecycle state contract: [lifecycle-state-contract.md](./lifecycle-state-contract.md)
 - Lifecycle concept: [workspace-lifecycle-concept.md](./workspace-lifecycle-concept.md)
 - Normalization contract: [normalization-contract.md](./normalization-contract.md)
@@ -21,12 +22,13 @@ This folder holds active product strategy and operating concepts.
 - Market research: [market-research.md](./market-research.md)
 ## Recommended Reading Order
 
-1. [Lifecycle state contract](./lifecycle-state-contract.md)
-2. [Recovery and plan levers](./recovery-and-plan-levers.md)
-3. [Resume input and voice strategy](./resume-input-and-voice-strategy.md)
-4. [Resume customization product spec](./resume-customization-product-spec.md)
-5. [Normalization contract](./normalization-contract.md)
-6. [Lifecycle concept](./workspace-lifecycle-concept.md)
+1. [Cockpit stage contract](./cockpit-stage-contract.md)
+2. [Lifecycle state contract](./lifecycle-state-contract.md)
+3. [Recovery and plan levers](./recovery-and-plan-levers.md)
+4. [Resume input and voice strategy](./resume-input-and-voice-strategy.md)
+5. [Resume customization product spec](./resume-customization-product-spec.md)
+6. [Normalization contract](./normalization-contract.md)
+7. [Lifecycle concept](./workspace-lifecycle-concept.md)
 
 ## Naming Standard
 

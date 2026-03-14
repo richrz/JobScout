@@ -93,7 +93,7 @@ export function TriageCard({ job, onSwipe, index }: TriageCardProps) {
                             backgroundColor: colors.accentDim
                         }}
                     >
-                        Save
+                        Interested
                     </div>
                 </motion.div>
 
@@ -189,6 +189,7 @@ export function TriageCard({ job, onSwipe, index }: TriageCardProps) {
 
 // Action Buttons - Ayu Dark styled
 export function TriageActions({ onPass, onSave, disabled }: { onPass: () => void, onSave: () => void, disabled?: boolean }) {
+    // Note: "Save" is renamed to "Interested" in the UI per cockpit-stage-contract.md
     return (
         <div className="flex items-center justify-center gap-8 mt-10">
             <button

@@ -36,7 +36,7 @@ export default async function TriagePage() {
                         JobSwipe
                     </h1>
                     <p style={{ color: colors.textMuted }}>
-                        Swipe right to save • Left to pass • Reach Inbox Zero
+                        Swipe right = Interested • Left to pass • Reach Inbox Zero
                     </p>
                 </div>
 
