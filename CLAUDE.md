@@ -17,6 +17,16 @@ This repo uses a docs-first workflow.
 4. Update `JOURNAL.md` when direction or rationale changes.
 5. Be honest about blockers, uncertainty, and unfinished work.
 
+## Agent Model Strategy
+
+Preferred development mode: **Opus orchestrator + cheaper subagents.**
+
+- **Opus (primary):** Architecture decisions, merge strategy, writing production code, final verification
+- **Sonnet subagents:** File analysis, codebase research, reading/summarizing large files, drafting code sections
+- **Haiku subagents:** Simple lookups, file pattern searches, quick checks
+
+Always verify subagent work at the end — Opus reviews and confirms correctness before committing.
+
 ## Audit Notes
 
 - If an audit report is needed, place it under `/home/richard/code/jobs/docs/audits/`.

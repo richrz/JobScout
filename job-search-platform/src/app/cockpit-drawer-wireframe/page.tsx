@@ -1,3 +1,10 @@
+/**
+ * ARCHIVED PROTOTYPE — 2026-03-15
+ *
+ * This prototype proved the T-shape visual architecture (∩ card + U workspace + animated shoulders).
+ * Those patterns have been migrated into the production cockpit at /dashboard-wireframe.
+ * This file is preserved for reference but is no longer the active development target.
+ */
 'use client';
 
 import { useEffect, useState, useCallback, useMemo } from 'react';

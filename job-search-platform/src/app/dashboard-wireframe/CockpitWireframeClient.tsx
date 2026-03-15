@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Component, useEffect, useState, type ReactNode } from 'react';
+import { Component, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { motion, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -575,6 +576,25 @@ function nextMove(stage: CockpitStage, resumeCount: number) {
   }
 }
 
+// ── Accent alpha helper ──────────────────────────────────────────────
+function a(color: string, alpha: string) {
+  return `${color}${alpha}`;
+}
+
+// ── Stage toolbar config ─────────────────────────────────────────────
+type ToolbarAction = { label: string; key: string; icon?: string };
+type ToolbarConfig = { actions: ToolbarAction[]; transition: { label: string; key: string } | null };
+
+const STAGE_TOOLBAR: Record<CockpitStage, ToolbarConfig> = {
+  NEW:        { actions: [{ label: 'Launch Swipe', key: 'swipe', icon: '👆' }, { label: 'Filter Batch', key: 'filter', icon: '🔍' }], transition: { label: "Yes, I'm Interested →", key: 'to-interested' } },
+  INTERESTED: { actions: [{ label: 'Add Note', key: 'note', icon: '📝' }, { label: 'Research', key: 'research', icon: '🔎' }], transition: { label: 'Start Crafting →', key: 'to-crafting' } },
+  CRAFTING:   { actions: [{ label: 'Generate Resume', key: 'generate', icon: '✨' }, { label: 'Keywords', key: 'keywords', icon: '🎯' }, { label: 'Fact Lock', key: 'factlock', icon: '🔒' }], transition: { label: 'Mark as Applied →', key: 'to-applied' } },
+  APPLIED:    { actions: [{ label: 'Review Resume', key: 'review-resume', icon: '📄' }, { label: 'Log Follow-up', key: 'followup', icon: '📞' }], transition: { label: 'Heard Back →', key: 'to-screening' } },
+  SCREENING:  { actions: [{ label: 'View Resume', key: 'view-resume', icon: '📄' }, { label: 'Call Notes', key: 'call-notes', icon: '📱' }], transition: { label: 'Interview Scheduled →', key: 'to-interview' } },
+  INTERVIEW:  { actions: [{ label: 'Prep Sheet', key: 'prep', icon: '📋' }, { label: 'Add Round', key: 'add-round', icon: '🎤' }], transition: { label: 'Offer Received →', key: 'to-offer' } },
+  OFFER:      { actions: [{ label: 'View Journey', key: 'journey', icon: '🗺' }, { label: 'Compare Offers', key: 'compare', icon: '⚖️' }], transition: null },
+};
+
 function compactMetric(label: string, value: string, accent?: string) {
   return (
     <div className="min-w-[128px] rounded-full border border-white/10 bg-white/[0.03] px-4 py-2">
@@ -769,10 +789,14 @@ function WhileYouWereOutPanel({
 function KanbanCard({
   card,
   active,
+  selected,
+  ghosted,
   onClick,
 }: {
   card: CockpitCard;
   active: boolean;
+  selected?: boolean;
+  ghosted?: boolean;
   onClick: () => void;
 }) {
   const visual = STAGE_VISUALS[card.stage];
@@ -780,56 +804,73 @@ function KanbanCard({
   const urgency = urgencyForStage(card.stage, card.updatedAt);
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'group relative w-full overflow-hidden rounded-[22px] border bg-[#0b0b0c] px-3.5 py-3 text-left transition-all duration-200 hover:-translate-y-0.5',
-        active
-          ? 'border-white/18 shadow-[0_18px_40px_rgba(0,0,0,0.38)]'
-          : 'border-white/8 hover:border-white/16',
-      )}
-      style={{
-        boxShadow: active ? `0 0 0 1px ${visual.tint}, 0 22px 45px rgba(0,0,0,0.32)` : undefined,
-      }}
-    >
-      <div className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: visual.accent }} />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-        style={{ background: `radial-gradient(circle at top right, ${visual.tint}, transparent 55%)` }}
-      />
-      <div className="relative">
-        <div className="flex items-start gap-3">
+    <div className={cn(ghosted && 'opacity-[0.15] transition-opacity hover:opacity-[0.7]')}>
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          'group relative w-full overflow-hidden border bg-[#0b0b0c] px-3.5 py-3 text-left transition-all duration-200 hover:-translate-y-0.5',
+          selected
+            ? 'rounded-t-[14px] rounded-b-none border-white/18'
+            : 'rounded-[14px] border-white/8 hover:border-white/16',
+          active && !selected && 'border-white/18 shadow-[0_18px_40px_rgba(0,0,0,0.38)]',
+        )}
+        style={{
+          boxShadow: selected
+            ? `inset 0 0 0 1px ${a(visual.accent, '44')}, 0 8px 28px -12px ${a(visual.accent, '33')}`
+            : active
+              ? `0 0 0 1px ${visual.tint}, 0 22px 45px rgba(0,0,0,0.32)`
+              : undefined,
+          background: selected
+            ? `linear-gradient(135deg, ${a(visual.accent, '18')}, rgb(14,18,26))`
+            : undefined,
+          borderBottomLeftRadius: selected ? 0 : undefined,
+          borderBottomRightRadius: selected ? 0 : undefined,
+        }}
+      >
+        {!selected && (
+          <div className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: visual.accent }} />
+        )}
+        {selected && (
           <div
-            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold"
-            style={{
-              background: identity.background,
-              border: identity.border,
-              color: identity.text,
-              boxShadow: identity.glow,
-            }}
-          >
-            {identity.initials}
-            {urgency.tone !== 'quiet' ? (
-              <span
-                className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border border-black/70 animate-pulse"
-                style={{ backgroundColor: visual.accent }}
-              />
-            ) : null}
-          </div>
+            className="absolute inset-y-0 left-0 w-[3px] rounded-tl-[14px]"
+            style={{ backgroundColor: a(visual.accent, '55') }}
+          />
+        )}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+          style={{ background: `radial-gradient(circle at top right, ${visual.tint}, transparent 55%)` }}
+        />
+        <div className="relative">
+          <div className="flex items-start gap-2.5">
+            <div
+              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-semibold"
+              style={{
+                background: identity.background,
+                border: identity.border,
+                color: identity.text,
+              }}
+            >
+              {identity.initials}
+              {urgency.tone !== 'quiet' ? (
+                <span
+                  className="absolute -bottom-1 -right-1 h-2.5 w-2.5 rounded-full border border-black/70 animate-pulse"
+                  style={{ backgroundColor: visual.accent }}
+                />
+              ) : null}
+            </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="truncate text-sm font-semibold text-white">{card.company}</div>
-                <div className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-white/60">
-                  {card.title}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="truncate text-xs font-semibold text-white">{card.company}</div>
+                  <div className="mt-0.5 line-clamp-1 text-[11px] leading-relaxed text-white/60">
+                    {card.title}
+                  </div>
                 </div>
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-1">
                 {card.scoreLabel ? (
                   <span
-                    className="rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                    className="shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold"
                     style={{
                       borderColor: visual.tint,
                       backgroundColor: visual.tint,
@@ -839,86 +880,105 @@ function KanbanCard({
                     {card.scoreLabel}
                   </span>
                 ) : null}
-                <span className={cn('rounded-full border px-2 py-0.5 text-[10px] font-medium', urgencyClasses(urgency.tone))}>
+              </div>
+
+              <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] text-white/42">
+                <span className="truncate">{card.location || 'Location pending'}</span>
+                <span className={cn('shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-medium', urgencyClasses(urgency.tone))}>
                   {urgency.label}
                 </span>
               </div>
             </div>
-
-            <div className="mt-3 flex items-center justify-between gap-3 text-[11px] text-white/42">
-              <span className="truncate">{card.location || 'Location pending'}</span>
-              <span className="shrink-0">{recencyLabel(card.updatedAt)}</span>
-            </div>
           </div>
         </div>
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }
 
 function KanbanColumn({
   column,
   activeCardId,
+  selectedCardId,
   onOpenCard,
 }: {
   column: CockpitKanbanColumn;
   activeCardId: string | null;
+  selectedCardId: string | null;
   onOpenCard: (id: string) => void;
 }) {
   const visual = STAGE_VISUALS[column.stage];
+  const hasSelected = column.cards.some((c) => c.id === selectedCardId);
+  const selectedIdx = hasSelected ? column.cards.findIndex((c) => c.id === selectedCardId) : -1;
 
   return (
     <div
-      className="min-w-[248px] max-w-[248px] overflow-hidden rounded-[28px] border bg-[#080809]"
+      className="overflow-hidden rounded-[14px] bg-[#080809] p-2"
       style={{
-        borderColor: visual.tint,
-        backgroundImage: `${visual.wash}, linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01))`,
+        paddingBottom: hasSelected ? 0 : undefined,
+        borderBottomLeftRadius: hasSelected ? 0 : undefined,
+        borderBottomRightRadius: hasSelected ? 0 : undefined,
+        boxShadow: hasSelected
+          ? [
+              `inset  2px  0   0 0 ${a(visual.accent, '55')}`,
+              `inset -2px  0   0 0 ${a(visual.accent, '55')}`,
+              `inset  0    2px 0 0 ${a(visual.accent, '55')}`,
+              `0 8px 28px -12px ${a(visual.accent, '33')}`,
+            ].join(', ')
+          : '0 0 0 1px rgba(255,255,255,0.06) inset',
       }}
     >
-      <div className="border-b border-white/8 px-4 py-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span
-                className="h-2.5 w-2.5 rounded-full shadow-[0_0_12px_currentColor]"
-                style={{ backgroundColor: visual.accent, color: visual.accent }}
-              />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: visual.accent }}>
-                {visual.title}
-              </span>
-            </div>
-            <p className="mt-2 text-xs leading-relaxed text-white/45">{visual.hint}</p>
-          </div>
-          <div
-            className="rounded-full border px-2.5 py-1 text-xs font-semibold"
-            style={{ borderColor: visual.tint, backgroundColor: visual.tint, color: visual.accent }}
-          >
-            {column.total}
-          </div>
+      <button
+        type="button"
+        onClick={() => {
+          const first = column.cards[0];
+          if (first) onOpenCard(first.id);
+        }}
+        className="mb-2 flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-white/[0.04]"
+      >
+        <div className="flex items-center gap-1.5">
+          <span
+            className="h-2 w-2 rounded-full shadow-[0_0_8px_currentColor]"
+            style={{ backgroundColor: visual.accent, color: visual.accent }}
+          />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: visual.accent }}>
+            {visual.title}
+          </span>
         </div>
-      </div>
+        <span
+          className="rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
+          style={{ backgroundColor: a(visual.accent, '1c'), color: visual.accent }}
+        >
+          {column.total}
+        </span>
+      </button>
 
-      <div className="space-y-2.5 p-3">
+      <div className="space-y-1.5">
         {column.cards.length === 0 ? (
-          <div className="rounded-[22px] border border-dashed border-white/10 px-4 py-7 text-center text-xs text-white/28">
-            Quiet for now
+          <div className="rounded-[10px] border border-dashed border-white/10 px-3 py-4 text-center text-[10px] text-white/28">
+            Empty
           </div>
         ) : (
-          column.cards.map((card) => (
-            <KanbanCard
-              key={card.id}
-              card={card}
-              active={activeCardId === card.id}
-              onClick={() => onOpenCard(card.id)}
-            />
-          ))
+          column.cards.map((card, idx) => {
+            const isGhosted = hasSelected && idx !== selectedIdx;
+            return (
+              <KanbanCard
+                key={card.id}
+                card={card}
+                active={activeCardId === card.id}
+                selected={card.id === selectedCardId}
+                ghosted={isGhosted}
+                onClick={() => onOpenCard(card.id)}
+              />
+            );
+          })
         )}
       </div>
 
-      {column.total > column.cards.length ? (
-        <div className="px-3 pb-3">
-          <div className="rounded-[18px] border border-dashed border-white/10 px-3 py-2 text-center text-[11px] text-white/32">
-            +{column.total - column.cards.length} more in {visual.title.toLowerCase()}
+      {column.total > column.cards.length && !hasSelected ? (
+        <div className="mt-1.5">
+          <div className="rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/32">
+            +{column.total - column.cards.length} more
           </div>
         </div>
       ) : null}
@@ -2234,138 +2294,197 @@ function OfferDesk({ panel, accent }: { panel: CockpitPanelRecord; accent: strin
   );
 }
 
-function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose: () => void }) {
+function WorkspaceSection({
+  panel,
+  colIdx,
+  onClose,
+  onTransition,
+}: {
+  panel: CockpitPanelRecord;
+  colIdx: number;
+  onClose: () => void;
+  onTransition: (key: string) => void;
+}) {
   const visual = STAGE_VISUALS[panel.stage];
   const identity = companyIdentity(panel.company);
   const urgency = urgencyForStage(panel.stage, panel.updatedAt);
-  const resumes = panel.resumes.slice(0, 4);
+  const toolbar = STAGE_TOOLBAR[panel.stage];
+  const shoulderLeftW = `calc(${colIdx} * (100% + 0.5rem) / 7)`;
+  const shoulderRightW = `calc(${6 - colIdx} * (100% + 0.5rem) / 7)`;
 
   return (
-    <aside className="hidden lg:flex lg:w-[42%] lg:min-w-[430px] lg:flex-col">
-      <div
-        className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-hidden rounded-[32px] border bg-[#09090a] shadow-[0_26px_90px_rgba(0,0,0,0.44)]"
-        style={{ borderColor: visual.tint }}
-      >
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-40"
-          style={{ background: `radial-gradient(circle at top right, ${visual.tint}, transparent 55%)` }}
+    <section
+      className="relative p-6"
+      style={{
+        borderRadius: '0 0 20px 20px',
+        background: 'linear-gradient(160deg, rgb(20,26,36) 0%, rgb(13,17,25) 50%, rgb(9,12,19) 100%)',
+        boxShadow: [
+          `inset  2px  0   0 0 ${a(visual.accent, '55')}`,
+          `inset -2px  0   0 0 ${a(visual.accent, '55')}`,
+          `inset  0   -2px 0 0 ${a(visual.accent, '55')}`,
+          `0 40px 100px -50px rgba(0,0,0,0.9)`,
+          `0 0 80px -20px ${a(visual.accent, '18')}`,
+        ].join(', '),
+      }}
+    >
+      {/* Left shoulder */}
+      {colIdx > 0 && (
+        <motion.div
+          key={`ls-${panel.stage}`}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{
+            position: 'absolute', top: 0, left: 0,
+            width: shoulderLeftW, height: 2,
+            transformOrigin: 'right center',
+            background: a(visual.accent, '55'),
+          }}
         />
+      )}
+      {/* Right shoulder */}
+      {colIdx < 6 && (
+        <motion.div
+          key={`rs-${panel.stage}`}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{
+            position: 'absolute', top: 0, right: 0,
+            width: shoulderRightW, height: 2,
+            transformOrigin: 'left center',
+            background: a(visual.accent, '55'),
+          }}
+        />
+      )}
 
-        <div className="relative max-h-[calc(100vh-2rem)] overflow-y-auto p-6">
-          <div className="mb-5 flex items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] text-base font-semibold"
-                style={{
-                  background: identity.background,
-                  border: identity.border,
-                  color: identity.text,
-                  boxShadow: identity.glow,
-                }}
-              >
-                {identity.initials}
-              </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-[0.22em]" style={{ color: visual.accent }}>
-                  {visual.title} workspace
-                </div>
-                <h2 className="mt-2 text-[28px] font-semibold leading-tight text-white">{panel.title}</h2>
-                <p className="mt-1 text-sm text-white/56">
-                  {panel.company}
-                  {panel.location ? ` · ${panel.location}` : ''}
-                </p>
-              </div>
-            </div>
+      {/* Accent rule */}
+      <div className="mb-5 h-px" style={{ background: `linear-gradient(90deg, transparent, ${a(visual.accent, '44')}, transparent)` }} />
 
+      {/* Stage toolbar */}
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {toolbar.actions.map((action) => (
+            <button
+              key={action.key}
+              type="button"
+              className="rounded-full border px-3 py-1.5 text-xs font-medium transition hover:bg-white/[0.06]"
+              style={{ borderColor: a(visual.accent, '33'), color: a(visual.accent, 'cc') }}
+            >
+              {action.icon ? `${action.icon} ` : ''}{action.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          {toolbar.transition ? (
             <button
               type="button"
-              onClick={onClose}
-              className="rounded-full border border-white/10 p-2 text-white/45 transition hover:border-white/18 hover:text-white"
-              aria-label="Close workspace panel"
+              onClick={() => onTransition(toolbar.transition!.key)}
+              className="rounded-full px-4 py-1.5 text-xs font-semibold transition hover:brightness-110"
+              style={{ backgroundColor: a(visual.accent, '22'), color: visual.accent, border: `1px solid ${a(visual.accent, '44')}` }}
             >
-              <X className="h-4 w-4" />
+              {toolbar.transition.label}
             </button>
-          </div>
+          ) : null}
+          {panel.stage === 'OFFER' ? (
+            <>
+              <button
+                type="button"
+                onClick={() => onTransition('accept')}
+                className="rounded-full bg-emerald-500/20 px-4 py-1.5 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-500/30"
+                style={{ border: '1px solid rgba(52,211,153,0.35)' }}
+              >
+                Accept
+              </button>
+              <button
+                type="button"
+                onClick={() => onTransition('decline')}
+                className="rounded-full bg-rose-500/15 px-4 py-1.5 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/25"
+                style={{ border: '1px solid rgba(244,63,94,0.3)' }}
+              >
+                Decline
+              </button>
+            </>
+          ) : null}
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-white/10 p-1.5 text-white/45 transition hover:border-white/18 hover:text-white"
+            aria-label="Close workspace"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
 
-          <div className="mb-5 flex flex-wrap gap-2">
-            <span
-              className="rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em]"
-              style={{ borderColor: visual.tint, backgroundColor: visual.tint, color: visual.accent }}
-            >
-              {visual.title}
-            </span>
-            <span className={cn('rounded-full border px-3 py-1 text-xs font-medium', urgencyClasses(urgency.tone))}>
-              {urgency.label}
-            </span>
-            {scoreLabel(panel.compositeScore) ? (
-              <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/65">
-                {scoreLabel(panel.compositeScore)} fit
-              </span>
-            ) : null}
+      {/* Identity bar */}
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] text-sm font-semibold"
+            style={{
+              background: identity.background,
+              border: identity.border,
+              color: identity.text,
+              boxShadow: identity.glow,
+            }}
+          >
+            {identity.initials}
           </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.22em]" style={{ color: visual.accent }}>
+              {visual.title} workspace
+            </div>
+            <h2 className="mt-1 text-xl font-semibold leading-tight text-white">{panel.title}</h2>
+            <p className="mt-1 text-sm text-white/56">
+              {panel.company}
+              {panel.location ? ` · ${panel.location}` : ''}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span
+            className="rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]"
+            style={{ borderColor: visual.tint, backgroundColor: visual.tint, color: visual.accent }}
+          >
+            {visual.title}
+          </span>
+          <span className={cn('rounded-full border px-2.5 py-1 text-[10px] font-medium', urgencyClasses(urgency.tone))}>
+            {urgency.label}
+          </span>
+          {scoreLabel(panel.compositeScore) ? (
+            <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] text-white/65">
+              {scoreLabel(panel.compositeScore)} fit
+            </span>
+          ) : null}
+        </div>
+      </div>
 
-          <div className="mb-5 rounded-[26px] border border-white/10 bg-white/[0.03] p-5">
+      {/* Workspace content — two column layout */}
+      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+        <div className="min-w-0 space-y-5">
+          {/* What this needs now */}
+          <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-white/34">
               <Target className="h-3.5 w-3.5" />
               What this needs now
             </div>
             <p className="mt-3 text-base leading-relaxed text-white/82">{nextMove(panel.stage, panel.resumes.length)}</p>
-            <p className="mt-3 text-sm leading-relaxed text-white/54">{sectionIntro(panel.stage)}</p>
+            <p className="mt-2 text-sm leading-relaxed text-white/54">{sectionIntro(panel.stage)}</p>
           </div>
 
-          <div className="mb-5 grid gap-3">
-            <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
-                <Eye className="h-3.5 w-3.5" />
-                Story snapshot
-              </div>
-              <p className="mt-3 text-sm leading-7 text-white/60">
-                {panel.description.slice(0, 520) || 'No description loaded yet.'}
-              </p>
-            </div>
-
-            <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
-                <Clock3 className="h-3.5 w-3.5" />
-                Stage track
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {stageTrack(panel.stage).map((stage) => {
-                  const trackVisual = STAGE_VISUALS[stage];
-                  return (
-                    <span
-                      key={stage}
-                      className="rounded-full border px-3 py-1 text-[11px] font-medium"
-                      style={{
-                        borderColor: trackVisual.tint,
-                        backgroundColor: stage === panel.stage ? trackVisual.tint : 'rgba(255,255,255,0.02)',
-                        color: stage === panel.stage ? trackVisual.accent : '#d4d4d8',
-                      }}
-                    >
-                      {trackVisual.title}
-                    </span>
-                  );
-                })}
-              </div>
-              <p className="mt-4 text-sm text-white/48">
-                Last touched {formatLongDate(panel.updatedAt)}. {panel.resumes.length} stored resume artifact{panel.resumes.length === 1 ? '' : 's'} and {panel.noteCount} note{panel.noteCount === 1 ? '' : 's'}.
-              </p>
-            </div>
-          </div>
-
+          {/* Stage-specific desk */}
           {panel.stage === 'INTERESTED' && panel.workspaceId ? (
-            <div className="mb-5 space-y-4">
-              <WorkspaceNotesDesk
-                workspaceId={panel.workspaceId}
-                title="Why this role matters"
-                intro="Capture the real reason you saved this role before it turns into drafting work."
-                accent={visual.accent}
-              />
-            </div>
+            <WorkspaceNotesDesk
+              workspaceId={panel.workspaceId}
+              title="Why this role matters"
+              intro="Capture the real reason you saved this role before it turns into drafting work."
+              accent={visual.accent}
+            />
           ) : null}
 
           {panel.stage === 'CRAFTING' ? (
-            <div className="mb-5 space-y-4">
+            <div className="space-y-4">
               <CraftingDesk panel={panel} accent={visual.accent} />
               {panel.workspaceId ? (
                 <WorkspaceNotesDesk
@@ -2381,30 +2500,23 @@ function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose
           ) : null}
 
           {panel.stage === 'APPLIED' && panel.workspaceId ? (
-            <div className="mb-5 space-y-4">
-              <AppliedDesk panel={panel} accent={visual.accent} />
-            </div>
+            <AppliedDesk panel={panel} accent={visual.accent} />
           ) : null}
 
           {panel.stage === 'SCREENING' && panel.workspaceId ? (
-            <div className="mb-5 space-y-4">
-              <ScreeningDesk panel={panel} accent={visual.accent} />
-            </div>
+            <ScreeningDesk panel={panel} accent={visual.accent} />
           ) : null}
 
           {panel.stage === 'INTERVIEW' && panel.workspaceId ? (
-            <div className="mb-5 space-y-4">
-              <InterviewDesk panel={panel} accent={visual.accent} />
-            </div>
+            <InterviewDesk panel={panel} accent={visual.accent} />
           ) : null}
 
           {panel.stage === 'OFFER' && panel.workspaceId ? (
-            <div className="mb-5 space-y-4">
-              <OfferDesk panel={panel} accent={visual.accent} />
-            </div>
+            <OfferDesk panel={panel} accent={visual.accent} />
           ) : null}
 
-          <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-white/8 pt-4 text-sm">
+          {/* Fallback link */}
+          <div className="flex flex-wrap items-center gap-3 border-t border-white/8 pt-4 text-sm">
             {panel.workspaceId ? (
               <Link
                 href={`/workspace/${panel.workspaceId}`}
@@ -2420,11 +2532,53 @@ function WorkspacePanel({ panel, onClose }: { panel: CockpitPanelRecord; onClose
                 Open inbox fallback <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             )}
-            <span className="text-white/34">Fallback is still available while cockpit parity grows.</span>
           </div>
         </div>
+
+        {/* Right context sidebar */}
+        <div className="space-y-4">
+          <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
+              <Eye className="h-3.5 w-3.5" />
+              Story snapshot
+            </div>
+            <p className="mt-3 text-sm leading-7 text-white/60">
+              {panel.description.slice(0, 320) || 'No description loaded yet.'}
+            </p>
+          </div>
+
+          <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/34">
+              <Clock3 className="h-3.5 w-3.5" />
+              Stage track
+            </div>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {stageTrack(panel.stage).map((stage) => {
+                const trackVisual = STAGE_VISUALS[stage];
+                return (
+                  <span
+                    key={stage}
+                    className="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                    style={{
+                      borderColor: trackVisual.tint,
+                      backgroundColor: stage === panel.stage ? trackVisual.tint : 'rgba(255,255,255,0.02)',
+                      color: stage === panel.stage ? trackVisual.accent : '#d4d4d8',
+                    }}
+                  >
+                    {trackVisual.title}
+                  </span>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-xs text-white/48">
+              Last touched {formatLongDate(panel.updatedAt)}. {panel.resumes.length} artifact{panel.resumes.length === 1 ? '' : 's'}, {panel.noteCount} note{panel.noteCount === 1 ? '' : 's'}.
+            </p>
+          </div>
+
+          <StageAssetStack panel={panel} />
+        </div>
       </div>
-    </aside>
+    </section>
   );
 }
 
@@ -2442,6 +2596,12 @@ export default function CockpitWireframeClient({
   const panelLookup = new Map(panelRecords.map((record) => [record.id, record]));
   const activePanel = activeCardId ? panelLookup.get(activeCardId) ?? null : null;
 
+  // Determine which column the selected card is in
+  const selectedColIdx = useMemo(() => {
+    if (!activePanel) return -1;
+    return STAGE_ORDER.indexOf(activePanel.stage);
+  }, [activePanel]);
+
   const craftingCount = viewModel.kanbanColumns.find((column) => column.stage === 'CRAFTING')?.total ?? 0;
   const lateStageCount =
     (viewModel.kanbanColumns.find((column) => column.stage === 'SCREENING')?.total ?? 0) +
@@ -2451,91 +2611,138 @@ export default function CockpitWireframeClient({
     .filter((column) => column.stage !== 'NEW')
     .reduce((total, column) => total + column.total, 0);
 
+  async function handleTransition(key: string) {
+    if (!activePanel?.workspaceId) return;
+
+    const statusMap: Record<string, string> = {
+      'to-interested': 'INTERESTED',
+      'to-crafting': 'INTERESTED',
+      'to-applied': 'APPLIED',
+      'to-screening': 'FOLLOW_UP',
+      'to-interview': 'FOLLOW_UP',
+      'to-offer': 'FOLLOW_UP',
+    };
+
+    const newStatus = statusMap[key];
+    if (!newStatus) return;
+
+    try {
+      const res = await fetch(`/api/workspace/${activePanel.workspaceId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Transition failed');
+      }
+
+      // Reload to reflect new state
+      window.location.reload();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[cockpit] transition error:', err);
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-[#050506] text-white [background-image:radial-gradient(circle_at_top_left,rgba(53,227,117,0.09),transparent_28%),radial-gradient(circle_at_top_right,rgba(124,124,255,0.08),transparent_24%)]">
-      <div className="mx-auto flex min-h-screen max-w-[1720px] flex-col px-5 pb-8 pt-5 lg:px-8">
-        <header className="mb-5 border-b border-white/8 pb-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <div className="text-[11px] uppercase tracking-[0.26em] text-primary/78">JobScout cockpit</div>
-              <h1 className="mt-2 text-4xl font-semibold tracking-tight text-white">
-                Good morning, {userName.split(' ')[0] || userName}
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/54">
-                The market moved. Your pipeline tells you what matters now.
-              </p>
-            </div>
+    <LayoutGroup>
+      <div className="min-h-screen bg-[#050506] text-white">
+        {/* Ambient background glow */}
+        <div
+          className="pointer-events-none fixed inset-0 transition-all duration-1000"
+          style={{
+            background: activePanel
+              ? `radial-gradient(ellipse 80% 50% at 50% 0%, ${a(STAGE_VISUALS[activePanel.stage].accent, '0c')}, transparent 70%)`
+              : 'radial-gradient(circle at top left, rgba(53,227,117,0.06), transparent 28%), radial-gradient(circle at top right, rgba(124,124,255,0.05), transparent 24%)',
+          }}
+        />
 
-            <div className="text-right">
-              <div className="text-[10px] uppercase tracking-[0.22em] text-white/28">Legacy fallbacks</div>
-              <div className="mt-2 flex flex-wrap justify-end gap-2 text-xs text-white/42">
-                <Link href="/jobs" className="transition hover:text-white">Inbox</Link>
-                <span className="text-white/18">•</span>
-                <Link href="/pipeline" className="transition hover:text-white">Pipeline</Link>
-                <span className="text-white/18">•</span>
-                <Link href="/resume" className="transition hover:text-white">Resume</Link>
-                <span className="text-white/18">•</span>
-                <Link href="/triage" className="text-primary transition hover:text-primary/80">Swipe</Link>
+        <div className="relative mx-auto flex min-h-screen max-w-[1720px] flex-col px-5 pb-8 pt-5 lg:px-8">
+          <header className="mb-5 border-b border-white/8 pb-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.26em] text-primary/78">JobScout cockpit</div>
+                <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+                  Good morning, {userName.split(' ')[0] || userName}
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/54">
+                  The market moved. Your pipeline tells you what matters now.
+                </p>
               </div>
-            </div>
-          </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {compactMetric('Fresh matches', viewModel.whileYouWereOut.newJobsCount.toLocaleString(), STAGE_VISUALS.NEW.accent)}
-            {compactMetric('Worth a look', viewModel.whileYouWereOut.matchedJobsCount.toLocaleString(), STAGE_VISUALS.INTERESTED.accent)}
-            {compactMetric('Drafting now', craftingCount.toLocaleString(), STAGE_VISUALS.CRAFTING.accent)}
-            {compactMetric('Managed work', activeManagedCount.toLocaleString(), '#ffffff')}
-            {compactMetric('Beyond submit', lateStageCount.toLocaleString(), STAGE_VISUALS.APPLIED.accent)}
-          </div>
-        </header>
-
-        <div className="flex flex-1 gap-5">
-          <div className={cn('min-w-0 flex-1', activePanel ? 'lg:max-w-[calc(100%-450px)]' : '')}>
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-              <RecentActivityRail
-                activeCardId={activeCardId}
-                items={viewModel.recentActivity}
-                onSelect={setActiveCardId}
-              />
-              <WhileYouWereOutPanel stats={viewModel.whileYouWereOut} />
-            </div>
-
-            <section className="mt-4 overflow-hidden rounded-[32px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] shadow-[0_28px_90px_rgba(0,0,0,0.34)]">
-              <div className="flex flex-col gap-2 border-b border-white/8 px-5 py-4 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-white/34">Pipeline</div>
-                  <p className="mt-1 text-sm text-white/56">
-                    Real state. Visible stage identity. Cards that signal what actually needs attention.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-white/42">
-                  <span className="inline-flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                    live state
-                  </span>
+              <div className="text-right">
+                <div className="text-[10px] uppercase tracking-[0.22em] text-white/28">Legacy fallbacks</div>
+                <div className="mt-2 flex flex-wrap justify-end gap-2 text-xs text-white/42">
+                  <Link href="/jobs" className="transition hover:text-white">Inbox</Link>
                   <span className="text-white/18">•</span>
-                  <span>read-only for now</span>
+                  <Link href="/pipeline" className="transition hover:text-white">Pipeline</Link>
+                  <span className="text-white/18">•</span>
+                  <Link href="/resume" className="transition hover:text-white">Resume</Link>
+                  <span className="text-white/18">•</span>
+                  <Link href="/triage" className="text-primary transition hover:text-primary/80">Swipe</Link>
                 </div>
               </div>
+            </div>
 
-              <div className="overflow-x-auto px-4 py-4">
-                <div className="flex gap-4 pb-2">
-                  {viewModel.kanbanColumns.map((column) => (
-                    <KanbanColumn
-                      key={column.stage}
-                      column={column}
-                      activeCardId={activeCardId}
-                      onOpenCard={setActiveCardId}
-                    />
-                  ))}
-                </div>
-              </div>
-            </section>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {compactMetric('Fresh matches', viewModel.whileYouWereOut.newJobsCount.toLocaleString(), STAGE_VISUALS.NEW.accent)}
+              {compactMetric('Worth a look', viewModel.whileYouWereOut.matchedJobsCount.toLocaleString(), STAGE_VISUALS.INTERESTED.accent)}
+              {compactMetric('Drafting now', craftingCount.toLocaleString(), STAGE_VISUALS.CRAFTING.accent)}
+              {compactMetric('Managed work', activeManagedCount.toLocaleString(), '#ffffff')}
+              {compactMetric('Beyond submit', lateStageCount.toLocaleString(), STAGE_VISUALS.APPLIED.accent)}
+            </div>
+          </header>
+
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
+            <RecentActivityRail
+              activeCardId={activeCardId}
+              items={viewModel.recentActivity}
+              onSelect={setActiveCardId}
+            />
+            <WhileYouWereOutPanel stats={viewModel.whileYouWereOut} />
           </div>
 
-          {activePanel ? <WorkspacePanel panel={activePanel} onClose={() => setActiveCardId(null)} /> : null}
+          {/* Pipeline kanban — T-shape architecture */}
+          <section className="mt-4">
+            <div className="mb-3 flex items-end justify-between gap-4">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.24em] text-white/34">Pipeline</div>
+                <p className="mt-1 text-sm text-white/48">Click a card to open its workspace below.</p>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-white/42">
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                  live state
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-7 gap-2 min-w-[1100px]">
+              {viewModel.kanbanColumns.map((column) => (
+                <KanbanColumn
+                  key={column.stage}
+                  column={column}
+                  activeCardId={activeCardId}
+                  selectedCardId={activeCardId}
+                  onOpenCard={setActiveCardId}
+                />
+              ))}
+            </div>
+
+            {/* Workspace — T-shape continuation below kanban */}
+            {activePanel ? (
+              <WorkspaceSection
+                panel={activePanel}
+                colIdx={selectedColIdx}
+                onClose={() => setActiveCardId(null)}
+                onTransition={handleTransition}
+              />
+            ) : null}
+          </section>
         </div>
       </div>
-    </div>
+    </LayoutGroup>
   );
 }

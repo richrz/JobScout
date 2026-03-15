@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-03-15 — T-Shape Migration: Prototype Visual Identity → Production Cockpit
+
+### What happened
+The prototype cockpit (`/cockpit-drawer-wireframe`) proved the T-shape visual architecture:
+- Selected kanban card and workspace form ONE unified shape (∩ card + U workspace)
+- CSS inset box-shadows for selective borders, no layout shift
+- Animated shoulder segments sweep outward from the selected column
+- Cards below the selected card ghost out (lower opacity, revive on hover)
+- Dark workspace with stage-accented ambient glow
+
+These patterns were migrated into the production cockpit (`/dashboard-wireframe`), which already had:
+- Real server-side data (Prisma queries, auth, profile data)
+- Full CraftingDesk (resume generation, fact locks, keyword coverage, transparent diff)
+- Stage-specific desks for all 7 stages
+- API-backed workspace notes
+- BlockNote deep editor
+
+### Key structural changes
+- **Kanban:** horizontal scroll with fixed-width cards → `grid-cols-7` with compact cards
+- **Workspace:** right-side aside panel → below-kanban section with T-shape border continuation
+- **Added:** stage toolbar (contextual action bar per stage with transition verbs)
+- **Added:** stage transition wiring via `PATCH /api/workspace/:id` (status changes)
+- **Added:** ambient background glow that responds to the selected stage's accent color
+- **Added:** card ghosting in selected column
+
+### Rationale
+Every feature built in the prototype was essentially throwaway code — it had to be rebuilt against real data models. Migration now (while the pattern gap was manageable) prevents divergence from growing further.
+
+### Prototype archived
+`/cockpit-drawer-wireframe` is preserved for reference but no longer the active development target. All new cockpit work happens in `/dashboard-wireframe`.
+
+---
+
 ## 2026-03-10 — Cockpit Prototype Rebuilt As Full-Bleed River-First Surface
 
 ### Context
