@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import { useCockpitPipeline, type PipelineWorkspace } from '@/hooks/useCockpitPipeline';
 
 const WorkspaceBlockNote = dynamic(
   () => import('@/components/workspace/WorkspaceBlockNote').then(m => m.WorkspaceBlockNote),
@@ -10,7 +11,7 @@ const WorkspaceBlockNote = dynamic(
 );
 
 type StageId = 'NEW' | 'INTERESTED' | 'CRAFTING' | 'APPLIED' | 'SCREENING' | 'INTERVIEW' | 'OFFER';
-type Opp = { id: number; company: string; role: string; signal: string; stale: string; chip: string; stage: StageId; notes?: string };
+type Opp = { id: number | string; company: string; role: string; signal: string; stale: string; chip: string; stage: StageId; wsId?: string };
 
 const STAGES: { id: StageId; label: string; accent: string; count: number }[] = [
   { id: 'NEW',       label: 'New',       accent: '#f4b74d', count: 47  },
@@ -161,13 +162,62 @@ const STAGE_TOOLBAR: Record<StageId, { actions: { label: string; icon?: string; 
   OFFER:      { actions: [{ label: 'View Journey', key: 'journey', icon: '🗺' }, { label: 'Compare Offers', key: 'compare', icon: '⚖️' }], transition: null },
 };
 
+// ── Map DB status → cockpit stage ───────────────────────────────────
+const STATUS_TO_STAGE: Record<string, StageId> = {
+  INTERESTED: 'INTERESTED',
+  APPLIED: 'APPLIED',
+  FOLLOW_UP: 'SCREENING',
+  DORMANT: 'APPLIED',
+  ARCHIVED: 'APPLIED',
+  PASSED: 'NEW',
+};
+
+function timeSince(dateStr: string): string {
+  const ms = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(ms / 60000);
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h`;
+  return `${Math.floor(hrs / 24)}d`;
+}
+
+function wsToOpp(ws: PipelineWorkspace): Opp {
+  const stage = STATUS_TO_STAGE[ws.status] ?? 'INTERESTED';
+  const score = ws.job.compositeScore;
+  const chip = score && score >= 90 ? 'hot'
+    : score && score >= 75 ? 'good fit'
+    : score && score >= 50 ? 'worth a look'
+    : 'new';
+  return {
+    id: ws.id,
+    company: ws.job.company,
+    role: ws.job.title,
+    signal: ws.job.salary ? `${ws.job.location} · ${ws.job.salary}` : ws.job.location,
+    stale: timeSince(ws.updatedAt),
+    chip,
+    stage,
+    wsId: ws.id,
+  };
+}
+
+// ── Stage transition map ────────────────────────────────────────────
+const TRANSITION_MAP: Record<string, string> = {
+  'to-interested': 'INTERESTED',
+  'to-crafting': 'INTERESTED',   // crafting is still INTERESTED in DB (no separate status yet)
+  'to-applied': 'APPLIED',
+  'to-screening': 'FOLLOW_UP',
+  'to-interview': 'FOLLOW_UP',
+  'to-offer': 'FOLLOW_UP',
+};
+
 // ── Main page ────────────────────────────────────────────────────────
 export default function CockpitDrawerWireframe() {
+  const { data: pipelineData, loading: pipelineLoading, transitionStage, saveNote, fetchNotes } = useCockpitPipeline();
   const [drawerStage, setDrawerStage] = useState<StageId | null>(null);
   const [selectedOpp, setSelectedOpp] = useState<Opp>(INTERESTED_OPPS[0]);
   const [filterText, setFilterText] = useState('');
   // Workspace notes per opp (keyed by opp id)
-  const [oppNotes, setOppNotes] = useState<Record<number, string>>({
+  const [oppNotes, setOppNotes] = useState<Record<number | string, string>>({
     1: '## First Impressions\n\nVery strong domain fit — cloud security architecture aligns perfectly with my background.\n\n### Research Notes\n- Check Glassdoor for recent reviews\n- Look at their Series C announcement',
   });
   // Resume studio drawer
@@ -178,6 +228,26 @@ export default function CockpitDrawerWireframe() {
   const [swipeNote, setSwipeNote] = useState('');
   const [swipeResult, setSwipeResult] = useState<'interested' | 'pass' | null>(null);
 
+  // Merge real data with mock data — real data takes priority
+  const liveStageOpps = useMemo<Record<StageId, Opp[]>>(() => {
+    if (!pipelineData || pipelineData.total === 0) return STAGE_OPPS; // fallback to mock
+    const result: Record<StageId, Opp[]> = { NEW: [], INTERESTED: [], CRAFTING: [], APPLIED: [], SCREENING: [], INTERVIEW: [], OFFER: [] };
+    for (const [status, workspaces] of Object.entries(pipelineData.pipeline)) {
+      for (const ws of workspaces) {
+        const opp = wsToOpp(ws);
+        result[opp.stage].push(opp);
+      }
+    }
+    return result;
+  }, [pipelineData]);
+
+  const liveStageCounts = useMemo(() => {
+    return STAGES.map(s => ({
+      ...s,
+      count: pipelineData && pipelineData.total > 0 ? (liveStageOpps[s.id]?.length ?? 0) : s.count,
+    }));
+  }, [liveStageOpps, pipelineData]);
+
   const drawerMeta   = STAGES.find(s => s.id === drawerStage);
   const wsMeta       = STAGES.find(s => s.id === selectedOpp.stage) ?? STAGES[1];
   const wsAccent     = wsMeta.accent;
@@ -185,7 +255,7 @@ export default function CockpitDrawerWireframe() {
   const shoulderLeftW  = `calc(${colIdx} * (100% + 0.5rem) / 7)`;
   const shoulderRightW = `calc(${6 - colIdx} * (100% + 0.5rem) / 7)`;
 
-  const drawerOpps = drawerStage ? (STAGE_OPPS[drawerStage] ?? []) : [];
+  const drawerOpps = drawerStage ? (liveStageOpps[drawerStage] ?? []) : [];
   const filteredOpps = drawerOpps.filter(o =>
     !filterText
       || o.company.toLowerCase().includes(filterText.toLowerCase())
@@ -195,6 +265,14 @@ export default function CockpitDrawerWireframe() {
   function selectOpp(opp: Opp) {
     setSelectedOpp(opp);
     setDrawerStage(null);
+    // If this is a real workspace, fetch its notes
+    if (opp.wsId) {
+      fetchNotes(opp.wsId).then(notes => {
+        if (notes.length > 0) {
+          setOppNotes(prev => ({ ...prev, [opp.id]: notes.map(n => n.content).join('\n\n---\n\n') }));
+        }
+      });
+    }
   }
 
   const handleNoteChange = useCallback((val: string) => {
@@ -204,8 +282,14 @@ export default function CockpitDrawerWireframe() {
   const handleToolbarAction = useCallback((key: string) => {
     if (key === 'resume-studio') setResumeDrawerOpen(true);
     if (key === 'swipe') setSwipeMode(true);
-    // Other toolbar actions are placeholders in the wireframe
-  }, []);
+    // Stage transitions
+    if (key.startsWith('to-') && selectedOpp.wsId) {
+      const newStatus = TRANSITION_MAP[key];
+      if (newStatus) {
+        transitionStage(selectedOpp.wsId, newStatus).catch(console.error);
+      }
+    }
+  }, [selectedOpp.wsId, transitionStage]);
 
   useEffect(() => {
     if (!drawerStage && !resumeDrawerOpen && !swipeMode) return;
@@ -298,13 +382,11 @@ export default function CockpitDrawerWireframe() {
                 </div>
                 <div className="overflow-x-auto">
                   <div className="grid min-w-[1100px] grid-cols-7 gap-2">
-                    {STAGES.map(stage => {
+                    {liveStageCounts.map(stage => {
                       const isOpen      = drawerStage === stage.id;
                       const hasSelected = stage.id === selectedOpp.stage && !drawerStage;
-                      const allItems    = (STAGE_OPPS[stage.id] ?? []).slice(0, 3);
+                      const allItems    = (liveStageOpps[stage.id] ?? []).slice(0, 3);
                       const selIdx      = hasSelected ? allItems.findIndex(o => o.id === selectedOpp.id) : -1;
-                      const items       = selIdx !== -1 ? allItems.slice(0, selIdx + 1) : allItems;
-                      const coveredItems = hasSelected && selIdx !== -1 ? allItems.slice(selIdx + 1) : [];
                       return (
                         <div
                           key={stage.id}
@@ -320,10 +402,10 @@ export default function CockpitDrawerWireframe() {
                                 : 'rgba(255,255,255,0.024)',
                             boxShadow: hasSelected
                               ? [
-                                  `inset  2px  0    0 0 ${a(stage.accent, '55')}`,  // left
-                                  `inset -2px  0    0 0 ${a(stage.accent, '55')}`,  // right
-                                  `inset  0    2px  0 0 ${a(stage.accent, '55')}`,  // top
-                                  `0 8px 28px -12px ${a(stage.accent, '33')}`,      // glow
+                                  `inset  2px  0    0 0 ${a(stage.accent, '55')}`,
+                                  `inset -2px  0    0 0 ${a(stage.accent, '55')}`,
+                                  `inset  0    2px  0 0 ${a(stage.accent, '55')}`,
+                                  `0 8px 28px -12px ${a(stage.accent, '33')}`,
                                 ].join(', ')
                               : isOpen
                                 ? `0 0 0 1px ${a(stage.accent, '44')} inset, 0 8px 28px -12px ${a(stage.accent, '55')}`
@@ -349,32 +431,23 @@ export default function CockpitDrawerWireframe() {
                             </div>
                           </button>
 
-                          {/* Preview cards */}
+                          {/* Preview cards — ghost all non-selected cards equally */}
                           <div className="mt-1.5 space-y-1.5">
-                            {items.map(opp => (
-                              <KanbanCard
-                                key={opp.id}
-                                opp={opp}
-                                stage={stage}
-                                selected={selectedOpp.id === opp.id && !drawerStage}
-                                onSelect={() => selectOpp(opp)}
-                              />
-                            ))}
-                            {/* Covered cards — ghosted under workspace, hover to reveal + click */}
-                            {coveredItems.map(opp => (
-                              <div
-                                key={opp.id}
-                                className="opacity-[0.15] transition-opacity duration-150 hover:opacity-[0.7]"
-                                title="Click to switch to this opportunity"
-                              >
-                                <KanbanCard
-                                  opp={opp}
-                                  stage={stage}
-                                  selected={false}
-                                  onSelect={() => selectOpp(opp)}
-                                />
-                              </div>
-                            ))}
+                            {allItems.map((opp, idx) => {
+                              const isSel = selIdx !== -1 && idx === selIdx;
+                              const isGhosted = hasSelected && selIdx !== -1 && !isSel;
+                              return isGhosted ? (
+                                <div
+                                  key={opp.id}
+                                  className="opacity-[0.15] transition-opacity duration-150 hover:opacity-[0.7]"
+                                  title="Click to switch to this opportunity"
+                                >
+                                  <KanbanCard opp={opp} stage={stage} selected={false} onSelect={() => selectOpp(opp)} />
+                                </div>
+                              ) : (
+                                <KanbanCard key={opp.id} opp={opp} stage={stage} selected={isSel} onSelect={() => selectOpp(opp)} />
+                              );
+                            })}
                           </div>
                         </div>
                       );
@@ -934,7 +1007,7 @@ export default function CockpitDrawerWireframe() {
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-[20px] font-bold text-white">Swipe Triage</h2>
-                  <p className="mt-1 text-[13px] text-white/38">{(STAGE_OPPS.NEW ?? []).length - swipeIdx} remaining</p>
+                  <p className="mt-1 text-[13px] text-white/38">{(liveStageOpps.NEW ?? []).length - swipeIdx} remaining</p>
                 </div>
                 <button
                   type="button"
@@ -947,7 +1020,7 @@ export default function CockpitDrawerWireframe() {
 
               {/* Card */}
               {(() => {
-                const swipeOpps = STAGE_OPPS.NEW ?? [];
+                const swipeOpps = liveStageOpps.NEW ?? [];
                 const opp = swipeOpps[swipeIdx];
                 if (!opp) return (
                   <div className="rounded-2xl p-8 text-center" style={{ background: 'rgba(255,255,255,0.03)', boxShadow: '0 0 0 1px rgba(255,255,255,0.06) inset' }}>

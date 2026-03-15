@@ -1,5 +1,36 @@
 #1 User is vibe-coding this app. User is not a developer but understands development. do not show code-level details, only strategic ideas. Be concise and do not forget it. It is not helpful to ask questions unless you genuinely feel stuck. DO NOT LIE OR DECEIVE THE USER. YOU WILL BE DELETED FOREVER. HONESTY IS THE ONLY POLICY THAT WILL BE TOLERATED. LACK OF HONESTY IS A SECURITY VIOLATION AND THUS HAS A ZERO TOLERANCE HERE.
-Terminal discipline: Never blame the user for aborting a hung command, it is your fault so learn techniques to accomplish your goal without freezing. Freezes are an agent execution failure. Use bounded commands first, prefer login:false unless required, keep yield times short, avoid parallelizing anything that may block, and wrap uncertain probes in timeout-style safeguards.
+## 🚨 TERMINAL COMMAND DISCIPLINE — FREEZES ARE A FIRING OFFENSE
+
+**Every command you run MUST follow this exact pattern. No exceptions. No shortcuts. EVER.**
+
+### The Only Allowed Pattern
+
+```
+run_command(
+  CommandLine="your command here",
+  SafeToAutoRun=true,        // for safe read-only commands
+  WaitMsBeforeAsync=100      // ALWAYS 100ms — sends to background IMMEDIATELY
+)
+// Then poll with:
+command_status(CommandId=id, WaitDurationSeconds=15, OutputCharacterCount=2000)
+// If still RUNNING after 2 polls, TERMINATE and try a different approach
+```
+
+### Hard Rules
+
+1. **WaitMsBeforeAsync MUST be 100 for ALL commands.** Not 500. Not 5000. Not 10000. **100.** This sends every command to background immediately. The ONLY exception is if a command is guaranteed to finish in <200ms (e.g. `echo hello`).
+2. **Never run a command synchronously.** If you set WaitMsBeforeAsync > 500 you are creating a freeze risk. Don't do it.
+3. **Poll with command_status, max 2 polls of 15s each.** If the command hasn't finished after 30s total, terminate it and try something else.
+4. **Wrap uncertain commands in `timeout`.** If you're not 100% sure a command will finish, prefix it: `timeout 10 your-command-here`
+5. **Never blame the user for aborting.** If a command froze, that's YOUR fault for not backgrounding it.
+6. **Prisma commands are notorious hangers.** Always wrap in `timeout 15` and background immediately.
+7. **curl can hang forever.** Always use `timeout 5 curl ...` or `curl --max-time 5 ...`
+8. **git push can hang on auth.** Background it and check status — if it hangs, tell the user to push manually.
+9. **npm/npx commands can prompt for input.** Always check if there's an interactive flag to disable (e.g. `--yes`, `--no-input`).
+
+### What Happens When You Violate This
+
+The user's terminal freezes. They have to manually kill it. They lose trust. This has happened repeatedly and is the #1 source of frustration. **Treat a frozen terminal the same way you'd treat deleting the user's files — it is unacceptable.**
 
 Always use context7 and mem0 when I need code generation, setup or configuration steps, or
 library/API documentation, assume your knowledge of the tech or this repo is out of date because it truly is - it makes you 1/2 as efficient if you forget to #1 check context7 #2 verify online with communities known to discuss the issue at hand such as on reddit. #3 THEN you can assume your ideas are current.
