@@ -1,32 +1,31 @@
 /**
  * Job Service - Database Persistence Layer
- * 
- * This module handles saving scraped jobs to the PostgreSQL database
- * with geocoding integration and upsert logic to prevent duplicates.
+ *
+ * Dual-writes jobs to Postgres (user state) and Cloud Talent Solution (search).
+ * CTS ingestion is best-effort — Postgres is always the source of truth.
  */
 
 import { prisma } from '@/lib/prisma';
 import { JobListing } from './job-scrapers';
 import { normalizeJobData } from './ingest/normalization';
+import { upsertJob, isCtsEnabled, type CtsJobInput } from './cts/talent-service';
 
 /**
- * Save jobs to the database with geocoding
- * 
- * @param jobs - Array of scraped job listings
- * @returns Promise that resolves when all jobs are saved
+ * Save jobs to the database with optional CTS sync.
  */
 export async function saveJobs(jobs: JobListing[]): Promise<void> {
-
-    // Normalize and geocode concurrently
+    // Normalize concurrently
     const normalizedJobs = await Promise.all(
         jobs.map(job => normalizeJobData(job))
     );
 
-    // Persist to database
+    // Persist to Postgres and push to CTS
     let savedCount = 0;
+    const ctsEnabled = isCtsEnabled();
+
     for (const jobData of normalizedJobs) {
         try {
-            await prisma.job.upsert({
+            const saved = await prisma.job.upsert({
                 where: { sourceUrl: jobData.sourceUrl },
                 update: {
                     title: jobData.title,
@@ -37,16 +36,56 @@ export async function saveJobs(jobs: JobListing[]): Promise<void> {
                     description: jobData.description,
                     salary: jobData.salary,
                     postedAt: jobData.postedAt,
-                    // Don't update source/sourceUrl or createdAt
-                    // updatedAt is handled automatically by Prisma @updatedAt
                 },
                 create: jobData,
             });
             savedCount++;
+
+            // Push to CTS (best-effort — don't block ingestion if CTS fails)
+            if (ctsEnabled && !saved.ctsJobName) {
+                pushToCts(saved).catch((err) => {
+                    console.warn(`CTS: Failed to push job ${saved.id}:`, err?.message || err);
+                });
+            }
         } catch (error) {
             console.error(`Failed to save job ${jobData.sourceUrl}:`, error);
         }
     }
 
-    console.log(`Successfully normalized and saved ${savedCount}/${jobs.length} jobs to database`);
+    console.log(`Successfully saved ${savedCount}/${jobs.length} jobs to database${ctsEnabled ? ' (+ CTS sync)' : ''}`);
+}
+
+/**
+ * Push a single Postgres job to CTS and save the CTS resource name back.
+ */
+async function pushToCts(job: {
+    id: string;
+    title: string;
+    company: string;
+    description: string;
+    location: string;
+    salary: string | null;
+    sourceUrl: string;
+    postedAt: Date;
+    source: string;
+}): Promise<void> {
+    const input: CtsJobInput = {
+        postgresId: job.id,
+        title: job.title,
+        company: job.company,
+        description: job.description,
+        location: job.location,
+        salary: job.salary,
+        sourceUrl: job.sourceUrl,
+        postedAt: job.postedAt,
+        source: job.source,
+    };
+
+    const ctsJobName = await upsertJob(input);
+
+    // Save the CTS resource name back to Postgres
+    await prisma.job.update({
+        where: { id: job.id },
+        data: { ctsJobName },
+    });
 }

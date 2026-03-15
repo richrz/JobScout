@@ -90,6 +90,7 @@ describe('ApplicationCard', () => {
             postedAt: new Date(),
             source: 'LinkedIn',
             sourceUrl: 'http://example.com',
+            ctsJobName: null,
             cityMatch: null,
             distanceMiles: null,
             compositeScore: 0.9,

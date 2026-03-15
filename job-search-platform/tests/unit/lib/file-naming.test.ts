@@ -14,6 +14,7 @@ describe('generateFileName', () => {
         postedAt: new Date('2024-01-15'),
         source: 'LinkedIn',
         sourceUrl: 'http://example.com',
+        ctsJobName: null,
         cityMatch: null,
         distanceMiles: null,
         compositeScore: 0.9,

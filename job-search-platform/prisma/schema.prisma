@@ -57,6 +57,7 @@ model Job {
   postedAt       DateTime
   source         String
   sourceUrl      String        @unique
+  ctsJobName     String?       // Cloud Talent Solution resource name (projects/.../jobs/...)
   cityMatch      String?
   distanceMiles  Float?
   compositeScore Float?
@@ -70,6 +71,7 @@ model Job {
   @@index([title, company])
   @@index([location])
   @@index([createdAt])
+  @@index([ctsJobName])
 }
 
 model Application {
