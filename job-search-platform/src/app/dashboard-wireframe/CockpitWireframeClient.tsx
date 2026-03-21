@@ -1091,14 +1091,13 @@ function WorkspaceNotesDesk({
       </div>
       <p className="mt-3 text-sm leading-6 text-white/58">{intro}</p>
 
-      <div className="mt-4 rounded-[20px] border border-white/10 bg-black/25 p-3">
-        <Textarea
+      <div className="mt-4">
+        <CockpitBlockNoteEditor
+          key={`notes-input-${workspaceId}`}
           value={draftNote}
-          onChange={(event) => setDraftNote(event.target.value)}
-          placeholder={placeholder || 'Capture fit notes, concerns, or why this role deserves attention.'}
-          className="min-h-[120px] border-0 bg-transparent px-0 text-white placeholder:text-white/26 focus-visible:ring-0"
+          onChange={setDraftNote}
         />
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/8 pt-3">
+        <div className="mt-3 flex items-center justify-between gap-3">
           <span className="text-xs text-white/36">Notes stay attached to this opportunity.</span>
           <Button
             type="button"
