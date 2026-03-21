@@ -5,10 +5,15 @@
 
 ## Branch
 
-- `save/restore-tasks`
+- `main`
 
 ## Latest Product Checkpoint
 
+- `42993b9` — upgraded workspace notes input to BlockNote rich text editor: slash commands, inline formatting, drag-to-reorder, per-opportunity reset via key prop; end-to-end verified (compose → save → persist → display)
+- `1a50c76` — stage browser drawer + header simplification: clicking a kanban column header opens a right-side drawer listing all opps in that stage; selecting from the drawer closes it and opens the workspace; header simplified with inline WYWO stats; RecentActivityRail moved to bottom "Jump Back In" section
+- `0a2afaa` — integrated Google Cloud Talent Solution for semantic job search (code shipped, awaiting GCP setup — see `docs/todo.md`)
+- `93dd298` — migrated T-shape visual architecture into production cockpit: grid-cols-7 kanban, animated shoulder segments, stage toolbar with transition verbs wired to PATCH API
+- `83dbeaf` — T-shape cockpit wireframe + live pipeline data via `useCockpitPipeline` hook
 - `pending local checkpoint` — formalized the cockpit stage contract at `docs/product/cockpit-stage-contract.md`: all 7 stages now have explicit inbound/work/outbound definitions, stage toolbars, BlockNote as universal notes engine, cross-stage "warn and move" editing rules, drawer pattern for heavy editors (Resume Studio etc.), and artifact lifecycle (creation, visibility, immutability, versioning). Docs hub and product index updated to point to the new spec.
 - `752d142` — cockpit prototype pass 4 on `/dashboard-cockpit-prototype`: removed light editor tones, enforced dark-mode workspace, promoted selected-opportunity header prominence (company + large role title), and made browser mode explicit with "Select an opportunity below" guidance
 - `463b7d9` — cockpit prototype pass 3 on `/dashboard-cockpit-prototype`: strong stage-lane glow while browsing, browser/workspace fill separation, no river return-flight animation, collapsible stage sections, and a much larger active rich-text workspace area
@@ -87,8 +92,8 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 
 ## Current Sprint Goal
 
-- Move the signed-in experience onto the cockpit shell in phases, starting with a real live-data Phase 1 that keeps legacy pages available as fallbacks.
-- The cockpit stage contract is now formalized. The next implementation work should follow its stage toolbar, drawer, and notes engine patterns.
+- Cockpit shell is live at `/dashboard-wireframe` with T-shape kanban, stage toolbar, stage browser drawer, and per-stage workspaces.
+- BlockNote notes engine is now the input in every WorkspaceNotesDesk (across all stages). Next: render saved notes as markdown instead of whitespace-pre-wrap, or move to the next backlog priority (Master Data import review, JobSwipe Saved confirmation, or capture submitted resume).
 
 ## Sprint Execution Mode
 
@@ -99,7 +104,18 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - Max `2` coder attempts per micro-contract.
 - Max `3` loops on the same ownership question before pausing for the human.
 
-## What Was Finished
+## What Was Finished (Latest Session 2026-03-21)
+
+- Synced to `main` (the main worktree at `/home/richard/code/jobs` was already at `0a2afaa`).
+- Committed previously unstaged work: stage browser drawer + header simplification (`1a50c76`).
+  - Clicking a kanban column header now opens a right-side drawer listing all opps in that stage.
+  - Selecting from the drawer closes it and opens the workspace for that opp.
+  - Header simplified: WYWO stats now inline, legacy fallback links removed.
+  - RecentActivityRail relocated to a "Jump Back In" bottom section.
+- Browser-verified: drawer opens, card selection works, workspace opens correctly.
+- Updated `current-pointer.md` branch from `save/restore-tasks` → `main`.
+
+## What Was Finished (Prior)
 
 - `/dashboard-cockpit-prototype` now has a second visual pass focused on surface differentiation instead of new behavior.
 - The interaction model did not change:
