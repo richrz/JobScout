@@ -901,11 +901,13 @@ function KanbanColumn({
   activeCardId,
   selectedCardId,
   onOpenCard,
+  onBrowseStage,
 }: {
   column: CockpitKanbanColumn;
   activeCardId: string | null;
   selectedCardId: string | null;
   onOpenCard: (id: string) => void;
+  onBrowseStage: (stage: CockpitStage) => void;
 }) {
   const visual = STAGE_VISUALS[column.stage];
   const hasSelected = column.cards.some((c) => c.id === selectedCardId);
@@ -930,10 +932,7 @@ function KanbanColumn({
     >
       <button
         type="button"
-        onClick={() => {
-          const first = column.cards[0];
-          if (first) onOpenCard(first.id);
-        }}
+        onClick={() => onBrowseStage(column.stage)}
         className="mb-2 flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-white/[0.04]"
       >
         <div className="flex items-center gap-1.5">
@@ -2582,6 +2581,80 @@ function WorkspaceSection({
   );
 }
 
+function StageBrowserDrawer({
+  stage,
+  panelRecords,
+  onSelect,
+  onClose,
+}: {
+  stage: CockpitStage;
+  panelRecords: CockpitPanelRecord[];
+  onSelect: (id: string) => void;
+  onClose: () => void;
+}) {
+  const visual = STAGE_VISUALS[stage];
+  const items = panelRecords.filter((p) => p.stage === stage);
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-start justify-end" onClick={onClose}>
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      {/* Drawer */}
+      <div
+        className="relative z-50 flex h-full w-[420px] flex-col border-l bg-[#09090a] shadow-[-24px_0_80px_rgba(0,0,0,0.5)]"
+        style={{ borderColor: visual.tint }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: visual.accent, color: visual.accent }} />
+            <span className="text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: visual.accent }}>{visual.title}</span>
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: a(visual.accent, '1c'), color: visual.accent }}>{items.length}</span>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-full border border-white/10 p-1.5 text-white/45 transition hover:border-white/18 hover:text-white">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {items.length === 0 ? (
+            <div className="rounded-[18px] border border-dashed border-white/10 px-4 py-10 text-center text-sm text-white/38">
+              Nothing in {visual.title} yet.
+            </div>
+          ) : (
+            items.map((item) => {
+              const identity = companyIdentity(item.company);
+              const urgency = urgencyForStage(item.stage, item.updatedAt);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => { onSelect(item.id); onClose(); }}
+                  className="group w-full rounded-[18px] border border-white/8 bg-black/20 px-4 py-3 text-left transition hover:border-white/16 hover:bg-white/[0.04]"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-semibold" style={{ background: identity.background, border: identity.border, color: identity.text }}>
+                      {identity.initials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold text-white">{item.company}</div>
+                      <div className="mt-0.5 truncate text-xs text-white/55">{item.title}</div>
+                      <div className="mt-1.5 flex items-center gap-2 text-[10px] text-white/38">
+                        <span className="truncate">{item.location || 'Location pending'}</span>
+                        <span className={cn('shrink-0 rounded-full border px-1.5 py-0.5', urgencyClasses(urgency.tone))}>{urgency.label}</span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CockpitWireframeClient({
   userName,
   viewModel,
@@ -2591,29 +2664,21 @@ export default function CockpitWireframeClient({
   viewModel: CockpitPhaseOneViewModel;
   panelRecords: CockpitPanelRecord[];
 }) {
-  const [activeCardId, setActiveCardId] = useState<string | null>(viewModel.recentActivity[0]?.id ?? null);
+  const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [browseStage, setBrowseStage] = useState<CockpitStage | null>(null);
 
-  const panelLookup = new Map(panelRecords.map((record) => [record.id, record]));
+  const panelLookup = useMemo(() => new Map(panelRecords.map((r) => [r.id, r])), [panelRecords]);
   const activePanel = activeCardId ? panelLookup.get(activeCardId) ?? null : null;
 
-  // Determine which column the selected card is in
   const selectedColIdx = useMemo(() => {
     if (!activePanel) return -1;
     return STAGE_ORDER.indexOf(activePanel.stage);
   }, [activePanel]);
 
-  const craftingCount = viewModel.kanbanColumns.find((column) => column.stage === 'CRAFTING')?.total ?? 0;
-  const lateStageCount =
-    (viewModel.kanbanColumns.find((column) => column.stage === 'SCREENING')?.total ?? 0) +
-    (viewModel.kanbanColumns.find((column) => column.stage === 'INTERVIEW')?.total ?? 0) +
-    (viewModel.kanbanColumns.find((column) => column.stage === 'OFFER')?.total ?? 0);
-  const activeManagedCount = viewModel.kanbanColumns
-    .filter((column) => column.stage !== 'NEW')
-    .reduce((total, column) => total + column.total, 0);
+  const wywo = viewModel.whileYouWereOut;
 
   async function handleTransition(key: string) {
     if (!activePanel?.workspaceId) return;
-
     const statusMap: Record<string, string> = {
       'to-interested': 'INTERESTED',
       'to-crafting': 'INTERESTED',
@@ -2622,26 +2687,17 @@ export default function CockpitWireframeClient({
       'to-interview': 'FOLLOW_UP',
       'to-offer': 'FOLLOW_UP',
     };
-
     const newStatus = statusMap[key];
     if (!newStatus) return;
-
     try {
       const res = await fetch(`/api/workspace/${activePanel.workspaceId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Transition failed');
-      }
-
-      // Reload to reflect new state
+      if (!res.ok) throw new Error((await res.json()).error || 'Transition failed');
       window.location.reload();
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error('[cockpit] transition error:', err);
     }
   }
@@ -2649,7 +2705,7 @@ export default function CockpitWireframeClient({
   return (
     <LayoutGroup>
       <div className="min-h-screen bg-[#050506] text-white">
-        {/* Ambient background glow */}
+        {/* Ambient glow */}
         <div
           className="pointer-events-none fixed inset-0 transition-all duration-1000"
           style={{
@@ -2660,65 +2716,41 @@ export default function CockpitWireframeClient({
         />
 
         <div className="relative mx-auto flex min-h-screen max-w-[1720px] flex-col px-5 pb-8 pt-5 lg:px-8">
-          <header className="mb-5 border-b border-white/8 pb-4">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+
+          {/* ── Hero ── */}
+          <header className="mb-4 border-b border-white/8 pb-4">
+            <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <div className="text-[11px] uppercase tracking-[0.26em] text-primary/78">JobScout cockpit</div>
-                <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+                <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-white">
                   Good morning, {userName.split(' ')[0] || userName}
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/54">
-                  The market moved. Your pipeline tells you what matters now.
-                </p>
               </div>
-
-              <div className="text-right">
-                <div className="text-[10px] uppercase tracking-[0.22em] text-white/28">Legacy fallbacks</div>
-                <div className="mt-2 flex flex-wrap justify-end gap-2 text-xs text-white/42">
-                  <Link href="/jobs" className="transition hover:text-white">Inbox</Link>
-                  <span className="text-white/18">•</span>
-                  <Link href="/pipeline" className="transition hover:text-white">Pipeline</Link>
-                  <span className="text-white/18">•</span>
-                  <Link href="/resume" className="transition hover:text-white">Resume</Link>
-                  <span className="text-white/18">•</span>
-                  <Link href="/triage" className="text-primary transition hover:text-primary/80">Swipe</Link>
-                </div>
+              {/* WYWO inline stats */}
+              <div className="flex flex-wrap items-center gap-3 text-sm text-white/60">
+                <span>
+                  <span className="font-semibold" style={{ color: STAGE_VISUALS.NEW.accent }}>{wywo.newJobsCount.toLocaleString()}</span>
+                  {' '}new jobs
+                </span>
+                <span className="text-white/18">·</span>
+                <span>
+                  <span className="font-semibold" style={{ color: STAGE_VISUALS.INTERESTED.accent }}>{wywo.matchedJobsCount.toLocaleString()}</span>
+                  {' '}match your profile
+                </span>
+                <span className="text-white/18">·</span>
+                <span>
+                  <span className="font-semibold" style={{ color: STAGE_VISUALS.OFFER.accent }}>{wywo.highFitCount.toLocaleString()}</span>
+                  {' '}high fit
+                </span>
+                <Link href="/triage" className="ml-2 rounded-full border border-primary/25 px-3 py-1 text-xs font-medium text-primary transition hover:border-primary/50">
+                  Swipe now →
+                </Link>
               </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {compactMetric('Fresh matches', viewModel.whileYouWereOut.newJobsCount.toLocaleString(), STAGE_VISUALS.NEW.accent)}
-              {compactMetric('Worth a look', viewModel.whileYouWereOut.matchedJobsCount.toLocaleString(), STAGE_VISUALS.INTERESTED.accent)}
-              {compactMetric('Drafting now', craftingCount.toLocaleString(), STAGE_VISUALS.CRAFTING.accent)}
-              {compactMetric('Managed work', activeManagedCount.toLocaleString(), '#ffffff')}
-              {compactMetric('Beyond submit', lateStageCount.toLocaleString(), STAGE_VISUALS.APPLIED.accent)}
             </div>
           </header>
 
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-            <RecentActivityRail
-              activeCardId={activeCardId}
-              items={viewModel.recentActivity}
-              onSelect={setActiveCardId}
-            />
-            <WhileYouWereOutPanel stats={viewModel.whileYouWereOut} />
-          </div>
-
-          {/* Pipeline kanban — T-shape architecture */}
-          <section className="mt-4">
-            <div className="mb-3 flex items-end justify-between gap-4">
-              <div>
-                <div className="text-[11px] uppercase tracking-[0.24em] text-white/34">Pipeline</div>
-                <p className="mt-1 text-sm text-white/48">Click a card to open its workspace below.</p>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-white/42">
-                <span className="inline-flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                  live state
-                </span>
-              </div>
-            </div>
-
+          {/* ── Pipeline kanban + workspace ── */}
+          <section className="overflow-x-auto">
             <div className="grid grid-cols-7 gap-2 min-w-[1100px]">
               {viewModel.kanbanColumns.map((column) => (
                 <KanbanColumn
@@ -2727,11 +2759,11 @@ export default function CockpitWireframeClient({
                   activeCardId={activeCardId}
                   selectedCardId={activeCardId}
                   onOpenCard={setActiveCardId}
+                  onBrowseStage={setBrowseStage}
                 />
               ))}
             </div>
 
-            {/* Workspace — T-shape continuation below kanban */}
             {activePanel ? (
               <WorkspaceSection
                 panel={activePanel}
@@ -2741,8 +2773,28 @@ export default function CockpitWireframeClient({
               />
             ) : null}
           </section>
+
+          {/* ── Jump Back In — bottom ── */}
+          <section className="mt-8">
+            <RecentActivityRail
+              activeCardId={activeCardId}
+              items={viewModel.recentActivity}
+              onSelect={setActiveCardId}
+            />
+          </section>
+
         </div>
       </div>
+
+      {/* Stage browser drawer */}
+      {browseStage ? (
+        <StageBrowserDrawer
+          stage={browseStage}
+          panelRecords={panelRecords}
+          onSelect={setActiveCardId}
+          onClose={() => setBrowseStage(null)}
+        />
+      ) : null}
     </LayoutGroup>
   );
 }
