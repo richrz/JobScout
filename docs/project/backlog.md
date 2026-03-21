@@ -26,6 +26,12 @@ Rules:
 - [ ] Inbox wording still needs cleanup around source labels, company actions, and match-score explanation.
 - [ ] Jest still reports a lingering open-handle or timer warning in the LLM test area.
 
+## CTS / Discovery
+
+- [ ] Wire CTS semantic search into the cockpit discovery surface so the NEW stage uses ML-powered search instead of basic keyword matching.
+- [ ] Add commute search UI — "jobs within 20 min drive from home" using CTS commute filters.
+- [ ] Add faceted filter UI — employment type, salary range, company — powered by CTS.
+
 ## Later
 
 - [ ] Build the resume voice profiler so uploads can infer 7 understandable writing sliders with `Resume Writer Zero` as the fallback.
