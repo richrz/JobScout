@@ -8,6 +8,7 @@
 import {
   JobServiceClient,
   CompanyServiceClient,
+  TenantServiceClient,
   protos,
 } from '@google-cloud/talent';
 
@@ -53,6 +54,65 @@ function companyClient(): CompanyServiceClient {
 }
 
 // ---------------------------------------------------------------------------
+// Tenant bootstrap — resolves actual CTS resource name for the tenant
+// ---------------------------------------------------------------------------
+
+let _tenantClient: TenantServiceClient | null = null;
+function tenantClient(): TenantServiceClient {
+  if (!_tenantClient) {
+    _tenantClient = new TenantServiceClient({ fallback: 'rest' });
+  }
+  return _tenantClient;
+}
+
+// Resolved resource name, e.g. projects/jobscout-490918/tenants/<uuid>
+let _resolvedTenantName: string | null = null;
+
+function tenantName(): string {
+  return _resolvedTenantName ?? tenantPath();
+}
+
+export async function ensureTenant(): Promise<void> {
+  if (_resolvedTenantName) return;
+
+  const parent = `projects/${PROJECT_ID}`;
+
+  // Try to find existing tenant by externalId
+  try {
+    const iterable = tenantClient().listTenantsAsync({ parent });
+    for await (const t of iterable) {
+      if (t.externalId === TENANT_ID) {
+        _resolvedTenantName = t.name!;
+        return;
+      }
+    }
+  } catch {
+    // ignore list errors — will try create
+  }
+
+  // Not found — create it
+  try {
+    const [created] = await tenantClient().createTenant({
+      parent,
+      tenant: { externalId: TENANT_ID },
+    });
+    _resolvedTenantName = created.name!;
+  } catch (err: any) {
+    // 6 = gRPC ALREADY_EXISTS, 409 = HTTP ALREADY_EXISTS — list again to get the name
+    if (err?.code === 6 || err?.code === 409) {
+      const iterable = tenantClient().listTenantsAsync({ parent });
+      for await (const t of iterable) {
+        if (t.externalId === TENANT_ID) {
+          _resolvedTenantName = t.name!;
+          return;
+        }
+      }
+    }
+    throw err;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Company cache: company display name → CTS resource name
 // ---------------------------------------------------------------------------
 
@@ -64,6 +124,7 @@ const companyCache = new Map<string, string>();
  */
 export async function ensureCompany(displayName: string): Promise<string> {
   if (!isCtsEnabled()) throw new Error('CTS not configured');
+  await ensureTenant();
 
   const cached = companyCache.get(displayName);
   if (cached) return cached;
@@ -73,7 +134,7 @@ export async function ensureCompany(displayName: string): Promise<string> {
 
   try {
     const [company] = await companyClient().createCompany({
-      parent: tenantPath(),
+      parent: tenantName(),
       company: {
         displayName,
         externalId,
@@ -84,8 +145,8 @@ export async function ensureCompany(displayName: string): Promise<string> {
     companyCache.set(displayName, name);
     return name;
   } catch (err: any) {
-    // 6 = ALREADY_EXISTS — look up existing company
-    if (err?.code === 6) {
+    // 6 = gRPC ALREADY_EXISTS, 409 = HTTP ALREADY_EXISTS (REST fallback)
+    if (err?.code === 6 || err?.code === 409) {
       const name = await findCompanyByExternalId(externalId);
       if (name) {
         companyCache.set(displayName, name);
@@ -98,7 +159,7 @@ export async function ensureCompany(displayName: string): Promise<string> {
 
 async function findCompanyByExternalId(externalId: string): Promise<string | null> {
   try {
-    const iterable = companyClient().listCompaniesAsync({ parent: tenantPath() });
+    const iterable = companyClient().listCompaniesAsync({ parent: tenantName() });
     for await (const company of iterable) {
       if (company.externalId === externalId) {
         return company.name!;
@@ -131,6 +192,7 @@ export interface CtsJobInput {
  */
 export async function upsertJob(input: CtsJobInput): Promise<string> {
   if (!isCtsEnabled()) throw new Error('CTS not configured');
+  await ensureTenant();
 
   const companyName = await ensureCompany(input.company);
 
@@ -160,13 +222,13 @@ export async function upsertJob(input: CtsJobInput): Promise<string> {
 
   try {
     const [created] = await jobClient().createJob({
-      parent: tenantPath(),
+      parent: tenantName(),
       job,
     });
     return created.name!;
   } catch (err: any) {
-    // 6 = ALREADY_EXISTS — update instead
-    if (err?.code === 6) {
+    // 6 = gRPC ALREADY_EXISTS, 409 = HTTP ALREADY_EXISTS (REST fallback)
+    if (err?.code === 6 || err?.code === 409) {
       // Find existing job by listing (requisitionId + company is unique)
       const existingName = await findJobByRequisitionId(input.postgresId, companyName);
       if (existingName) {
@@ -187,7 +249,7 @@ async function findJobByRequisitionId(
 ): Promise<string | null> {
   try {
     const iterable = jobClient().listJobsAsync({
-      parent: tenantPath(),
+      parent: tenantName(),
       filter: `companyName="${companyName}" AND requisitionId="${requisitionId}"`,
     });
     for await (const job of iterable) {
@@ -256,7 +318,7 @@ export async function batchCreateJobs(inputs: CtsJobInput[]): Promise<Map<string
     const chunk = jobs.slice(i, i + 200);
     try {
       const [operation] = await jobClient().batchCreateJobs({
-        parent: tenantPath(),
+        parent: tenantName(),
         jobs: chunk,
       });
       const [response] = await operation.promise();
@@ -359,7 +421,7 @@ export async function searchJobs(opts: CtsSearchOptions): Promise<CtsSearchRespo
   }
 
   const request: ISearchJobsRequest = {
-    parent: tenantPath(),
+    parent: tenantName(),
     requestMetadata: {
       userId: 'jobscout-user',
       sessionId: `session-${Date.now()}`,
@@ -503,9 +565,10 @@ export async function ctsHealthCheck(): Promise<{ ok: boolean; message: string }
   }
 
   try {
+    await ensureTenant();
     // Try listing companies — lightweight check
     const iterable = companyClient().listCompaniesAsync({
-      parent: tenantPath(),
+      parent: tenantName(),
       pageSize: 1,
     });
     // Just check if the async iterator works (consume first result or none)
@@ -513,7 +576,7 @@ export async function ctsHealthCheck(): Promise<{ ok: boolean; message: string }
     for await (const _ of iterable) {
       break;
     }
-    return { ok: true, message: `CTS connected: ${tenantPath()}` };
+    return { ok: true, message: `CTS connected: ${_resolvedTenantName ?? tenantPath()}` };
   } catch (err: any) {
     return { ok: false, message: `CTS error: ${err.message || err}` };
   }
