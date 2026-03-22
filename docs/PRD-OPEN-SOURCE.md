@@ -1,11 +1,12 @@
-# Job Search Automation Platform — Product Requirements Document
+# JobScout — Product Requirements Document
 
-**Version**: 1.0  
-**Date**: November 2025  
-**Status**: Active Reference PRD  
-**License**: MIT (Open Source)
+**Version**: 1.1
+**Date**: November 2025 (updated March 2026)
+**Status**: Active Reference PRD
 
 > This is the umbrella product requirements document. Binding current-state behavior is increasingly captured in ADRs and product contracts under `docs/decisions/` and `docs/product/`.
+
+> **Deployment model (March 2026):** JobScout is a **SaaS product** with a self-hosted option. The primary offering is a managed cloud service. Self-hosting is a supported secondary path for privacy-first users and developers, not the primary go-to-market.
 
 ---
 
@@ -26,7 +27,7 @@
 
 ## Executive Summary
 
-An open-source, self-hosted job search automation platform that helps professionals find relevant opportunities faster through intelligent aggregation, AI-powered resume tailoring, and visual tracking. Fully configurable to work for any job market, location, or career level.
+A SaaS job search automation platform that helps professionals find relevant opportunities faster through intelligent aggregation, AI-powered resume tailoring, and visual tracking. Fully configurable to work for any job market, location, or career level. Available as a managed cloud service (primary) or self-hosted for privacy-first users and developers.
 
 ### Core Value Proposition
 
@@ -53,11 +54,11 @@ A self-hosted platform that:
 
 ### Key Differentiators
 
-- ✅ **100% Open Source** - MIT licensed, community-driven
-- ✅ **Self-Hosted** - Your data stays on your server
+- ✅ **SaaS-first** - Managed cloud service, no setup required
+- ✅ **Self-hostable** - Deploy on your own infrastructure when privacy demands it
 - ✅ **Fully Configurable** - Cities, keywords, salary, sources - all editable
 - ✅ **LLM Agnostic** - Works with OpenAI, Anthropic, Ollama, or any compatible API
-- ✅ **Privacy First** - No tracking, no data selling, no vendor lock-in
+- ✅ **Privacy Conscious** - No data selling, no vendor lock-in; self-host option for full control
 - ✅ **Mobile Optimized** - Full functionality on phone/tablet
 
 ---
@@ -66,7 +67,7 @@ A self-hosted platform that:
 
 ### Vision
 
-**Democratize access to intelligent job search tools** - making enterprise-grade automation available to everyone, regardless of budget or technical skill.
+**Give every professional an unfair advantage in their job search** — making enterprise-grade automation and AI-assisted tailoring available to anyone, regardless of budget or technical skill.
 
 ### Goals
 
@@ -863,7 +864,18 @@ SINGLE_USER_MODE="false"
 
 ## Deployment Options
 
-### Option 1: VPS (DigitalOcean, Linode, Vultr) — Recommended
+### Option 1: SaaS (Cloud-Hosted) — Primary Offering
+
+**Sign up at [jobscout.app] and start immediately. No setup required.**
+
+- Managed PostgreSQL, Redis, and job pipelines
+- Automatic updates
+- SOC 2-aligned data handling (roadmap)
+- Suitable for: most users, teams, and individuals who want zero infrastructure
+
+---
+
+### Option 2: VPS (DigitalOcean, Linode, Vultr) — Self-Hosted
 
 **Requirements**:
 - Ubuntu 22.04 LTS
@@ -899,7 +911,7 @@ docker-compose up -d
 
 ---
 
-### Option 2: Local Development
+### Option 3: Local Development
 
 **Requirements**:
 - macOS, Windows (WSL2), or Linux
@@ -932,7 +944,7 @@ npm run dev
 
 ---
 
-### Option 3: Cloud Providers (One-Click Deploy)
+### Option 4: Cloud Providers (One-Click Deploy)
 
 **Railway** (Easiest):
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=...)
@@ -954,7 +966,7 @@ npm run dev
 
 ---
 
-### Option 4: Raspberry Pi (ARM64)
+### Option 5: Raspberry Pi (ARM64)
 
 **Requirements**:
 - Raspberry Pi 4 (4GB+ RAM)
@@ -1025,7 +1037,7 @@ npm run dev
 
 ## License & Contributing
 
-**License**: MIT (fully open source)
+**License**: MIT (codebase is open source; SaaS service has its own terms)
 
 **Contributing**:
 - Fork repo and create feature branch
@@ -1042,21 +1054,18 @@ npm run dev
 
 ## Getting Started
 
-Ready to take control of your job search? 
+Ready to take control of your job search?
 
-1. **Star the repo**: https://github.com/yourusername/job-search-platform
-2. **Read the docs**: Full setup guide in `README.md`
-3. **Deploy**: One-click or VPS instructions above
-4. **Configure**: 5-minute wizard to set your preferences
-5. **Search smarter**: Let automation do the heavy lifting
+1. **Sign up** at [jobscout.app] — no setup required
+2. **Or self-host**: clone the repo, configure `.env`, `docker-compose up -d`
+3. **Configure**: 5-minute wizard to set your preferences
+4. **Search smarter**: let automation do the heavy lifting
 
-**Questions?** Open an issue or join our Discord community.
-
-**Built something cool?** Share it! We'd love to see your customizations.
+**Questions?** Open an issue or join the community Discord.
 
 ---
 
-**Let's democratize intelligent job search. One deployment at a time.** 🚀
+**Let's give job seekers an unfair advantage. One application at a time.**
 
 ---
 

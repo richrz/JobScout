@@ -6,6 +6,7 @@ import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ApplicationCard } from '@/components/pipeline/ApplicationCard';
 import { updateApplicationNotes, updateApplicationStatus, bulkDeleteApplications } from '@/app/actions/application';
+import { makeJob } from '../../../fixtures/job';
 
 // Mock server actions
 jest.mock('@/app/actions/application', () => ({
@@ -78,24 +79,14 @@ describe('ApplicationCard', () => {
         updatedAt: new Date(),
         appliedAt: null,
         statusHistory: [],
-        job: {
+        job: makeJob({
             id: 'job-1',
             title: 'Software Engineer',
             company: 'Tech Corp',
             location: 'Remote',
-            latitude: 0,
-            longitude: 0,
-            description: 'Desc',
             salary: '$100k',
-            postedAt: new Date(),
-            source: 'LinkedIn',
-            sourceUrl: 'http://example.com',
-            ctsJobName: null,
-            cityMatch: null,
-            distanceMiles: null,
             compositeScore: 0.9,
-            createdAt: new Date(),
-        },
+        }),
     };
 
     beforeEach(() => {

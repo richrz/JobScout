@@ -181,8 +181,8 @@ export default async function DashboardWireframePage() {
           },
         },
       },
-      orderBy: [{ compositeScore: 'desc' }, { postedAt: 'desc' }],
-      take: 32,
+      orderBy: [{ postedAt: 'desc' }, { compositeScore: 'desc' }],
+      take: 50,
       select: {
         id: true,
         title: true,

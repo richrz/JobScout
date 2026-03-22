@@ -4,6 +4,78 @@
 
 ---
 
+## 2026-03-22 — Pipeline Architecture: National Scale Foundation Shipped
+
+### What happened
+
+Full pipeline architecture session — P0 and P1 schema changes implemented, import pipeline made operational.
+
+### Schema changes (2 migrations)
+
+**P0 — `20260321000000_p0_job_pipeline_provenance`:**
+- 11 new nullable columns on `Job`: `sourceType`, `canonicalUrl`, `fingerprint` (unique), `lastExtractedAt`, `recordConfidence`, `normalizationVersion`, `salaryMin`, `salaryMax`, `salaryCurrency`, `workMode`, `seniority`, `skillsTags`
+- Postgres `BEFORE UPDATE` trigger `job_stale_overwrite_guard` — silently drops stale worker writes
+- 5 new indexes
+
+**P1 — `20260322000000_p1_company_observed_listing_dedupe`:**
+- `Company` table — canonical employer entity with `atsSystem` field for routing
+- `ObservedListing` table — one row per raw source occurrence, separates "where we saw it" from "what the canonical job is"
+- `DedupeDecision` table — audit log for every pair comparison across all three tiers
+- `Job.companyId` nullable FK
+
+### New ingest modules
+
+- `src/lib/ingest/html-to-markdown.ts` — strips career page HTML to markdown (~95% token reduction before LLM calls)
+- `src/lib/ingest/ats-classifier.ts` — classifies 11 known ATS platforms, gates LLM extraction
+- `src/lib/ingest/dedup-worker.ts` — Tier 1 (exact URL) and Tier 2 (fingerprint) dedup fully implemented; Tier 3 (embeddings) stubbed
+
+### Import pipeline fixes
+
+Replaced the `prisma.job.upsert` single-path approach with an explicit 3-path lookup:
+1. `findUnique(sourceUrl)` → refresh if exists
+2. `findUnique(fingerprint)` → cross-source dedup if exists
+3. `create` → new record
+
+This eliminated all `prisma:error` noise from try/catch fallthrough on unique constraint collisions.
+
+### Data state after this session
+
+- 234 KC jobs imported from JSearch, all fully normalized
+- All 234 records have `normalizationVersion = '1.0'` (158 pre-P0 records backfilled via `scripts/backfill-p0-normalization.ts`)
+- 176 records have fingerprints; 101 have meaningful workMode; 42 classified as senior
+
+### Why this matters for national scale
+
+The `fingerprint` dedup key allows the same job to appear on Greenhouse, JSearch, and a staffing agency without creating 3 canonical records. The `ObservedListing` / `DedupeDecision` tables provide the audit trail needed for the 3-tier dedup pipeline. The ATS classifier routes Greenhouse/Lever/NeoGov sources away from the LLM extractor, which is the primary cost driver at 100+ sources.
+
+---
+
+## 2026-03-21 — Deployment Model Clarified: SaaS-Primary, Self-Hosted Secondary
+
+### Decision
+
+JobScout is a **SaaS product** with a self-hosted option. The primary offering is a managed cloud service. Self-hosting is supported for privacy-first users and contributors but is not the primary go-to-market.
+
+### What Changed
+
+The original PRD was written framing the product as "open-source, self-hosted" because that was the starting posture. That framing is now incorrect and was updated in:
+
+- `docs/PRD-OPEN-SOURCE.md` — executive summary, key differentiators, deployment options, getting started, vision, license section
+- `docs/README.md` — hub header
+- `docs/product/OWNER.md` — product vision block
+
+### What Did Not Change
+
+- The codebase remains open source (MIT)
+- Self-hosting remains a supported and documented path
+- All product contracts, ADRs, and implementation plans are unaffected — they describe product behavior, not deployment model
+
+### Why This Matters
+
+Any future agent or contributor reading the PRD should understand that the commercial strategy is SaaS, not "ship Docker Compose instructions and hope." Pricing, packaging, and recovery/retention features should be designed against a SaaS subscriber model first.
+
+---
+
 ## 2026-03-15 — T-Shape Migration: Prototype Visual Identity → Production Cockpit
 
 ### What happened

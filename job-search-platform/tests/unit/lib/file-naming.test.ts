@@ -1,25 +1,15 @@
 import { generateFileName } from '@/lib/file-naming';
-import { Job } from '@prisma/client';
+import { makeJob } from '../../fixtures/job';
 
 describe('generateFileName', () => {
-    const mockJob: Job = {
-        id: 'job-1',
+    const mockJob = makeJob({
         title: 'Senior React Developer',
         company: 'Tech Corp Inc.',
-        location: 'Remote',
-        latitude: 0,
-        longitude: 0,
-        description: 'Job description',
         salary: '$100k',
         postedAt: new Date('2024-01-15'),
         source: 'LinkedIn',
-        sourceUrl: 'http://example.com',
-        ctsJobName: null,
-        cityMatch: null,
-        distanceMiles: null,
         compositeScore: 0.9,
-        createdAt: new Date(),
-    };
+    });
 
     it('replaces date placeholders', () => {
         const result = generateFileName('YYYY-MM-DD', mockJob);

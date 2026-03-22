@@ -5,6 +5,7 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { KanbanBoard } from '@/components/pipeline/KanbanBoard';
+import { makeJob } from '../../../fixtures/job';
 
 // Mock server actions
 jest.mock('@/app/actions/application', () => ({
@@ -59,24 +60,7 @@ describe('KanbanBoard', () => {
             updatedAt: new Date(),
             appliedAt: null,
             statusHistory: [],
-            job: {
-                id: 'job-1',
-                title: 'Job 1',
-                company: 'Company A',
-                location: 'Remote',
-                latitude: 0,
-                longitude: 0,
-                description: 'Desc',
-                salary: '$100k',
-                postedAt: new Date(),
-                source: 'LinkedIn',
-                sourceUrl: 'http://example.com',
-                ctsJobName: null,
-                cityMatch: null,
-                distanceMiles: null,
-                compositeScore: 0.9,
-                createdAt: new Date(),
-            },
+            job: makeJob({ id: 'job-1', title: 'Job 1', company: 'Company A', salary: '$100k', compositeScore: 0.9 }),
         },
         {
             id: 'app-2',
@@ -89,24 +73,7 @@ describe('KanbanBoard', () => {
             updatedAt: new Date(),
             appliedAt: new Date(),
             statusHistory: [],
-            job: {
-                id: 'job-2',
-                title: 'Job 2',
-                company: 'Company B',
-                location: 'Remote',
-                latitude: 0,
-                longitude: 0,
-                description: 'Desc',
-                salary: '$120k',
-                postedAt: new Date(),
-                source: 'LinkedIn',
-                sourceUrl: 'http://example.com',
-                ctsJobName: null,
-                cityMatch: null,
-                distanceMiles: null,
-                compositeScore: 0.8,
-                createdAt: new Date(),
-            },
+            job: makeJob({ id: 'job-2', title: 'Job 2', company: 'Company B', sourceUrl: 'https://example.com/jobs/2', salary: '$120k', compositeScore: 0.8 }),
         },
     ];
 

@@ -14,7 +14,7 @@ export interface JobListing {
   company: string;
   location: string;
   description: string;
-  salary?: string;
+  salary?: string | number; // JSearch returns numbers; normalization coerces to string
   postedAt?: Date;
   source: "indeed" | "linkedin" | "company";
   sourceUrl: string;

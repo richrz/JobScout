@@ -62,9 +62,48 @@ model Job {
   distanceMiles  Float?
   compositeScore Float?
   createdAt      DateTime      @default(now())
-  applications   Application[]
-  workspaces     Workspace[]
-  resumes        Resume[]
+
+  // --- Pipeline provenance fields (P0 — additive, all nullable) ---
+  // sourceType distinguishes pipeline origin: "api" | "scraped" | "manual"
+  sourceType         String?
+  // canonicalUrl is the unrolled terminal ATS URL (after redirect resolution).
+  // Distinct from sourceUrl (aggregator link). Used as the cross-source dedup key.
+  canonicalUrl       String?
+  // fingerprint is SHA256(normalize(company + title + canonical_location)).
+  // Used for near-duplicate blocking independent of URL.
+  fingerprint        String?   @unique
+  // lastExtractedAt is set by the scraper/ingestion worker at fetch time.
+  // Used by the stale-overwrite trigger to reject delayed worker results.
+  lastExtractedAt    DateTime?
+  // recordConfidence tracks how reliable normalized fields are (0.0–1.0).
+  // NULL means the record predates the normalization contract.
+  recordConfidence   Float?
+  // normalizationVersion stamps which contract version was applied.
+  // NULL means the record predates versioned normalization.
+  normalizationVersion String?
+
+  // --- Structured extraction fields (P0 — additive, all nullable) ---
+  // Replaces the opaque salary String with structured min/max for filter queries.
+  salaryMin      Float?
+  salaryMax      Float?
+  salaryCurrency String?       @default("USD")
+  // Normalized work mode — reliable enum-like string for filter queries.
+  // Values: "remote" | "hybrid" | "onsite" | "unknown"
+  workMode       String?
+  // Normalized seniority — for filter queries.
+  // Values: "entry" | "mid" | "senior" | "staff_plus" | "unknown"
+  seniority      String?
+  // Extracted skills tags array — for keyword matching and filter facets.
+  skillsTags     String[]
+
+  // --- P1: Company entity resolution (nullable FK — old rows stay NULL) ---
+  companyId      String?
+  companyEntity  Company?  @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  applications      Application[]
+  workspaces        Workspace[]
+  resumes           Resume[]
+  observedListings  ObservedListing[]
 
   @@index([postedAt, source])
   @@index([cityMatch, compositeScore])
@@ -72,6 +111,14 @@ model Job {
   @@index([location])
   @@index([createdAt])
   @@index([ctsJobName])
+  // P0 indexes
+  @@index([sourceType])
+  @@index([canonicalUrl])
+  @@index([workMode])
+  @@index([seniority])
+  @@index([lastExtractedAt])
+  // P1 indexes
+  @@index([companyId])
 }
 
 model Application {
@@ -269,4 +316,117 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@index([userId])
+}
+
+// ── P1: Company — canonical employer entity ───────────────────────────────────
+//
+// Normalizes free-text company strings across sources.
+// "Garmin Ltd.", "Garmin International", "Garmin" all resolve to one row.
+// Job.companyId is a nullable FK — old rows keep NULL, new ingested rows
+// are resolved on write via normalizeCompanyName() in the ingestion layer.
+//
+// ats_system: known ATS platform ("greenhouse" | "lever" | "workday" | "neogov"
+//   | "icims" | "taleo" | "smartrecruiters" | "unknown"). Used to route
+//   the ATS-type classifier so deterministic parsers run instead of LLM.
+
+model Company {
+  id             String   @id @default(cuid())
+  canonicalName  String   @unique  // normalized lowercase slug for dedup
+  displayName    String            // human-readable name shown in UI
+  domain         String?           // primary web domain, e.g. "garmin.com"
+  careerPageUrl  String?           // root ATS/careers URL
+  atsSystem      String?           // "greenhouse"|"lever"|"workday"|"neogov"|"unknown"
+  logoUrl        String?           // cached logo for UI
+  linkedinUrl    String?
+  employeeCount  Int?              // rough headcount bucket
+  industry       String?           // e.g. "Technology", "Government"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  jobs Job[]
+
+  @@index([domain])
+  @@index([atsSystem])
+}
+
+// ── P1: ObservedListing — one row per raw source occurrence of a job ──────────
+//
+// Separates "where we saw it" from "what the canonical job is."
+// When Garmin's posting appears on Greenhouse, JSearch, and a staffing agency:
+//   → 3 ObservedListing rows (one per source)
+//   → 1 Job row (canonical golden record)
+//
+// This table is the audit trail and the dedup input layer.
+// raw_content stores the original scraped payload for re-extraction without
+// re-fetching — important when the normalization contract version bumps.
+//
+// Lifecycle:
+//   1. Scraper fetches raw HTML / JSON → writes ObservedListing (rawContent, extractedAt)
+//   2. Normalization runs → writes/updates canonical Job, sets canonicalJobId
+//   3. Dedup worker reconciles ObservedListings sharing the same fingerprint/canonicalUrl
+//      and may point multiple listings to the same canonical Job
+//
+// onDelete: Cascade — if the canonical Job is deleted, its provenance is gone too.
+// If we ever need to tombstone a job without losing provenance, switch to Restrict + soft-delete.
+
+model ObservedListing {
+  id              String    @id @default(cuid())
+  // The canonical job this listing was resolved to (null until dedup runs)
+  jobId           String?
+  job             Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  // Source identity
+  source          String                    // "jsearch" | "greenhouse" | "lever" | "company" | ...
+  sourceUrl       String                    // original URL where listing was found
+  canonicalUrl    String?                   // resolved ATS URL after redirect (if known)
+  sourceType      String                    // "api" | "scraped" | "manual"
+
+  // Extraction snapshot — the raw payload at fetch time
+  rawContent      String?   @db.Text        // original HTML or JSON string
+  extractedAt     DateTime                  // when the scraper fetched this
+
+  // Normalization output — what was parsed from rawContent
+  extractedTitle       String?
+  extractedCompany     String?
+  extractedLocation    String?
+  extractedSalary      String?
+  extractedPostedAt    DateTime?
+  normalizationVersion String?              // contract version used to parse this listing
+  normalizationError   String?             // non-null if extraction failed
+
+  createdAt       DateTime  @default(now())
+
+  @@index([jobId])
+  @@index([source, sourceUrl])
+  @@index([canonicalUrl])
+  @@index([extractedAt])
+  @@index([source, extractedAt])  // used by per-source health queries
+}
+
+// ── P1: DedupeDecision — audit log for dedup pipeline decisions ───────────────
+//
+// Every time two ObservedListings are evaluated for identity, the result is
+// logged here regardless of outcome. This enables:
+//   - Auditing merge decisions that turned out to be wrong
+//   - Tuning thresholds (how often do gray-zone LLM calls agree with embeddings?)
+//   - Replaying decisions when the pipeline logic changes
+//
+// method: "exact_url" | "fingerprint" | "embedding" | "llm"
+// outcome: "same" | "different" | "uncertain"
+
+model DedupeDecision {
+  id                 String    @id @default(cuid())
+  listingAId         String                    // first ObservedListing.id compared
+  listingBId         String                    // second ObservedListing.id compared
+  method             String                    // which tier made the call
+  outcome            String                    // "same" | "different" | "uncertain"
+  similarity         Float?                    // embedding cosine score if applicable
+  mergedIntoJobId    String?                   // set when outcome="same", the canonical Job
+  llmReasoning       String?   @db.Text        // LLM explanation if method="llm"
+  createdAt          DateTime  @default(now())
+
+  @@index([listingAId])
+  @@index([listingBId])
+  @@index([outcome, createdAt])
+  @@index([mergedIntoJobId])
 }

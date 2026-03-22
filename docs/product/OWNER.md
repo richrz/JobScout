@@ -55,7 +55,10 @@ s
 - NOT a listing aggregator
 
 ### What This IS
-A tool that gives customers an unfair advantage in the exploding AI job market and leverage AI itself to broadly compete against traditional old ways of doing things which rely on happenstance.
+
+A SaaS product (with self-hosted option) that gives customers an unfair advantage in the exploding AI job market and leverages AI itself to broadly compete against traditional ways of doing things which rely on happenstance.
+
+**Deployment model:** SaaS-first (managed cloud, sign up and go). Self-hosting is supported for privacy-first users and contributors, not the primary go-to-market.
 
 ### Core Positioning
 **"Unfair Advantage"** - not "scout" metaphor

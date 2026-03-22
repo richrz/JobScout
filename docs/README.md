@@ -1,7 +1,8 @@
 # JobScout Documentation Hub
 
-**Status:** Active  
+**Status:** Active
 **Purpose:** Canonical entry point for current project documentation
+**Deployment model:** SaaS (primary) with self-hosted option
 
 This is the canonical navigation page for project documentation.
 

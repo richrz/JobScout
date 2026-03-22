@@ -106,7 +106,7 @@ async function testJSearchAPI() {
         withDescriptions: jobs.filter(
           (j) => j.description && j.description.trim(),
         ).length,
-        withSalaries: jobs.filter((j) => j.salary && j.salary.trim()).length,
+        withSalaries: jobs.filter((j) => j.salary != null && String(j.salary).trim()).length,
         withUrls: jobs.filter((j) => j.sourceUrl && j.sourceUrl.trim()).length,
         withDates: jobs.filter((j) => j.postedAt).length,
       };
