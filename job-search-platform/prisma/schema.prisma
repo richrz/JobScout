@@ -198,12 +198,13 @@ model Artifact {
 }
 
 model WarRoomNote {
-  id          String    @id @default(cuid())
+  id          String             @id @default(cuid())
   workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  content     String    @db.Text
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  content     String             @db.Text
+  stage       ApplicationStatus? // stage the note was written in; null = pre-stage tracking
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 
   @@index([workspaceId])
 }

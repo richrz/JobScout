@@ -5,7 +5,8 @@ import { Application, Job } from '@prisma/client';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, StickyNote, Loader2, Archive, Trash2, Clock, MapPin, CalendarDays } from 'lucide-react';
+import { MoreHorizontal, StickyNote, Loader2, Archive, Trash2, Clock, MapPin, CalendarDays, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 import {
     Dialog,
     DialogContent,
@@ -157,6 +158,13 @@ export function ApplicationCard({ application, isSelected, onToggleSelection, se
                         </div>
 
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onPointerDown={(e) => e.stopPropagation()}>
+                            {application.workspace?.id && (
+                                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-secondary" title="Open workspace" asChild>
+                                    <Link href={`/workspace/${application.workspace.id}`}>
+                                        <ExternalLink className="h-3 w-3" />
+                                    </Link>
+                                </Button>
+                            )}
                             <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-secondary" title="Details">

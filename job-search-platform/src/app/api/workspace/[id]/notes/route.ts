@@ -60,7 +60,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         const workspace = await prisma.workspace.findUnique({
             where: { id },
-            select: { userId: true }
+            select: { userId: true, status: true }
         });
 
         if (!workspace) {
@@ -81,7 +81,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         const note = await prisma.warRoomNote.create({
             data: {
                 workspaceId: id,
-                content
+                content,
+                stage: workspace.status // tag note with current stage
             }
         });
 

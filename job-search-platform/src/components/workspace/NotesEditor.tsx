@@ -8,6 +8,7 @@ import { Plus, Save, Trash2 } from 'lucide-react';
 interface Note {
     id: string;
     content: string;
+    stage: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -140,9 +141,16 @@ export function NotesEditor({ workspaceId }: NotesEditorProps) {
                             className="w-full min-h-[80px] bg-transparent border-none resize-none text-foreground focus:outline-none"
                         />
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
-                            <span className="text-xs text-muted-foreground">
-                                Last updated: {new Date(note.updatedAt).toLocaleString()}
-                            </span>
+                            <div className="flex items-center gap-2">
+                                {note.stage && (
+                                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 uppercase tracking-wide">
+                                        {note.stage}
+                                    </span>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                    {new Date(note.updatedAt).toLocaleString()}
+                                </span>
+                            </div>
                             <div className="flex gap-2">
                                 {hasEdits(note.id) && (
                                     <Button
