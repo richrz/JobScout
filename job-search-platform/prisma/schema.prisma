@@ -146,6 +146,9 @@ model Application {
 enum ApplicationStatus {
   INTERESTED
   APPLIED
+  SCREENING
+  INTERVIEW
+  OFFER
   FOLLOW_UP
   DORMANT
   ARCHIVED
@@ -169,6 +172,7 @@ model Workspace {
   application   Application?      @relation(fields: [applicationId], references: [id], onDelete: SetNull)
   status        ApplicationStatus @default(INTERESTED)
   priority      String            @default("medium") // high, medium, low
+  statusHistory Json[]            @default([])
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
