@@ -19,7 +19,7 @@ import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { Application, Job } from '@prisma/client';
 import { PipelineColumn } from './PipelineColumn';
 import { ApplicationCard } from './ApplicationCard';
-import { updateApplicationStatus, bulkArchiveApplications, bulkDeleteApplications } from '@/app/actions/application';
+import { updateApplicationStatus, updateWorkspaceStatusAction, bulkArchiveApplications, bulkDeleteApplications } from '@/app/actions/application';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Archive, Trash2, X } from 'lucide-react';
@@ -213,8 +213,25 @@ export function KanbanBoard({ initialApplications }: KanbanBoardProps) {
 
         // Optimistic update already happened in DragOver, but let's ensure consistency
         if (activeApp.status !== newStatus) {
-            // Call server action
-            await updateApplicationStatus(activeId, newStatus);
+            // Prefer workspace-first update (canonical lifecycle authority)
+            const LEGACY_TO_WORKSPACE: Record<string, string> = {
+                interested: 'INTERESTED',
+                applied: 'APPLIED',
+                screening: 'SCREENING',
+                interview: 'INTERVIEW',
+                offer: 'OFFER',
+                follow_up: 'FOLLOW_UP',
+                dormant: 'DORMANT',
+                archived: 'ARCHIVED',
+                passed: 'PASSED',
+            };
+            const workspaceStatus = LEGACY_TO_WORKSPACE[newStatus.toLowerCase()] ?? newStatus.toUpperCase();
+            if (activeApp.workspace?.id) {
+                await updateWorkspaceStatusAction(activeApp.workspace.id, workspaceStatus);
+            } else {
+                // Fallback: legacy Application path for entries without a workspace yet
+                await updateApplicationStatus(activeId, newStatus);
+            }
         }
     }
 

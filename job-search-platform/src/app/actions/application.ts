@@ -391,3 +391,38 @@ export async function dismissJob(jobId: string): Promise<ActionResponse> {
         return { success: false, error: 'Failed to dismiss job' };
     }
 }
+
+/**
+ * Update workspace status directly.
+ * This is the canonical path for lifecycle state changes.
+ * Workspace.status is the single source of truth.
+ */
+export async function updateWorkspaceStatusAction(
+    workspaceId: string,
+    status: string,
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+
+        const workspace = await prisma.workspace.findUnique({
+            where: { id: workspaceId },
+            select: { userId: true },
+        });
+
+        if (!workspace) return { success: false, error: 'Workspace not found' };
+        if (workspace.userId !== session.user.id) return { success: false, error: 'Forbidden' };
+
+        await prisma.workspace.update({
+            where: { id: workspaceId },
+            data: { status: status as any, updatedAt: new Date() },
+        });
+
+        revalidatePath('/pipeline');
+        revalidatePath('/dashboard-wireframe');
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to update workspace status:', error);
+        return { success: false, error: 'Failed to update status' };
+    }
+}
