@@ -48,19 +48,24 @@ export function TriageDeck() {
     // We keep a "history" here locally just for visual restoration.
     const [actionHistory, setActionHistory] = useState<TriageJob[]>([]);
 
+    const [confirmedId, setConfirmedId] = useState<{ jobId: string; action: 'INTERESTED' | 'PASSED' } | null>(null);
+
     const handleAction = async (jobId: string, action: 'INTERESTED' | 'PASSED') => {
-        if (actionLoading) return;
+        if (actionLoading || confirmedId) return;
 
         const job = jobs.find(j => j.id === jobId);
         if (!job) return;
 
-        // 1. Optimistic UI Removal
+        // For INTERESTED, show a brief confirmation overlay before removing
+        if (action === 'INTERESTED') {
+            setConfirmedId({ jobId, action });
+            await new Promise(resolve => setTimeout(resolve, 420));
+            setConfirmedId(null);
+        }
+
+        // Remove from UI
         setJobs(prev => prev.filter(j => j.id !== jobId));
-
-        // 2. Add to History (Stack)
         setActionHistory(prev => [...prev, job]);
-
-        // 3. Add to Undo Queue (Context)
         addToQueue(jobId, action);
     };
 
@@ -122,6 +127,7 @@ export function TriageDeck() {
                             key={job.id}
                             job={job}
                             index={index}
+                            confirmed={confirmedId?.jobId === job.id && confirmedId.action === 'INTERESTED'}
                             onSwipe={(direction) => {
                                 const action = direction === 'right' ? 'INTERESTED' : 'PASSED';
                                 handleAction(job.id, action);

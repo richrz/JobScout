@@ -45,8 +45,8 @@ export function TriageQueueProvider({ children }: { children: ReactNode }) {
             setIsCommitting(false);
         }
 
-        toast(action === 'INTERESTED' ? 'Job Saved' : 'Job Passed', {
-            description: action === 'INTERESTED' ? 'Saved to pipeline.' : 'Moved to Passed Bin.',
+        toast(action === 'INTERESTED' ? '✓ Added to pipeline' : 'Passed', {
+            description: action === 'INTERESTED' ? 'Now in your Interested stage.' : 'Moved to Passed Bin.',
             duration: 2000
         });
     }, []);

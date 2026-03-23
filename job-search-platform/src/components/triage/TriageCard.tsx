@@ -33,9 +33,10 @@ interface TriageCardProps {
     job: TriageJob;
     onSwipe: (direction: 'left' | 'right') => void;
     index: number;
+    confirmed?: boolean; // show "Interested!" flash before card exits
 }
 
-export function TriageCard({ job, onSwipe, index }: TriageCardProps) {
+export function TriageCard({ job, onSwipe, index, confirmed = false }: TriageCardProps) {
     const x = useMotionValue(0);
     const rotate = useTransform(x, [-200, 200], [-15, 15]);
     const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
@@ -82,7 +83,7 @@ export function TriageCard({ job, onSwipe, index }: TriageCardProps) {
             >
                 {/* Swipe Indicators */}
                 <motion.div
-                    style={{ opacity: overlayRightOpacity }}
+                    style={{ opacity: confirmed ? 1 : overlayRightOpacity }}
                     className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
                 >
                     <div
@@ -93,7 +94,7 @@ export function TriageCard({ job, onSwipe, index }: TriageCardProps) {
                             backgroundColor: colors.accentDim
                         }}
                     >
-                        Interested
+                        {confirmed ? '✓ Saved!' : 'Interested'}
                     </div>
                 </motion.div>
 
@@ -189,13 +190,12 @@ export function TriageCard({ job, onSwipe, index }: TriageCardProps) {
 
 // Action Buttons - Ayu Dark styled
 export function TriageActions({ onPass, onSave, disabled }: { onPass: () => void, onSave: () => void, disabled?: boolean }) {
-    // Note: "Save" is renamed to "Interested" in the UI per cockpit-stage-contract.md
     return (
-        <div className="flex items-center justify-center gap-8 mt-10">
+        <div className="flex items-center justify-center gap-6 mt-10">
             <button
                 onClick={onPass}
                 disabled={disabled}
-                className="w-16 h-16 rounded-full transition-all transform hover:scale-110 flex items-center justify-center"
+                className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 active:scale-95"
                 style={{
                     backgroundColor: colors.surface,
                     border: `2px solid ${colors.danger}`,
@@ -203,12 +203,13 @@ export function TriageActions({ onPass, onSave, disabled }: { onPass: () => void
                     boxShadow: `0 8px 24px ${colors.dangerDim}`
                 }}
             >
-                <X className="w-7 h-7" />
+                <X className="w-5 h-5" />
+                Pass
             </button>
             <button
                 onClick={onSave}
                 disabled={disabled}
-                className="w-16 h-16 rounded-full transition-all transform hover:scale-110 flex items-center justify-center"
+                className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 active:scale-95"
                 style={{
                     backgroundColor: colors.surface,
                     border: `2px solid ${colors.accent}`,
@@ -216,7 +217,8 @@ export function TriageActions({ onPass, onSave, disabled }: { onPass: () => void
                     boxShadow: `0 8px 24px ${colors.accentDim}`
                 }}
             >
-                <Check className="w-7 h-7" />
+                <Check className="w-5 h-5" />
+                Interested
             </button>
         </div>
     );
