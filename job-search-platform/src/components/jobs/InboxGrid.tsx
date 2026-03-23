@@ -96,7 +96,7 @@ export function InboxGrid({ jobs }: InboxGridProps) {
             </Button>
             <Button onClick={() => runBatchAction('INTERESTED')} disabled={isSubmitting} className="gap-2">
               <Star className="h-4 w-4" />
-              Save Selected
+              Add to Pipeline
             </Button>
           </div>
         </div>

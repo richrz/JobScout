@@ -135,7 +135,7 @@ export function JobCard({
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-6">
         <Badge variant="secondary" className="text-xs font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">
-          {job.source}
+          {job.source.charAt(0).toUpperCase() + job.source.slice(1)}
         </Badge>
         {job.cityMatch && (
           <Badge variant="outline" className="text-xs font-medium border-primary/20 text-primary bg-primary/5">
@@ -167,7 +167,7 @@ export function JobCard({
           ) : (
             <>
               <Star className={cn("w-4 h-4 transition-all", isInterested && "fill-current")} />
-              <span>{isInterested ? "Interested" : "Save"}</span>
+              <span>Interested</span>
             </>
           )}
         </Button>

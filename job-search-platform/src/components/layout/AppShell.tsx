@@ -20,7 +20,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         pathname?.startsWith('/dashboard-wireframe') ||
         pathname?.startsWith('/dashboard-v3') ||
         pathname?.startsWith('/dashboard-cockpit-prototype') ||
-        pathname?.startsWith('/cockpit-drawer-wireframe');
+        pathname?.startsWith('/cockpit-drawer-wireframe') ||
+        pathname?.startsWith('/triage');
     if (isAuthPage || isFullscreen) return <>{children}</>;
 
     return (
