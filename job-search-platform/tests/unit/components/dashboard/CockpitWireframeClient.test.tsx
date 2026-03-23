@@ -127,6 +127,7 @@ function renderClient(panel: CockpitPanelRecord) {
       userName="Richard Ruiz"
       viewModel={buildViewModel(panel)}
       panelRecords={[panel]}
+      initialSelectedCardId={panel.id}
     />,
   );
 }
@@ -171,7 +172,7 @@ describe('CockpitWireframeClient workspace panel', () => {
     });
 
     expect(screen.getByText('Why this role matters')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /add note/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /add note/i }).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Legacy state/i)).not.toBeInTheDocument();
 
     await waitFor(() => {

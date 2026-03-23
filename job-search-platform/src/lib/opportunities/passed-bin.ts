@@ -1,7 +1,10 @@
 export type WorkspaceStatus =
   | 'INTERESTED'
   | 'APPLIED'
-  | 'FOLLOW_UP'
+  | 'SCREENING'
+  | 'INTERVIEW'
+  | 'OFFER'
+  | 'FOLLOW_UP'   // legacy — kept for migration compatibility
   | 'DORMANT'
   | 'ARCHIVED'
   | 'PASSED';

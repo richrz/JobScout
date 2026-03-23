@@ -1,7 +1,10 @@
 export type CockpitWorkspaceStatus =
   | 'INTERESTED'
   | 'APPLIED'
-  | 'FOLLOW_UP'
+  | 'SCREENING'
+  | 'INTERVIEW'
+  | 'OFFER'
+  | 'FOLLOW_UP'   // legacy — being retired, kept for migration compatibility
   | 'DORMANT'
   | 'ARCHIVED'
   | 'PASSED';
@@ -105,10 +108,6 @@ const STAGE_LABELS: Record<CockpitStage, string> = {
   OFFER: 'offer',
 };
 
-function normalizeLegacyStatus(status?: string | null) {
-  return status?.trim().toLowerCase() ?? null;
-}
-
 function hasDraftResume(resumeStates: CockpitDocumentState[]) {
   return resumeStates.some((state) => state === 'WORKING_DRAFT' || state === 'SAVED_VARIANT');
 }
@@ -178,39 +177,26 @@ function sortDiscoveryJobs(jobs: CockpitDiscoveryJobInput[]) {
 
 export function deriveCockpitStage({
   workspaceStatus,
-  legacyStatus,
   resumeStates = [],
 }: {
   workspaceStatus: CockpitWorkspaceStatus;
-  legacyStatus?: string | null;
+  legacyStatus?: string | null; // kept for call-site compatibility, no longer used
   resumeStates?: CockpitDocumentState[];
 }): CockpitStage | null {
   if (workspaceStatus === 'PASSED' || workspaceStatus === 'ARCHIVED') {
     return null;
   }
-
   if (workspaceStatus === 'INTERESTED') {
     return hasDraftResume(resumeStates) ? 'CRAFTING' : 'INTERESTED';
   }
-
-  if (workspaceStatus === 'APPLIED') {
-    return 'APPLIED';
-  }
-
+  if (workspaceStatus === 'APPLIED') return 'APPLIED';
+  if (workspaceStatus === 'SCREENING') return 'SCREENING';
+  if (workspaceStatus === 'INTERVIEW') return 'INTERVIEW';
+  if (workspaceStatus === 'OFFER') return 'OFFER';
+  // Legacy FOLLOW_UP + DORMANT fall into SCREENING until fully migrated
   if (workspaceStatus === 'FOLLOW_UP' || workspaceStatus === 'DORMANT') {
-    const normalizedStatus = normalizeLegacyStatus(legacyStatus);
-
-    if (normalizedStatus === 'offer') {
-      return 'OFFER';
-    }
-
-    if (normalizedStatus === 'interview') {
-      return 'INTERVIEW';
-    }
-
     return 'SCREENING';
   }
-
   return 'INTERESTED';
 }
 

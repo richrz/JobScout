@@ -73,7 +73,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         const { status } = body;
 
         // Validate status
-        const validStatuses: ApplicationStatus[] = ['INTERESTED', 'APPLIED', 'FOLLOW_UP', 'DORMANT', 'ARCHIVED', 'PASSED'];
+        const validStatuses: ApplicationStatus[] = ['INTERESTED', 'APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER', 'FOLLOW_UP', 'DORMANT', 'ARCHIVED', 'PASSED'];
         if (status && !validStatuses.includes(status)) {
             return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
         }

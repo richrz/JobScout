@@ -17,27 +17,12 @@ describe('cockpit-phase1', () => {
     ).toBe('CRAFTING');
   });
 
-  it('splits FOLLOW_UP into later cockpit stages using legacy status', () => {
-    expect(
-      deriveCockpitStage({
-        workspaceStatus: 'FOLLOW_UP',
-        legacyStatus: 'screening',
-      }),
-    ).toBe('SCREENING');
-
-    expect(
-      deriveCockpitStage({
-        workspaceStatus: 'FOLLOW_UP',
-        legacyStatus: 'interview',
-      }),
-    ).toBe('INTERVIEW');
-
-    expect(
-      deriveCockpitStage({
-        workspaceStatus: 'FOLLOW_UP',
-        legacyStatus: 'offer',
-      }),
-    ).toBe('OFFER');
+  it('maps new lifecycle statuses directly to cockpit stages', () => {
+    expect(deriveCockpitStage({ workspaceStatus: 'SCREENING' })).toBe('SCREENING');
+    expect(deriveCockpitStage({ workspaceStatus: 'INTERVIEW' })).toBe('INTERVIEW');
+    expect(deriveCockpitStage({ workspaceStatus: 'OFFER' })).toBe('OFFER');
+    // Legacy FOLLOW_UP falls back to SCREENING until fully migrated
+    expect(deriveCockpitStage({ workspaceStatus: 'FOLLOW_UP' })).toBe('SCREENING');
   });
 
   it('computes while-you-were-out counts from live discovery jobs', () => {
@@ -117,8 +102,8 @@ describe('cockpit-phase1', () => {
         company: 'Notion',
         location: 'New York, NY',
         updatedAt: '2026-03-09T08:00:00.000Z',
-        workspaceStatus: 'FOLLOW_UP',
-        legacyStatus: 'offer',
+        workspaceStatus: 'OFFER',
+        legacyStatus: null,
         resumeStates: ['SUBMITTED_SNAPSHOT'],
       },
       {

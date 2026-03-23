@@ -2658,12 +2658,14 @@ export default function CockpitWireframeClient({
   userName,
   viewModel,
   panelRecords,
+  initialSelectedCardId = null,
 }: {
   userName: string;
   viewModel: CockpitPhaseOneViewModel;
   panelRecords: CockpitPanelRecord[];
+  initialSelectedCardId?: string | null;
 }) {
-  const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [activeCardId, setActiveCardId] = useState<string | null>(initialSelectedCardId);
   const [browseStage, setBrowseStage] = useState<CockpitStage | null>(null);
 
   const panelLookup = useMemo(() => new Map(panelRecords.map((r) => [r.id, r])), [panelRecords]);
@@ -2682,9 +2684,9 @@ export default function CockpitWireframeClient({
       'to-interested': 'INTERESTED',
       'to-crafting': 'INTERESTED',
       'to-applied': 'APPLIED',
-      'to-screening': 'FOLLOW_UP',
-      'to-interview': 'FOLLOW_UP',
-      'to-offer': 'FOLLOW_UP',
+      'to-screening': 'SCREENING',
+      'to-interview': 'INTERVIEW',
+      'to-offer': 'OFFER',
     };
     const newStatus = statusMap[key];
     if (!newStatus) return;

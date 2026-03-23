@@ -23,6 +23,21 @@ const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; i
         color: 'text-electric-green border-electric-green/50',
         icon: <CheckCircle className="w-4 h-4" />
     },
+    SCREENING: {
+        label: 'Screening',
+        color: 'text-violet-400 border-violet-400/50',
+        icon: <Clock className="w-4 h-4" />
+    },
+    INTERVIEW: {
+        label: 'Interview',
+        color: 'text-blue-400 border-blue-400/50',
+        icon: <Clock className="w-4 h-4" />
+    },
+    OFFER: {
+        label: 'Offer',
+        color: 'text-yellow-400 border-yellow-400/50',
+        icon: <Star className="w-4 h-4" />
+    },
     FOLLOW_UP: {
         label: 'Follow Up',
         color: 'text-amber-400 border-amber-400/50',
