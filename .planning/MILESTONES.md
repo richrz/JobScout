@@ -46,13 +46,13 @@ The cockpit shell is live but built on a fractured data model. `Application.stat
 **Goal:** Inbox and JobSwipe share one discovery set. Triage is batch-capable. PASS is recoverable. Mobile-safe.
 
 **Tasks:**
-- [ ] P2-1: Confirm Inbox and JobSwipe draw from the same active discovery query
+- [x] P2-1: Confirm Inbox and JobSwipe draw from the same active discovery query
 - [x] P2-2: JobSwipe right-swipe shows a clear `Saved` / `Interested` confirmation (card doesn't just vanish)
 - [x] P2-3: JobSwipe bottom actions: `Pass` + `Interested`, remove redundant dismiss X, move `Details` off row
-- [ ] P2-4: Inbox multi-select: layout cleanup + stronger bulk-selection affordances
-- [ ] P2-5: Inbox wording cleanup: source labels, company actions, match-score explanation
-- [ ] P2-6: PASSED bin: confirm it's non-destructive and shows restore path (already partially shipped)
-- [ ] P2-7: Mobile controls never obscure primary actions (dock + sidebar never appear simultaneously)
+- [x] P2-4: Inbox multi-select: layout cleanup + stronger bulk-selection affordances
+- [x] P2-5: Inbox wording cleanup: source labels, company actions, match-score explanation
+- [x] P2-6: PASSED bin: confirm it's non-destructive and shows restore path (already partially shipped)
+- [x] P2-7: Mobile controls never obscure primary actions (dock + sidebar never appear simultaneously)
 
 **Done when:** A user can discover, triage, save, and pass jobs from both Inbox and JobSwipe, see a clear confirmation, recover any pass, and do bulk actions — all without mobile layout conflicts.
 
