@@ -30,12 +30,12 @@ The cockpit shell is live but built on a fractured data model. `Application.stat
 **Problem:** `Application.status` and `Workspace.status` both carry lifecycle meaning. The cockpit, pipeline, and inbox all query different tables for the same state, producing inconsistencies.
 
 **Tasks:**
-- [ ] P1-1: Audit all surfaces that read or write lifecycle state (Application vs Workspace)
-- [ ] P1-2: Declare Workspace as the single lifecycle authority — document the contract
-- [ ] P1-3: Deprecate / shadow Application.status (make it a read-only computed mirror, additive)
-- [ ] P1-4: Rename PREP → CRAFTING everywhere in code and UI
-- [ ] P1-5: Verify save / pass / restore / craft / apply all route through Workspace status only
-- [ ] P1-6: Smoke test: no surface can produce a conflicting status between Application and Workspace
+- [x] P1-1: Audit all surfaces that read or write lifecycle state (Application vs Workspace)
+- [x] P1-2: Declare Workspace as the single lifecycle authority — document the contract
+- [x] P1-3: Deprecate / shadow Application.status (make it a read-only computed mirror, additive)
+- [x] P1-4: Rename PREP → CRAFTING everywhere in code and UI
+- [x] P1-5: Verify save / pass / restore / craft / apply all route through Workspace status only
+- [x] P1-6: Smoke test: no surface can produce a conflicting status between Application and Workspace
 
 **Done when:** Moving an opportunity in any surface (cockpit, pipeline, inbox, swipe) produces one consistent state visible everywhere.
 
@@ -47,8 +47,8 @@ The cockpit shell is live but built on a fractured data model. `Application.stat
 
 **Tasks:**
 - [ ] P2-1: Confirm Inbox and JobSwipe draw from the same active discovery query
-- [ ] P2-2: JobSwipe right-swipe shows a clear `Saved` / `Interested` confirmation (card doesn't just vanish)
-- [ ] P2-3: JobSwipe bottom actions: `Pass` + `Interested`, remove redundant dismiss X, move `Details` off row
+- [x] P2-2: JobSwipe right-swipe shows a clear `Saved` / `Interested` confirmation (card doesn't just vanish)
+- [x] P2-3: JobSwipe bottom actions: `Pass` + `Interested`, remove redundant dismiss X, move `Details` off row
 - [ ] P2-4: Inbox multi-select: layout cleanup + stronger bulk-selection affordances
 - [ ] P2-5: Inbox wording cleanup: source labels, company actions, match-score explanation
 - [ ] P2-6: PASSED bin: confirm it's non-destructive and shows restore path (already partially shipped)
