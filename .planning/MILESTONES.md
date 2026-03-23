@@ -63,10 +63,10 @@ The cockpit shell is live but built on a fractured data model. `Application.stat
 **Goal:** Every opportunity has exactly one workspace. Stage journals replace flat notes. Workspace is the canonical home for everything.
 
 **Tasks:**
-- [ ] P3-1: Verify one-workspace-per-opportunity enforcement (no orphans, no duplicates)
-- [ ] P3-2: Stage journals: notes are tagged to the stage they were written in, preserved as opp moves
-- [ ] P3-3: Workspace expands in-place from pipeline card (no separate page navigation required)
-- [ ] P3-4: Workspace is the canonical home for: notes, blockers, contacts, artifacts
+- [x] P3-1: Verify one-workspace-per-opportunity enforcement (no orphans, no duplicates)
+- [x] P3-2: Stage journals: notes are tagged to the stage they were written in, preserved as opp moves
+- [x] P3-3: Workspace expands in-place from pipeline card (no separate page navigation required)
+- [x] P3-4: Workspace is the canonical home for: notes, blockers, contacts, artifacts
 - [ ] P3-5: BlockNote as universal notes engine across all stages (replace plain textareas)
 
 **Done when:** Clicking any opportunity anywhere opens one consistent workspace in-place. Notes written in INTERESTED are still visible (tagged) after moving to CRAFTING.
