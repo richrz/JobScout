@@ -403,7 +403,6 @@ export default async function DashboardWireframePage() {
       userName={user.name ?? user.email}
       viewModel={viewModel}
       panelRecords={panelRecords}
-      initialNewVisibleCount={4}
     />
   );
 }

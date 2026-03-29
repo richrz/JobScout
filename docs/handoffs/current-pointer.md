@@ -9,7 +9,7 @@
 
 ## Latest Product Checkpoint
 
-- `pending local checkpoint` — cockpit discovery now treats `NEW` as the personalized KC match pool for this user’s background (fit-first, then freshness), removes the 50-card dashboard cap, keeps the kanban readable by starting `NEW` at 4 visible cards with `Load more`, improves kanban card readability, and aligns analytics / drawer stage mappings with the current lifecycle (`SCREENING`, `INTERVIEW`, `OFFER`)
+- `pending local checkpoint` — cockpit discovery now treats `NEW` as the personalized KC match pool for this user’s background (fit-first, then freshness), removes the 50-card dashboard cap, keeps the kanban readable with a fixed four-card-tall grab-to-scroll lane so the workspace stays in view, improves kanban card readability, and aligns analytics / drawer stage mappings with the current lifecycle (`SCREENING`, `INTERVIEW`, `OFFER`)
 - `pending local checkpoint` — made JobSwipe easier to read: switched the app shell to a more legible sans font stack, expanded triage description preview spacing, and added a `Read full description` dialog with a scrollable body so long postings no longer die in an ellipsis wall
 - `42993b9` — upgraded workspace notes input to BlockNote rich text editor: slash commands, inline formatting, drag-to-reorder, per-opportunity reset via key prop; end-to-end verified (compose → save → persist → display)
 - `1a50c76` — stage browser drawer + header simplification: clicking a kanban column header opens a right-side drawer listing all opps in that stage; selecting from the drawer closes it and opens the workspace; header simplified with inline WYWO stats; RecentActivityRail moved to bottom "Jump Back In" section
@@ -139,7 +139,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - Matching now favors software sales engineer / solutions engineer / AI-SaaS-adjacent roles in the KC metro.
   - Ordering is fit first, freshness second.
   - The dashboard hard cap of 50 for `NEW` was removed.
-  - The `NEW` column now meters the list with `Load more` instead of showing only a tiny fixed slice.
+  - The `NEW` column now stays fixed at roughly four visible cards and uses a grab-to-scroll lane instead of `Load more`, so the board height no longer pushes the workspace down.
 - Kanban readability was improved.
   - Card typography is larger and less washed out.
   - Titles can breathe across two lines.
@@ -155,10 +155,10 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `npm run build` passed
   - browser-verified on `/dashboard-wireframe`:
     - header now shows personalized `KC matches`
-    - `NEW` shows 178 matching jobs for the current dataset
-    - `Load more` expands the visible card count from 12 to 24
+    - `NEW` shows 175 matching jobs for the current dataset
+    - the `NEW` lane stays fixed-height and can be grabbed to browse the full match pool without moving the workspace
 - New proof artifacts:
-  - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-kc-matches-load-more.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-new-grab-scroll.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-kc-matches-final.png`
 
 ## What Was Finished (Prior)

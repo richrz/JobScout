@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Component, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -901,22 +901,71 @@ function KanbanColumn({
   selectedCardId,
   onOpenCard,
   onBrowseStage,
-  visibleCardCount,
-  onLoadMore,
 }: {
   column: CockpitKanbanColumn;
   activeCardId: string | null;
   selectedCardId: string | null;
   onOpenCard: (id: string) => void;
   onBrowseStage: (stage: CockpitStage) => void;
-  visibleCardCount?: number;
-  onLoadMore?: () => void;
 }) {
   const visual = STAGE_VISUALS[column.stage];
-  const displayedCards =
-    typeof visibleCardCount === 'number' ? column.cards.slice(0, visibleCardCount) : column.cards;
+  const displayedCards = column.cards;
   const hasSelected = displayedCards.some((c) => c.id === selectedCardId);
   const selectedIdx = hasSelected ? displayedCards.findIndex((c) => c.id === selectedCardId) : -1;
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    startY: number;
+    startScrollTop: number;
+  } | null>(null);
+  const didDragRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const isScrollableColumn = column.stage === 'NEW' && column.total > 4;
+
+  function clearDragState(pointerId?: number) {
+    const scrollArea = scrollRef.current;
+    if (scrollArea && pointerId != null && scrollArea.hasPointerCapture(pointerId)) {
+      scrollArea.releasePointerCapture(pointerId);
+    }
+    dragRef.current = null;
+    setIsDragging(false);
+    window.setTimeout(() => {
+      didDragRef.current = false;
+    }, 0);
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (!isScrollableColumn || event.button !== 0) return;
+    const scrollArea = scrollRef.current;
+    if (!scrollArea) return;
+
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startScrollTop: scrollArea.scrollTop,
+    };
+    scrollArea.setPointerCapture(event.pointerId);
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    if (!dragRef.current || !scrollRef.current) return;
+
+    const deltaY = event.clientY - dragRef.current.startY;
+    if (Math.abs(deltaY) > 4) {
+      didDragRef.current = true;
+      if (!isDragging) setIsDragging(true);
+    }
+
+    if (didDragRef.current) {
+      scrollRef.current.scrollTop = dragRef.current.startScrollTop - deltaY;
+      event.preventDefault();
+    }
+  }
+
+  function handleCardClick(cardId: string) {
+    if (didDragRef.current) return;
+    onOpenCard(cardId);
+  }
 
   return (
     <div
@@ -957,7 +1006,22 @@ function KanbanColumn({
         </span>
       </button>
 
-      <div className="space-y-2">
+      <div
+        ref={scrollRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={(event) => clearDragState(event.pointerId)}
+        onPointerCancel={(event) => clearDragState(event.pointerId)}
+        onPointerLeave={(event) => {
+          if (isDragging) clearDragState(event.pointerId);
+        }}
+        className={cn(
+          'space-y-2',
+          isScrollableColumn && 'max-h-[27.75rem] overflow-y-auto pr-1 scrollbar-thin cursor-grab',
+          isDragging && 'cursor-grabbing select-none',
+        )}
+        style={{ touchAction: isScrollableColumn ? 'none' : 'auto' }}
+      >
         {displayedCards.length === 0 ? (
           <div className="rounded-[10px] border border-dashed border-white/10 px-3 py-4 text-center text-[11px] text-white/28">
             Empty
@@ -972,31 +1036,16 @@ function KanbanColumn({
                 active={activeCardId === card.id}
                 selected={card.id === selectedCardId}
                 ghosted={isGhosted}
-                onClick={() => onOpenCard(card.id)}
+                onClick={() => handleCardClick(card.id)}
               />
             );
           })
         )}
       </div>
 
-      {column.total > displayedCards.length && !hasSelected ? (
-        <div className="mt-2 space-y-2">
-          <div className="rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/38">
-            Showing {displayedCards.length} of {column.total}
-          </div>
-          {onLoadMore ? (
-            <button
-              type="button"
-              onClick={onLoadMore}
-              className="w-full rounded-[10px] border border-white/12 bg-white/[0.03] px-3 py-2 text-[11px] font-semibold text-white/78 transition hover:border-white/20 hover:bg-white/[0.05]"
-            >
-              Load more
-            </button>
-          ) : (
-            <div className="rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/32">
-              +{column.total - displayedCards.length} more
-            </div>
-          )}
+      {isScrollableColumn && !hasSelected ? (
+        <div className="mt-2 rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/38">
+          Grab to browse all {column.total} matches
         </div>
       ) : null}
     </div>
@@ -2677,24 +2726,17 @@ export default function CockpitWireframeClient({
   viewModel,
   panelRecords,
   initialSelectedCardId = null,
-  initialNewVisibleCount = 4,
 }: {
   userName: string;
   viewModel: CockpitPhaseOneViewModel;
   panelRecords: CockpitPanelRecord[];
   initialSelectedCardId?: string | null;
-  initialNewVisibleCount?: number;
 }) {
   const [activeCardId, setActiveCardId] = useState<string | null>(initialSelectedCardId);
   const [browseStage, setBrowseStage] = useState<CockpitStage | null>(null);
-  const [visibleNewCards, setVisibleNewCards] = useState(initialNewVisibleCount);
 
   const panelLookup = useMemo(() => new Map(panelRecords.map((r) => [r.id, r])), [panelRecords]);
   const activePanel = activeCardId ? panelLookup.get(activeCardId) ?? null : null;
-  const newColumn = useMemo(
-    () => viewModel.kanbanColumns.find((column) => column.stage === 'NEW') ?? null,
-    [viewModel.kanbanColumns],
-  );
 
   const selectedColIdx = useMemo(() => {
     if (!activePanel) return -1;
@@ -2702,25 +2744,6 @@ export default function CockpitWireframeClient({
   }, [activePanel]);
 
   const wywo = viewModel.whileYouWereOut;
-
-  useEffect(() => {
-    if (!newColumn) return;
-    setVisibleNewCards((current) => {
-      if (newColumn.cards.length === 0) {
-        return initialNewVisibleCount;
-      }
-
-      return Math.min(Math.max(initialNewVisibleCount, current), newColumn.cards.length);
-    });
-  }, [initialNewVisibleCount, newColumn]);
-
-  useEffect(() => {
-    if (!activePanel || activePanel.stage !== 'NEW' || !newColumn) return;
-    const selectedIndex = newColumn.cards.findIndex((card) => card.id === activePanel.id);
-    if (selectedIndex >= visibleNewCards) {
-      setVisibleNewCards(selectedIndex + 1);
-    }
-  }, [activePanel, newColumn, visibleNewCards]);
 
   async function handleTransition(key: string) {
     if (!activePanel?.workspaceId) return;
@@ -2805,12 +2828,6 @@ export default function CockpitWireframeClient({
                   selectedCardId={activeCardId}
                   onOpenCard={setActiveCardId}
                   onBrowseStage={setBrowseStage}
-                  visibleCardCount={column.stage === 'NEW' ? visibleNewCards : undefined}
-                  onLoadMore={
-                    column.stage === 'NEW'
-                      ? () => setVisibleNewCards((count) => count + initialNewVisibleCount)
-                      : undefined
-                  }
                 />
               ))}
             </div>

@@ -409,11 +409,10 @@ describe('CockpitWireframeClient workspace panel', () => {
     });
   });
 
-  it('lets the NEW column reveal more matching jobs progressively', () => {
+  it('keeps NEW in a fixed-height scroll lane instead of growing the board', () => {
     render(
       <CockpitWireframeClient
         userName="Richard Ruiz"
-        initialNewVisibleCount={1}
         panelRecords={[]}
         viewModel={{
           ...baseViewModel,
@@ -421,7 +420,7 @@ describe('CockpitWireframeClient workspace panel', () => {
             column.stage === 'NEW'
               ? {
                   ...column,
-                  total: 2,
+                  total: 5,
                   cards: [
                     {
                       id: 'job-1',
@@ -447,6 +446,42 @@ describe('CockpitWireframeClient workspace panel', () => {
                       stage: 'NEW',
                       updatedAt: '2026-03-28T10:00:00.000Z',
                     },
+                    {
+                      id: 'job-3',
+                      kind: 'discovery',
+                      jobId: 'job-3',
+                      title: 'Solutions Architect',
+                      company: 'Gamma',
+                      location: 'Kansas City, Missouri',
+                      scoreLabel: '84%',
+                      meta: 'Mar 27 · 84%',
+                      stage: 'NEW',
+                      updatedAt: '2026-03-27T10:00:00.000Z',
+                    },
+                    {
+                      id: 'job-4',
+                      kind: 'discovery',
+                      jobId: 'job-4',
+                      title: 'Customer Engineer',
+                      company: 'Delta',
+                      location: 'Leawood, Kansas',
+                      scoreLabel: '82%',
+                      meta: 'Mar 26 · 82%',
+                      stage: 'NEW',
+                      updatedAt: '2026-03-26T10:00:00.000Z',
+                    },
+                    {
+                      id: 'job-5',
+                      kind: 'discovery',
+                      jobId: 'job-5',
+                      title: 'AI Platform Sales Specialist',
+                      company: 'Epsilon',
+                      location: 'Overland Park, Kansas',
+                      scoreLabel: '80%',
+                      meta: 'Mar 25 · 80%',
+                      stage: 'NEW',
+                      updatedAt: '2026-03-25T10:00:00.000Z',
+                    },
                   ],
                 }
               : column,
@@ -456,10 +491,8 @@ describe('CockpitWireframeClient workspace panel', () => {
     );
 
     expect(screen.getByText('AI Solutions Engineer')).toBeInTheDocument();
-    expect(screen.queryByText('Senior Sales Engineer')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: /load more/i }));
-
     expect(screen.getByText('Senior Sales Engineer')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /load more/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/Grab to browse all 5 matches/i)).toBeInTheDocument();
   });
 });
