@@ -11,6 +11,10 @@ import {
   type CockpitDiscoveryJobInput,
   type CockpitStage,
 } from '@/lib/cockpit-phase1';
+import {
+  buildDiscoveryMatcher,
+  scoreDiscoveryJob,
+} from '@/lib/cockpit-discovery';
 import CockpitWireframeClient, {
   type CockpitPanelRecord,
 } from './CockpitWireframeClient';
@@ -151,7 +155,6 @@ export default async function DashboardWireframePage() {
         },
         application: {
           select: {
-            status: true,
             createdAt: true,
             appliedAt: true,
           },
@@ -181,8 +184,6 @@ export default async function DashboardWireframePage() {
           },
         },
       },
-      orderBy: [{ postedAt: 'desc' }, { compositeScore: 'desc' }],
-      take: 50,
       select: {
         id: true,
         title: true,
@@ -190,6 +191,7 @@ export default async function DashboardWireframePage() {
         location: true,
         description: true,
         salary: true,
+        skillsTags: true,
         sourceUrl: true,
         postedAt: true,
         compositeScore: true,
@@ -228,6 +230,63 @@ export default async function DashboardWireframePage() {
   ]);
 
   const profileDraftSeed = buildProfileDraftSeed(profile);
+  const normalizedContact = normalizeContactInfo(
+    (typeof profile?.contactInfo === 'object' && profile?.contactInfo
+      ? profile.contactInfo
+      : {}) as Parameters<typeof normalizeContactInfo>[0],
+  );
+  const discoveryMatcher = buildDiscoveryMatcher(
+    profile
+      ? {
+          skills: profile.skills ?? [],
+          summary: normalizedContact.summary || '',
+          experiences: profile.experiences.map((experience) => ({
+            position: experience.position,
+            description: experience.description || '',
+            company: experience.company,
+          })),
+        }
+      : null,
+  );
+
+  const filteredDiscoveryJobs = discoveryJobs.filter((job) => {
+    const location = job.location?.toLowerCase() ?? '';
+    const inKansasCityMetro = discoveryMatcher.locationTerms.some((term) => location.includes(term));
+    if (!inKansasCityMetro) {
+      return false;
+    }
+
+    const title = job.title.toLowerCase();
+    const description = job.description.toLowerCase();
+    const skills = (job.skillsTags ?? []).map((skill) => skill.toLowerCase());
+
+    const roleMatch = discoveryMatcher.roleTerms.some(
+      (term) => title.includes(term) || description.includes(term),
+    );
+    const domainMatch = discoveryMatcher.domainTerms.some(
+      (term) => title.includes(term) || description.includes(term),
+    );
+    const skillMatch = discoveryMatcher.skillTerms.some((term) =>
+      skills.some((skill) => skill.includes(term) || term.includes(skill)),
+    );
+
+    return roleMatch || domainMatch || skillMatch;
+  });
+
+  const rankedDiscoveryJobs = [...filteredDiscoveryJobs].sort((left, right) => {
+    const fitDiff =
+      scoreDiscoveryJob(right, discoveryMatcher) - scoreDiscoveryJob(left, discoveryMatcher);
+    if (fitDiff !== 0) {
+      return fitDiff;
+    }
+
+    const compositeDiff = (right.compositeScore ?? -1) - (left.compositeScore ?? -1);
+    if (compositeDiff !== 0) {
+      return compositeDiff;
+    }
+
+    return new Date(right.postedAt).getTime() - new Date(left.postedAt).getTime();
+  });
 
   const managedOpportunities: CockpitManagedOpportunityInput[] = managedWorkspaces.map(
     (workspace) => ({
@@ -238,13 +297,12 @@ export default async function DashboardWireframePage() {
       location: workspace.job.location,
       updatedAt: toIsoString(workspace.updatedAt),
       workspaceStatus: workspace.status,
-      legacyStatus: workspace.application?.status ?? null,
       resumeStates: workspace.resumes.map((resume) => resume.documentState),
       compositeScore: workspace.job.compositeScore,
     }),
   );
 
-  const discoveryInputs: CockpitDiscoveryJobInput[] = discoveryJobs.map((job) => ({
+  const discoveryInputs: CockpitDiscoveryJobInput[] = rankedDiscoveryJobs.map((job) => ({
     jobId: job.id,
     title: job.title,
     company: job.company,
@@ -258,10 +316,14 @@ export default async function DashboardWireframePage() {
     discoveryJobs: discoveryInputs,
     recentActivityLimit: 4,
     kanbanLimit: 4,
+    perStageLimits: {
+      NEW: discoveryInputs.length,
+    },
+    treatDiscoveryAsMatched: true,
   });
 
   const panelRecords: CockpitPanelRecord[] = [
-    ...discoveryJobs.map((job) => ({
+    ...rankedDiscoveryJobs.map((job) => ({
       id: job.id,
       kind: 'discovery' as const,
       jobId: job.id,
@@ -276,7 +338,6 @@ export default async function DashboardWireframePage() {
       updatedAt: toIsoString(job.postedAt),
       workspaceId: null,
       workspaceStatus: null,
-      legacyStatus: null,
       noteCount: 0,
       resumes: [],
       compositeScore: job.compositeScore ?? null,
@@ -286,7 +347,6 @@ export default async function DashboardWireframePage() {
       const stage =
         deriveCockpitStage({
           workspaceStatus: workspace.status,
-          legacyStatus: workspace.application?.status ?? null,
           resumeStates: workspace.resumes.map((resume) => resume.documentState),
         }) ?? 'INTERESTED';
       const workingDraft =
@@ -313,7 +373,6 @@ export default async function DashboardWireframePage() {
         updatedAt: toIsoString(workspace.updatedAt),
         workspaceId: workspace.id,
         workspaceStatus: workspace.status,
-        legacyStatus: workspace.application?.status ?? null,
         noteCount: workspace._count.notes,
         resumes: workspace.resumes.map((resume) => ({
           id: resume.id,
@@ -344,6 +403,7 @@ export default async function DashboardWireframePage() {
       userName={user.name ?? user.email}
       viewModel={viewModel}
       panelRecords={panelRecords}
+      initialNewVisibleCount={12}
     />
   );
 }

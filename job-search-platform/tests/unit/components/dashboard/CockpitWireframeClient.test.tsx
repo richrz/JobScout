@@ -160,7 +160,6 @@ describe('CockpitWireframeClient workspace panel', () => {
       updatedAt: '2026-03-09T15:00:00.000Z',
       workspaceId: 'workspace-1',
       workspaceStatus: 'INTERESTED',
-      legacyStatus: 'interested',
       noteCount: 0,
       resumes: [],
       compositeScore: 0.88,
@@ -199,7 +198,6 @@ describe('CockpitWireframeClient workspace panel', () => {
       updatedAt: '2026-03-09T16:00:00.000Z',
       workspaceId: 'workspace-2',
       workspaceStatus: 'INTERESTED',
-      legacyStatus: 'interested',
       noteCount: 2,
       resumes: [
         {
@@ -263,7 +261,6 @@ describe('CockpitWireframeClient workspace panel', () => {
       updatedAt: '2026-03-09T16:00:00.000Z',
       workspaceId: 'workspace-2b',
       workspaceStatus: 'INTERESTED',
-      legacyStatus: 'interested',
       noteCount: 2,
       resumes: [],
       compositeScore: 0.93,
@@ -336,7 +333,6 @@ describe('CockpitWireframeClient workspace panel', () => {
       updatedAt: '2026-03-09T16:30:00.000Z',
       workspaceId: 'workspace-3',
       workspaceStatus: 'APPLIED',
-      legacyStatus: 'applied',
       noteCount: 1,
       resumes: [
         {
@@ -395,7 +391,6 @@ describe('CockpitWireframeClient workspace panel', () => {
       updatedAt: '2026-03-09T18:00:00.000Z',
       workspaceId: `workspace-${stage.toLowerCase()}`,
       workspaceStatus: 'FOLLOW_UP',
-      legacyStatus: stage.toLowerCase(),
       noteCount: 0,
       resumes: [],
       compositeScore: 0.91,
@@ -412,5 +407,59 @@ describe('CockpitWireframeClient workspace panel', () => {
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(`/api/workspace/workspace-${stage.toLowerCase()}/notes`);
     });
+  });
+
+  it('lets the NEW column reveal more matching jobs progressively', () => {
+    render(
+      <CockpitWireframeClient
+        userName="Richard Ruiz"
+        initialNewVisibleCount={1}
+        panelRecords={[]}
+        viewModel={{
+          ...baseViewModel,
+          kanbanColumns: baseViewModel.kanbanColumns.map((column) =>
+            column.stage === 'NEW'
+              ? {
+                  ...column,
+                  total: 2,
+                  cards: [
+                    {
+                      id: 'job-1',
+                      kind: 'discovery',
+                      jobId: 'job-1',
+                      title: 'AI Solutions Engineer',
+                      company: 'Acme',
+                      location: 'Kansas City, Missouri',
+                      scoreLabel: '94%',
+                      meta: 'Mar 29 · 94%',
+                      stage: 'NEW',
+                      updatedAt: '2026-03-29T10:00:00.000Z',
+                    },
+                    {
+                      id: 'job-2',
+                      kind: 'discovery',
+                      jobId: 'job-2',
+                      title: 'Senior Sales Engineer',
+                      company: 'Beta',
+                      location: 'Overland Park, Kansas',
+                      scoreLabel: '89%',
+                      meta: 'Mar 28 · 89%',
+                      stage: 'NEW',
+                      updatedAt: '2026-03-28T10:00:00.000Z',
+                    },
+                  ],
+                }
+              : column,
+          ),
+        }}
+      />,
+    );
+
+    expect(screen.getByText('AI Solutions Engineer')).toBeInTheDocument();
+    expect(screen.queryByText('Senior Sales Engineer')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /load more/i }));
+
+    expect(screen.getByText('Senior Sales Engineer')).toBeInTheDocument();
   });
 });

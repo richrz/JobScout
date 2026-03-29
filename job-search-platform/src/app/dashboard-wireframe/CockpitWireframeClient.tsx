@@ -84,7 +84,6 @@ export type CockpitPanelRecord = {
   updatedAt: string;
   workspaceId: string | null;
   workspaceStatus: string | null;
-  legacyStatus: string | null;
   noteCount: number;
   resumes: Array<{
     id: string;
@@ -809,10 +808,10 @@ function KanbanCard({
         type="button"
         onClick={onClick}
         className={cn(
-          'group relative w-full overflow-hidden border bg-[#0b0b0c] px-3.5 py-3 text-left transition-all duration-200 hover:-translate-y-0.5',
+          'group relative w-full overflow-hidden border bg-[#0b0b0c] px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5',
           selected
-            ? 'rounded-t-[14px] rounded-b-none border-white/18'
-            : 'rounded-[14px] border-white/8 hover:border-white/16',
+            ? 'rounded-t-[16px] rounded-b-none border-white/18'
+            : 'rounded-[16px] border-white/10 hover:border-white/18',
           active && !selected && 'border-white/18 shadow-[0_18px_40px_rgba(0,0,0,0.38)]',
         )}
         style={{
@@ -842,9 +841,9 @@ function KanbanCard({
           style={{ background: `radial-gradient(circle at top right, ${visual.tint}, transparent 55%)` }}
         />
         <div className="relative">
-          <div className="flex items-start gap-2.5">
+          <div className="flex items-start gap-3">
             <div
-              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-semibold"
+              className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold"
               style={{
                 background: identity.background,
                 border: identity.border,
@@ -863,14 +862,14 @@ function KanbanCard({
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="truncate text-xs font-semibold text-white">{card.company}</div>
-                  <div className="mt-0.5 line-clamp-1 text-[11px] leading-relaxed text-white/60">
+                  <div className="truncate text-[13px] font-semibold tracking-[0.01em] text-white/92">{card.company}</div>
+                  <div className="mt-1 line-clamp-2 text-[13px] font-medium leading-snug text-white/78">
                     {card.title}
                   </div>
                 </div>
                 {card.scoreLabel ? (
                   <span
-                    className="shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold"
+                    className="shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold"
                     style={{
                       borderColor: visual.tint,
                       backgroundColor: visual.tint,
@@ -882,9 +881,9 @@ function KanbanCard({
                 ) : null}
               </div>
 
-              <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] text-white/42">
-                <span className="truncate">{card.location || 'Location pending'}</span>
-                <span className={cn('shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-medium', urgencyClasses(urgency.tone))}>
+              <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-white/56">
+                <span className="truncate pr-2">{card.location || 'Location pending'}</span>
+                <span className={cn('shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium', urgencyClasses(urgency.tone))}>
                   {urgency.label}
                 </span>
               </div>
@@ -902,20 +901,26 @@ function KanbanColumn({
   selectedCardId,
   onOpenCard,
   onBrowseStage,
+  visibleCardCount,
+  onLoadMore,
 }: {
   column: CockpitKanbanColumn;
   activeCardId: string | null;
   selectedCardId: string | null;
   onOpenCard: (id: string) => void;
   onBrowseStage: (stage: CockpitStage) => void;
+  visibleCardCount?: number;
+  onLoadMore?: () => void;
 }) {
   const visual = STAGE_VISUALS[column.stage];
-  const hasSelected = column.cards.some((c) => c.id === selectedCardId);
-  const selectedIdx = hasSelected ? column.cards.findIndex((c) => c.id === selectedCardId) : -1;
+  const displayedCards =
+    typeof visibleCardCount === 'number' ? column.cards.slice(0, visibleCardCount) : column.cards;
+  const hasSelected = displayedCards.some((c) => c.id === selectedCardId);
+  const selectedIdx = hasSelected ? displayedCards.findIndex((c) => c.id === selectedCardId) : -1;
 
   return (
     <div
-      className="overflow-hidden rounded-[14px] bg-[#080809] p-2"
+      className="overflow-hidden rounded-[16px] bg-[#080809] p-2.5"
       style={{
         paddingBottom: hasSelected ? 0 : undefined,
         borderBottomLeftRadius: hasSelected ? 0 : undefined,
@@ -952,13 +957,13 @@ function KanbanColumn({
         </span>
       </button>
 
-      <div className="space-y-1.5">
-        {column.cards.length === 0 ? (
-          <div className="rounded-[10px] border border-dashed border-white/10 px-3 py-4 text-center text-[10px] text-white/28">
+      <div className="space-y-2">
+        {displayedCards.length === 0 ? (
+          <div className="rounded-[10px] border border-dashed border-white/10 px-3 py-4 text-center text-[11px] text-white/28">
             Empty
           </div>
         ) : (
-          column.cards.map((card, idx) => {
+          displayedCards.map((card, idx) => {
             const isGhosted = hasSelected && idx !== selectedIdx;
             return (
               <KanbanCard
@@ -974,11 +979,24 @@ function KanbanColumn({
         )}
       </div>
 
-      {column.total > column.cards.length && !hasSelected ? (
-        <div className="mt-1.5">
-          <div className="rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/32">
-            +{column.total - column.cards.length} more
+      {column.total > displayedCards.length && !hasSelected ? (
+        <div className="mt-2 space-y-2">
+          <div className="rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/38">
+            Showing {displayedCards.length} of {column.total}
           </div>
+          {onLoadMore ? (
+            <button
+              type="button"
+              onClick={onLoadMore}
+              className="w-full rounded-[10px] border border-white/12 bg-white/[0.03] px-3 py-2 text-[11px] font-semibold text-white/78 transition hover:border-white/20 hover:bg-white/[0.05]"
+            >
+              Load more
+            </button>
+          ) : (
+            <div className="rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/32">
+              +{column.total - displayedCards.length} more
+            </div>
+          )}
         </div>
       ) : null}
     </div>
@@ -2659,17 +2677,24 @@ export default function CockpitWireframeClient({
   viewModel,
   panelRecords,
   initialSelectedCardId = null,
+  initialNewVisibleCount = 12,
 }: {
   userName: string;
   viewModel: CockpitPhaseOneViewModel;
   panelRecords: CockpitPanelRecord[];
   initialSelectedCardId?: string | null;
+  initialNewVisibleCount?: number;
 }) {
   const [activeCardId, setActiveCardId] = useState<string | null>(initialSelectedCardId);
   const [browseStage, setBrowseStage] = useState<CockpitStage | null>(null);
+  const [visibleNewCards, setVisibleNewCards] = useState(initialNewVisibleCount);
 
   const panelLookup = useMemo(() => new Map(panelRecords.map((r) => [r.id, r])), [panelRecords]);
   const activePanel = activeCardId ? panelLookup.get(activeCardId) ?? null : null;
+  const newColumn = useMemo(
+    () => viewModel.kanbanColumns.find((column) => column.stage === 'NEW') ?? null,
+    [viewModel.kanbanColumns],
+  );
 
   const selectedColIdx = useMemo(() => {
     if (!activePanel) return -1;
@@ -2677,6 +2702,25 @@ export default function CockpitWireframeClient({
   }, [activePanel]);
 
   const wywo = viewModel.whileYouWereOut;
+
+  useEffect(() => {
+    if (!newColumn) return;
+    setVisibleNewCards((current) => {
+      if (newColumn.cards.length === 0) {
+        return initialNewVisibleCount;
+      }
+
+      return Math.min(Math.max(initialNewVisibleCount, current), newColumn.cards.length);
+    });
+  }, [initialNewVisibleCount, newColumn]);
+
+  useEffect(() => {
+    if (!activePanel || activePanel.stage !== 'NEW' || !newColumn) return;
+    const selectedIndex = newColumn.cards.findIndex((card) => card.id === activePanel.id);
+    if (selectedIndex >= visibleNewCards) {
+      setVisibleNewCards(selectedIndex + 1);
+    }
+  }, [activePanel, newColumn, visibleNewCards]);
 
   async function handleTransition(key: string) {
     if (!activePanel?.workspaceId) return;
@@ -2731,7 +2775,7 @@ export default function CockpitWireframeClient({
               <div className="flex flex-wrap items-center gap-3 text-sm text-white/60">
                 <span>
                   <span className="font-semibold" style={{ color: STAGE_VISUALS.NEW.accent }}>{wywo.newJobsCount.toLocaleString()}</span>
-                  {' '}new jobs
+                  {' '}KC matches
                 </span>
                 <span className="text-white/18">·</span>
                 <span>
@@ -2752,7 +2796,7 @@ export default function CockpitWireframeClient({
 
           {/* ── Pipeline kanban + workspace ── */}
           <section className="overflow-x-auto">
-            <div className="grid grid-cols-7 gap-2 min-w-[1100px]">
+            <div className="grid grid-cols-7 gap-3 min-w-[1280px]">
               {viewModel.kanbanColumns.map((column) => (
                 <KanbanColumn
                   key={column.stage}
@@ -2761,6 +2805,12 @@ export default function CockpitWireframeClient({
                   selectedCardId={activeCardId}
                   onOpenCard={setActiveCardId}
                   onBrowseStage={setBrowseStage}
+                  visibleCardCount={column.stage === 'NEW' ? visibleNewCards : undefined}
+                  onLoadMore={
+                    column.stage === 'NEW'
+                      ? () => setVisibleNewCards((count) => count + initialNewVisibleCount)
+                      : undefined
+                  }
                 />
               ))}
             </div>

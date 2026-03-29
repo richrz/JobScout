@@ -202,10 +202,17 @@ export function deriveCockpitStage({
 
 export function buildWhileYouWereOutStats(
   discoveryJobs: CockpitDiscoveryJobInput[],
+  options?: {
+    treatDiscoveryAsMatched?: boolean;
+  },
 ): WhileYouWereOutStats {
+  const matchedJobsCount = options?.treatDiscoveryAsMatched
+    ? discoveryJobs.length
+    : discoveryJobs.filter((job) => (job.compositeScore ?? 0) >= 0.7).length;
+
   return {
     newJobsCount: discoveryJobs.length,
-    matchedJobsCount: discoveryJobs.filter((job) => (job.compositeScore ?? 0) >= 0.7).length,
+    matchedJobsCount,
     highFitCount: discoveryJobs.filter((job) => (job.compositeScore ?? 0) >= 0.9).length,
   };
 }
@@ -215,11 +222,15 @@ export function buildCockpitPhaseOneViewModel({
   discoveryJobs,
   recentActivityLimit = 4,
   kanbanLimit = 4,
+  perStageLimits,
+  treatDiscoveryAsMatched = false,
 }: {
   managedOpportunities: CockpitManagedOpportunityInput[];
   discoveryJobs: CockpitDiscoveryJobInput[];
   recentActivityLimit?: number;
   kanbanLimit?: number;
+  perStageLimits?: Partial<Record<CockpitStage, number>>;
+  treatDiscoveryAsMatched?: boolean;
 }): CockpitPhaseOneViewModel {
   const groupedCards = new Map<CockpitStage, CockpitCard[]>(
     COCKPIT_STAGE_ORDER.map((stage) => [stage, []]),
@@ -279,12 +290,13 @@ export function buildCockpitPhaseOneViewModel({
   const kanbanColumns = COCKPIT_STAGE_ORDER.map((stage) => {
     const cards = groupedCards.get(stage) ?? [];
     const sortedCards = sortByRecent(cards);
+    const stageLimit = perStageLimits?.[stage] ?? kanbanLimit;
 
     return {
       stage,
       label: STAGE_LABELS[stage],
       total: sortedCards.length,
-      cards: sortedCards.slice(0, kanbanLimit),
+      cards: sortedCards.slice(0, stageLimit),
     };
   });
 
@@ -300,7 +312,7 @@ export function buildCockpitPhaseOneViewModel({
   ).slice(0, recentActivityLimit);
 
   return {
-    whileYouWereOut: buildWhileYouWereOutStats(sortedDiscovery),
+    whileYouWereOut: buildWhileYouWereOutStats(sortedDiscovery, { treatDiscoveryAsMatched }),
     recentActivity,
     kanbanColumns,
   };

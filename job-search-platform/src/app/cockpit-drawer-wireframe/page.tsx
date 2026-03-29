@@ -173,6 +173,9 @@ const STAGE_TOOLBAR: Record<StageId, { actions: { label: string; icon?: string; 
 const STATUS_TO_STAGE: Record<string, StageId> = {
   INTERESTED: 'INTERESTED',
   APPLIED: 'APPLIED',
+  SCREENING: 'SCREENING',
+  INTERVIEW: 'INTERVIEW',
+  OFFER: 'OFFER',
   FOLLOW_UP: 'SCREENING',
   DORMANT: 'APPLIED',
   ARCHIVED: 'APPLIED',

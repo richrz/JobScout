@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — cockpit discovery now treats `NEW` as the personalized KC match pool for this user’s background (fit-first, then freshness), removes the 50-card dashboard cap, adds `Load more` metering in the kanban, improves kanban card readability, and aligns analytics / drawer stage mappings with the current lifecycle (`SCREENING`, `INTERVIEW`, `OFFER`)
 - `pending local checkpoint` — made JobSwipe easier to read: switched the app shell to a more legible sans font stack, expanded triage description preview spacing, and added a `Read full description` dialog with a scrollable body so long postings no longer die in an ellipsis wall
 - `42993b9` — upgraded workspace notes input to BlockNote rich text editor: slash commands, inline formatting, drag-to-reorder, per-opportunity reset via key prop; end-to-end verified (compose → save → persist → display)
 - `1a50c76` — stage browser drawer + header simplification: clicking a kanban column header opens a right-side drawer listing all opps in that stage; selecting from the drawer closes it and opens the workspace; header simplified with inline WYWO stats; RecentActivityRail moved to bottom "Jump Back In" section
@@ -131,6 +132,34 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - New proof artifacts:
   - `/home/richard/code/jobs/job-search-platform/output/playwright/triage-readable-font-and-preview.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/triage-full-description-modal.png`
+
+## What Was Finished (Latest Session 2026-03-29, Follow-up)
+
+- Dashboard / cockpit `NEW` is now a personalized Kansas City discovery pool tuned to the current user’s background instead of a freshness-only 50-card slice.
+  - Matching now favors software sales engineer / solutions engineer / AI-SaaS-adjacent roles in the KC metro.
+  - Ordering is fit first, freshness second.
+  - The dashboard hard cap of 50 for `NEW` was removed.
+  - The `NEW` column now meters the list with `Load more` instead of showing only a tiny fixed slice.
+- Kanban readability was improved.
+  - Card typography is larger and less washed out.
+  - Titles can breathe across two lines.
+  - Location / urgency chips are easier to scan.
+- Small overlapping local fixes were folded in because the human explicitly approved merging through overlap.
+  - analytics dashboard stage counts now include `SCREENING`, `INTERVIEW`, and `OFFER`
+  - cockpit drawer wireframe status mapping now recognizes those same lifecycle stages directly
+- Verification:
+  - targeted unit suites passed:
+    - `tests/unit/lib/cockpit-discovery.test.ts`
+    - `tests/unit/lib/cockpit-phase1.test.ts`
+    - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx`
+  - `npm run build` passed
+  - browser-verified on `/dashboard-wireframe`:
+    - header now shows personalized `KC matches`
+    - `NEW` shows 178 matching jobs for the current dataset
+    - `Load more` expands the visible card count from 12 to 24
+- New proof artifacts:
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-kc-matches-load-more.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-kc-matches-final.png`
 
 ## What Was Finished (Prior)
 
@@ -663,6 +692,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   2. **Stage toolbar implementation** — wire up the per-stage toolbar as defined in the stage contract (each stage gets its own slim action bar with forward-transition verb on the right)
   3. **Drawer pattern for Resume Studio** — implement the slide-over drawer so `Open Resume Studio` from CRAFTING toolbar opens the full editor without navigating away from the cockpit
   4. **JobSwipe follow-up polish** — now that descriptions are readable, add first-impression note capture or stronger card information hierarchy if the user wants the swipe experience polished further
+  5. **Discovery quality tuning** — now that `NEW` is a personalized KC pool, tune the role/domain matcher and high-fit thresholds so the top of the list feels even closer to “software sales engineer / AI SaaS” intent
 - Use the backlog tracker for bug/debt work:
   - `/home/richard/code/jobs/docs/project/backlog.md`
 - Keep legacy pages as fallback until the cockpit path has true parity

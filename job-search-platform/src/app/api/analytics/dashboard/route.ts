@@ -30,6 +30,9 @@ export async function GET(request: NextRequest) {
         const counts = {
             INTERESTED: 0,
             APPLIED: 0,
+            SCREENING: 0,
+            INTERVIEW: 0,
+            OFFER: 0,
             FOLLOW_UP: 0,
             PASSED: 0
         };
@@ -68,7 +71,7 @@ export async function GET(request: NextRequest) {
                 chronosJobs,
                 applied: counts.APPLIED,
                 interested: counts.INTERESTED,
-                interviews: counts.FOLLOW_UP, // Proxying FollowUp as Interview for now
+                interviews: counts.INTERVIEW,
             },
             activity: recentActivity.map(item => ({
                 id: item.id,

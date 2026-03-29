@@ -60,6 +60,33 @@ describe('cockpit-phase1', () => {
     });
   });
 
+  it('can treat a discovery feed as already profile-matched', () => {
+    const jobs: CockpitDiscoveryJobInput[] = [
+      {
+        jobId: 'job-1',
+        title: 'Role One',
+        company: 'Alpha',
+        location: 'Kansas City, Missouri',
+        postedAt: '2026-03-09T10:00:00.000Z',
+        compositeScore: 0.31,
+      },
+      {
+        jobId: 'job-2',
+        title: 'Role Two',
+        company: 'Beta',
+        location: 'Kansas City, Missouri',
+        postedAt: '2026-03-09T10:00:00.000Z',
+        compositeScore: 0.22,
+      },
+    ];
+
+    expect(buildWhileYouWereOutStats(jobs, { treatDiscoveryAsMatched: true })).toEqual({
+      newJobsCount: 2,
+      matchedJobsCount: 2,
+      highFitCount: 0,
+    });
+  });
+
   it('builds kanban columns from current schema reality and hides passed work', () => {
     const managedOpportunities: CockpitManagedOpportunityInput[] = [
       {
@@ -161,5 +188,44 @@ describe('cockpit-phase1', () => {
       'ws-interest',
       'ws-applied',
     ]);
+  });
+
+  it('supports per-stage limits so NEW can carry more cards than the rest of the board', () => {
+    const discoveryJobs: CockpitDiscoveryJobInput[] = [
+      {
+        jobId: 'job-new-1',
+        title: 'Fresh Match One',
+        company: 'NewCo',
+        location: 'Kansas City, Missouri',
+        postedAt: '2026-03-09T13:00:00.000Z',
+        compositeScore: 0.88,
+      },
+      {
+        jobId: 'job-new-2',
+        title: 'Fresh Match Two',
+        company: 'OtherCo',
+        location: 'Kansas City, Missouri',
+        postedAt: '2026-03-09T12:30:00.000Z',
+        compositeScore: 0.86,
+      },
+      {
+        jobId: 'job-new-3',
+        title: 'Fresh Match Three',
+        company: 'ThirdCo',
+        location: 'Kansas City, Missouri',
+        postedAt: '2026-03-09T12:00:00.000Z',
+        compositeScore: 0.82,
+      },
+    ];
+
+    const viewModel = buildCockpitPhaseOneViewModel({
+      managedOpportunities: [],
+      discoveryJobs,
+      kanbanLimit: 1,
+      perStageLimits: { NEW: 3 },
+    });
+
+    expect(viewModel.kanbanColumns.find((column) => column.stage === 'NEW')?.cards).toHaveLength(3);
+    expect(viewModel.kanbanColumns.find((column) => column.stage === 'INTERESTED')?.cards).toHaveLength(0);
   });
 });
