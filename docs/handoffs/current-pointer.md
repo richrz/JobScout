@@ -5,7 +5,7 @@
 
 ## Branch
 
-- `main`
+- `stretch-lab-experiment`
 
 ## Latest Product Checkpoint
 
@@ -13,6 +13,7 @@
 - `8bdaa2c` — simplified cockpit kanban cards by removing the decorative left-side company badge / pulse icon so each card spends its width on company, role, fit, location, and urgency only
 - `3ccafdb` — `NEW` now blooms into a wider hover/focus preview tray above the neighboring lanes, revealing richer card summaries and fit context so users can compare several jobs at once without clicking through one by one or moving the workspace
 - `fdf1603` — every non-empty kanban lane now uses the same hover/focus preview tray behavior, with lane-aware placement so left, middle, and right columns expand in a natural direction without throwing previews off-screen
+- `pending local checkpoint` — added an isolated `/dashboard-stretch-lab` playground route on the `stretch-lab-experiment` branch; it duplicates the cockpit and replaces floating preview trays with true spring-driven lane stretching/compression so the interaction can be judged without touching the real cockpit route
 - `pending local checkpoint` — made JobSwipe easier to read: switched the app shell to a more legible sans font stack, expanded triage description preview spacing, and added a `Read full description` dialog with a scrollable body so long postings no longer die in an ellipsis wall
 - `42993b9` — upgraded workspace notes input to BlockNote rich text editor: slash commands, inline formatting, drag-to-reorder, per-opportunity reset via key prop; end-to-end verified (compose → save → persist → display)
 - `1a50c76` — stage browser drawer + header simplification: clicking a kanban column header opens a right-side drawer listing all opps in that stage; selecting from the drawer closes it and opens the workspace; header simplified with inline WYWO stats; RecentActivityRail moved to bottom "Jump Back In" section
@@ -137,6 +138,25 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/triage-full-description-modal.png`
 
 ## What Was Finished (Latest Session 2026-03-29, Follow-up)
+
+- A separate stretch-animation playground now exists at `/dashboard-stretch-lab` on the `stretch-lab-experiment` branch.
+  - The real `/dashboard-wireframe` route is untouched on this branch and remains the control view.
+  - The lab duplicates the current cockpit data and card model but swaps the hover interaction to true lane reflow instead of floating trays.
+  - Hovering or focusing a non-empty lane now makes that lane stretch wider while neighbors compress.
+  - A small dwell/exit delay was added in the lab so the motion feels more intentional and less flickery.
+- Verification:
+  - targeted experiment test passed:
+    - `tests/unit/components/dashboard/StretchLabClient.test.tsx`
+  - stable cockpit tests still passed:
+    - `tests/unit/components/dashboard/CockpitWireframeClient.test.tsx`
+    - `tests/unit/lib/cockpit-phase1.test.ts`
+    - `tests/unit/lib/cockpit-discovery.test.ts`
+  - `npm run build` passed on the experiment branch
+  - browser-verified on `/dashboard-stretch-lab`:
+    - lab route loads independently
+    - `INTERESTED` visibly stretches on hover while neighbors compress
+- New proof artifacts:
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-stretch-lab-hover.png`
 
 - Dashboard / cockpit `NEW` is now a personalized Kansas City discovery pool tuned to the current user’s background instead of a freshness-only 50-card slice.
   - Matching now favors software sales engineer / solutions engineer / AI-SaaS-adjacent roles in the KC metro.
