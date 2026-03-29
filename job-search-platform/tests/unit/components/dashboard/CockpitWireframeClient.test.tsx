@@ -590,4 +590,68 @@ describe('CockpitWireframeClient workspace panel', () => {
     expect(screen.getByText(/Lead discovery calls/i)).toBeInTheDocument();
     expect(screen.getByText(/\$190,000/i)).toBeInTheDocument();
   });
+
+  it('expands managed lanes like INTERESTED into the same richer preview tray', () => {
+    render(
+      <CockpitWireframeClient
+        userName="Richard Ruiz"
+        panelRecords={[
+          {
+            id: 'workspace-1',
+            kind: 'managed',
+            jobId: 'job-1',
+            title: 'Senior Sales Engineer',
+            company: 'Yamazen Inc',
+            location: 'Kansas City, Missouri',
+            description: 'Own technical discovery, shape demos, and guide buying teams through CNC platform evaluation and solution fit.',
+            sourceUrl: null,
+            salary: '$165,000',
+            stage: 'INTERESTED',
+            createdAt: '2026-03-29T10:00:00.000Z',
+            updatedAt: '2026-03-29T10:00:00.000Z',
+            workspaceId: 'workspace-1',
+            workspaceStatus: 'INTERESTED',
+            noteCount: 1,
+            resumes: [],
+            compositeScore: 0.86,
+            draftSeed: null,
+          },
+        ]}
+        viewModel={{
+          ...baseViewModel,
+          kanbanColumns: baseViewModel.kanbanColumns.map((column) =>
+            column.stage === 'INTERESTED'
+              ? {
+                  ...column,
+                  total: 1,
+                  cards: [
+                    {
+                      id: 'workspace-1',
+                      kind: 'managed',
+                      jobId: 'job-1',
+                      workspaceId: 'workspace-1',
+                      title: 'Senior Sales Engineer',
+                      company: 'Yamazen Inc',
+                      location: 'Kansas City, Missouri',
+                      scoreLabel: '86%',
+                      meta: 'active now',
+                      stage: 'INTERESTED',
+                      updatedAt: '2026-03-29T10:00:00.000Z',
+                    },
+                  ],
+                }
+              : column,
+          ),
+        }}
+        initialSelectedCardId={null}
+      />,
+    );
+
+    expect(screen.queryByText(/Own technical discovery/i)).not.toBeInTheDocument();
+
+    fireEvent.pointerEnter(screen.getByTestId('kanban-column-interested'));
+
+    expect(screen.getByText(/Own technical discovery/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$165,000/i)).toBeInTheDocument();
+  });
 });

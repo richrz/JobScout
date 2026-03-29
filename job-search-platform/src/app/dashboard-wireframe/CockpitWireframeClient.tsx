@@ -416,6 +416,20 @@ function buildCardPreviewSnippet(description: string | null | undefined) {
   return normalized.length > 220 ? `${normalized.slice(0, 217).trimEnd()}...` : normalized;
 }
 
+function previewTrayPlacementClasses(stage: CockpitStage) {
+  const index = STAGE_ORDER.indexOf(stage);
+
+  if (index <= 1) {
+    return 'left-0';
+  }
+
+  if (index >= STAGE_ORDER.length - 2) {
+    return 'right-0';
+  }
+
+  return 'left-1/2 -translate-x-1/2';
+}
+
 function sectionIntro(stage: CockpitStage) {
   switch (stage) {
     case 'NEW':
@@ -955,7 +969,7 @@ function KanbanColumn({
   } | null>(null);
   const didDragRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
-  const isScrollableColumn = column.stage === 'NEW' && column.total > 4;
+  const isScrollableColumn = column.total > 4;
 
   function clearDragState(pointerId?: number) {
     const scrollArea = scrollRef.current;
@@ -1085,7 +1099,9 @@ function KanbanColumn({
 
       {isScrollableColumn && !hasSelected && !floatingPreview ? (
         <div className="mt-2 rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/38">
-          {expanded ? 'Browse richer previews without moving the workspace' : `Grab to browse all ${column.total} matches`}
+          {expanded
+            ? 'Browse richer previews without moving the workspace'
+            : `Grab to browse all ${column.total} ${column.stage === 'NEW' ? 'matches' : 'roles'}`}
         </div>
       ) : null}
     </div>
@@ -2860,9 +2876,9 @@ export default function CockpitWireframeClient({
 
           {/* ── Pipeline kanban + workspace ── */}
           <section className="overflow-x-auto">
-            <div className="grid grid-cols-7 gap-3 min-w-[1280px]">
+              <div className="grid grid-cols-7 gap-3 min-w-[1280px]">
               {viewModel.kanbanColumns.map((column) => {
-                const previewable = column.stage === 'NEW';
+                const previewable = column.total > 0;
                 const isPreviewExpanded = previewable && previewStage === column.stage;
 
                 return (
@@ -2901,7 +2917,10 @@ export default function CockpitWireframeClient({
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 8, scale: 0.992 }}
                             transition={KANBAN_PREVIEW_TRANSITION}
-                            className="absolute inset-y-0 left-0 z-30 w-[clamp(25rem,34vw,34rem)]"
+                            className={cn(
+                              'absolute inset-y-0 z-30 w-[clamp(25rem,34vw,34rem)]',
+                              previewTrayPlacementClasses(column.stage),
+                            )}
                           >
                             <KanbanColumn
                               column={column}
