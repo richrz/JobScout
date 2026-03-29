@@ -11,6 +11,7 @@
 
 - `754ef0f` — cockpit discovery now treats `NEW` as the personalized KC match pool for this user’s background (fit-first, then freshness), removes the 50-card dashboard cap, keeps the kanban readable with a fixed four-card-tall grab-to-scroll lane so the workspace stays in view, improves kanban card readability, and aligns analytics / drawer stage mappings with the current lifecycle (`SCREENING`, `INTERVIEW`, `OFFER`)
 - `8bdaa2c` — simplified cockpit kanban cards by removing the decorative left-side company badge / pulse icon so each card spends its width on company, role, fit, location, and urgency only
+- `pending local checkpoint` — `NEW` now blooms into a wider hover/focus preview tray above the neighboring lanes, revealing richer card summaries and fit context so users can compare several jobs at once without clicking through one by one or moving the workspace
 - `pending local checkpoint` — made JobSwipe easier to read: switched the app shell to a more legible sans font stack, expanded triage description preview spacing, and added a `Read full description` dialog with a scrollable body so long postings no longer die in an ellipsis wall
 - `42993b9` — upgraded workspace notes input to BlockNote rich text editor: slash commands, inline formatting, drag-to-reorder, per-opportunity reset via key prop; end-to-end verified (compose → save → persist → display)
 - `1a50c76` — stage browser drawer + header simplification: clicking a kanban column header opens a right-side drawer listing all opps in that stage; selecting from the drawer closes it and opens the workspace; header simplified with inline WYWO stats; RecentActivityRail moved to bottom "Jump Back In" section
@@ -141,6 +142,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - Ordering is fit first, freshness second.
   - The dashboard hard cap of 50 for `NEW` was removed.
   - The `NEW` column now stays fixed at roughly four visible cards and uses a grab-to-scroll lane instead of `Load more`, so the board height no longer pushes the workspace down.
+  - Hovering or focusing `NEW` now opens a wider preview tray above the board so multiple jobs can be compared with fuller summaries before opening a workspace.
 - Kanban readability was improved.
   - Card typography is larger and less washed out.
   - Titles can breathe across two lines.
@@ -163,6 +165,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-new-grab-scroll.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-kc-matches-final.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-cards-no-icons.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-new-lane-preview.png`
 
 ## What Was Finished (Prior)
 

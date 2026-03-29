@@ -496,4 +496,98 @@ describe('CockpitWireframeClient workspace panel', () => {
     expect(screen.getByText(/Grab to browse all 5 matches/i)).toBeInTheDocument();
     expect(container.querySelector('.h-10.w-10.shrink-0')).toBeNull();
   });
+
+  it('expands the NEW lane into a richer preview tray on hover so jobs can be compared without opening each one', () => {
+    render(
+      <CockpitWireframeClient
+        userName="Richard Ruiz"
+        panelRecords={[
+          {
+            id: 'job-1',
+            kind: 'discovery',
+            jobId: 'job-1',
+            title: 'AI Solutions Engineer',
+            company: 'Acme',
+            location: 'Kansas City, Missouri',
+            description: 'Lead discovery calls, map buyer needs to platform capabilities, and run polished solution demos for enterprise AI accounts.',
+            sourceUrl: null,
+            salary: '$190,000',
+            stage: 'NEW',
+            createdAt: '2026-03-29T10:00:00.000Z',
+            updatedAt: '2026-03-29T10:00:00.000Z',
+            workspaceId: null,
+            workspaceStatus: null,
+            noteCount: 0,
+            resumes: [],
+            compositeScore: 0.94,
+            draftSeed: null,
+          },
+          {
+            id: 'job-2',
+            kind: 'discovery',
+            jobId: 'job-2',
+            title: 'Senior Sales Engineer',
+            company: 'Beta',
+            location: 'Overland Park, Kansas',
+            description: 'Partner with account executives, handle technical validation, and own multi-stakeholder product storytelling for SaaS deals.',
+            sourceUrl: null,
+            salary: '$175,000',
+            stage: 'NEW',
+            createdAt: '2026-03-28T10:00:00.000Z',
+            updatedAt: '2026-03-28T10:00:00.000Z',
+            workspaceId: null,
+            workspaceStatus: null,
+            noteCount: 0,
+            resumes: [],
+            compositeScore: 0.89,
+            draftSeed: null,
+          },
+        ]}
+        viewModel={{
+          ...baseViewModel,
+          kanbanColumns: baseViewModel.kanbanColumns.map((column) =>
+            column.stage === 'NEW'
+              ? {
+                  ...column,
+                  total: 2,
+                  cards: [
+                    {
+                      id: 'job-1',
+                      kind: 'discovery',
+                      jobId: 'job-1',
+                      title: 'AI Solutions Engineer',
+                      company: 'Acme',
+                      location: 'Kansas City, Missouri',
+                      scoreLabel: '94%',
+                      meta: 'Mar 29 · 94%',
+                      stage: 'NEW',
+                      updatedAt: '2026-03-29T10:00:00.000Z',
+                    },
+                    {
+                      id: 'job-2',
+                      kind: 'discovery',
+                      jobId: 'job-2',
+                      title: 'Senior Sales Engineer',
+                      company: 'Beta',
+                      location: 'Overland Park, Kansas',
+                      scoreLabel: '89%',
+                      meta: 'Mar 28 · 89%',
+                      stage: 'NEW',
+                      updatedAt: '2026-03-28T10:00:00.000Z',
+                    },
+                  ],
+                }
+              : column,
+          ),
+        }}
+      />,
+    );
+
+    expect(screen.queryByText(/Lead discovery calls/i)).not.toBeInTheDocument();
+
+    fireEvent.pointerEnter(screen.getByTestId('kanban-column-new'));
+
+    expect(screen.getByText(/Lead discovery calls/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$190,000/i)).toBeInTheDocument();
+  });
 });

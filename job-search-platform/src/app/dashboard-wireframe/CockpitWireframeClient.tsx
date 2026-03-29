@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { motion, LayoutGroup } from 'framer-motion';
+import { AnimatePresence, motion, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -113,6 +113,13 @@ type UrgencySignal = {
   label: string;
   tone: 'quiet' | 'active' | 'watch' | 'urgent';
 };
+
+const KANBAN_PREVIEW_TRANSITION = {
+  type: 'spring',
+  stiffness: 260,
+  damping: 28,
+  mass: 0.72,
+} as const;
 
 const STAGE_VISUALS: Record<CockpitStage, StageVisual> = {
   NEW: {
@@ -398,6 +405,15 @@ function companyIdentity(company: string) {
     text: `hsl(${hue} 88% 84%)`,
     glow: `0 0 0 1px hsla(${hue}, 80%, 60%, 0.1), 0 18px 35px hsla(${hue}, 70%, 20%, 0.22)`,
   };
+}
+
+function buildCardPreviewSnippet(description: string | null | undefined) {
+  const normalized = description?.replace(/\s+/g, ' ').trim();
+  if (!normalized) {
+    return null;
+  }
+
+  return normalized.length > 220 ? `${normalized.slice(0, 217).trimEnd()}...` : normalized;
 }
 
 function sectionIntro(stage: CockpitStage) {
@@ -787,19 +803,27 @@ function WhileYouWereOutPanel({
 
 function KanbanCard({
   card,
+  panel,
   active,
   selected,
   ghosted,
+  expanded = false,
   onClick,
 }: {
   card: CockpitCard;
+  panel: CockpitPanelRecord | null;
   active: boolean;
   selected?: boolean;
   ghosted?: boolean;
+  expanded?: boolean;
   onClick: () => void;
 }) {
   const visual = STAGE_VISUALS[card.stage];
   const urgency = urgencyForStage(card.stage, card.updatedAt);
+  const previewSnippet = expanded ? buildCardPreviewSnippet(panel?.description) : null;
+  const previewMeta = expanded
+    ? [card.meta, panel?.salary].filter(Boolean).join(' · ')
+    : null;
 
   return (
     <div className={cn(ghosted && 'opacity-[0.15] transition-opacity hover:opacity-[0.7]')}>
@@ -807,7 +831,8 @@ function KanbanCard({
         type="button"
         onClick={onClick}
         className={cn(
-          'group relative w-full overflow-hidden border bg-[#0b0b0c] px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5',
+          'group relative w-full overflow-hidden border bg-[#0b0b0c] px-4 text-left transition-all duration-200 hover:-translate-y-0.5',
+          expanded ? 'py-4.5' : 'py-3.5',
           selected
             ? 'rounded-t-[16px] rounded-b-none border-white/18'
             : 'rounded-[16px] border-white/10 hover:border-white/18',
@@ -844,7 +869,12 @@ function KanbanCard({
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <div className="truncate text-[13px] font-semibold tracking-[0.01em] text-white/92">{card.company}</div>
-                <div className="mt-1 line-clamp-2 text-[13px] font-medium leading-snug text-white/78">
+                <div
+                  className={cn(
+                    'mt-1 font-medium text-white/78',
+                    expanded ? 'line-clamp-3 text-[15px] leading-6 text-white/84' : 'line-clamp-2 text-[13px] leading-snug',
+                  )}
+                >
                   {card.title}
                 </div>
               </div>
@@ -868,6 +898,25 @@ function KanbanCard({
                 {urgency.label}
               </span>
             </div>
+
+            {expanded ? (
+              <div className="mt-3 space-y-2">
+                {previewMeta ? (
+                  <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
+                    {previewMeta}
+                  </div>
+                ) : null}
+                {previewSnippet ? (
+                  <p className="line-clamp-4 text-[12px] leading-5 text-white/62">
+                    {previewSnippet}
+                  </p>
+                ) : (
+                  <p className="text-[12px] leading-5 text-white/38">
+                    Open to inspect the full role brief and decide whether it deserves workspace attention.
+                  </p>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
       </button>
@@ -877,16 +926,22 @@ function KanbanCard({
 
 function KanbanColumn({
   column,
+  panelLookup,
   activeCardId,
   selectedCardId,
   onOpenCard,
   onBrowseStage,
+  expanded = false,
+  floatingPreview = false,
 }: {
   column: CockpitKanbanColumn;
+  panelLookup: Map<string, CockpitPanelRecord>;
   activeCardId: string | null;
   selectedCardId: string | null;
   onOpenCard: (id: string) => void;
   onBrowseStage: (stage: CockpitStage) => void;
+  expanded?: boolean;
+  floatingPreview?: boolean;
 }) {
   const visual = STAGE_VISUALS[column.stage];
   const displayedCards = column.cards;
@@ -949,7 +1004,10 @@ function KanbanColumn({
 
   return (
     <div
-      className="overflow-hidden rounded-[16px] bg-[#080809] p-2.5"
+      className={cn(
+        'overflow-hidden rounded-[16px] bg-[#080809] p-2.5',
+        expanded && 'shadow-[0_36px_90px_rgba(0,0,0,0.48)]',
+      )}
       style={{
         paddingBottom: hasSelected ? 0 : undefined,
         borderBottomLeftRadius: hasSelected ? 0 : undefined,
@@ -1013,9 +1071,11 @@ function KanbanColumn({
               <KanbanCard
                 key={card.id}
                 card={card}
+                panel={panelLookup.get(card.id) ?? null}
                 active={activeCardId === card.id}
                 selected={card.id === selectedCardId}
                 ghosted={isGhosted}
+                expanded={expanded}
                 onClick={() => handleCardClick(card.id)}
               />
             );
@@ -1023,9 +1083,9 @@ function KanbanColumn({
         )}
       </div>
 
-      {isScrollableColumn && !hasSelected ? (
+      {isScrollableColumn && !hasSelected && !floatingPreview ? (
         <div className="mt-2 rounded-[10px] border border-dashed border-white/10 px-2 py-1.5 text-center text-[10px] text-white/38">
-          Grab to browse all {column.total} matches
+          {expanded ? 'Browse richer previews without moving the workspace' : `Grab to browse all ${column.total} matches`}
         </div>
       ) : null}
     </div>
@@ -2714,6 +2774,7 @@ export default function CockpitWireframeClient({
 }) {
   const [activeCardId, setActiveCardId] = useState<string | null>(initialSelectedCardId);
   const [browseStage, setBrowseStage] = useState<CockpitStage | null>(null);
+  const [previewStage, setPreviewStage] = useState<CockpitStage | null>(null);
 
   const panelLookup = useMemo(() => new Map(panelRecords.map((r) => [r.id, r])), [panelRecords]);
   const activePanel = activeCardId ? panelLookup.get(activeCardId) ?? null : null;
@@ -2800,16 +2861,65 @@ export default function CockpitWireframeClient({
           {/* ── Pipeline kanban + workspace ── */}
           <section className="overflow-x-auto">
             <div className="grid grid-cols-7 gap-3 min-w-[1280px]">
-              {viewModel.kanbanColumns.map((column) => (
-                <KanbanColumn
-                  key={column.stage}
-                  column={column}
-                  activeCardId={activeCardId}
-                  selectedCardId={activeCardId}
-                  onOpenCard={setActiveCardId}
-                  onBrowseStage={setBrowseStage}
-                />
-              ))}
+              {viewModel.kanbanColumns.map((column) => {
+                const previewable = column.stage === 'NEW';
+                const isPreviewExpanded = previewable && previewStage === column.stage;
+
+                return (
+                  <div
+                    key={column.stage}
+                    data-testid={`kanban-column-${column.stage.toLowerCase()}`}
+                    className="relative min-w-0"
+                    onPointerEnter={previewable ? () => setPreviewStage(column.stage) : undefined}
+                    onPointerLeave={previewable ? () => setPreviewStage((current) => (current === column.stage ? null : current)) : undefined}
+                    onFocusCapture={previewable ? () => setPreviewStage(column.stage) : undefined}
+                    onBlurCapture={
+                      previewable
+                        ? (event) => {
+                            const nextTarget = event.relatedTarget;
+                            if (!(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+                              setPreviewStage((current) => (current === column.stage ? null : current));
+                            }
+                          }
+                        : undefined
+                    }
+                  >
+                    <KanbanColumn
+                      column={column}
+                      panelLookup={panelLookup}
+                      activeCardId={activeCardId}
+                      selectedCardId={activeCardId}
+                      onOpenCard={setActiveCardId}
+                      onBrowseStage={setBrowseStage}
+                    />
+
+                    {previewable ? (
+                      <AnimatePresence initial={false}>
+                        {isPreviewExpanded ? (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.985 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 8, scale: 0.992 }}
+                            transition={KANBAN_PREVIEW_TRANSITION}
+                            className="absolute inset-y-0 left-0 z-30 w-[clamp(25rem,34vw,34rem)]"
+                          >
+                            <KanbanColumn
+                              column={column}
+                              panelLookup={panelLookup}
+                              activeCardId={activeCardId}
+                              selectedCardId={activeCardId}
+                              onOpenCard={setActiveCardId}
+                              onBrowseStage={setBrowseStage}
+                              expanded
+                              floatingPreview
+                            />
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
 
             {activePanel ? (
