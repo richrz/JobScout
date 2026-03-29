@@ -3,6 +3,13 @@
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { Building2, MapPin, DollarSign, Calendar, Check, X } from 'lucide-react';
 import { useState } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 // Ayu Dark (Neutralized)
 const colors = {
@@ -45,6 +52,7 @@ export function TriageCard({ job, onSwipe, index, confirmed = false }: TriageCar
     const overlayLeftOpacity = useTransform(x, [-150, 0], [0.6, 0]);
 
     const [isDragging, setIsDragging] = useState(false);
+    const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
     const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
         setIsDragging(false);
@@ -68,7 +76,7 @@ export function TriageCard({ job, onSwipe, index, confirmed = false }: TriageCar
                 scale: 1 - index * 0.04,
                 opacity: index === 0 ? opacity : 1 - index * 0.25,
             }}
-            drag={index === 0 ? 'x' : false}
+            drag={index === 0 && !isDescriptionOpen ? 'x' : false}
             dragConstraints={{ left: 0, right: 0 }}
             onDragStart={() => setIsDragging(true)}
             onDragEnd={handleDragEnd}
@@ -135,17 +143,28 @@ export function TriageCard({ job, onSwipe, index, confirmed = false }: TriageCar
                     </div>
 
                     {/* Description */}
-                    <div className="flex-1 overflow-hidden relative">
-                        <div
-                            className="absolute inset-x-0 bottom-0 h-20 pointer-events-none"
-                            style={{ background: `linear-gradient(to bottom, transparent, ${colors.surface})` }}
-                        />
+                    <div className="flex-1 min-h-0">
                         <p
-                            className="text-sm leading-relaxed line-clamp-[8]"
+                            className="text-[15px] leading-7 line-clamp-[7]"
                             style={{ color: colors.textMuted }}
                         >
                             {job.description}
                         </p>
+                        <button
+                            type="button"
+                            className="mt-3 inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors hover:text-white"
+                            style={{
+                                borderColor: colors.surfaceHighlight,
+                                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                                color: colors.textPrimary,
+                            }}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setIsDescriptionOpen(true);
+                            }}
+                        >
+                            Read full description
+                        </button>
                     </div>
 
                     {/* Tags */}
@@ -184,6 +203,35 @@ export function TriageCard({ job, onSwipe, index, confirmed = false }: TriageCar
                     </div>
                 </div>
             </div>
+            <Dialog open={isDescriptionOpen} onOpenChange={setIsDescriptionOpen}>
+                <DialogContent
+                    className="max-w-3xl border-zinc-800 bg-zinc-950 text-zinc-100"
+                    aria-describedby="triage-description-body"
+                >
+                    <DialogHeader>
+                        <DialogTitle>Full job description</DialogTitle>
+                        <DialogDescription className="text-zinc-400">
+                            {job.title} at {job.company}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div
+                        id="triage-description-body"
+                        className="max-h-[60vh] overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5 text-sm leading-7 text-zinc-200"
+                    >
+                        {job.description}
+                    </div>
+                    <div className="flex justify-end">
+                        <button
+                            type="button"
+                            aria-label="Close full description"
+                            className="inline-flex items-center rounded-full border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-100 transition-colors hover:bg-zinc-800"
+                            onClick={() => setIsDescriptionOpen(false)}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </motion.div>
     );
 }

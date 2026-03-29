@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — made JobSwipe easier to read: switched the app shell to a more legible sans font stack, expanded triage description preview spacing, and added a `Read full description` dialog with a scrollable body so long postings no longer die in an ellipsis wall
 - `42993b9` — upgraded workspace notes input to BlockNote rich text editor: slash commands, inline formatting, drag-to-reorder, per-opportunity reset via key prop; end-to-end verified (compose → save → persist → display)
 - `1a50c76` — stage browser drawer + header simplification: clicking a kanban column header opens a right-side drawer listing all opps in that stage; selecting from the drawer closes it and opens the workspace; header simplified with inline WYWO stats; RecentActivityRail moved to bottom "Jump Back In" section
 - `0a2afaa` — integrated Google Cloud Talent Solution for semantic job search (code shipped, awaiting GCP setup — see `docs/todo.md`)
@@ -114,6 +115,22 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - RecentActivityRail relocated to a "Jump Back In" bottom section.
 - Browser-verified: drawer opens, card selection works, workspace opens correctly.
 - Updated `current-pointer.md` branch from `save/restore-tasks` → `main`.
+
+## What Was Finished (Latest Session 2026-03-29)
+
+- Improved JobSwipe readability without changing the swipe flow.
+  - App shell now uses a clearer sans-serif body font stack.
+  - Triage card description preview now has more comfortable reading rhythm.
+  - Added a visible `Read full description` action on the card.
+  - Long job descriptions now open in a scrollable dialog instead of fading out inside the card.
+- Kept the change isolated to triage and app-shell typography; did not touch the unrelated local cockpit/dashboard edits already present in the worktree.
+- Verification:
+  - RED -> GREEN unit test for the JobSwipe description dialog at `job-search-platform/tests/unit/components/triage/TriageCard.test.tsx`
+  - Tailwind config smoke test still passing
+  - Browser-verified on `/triage`: preview button present, dialog opens, dialog closes with `Esc`
+- New proof artifacts:
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/triage-readable-font-and-preview.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/triage-full-description-modal.png`
 
 ## What Was Finished (Prior)
 
@@ -645,7 +662,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   1. **INTERESTED stage notes with BlockNote** — replace the current plain textarea with the BlockNote block editor; this proves the universal notes engine pattern across all stages
   2. **Stage toolbar implementation** — wire up the per-stage toolbar as defined in the stage contract (each stage gets its own slim action bar with forward-transition verb on the right)
   3. **Drawer pattern for Resume Studio** — implement the slide-over drawer so `Open Resume Studio` from CRAFTING toolbar opens the full editor without navigating away from the cockpit
-  4. **Swipe Mode "Interested" label + first-impression note capture** — rename "Save" to "Interested" in swipe, add the "What caught your eye?" prompt, and carry that note into the INTERESTED workspace
+  4. **JobSwipe follow-up polish** — now that descriptions are readable, add first-impression note capture or stronger card information hierarchy if the user wants the swipe experience polished further
 - Use the backlog tracker for bug/debt work:
   - `/home/richard/code/jobs/docs/project/backlog.md`
 - Keep legacy pages as fallback until the cockpit path has true parity
