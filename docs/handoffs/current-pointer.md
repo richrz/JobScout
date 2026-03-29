@@ -10,6 +10,7 @@
 ## Latest Product Checkpoint
 
 - `754ef0f` — cockpit discovery now treats `NEW` as the personalized KC match pool for this user’s background (fit-first, then freshness), removes the 50-card dashboard cap, keeps the kanban readable with a fixed four-card-tall grab-to-scroll lane so the workspace stays in view, improves kanban card readability, and aligns analytics / drawer stage mappings with the current lifecycle (`SCREENING`, `INTERVIEW`, `OFFER`)
+- `pending local checkpoint` — simplified cockpit kanban cards by removing the decorative left-side company badge / pulse icon so each card spends its width on company, role, fit, location, and urgency only
 - `pending local checkpoint` — made JobSwipe easier to read: switched the app shell to a more legible sans font stack, expanded triage description preview spacing, and added a `Read full description` dialog with a scrollable body so long postings no longer die in an ellipsis wall
 - `42993b9` — upgraded workspace notes input to BlockNote rich text editor: slash commands, inline formatting, drag-to-reorder, per-opportunity reset via key prop; end-to-end verified (compose → save → persist → display)
 - `1a50c76` — stage browser drawer + header simplification: clicking a kanban column header opens a right-side drawer listing all opps in that stage; selecting from the drawer closes it and opens the workspace; header simplified with inline WYWO stats; RecentActivityRail moved to bottom "Jump Back In" section
@@ -144,6 +145,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
   - Card typography is larger and less washed out.
   - Titles can breathe across two lines.
   - Location / urgency chips are easier to scan.
+  - Decorative per-card icons were removed so the cards read as clean text-first summaries.
 - Small overlapping local fixes were folded in because the human explicitly approved merging through overlap.
   - analytics dashboard stage counts now include `SCREENING`, `INTERVIEW`, and `OFFER`
   - cockpit drawer wireframe status mapping now recognizes those same lifecycle stages directly
@@ -160,6 +162,7 @@ If human approval or judgment is required first, emit `<promise>STOP</promise>`.
 - New proof artifacts:
   - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-new-grab-scroll.png`
   - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-kc-matches-final.png`
+  - `/home/richard/code/jobs/job-search-platform/output/playwright/dashboard-wireframe-cards-no-icons.png`
 
 ## What Was Finished (Prior)
 

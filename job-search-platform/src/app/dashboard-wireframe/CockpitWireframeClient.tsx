@@ -799,7 +799,6 @@ function KanbanCard({
   onClick: () => void;
 }) {
   const visual = STAGE_VISUALS[card.stage];
-  const identity = companyIdentity(card.company);
   const urgency = urgencyForStage(card.stage, card.updatedAt);
 
   return (
@@ -841,52 +840,33 @@ function KanbanCard({
           style={{ background: `radial-gradient(circle at top right, ${visual.tint}, transparent 55%)` }}
         />
         <div className="relative">
-          <div className="flex items-start gap-3">
-            <div
-              className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold"
-              style={{
-                background: identity.background,
-                border: identity.border,
-                color: identity.text,
-              }}
-            >
-              {identity.initials}
-              {urgency.tone !== 'quiet' ? (
+          <div className="min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="truncate text-[13px] font-semibold tracking-[0.01em] text-white/92">{card.company}</div>
+                <div className="mt-1 line-clamp-2 text-[13px] font-medium leading-snug text-white/78">
+                  {card.title}
+                </div>
+              </div>
+              {card.scoreLabel ? (
                 <span
-                  className="absolute -bottom-1 -right-1 h-2.5 w-2.5 rounded-full border border-black/70 animate-pulse"
-                  style={{ backgroundColor: visual.accent }}
-                />
+                  className="shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold"
+                  style={{
+                    borderColor: visual.tint,
+                    backgroundColor: visual.tint,
+                    color: visual.accent,
+                  }}
+                >
+                  {card.scoreLabel}
+                </span>
               ) : null}
             </div>
 
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="truncate text-[13px] font-semibold tracking-[0.01em] text-white/92">{card.company}</div>
-                  <div className="mt-1 line-clamp-2 text-[13px] font-medium leading-snug text-white/78">
-                    {card.title}
-                  </div>
-                </div>
-                {card.scoreLabel ? (
-                  <span
-                    className="shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold"
-                    style={{
-                      borderColor: visual.tint,
-                      backgroundColor: visual.tint,
-                      color: visual.accent,
-                    }}
-                  >
-                    {card.scoreLabel}
-                  </span>
-                ) : null}
-              </div>
-
-              <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-white/56">
-                <span className="truncate pr-2">{card.location || 'Location pending'}</span>
-                <span className={cn('shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium', urgencyClasses(urgency.tone))}>
-                  {urgency.label}
-                </span>
-              </div>
+            <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-white/56">
+              <span className="truncate pr-2">{card.location || 'Location pending'}</span>
+              <span className={cn('shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium', urgencyClasses(urgency.tone))}>
+                {urgency.label}
+              </span>
             </div>
           </div>
         </div>

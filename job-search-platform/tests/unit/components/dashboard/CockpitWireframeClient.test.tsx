@@ -410,7 +410,7 @@ describe('CockpitWireframeClient workspace panel', () => {
   });
 
   it('keeps NEW in a fixed-height scroll lane instead of growing the board', () => {
-    render(
+    const { container } = render(
       <CockpitWireframeClient
         userName="Richard Ruiz"
         panelRecords={[]}
@@ -494,5 +494,6 @@ describe('CockpitWireframeClient workspace panel', () => {
     expect(screen.getByText('Senior Sales Engineer')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /load more/i })).not.toBeInTheDocument();
     expect(screen.getByText(/Grab to browse all 5 matches/i)).toBeInTheDocument();
+    expect(container.querySelector('.h-10.w-10.shrink-0')).toBeNull();
   });
 });
