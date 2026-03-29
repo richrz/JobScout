@@ -2677,7 +2677,7 @@ export default function CockpitWireframeClient({
   viewModel,
   panelRecords,
   initialSelectedCardId = null,
-  initialNewVisibleCount = 12,
+  initialNewVisibleCount = 4,
 }: {
   userName: string;
   viewModel: CockpitPhaseOneViewModel;
