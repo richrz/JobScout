@@ -34,6 +34,7 @@ Rules:
 
 ## Later
 
+- [ ] Add an "AI Smell Test" validation indicator into the Cockpit CRAFTING Stage to parse drafts for obvious AI tells (em-dash abuse, banned words like 'delve' or 'tapestry') and warn the user.
 - [ ] Build the resume voice profiler so uploads can infer 7 understandable writing sliders with `Resume Writer Zero` as the fallback.
 - [ ] Support optional workspace hard-links for imported reference resumes after the global import flow is trustworthy.
 - [ ] Add a resume preview -> confirm flow so tailored drafts are explicitly reviewed before they become the accepted version.

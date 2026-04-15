@@ -9,6 +9,7 @@
 
 ## Latest Product Checkpoint
 
+- `pending local checkpoint` — Add "Anti-AI-Slop" rules to `Resume Writer Zero` baseline prompt to enforce story-first writing, remove AI structural tells (like em-dash abuse, rule of three), and ban words like 'delve' and 'leverage'. Also added "AI Smell Test" validation idea to backlog.
 - `754ef0f` — cockpit discovery now treats `NEW` as the personalized KC match pool for this user’s background (fit-first, then freshness), removes the 50-card dashboard cap, keeps the kanban readable with a fixed four-card-tall grab-to-scroll lane so the workspace stays in view, improves kanban card readability, and aligns analytics / drawer stage mappings with the current lifecycle (`SCREENING`, `INTERVIEW`, `OFFER`)
 - `8bdaa2c` — simplified cockpit kanban cards by removing the decorative left-side company badge / pulse icon so each card spends its width on company, role, fit, location, and urgency only
 - `3ccafdb` — `NEW` now blooms into a wider hover/focus preview tray above the neighboring lanes, revealing richer card summaries and fit context so users can compare several jobs at once without clicking through one by one or moving the workspace
